@@ -15,8 +15,6 @@ pub struct Profile {
 pub struct CreateProfileInput {
     pub name: String,
     pub class: String,
-    pub level: i32,
-    pub difficulty: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

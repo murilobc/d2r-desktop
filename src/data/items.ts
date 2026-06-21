@@ -106,6 +106,8 @@ const UNIQUE_WEAPONS: GameItem[] = [
   "The Oculus", "Eschuta's Temper", "Death's Fathom",
   // RotW Warlock Unique Weapons
   "Dreadfang", "Bloodpact Shard",
+  // Additional Classic Uniques
+  "Horizon's Tornado", "Astreon's Iron Ward",
 ].map(name => ({ name, category: "Unique", subcategory: "Weapon" }));
 
 // ===== UNIQUE ARMOR =====
@@ -256,6 +258,11 @@ const SET_ITEMS: GameItem[] = [
   // Trang-Oul's Avatar
   "Trang-Oul's Guise", "Trang-Oul's Scales", "Trang-Oul's Wing",
   "Trang-Oul's Claws", "Trang-Oul's Girth",
+  // Bane's Garments (Warlock Low-Level Set - RotW)
+  "Bane's Edge", "Bane's Wraithskin", "Bane's Authority",
+  // Horazon's Splendor (Warlock Elite Set - RotW)
+  "Horazon's Countenance", "Horazon's Dominion", "Horazon's Hold",
+  "Horazon's Legacy", "Horazon's Secrets",
 ].map(name => ({ name, category: "Set", subcategory: "Set Item" }));
 
 // ===== NOTABLE BASE ITEMS (Normal, Superior, Ethereal) =====

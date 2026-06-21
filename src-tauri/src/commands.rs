@@ -11,18 +11,20 @@ pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Resul
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
+    let level = 1;
+    let difficulty = "Hell".to_string();
 
     conn.execute(
         "INSERT INTO profiles (id, name, class, level, difficulty, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        rusqlite::params![id, input.name, input.class, input.level, input.difficulty, now, now],
+        rusqlite::params![id, input.name, input.class, level, difficulty, now, now],
     ).map_err(|e| e.to_string())?;
 
     Ok(Profile {
         id,
         name: input.name,
         class: input.class,
-        level: input.level,
-        difficulty: input.difficulty,
+        level,
+        difficulty,
         created_at: now.clone(),
         updated_at: now,
     })

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Profile, CreateProfileInput } from "../types";
-import { D2R_CLASSES, DIFFICULTIES } from "../types";
+import { D2R_CLASSES } from "../types";
 import { createProfile, getProfiles, deleteProfile } from "../api";
 
 interface Props {
@@ -13,8 +13,6 @@ export default function Profiles({ onSelectProfile }: Props) {
   const [form, setForm] = useState<CreateProfileInput>({
     name: "",
     class: D2R_CLASSES[0],
-    level: 1,
-    difficulty: DIFFICULTIES[0],
   });
 
   const loadProfiles = async () => {
@@ -29,7 +27,7 @@ export default function Profiles({ onSelectProfile }: Props) {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     await createProfile(form);
-    setForm({ name: "", class: D2R_CLASSES[0], level: 1, difficulty: DIFFICULTIES[0] });
+    setForm({ name: "", class: D2R_CLASSES[0] });
     setShowForm(false);
     loadProfiles();
   };
@@ -52,40 +50,22 @@ export default function Profiles({ onSelectProfile }: Props) {
 
       {showForm && (
         <form className="form-card" onSubmit={handleCreate}>
-          <div className="form-group">
-            <label>Nome</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-              placeholder="Nome do personagem"
-            />
-          </div>
           <div className="form-row">
+            <div className="form-group" style={{ flex: 2 }}>
+              <label>Nome</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+                placeholder="Nome do personagem"
+              />
+            </div>
             <div className="form-group">
               <label>Classe</label>
               <select value={form.class} onChange={(e) => setForm({ ...form, class: e.target.value })}>
                 {D2R_CLASSES.map((c) => (
                   <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Level</label>
-              <input
-                type="number"
-                min={1}
-                max={99}
-                value={form.level}
-                onChange={(e) => setForm({ ...form, level: parseInt(e.target.value) || 1 })}
-              />
-            </div>
-            <div className="form-group">
-              <label>Dificuldade</label>
-              <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
-                {DIFFICULTIES.map((d) => (
-                  <option key={d} value={d}>{d}</option>
                 ))}
               </select>
             </div>
@@ -100,9 +80,6 @@ export default function Profiles({ onSelectProfile }: Props) {
             <div className="profile-card-header">
               <h3>{profile.name}</h3>
               <span className="badge">{profile.class}</span>
-            </div>
-            <div className="profile-card-body">
-              <p>Level {profile.level} • {profile.difficulty}</p>
             </div>
             <div className="profile-card-actions">
               <button className="btn btn-sm" onClick={() => onSelectProfile(profile)}>

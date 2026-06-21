@@ -11,8 +11,6 @@ export interface Profile {
 export interface CreateProfileInput {
   name: string;
   class: string;
-  level: number;
-  difficulty: string;
 }
 
 export interface UpdateProfileInput {
@@ -130,6 +128,7 @@ export const AREAS = [
   "Arcane Sanctuary",
   "Baal",
   "Chaos Sanctuary",
+  "Colossal Ancients",
   "Council",
   "Countess",
   "Cow Level",
@@ -143,6 +142,7 @@ export const AREAS = [
   "Pit",
   "Stony Tomb",
   "Summoner",
+  "Terror Zone",
   "Travincal",
   "Tristram",
   "Uber Tristram",

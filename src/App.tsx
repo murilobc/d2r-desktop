@@ -1,50 +1,92 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
+import type { Profile } from "./types";
+import Profiles from "./pages/Profiles";
+import RunTracker from "./pages/RunTracker";
+import History from "./pages/History";
+import Statistics from "./pages/Statistics";
 import "./App.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+type Page = "profiles" | "tracker" | "history" | "stats";
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+function App() {
+  const [currentPage, setCurrentPage] = useState<Page>("profiles");
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+
+  const handleSelectProfile = (profile: Profile) => {
+    setSelectedProfile(profile);
+    setCurrentPage("tracker");
+  };
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case "profiles":
+        return <Profiles onSelectProfile={handleSelectProfile} />;
+      case "tracker":
+        return selectedProfile ? <RunTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "history":
+        return selectedProfile ? <History profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "stats":
+        return selectedProfile ? <Statistics profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+    }
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    <div className="app">
+      <nav className="sidebar">
+        <div className="sidebar-header">
+          <h2>D2R Tracker</h2>
+        </div>
+        <ul className="nav-links">
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "profiles" ? "active" : ""}`}
+              onClick={() => setCurrentPage("profiles")}
+            >
+              👤 Perfis
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "tracker" ? "active" : ""}`}
+              onClick={() => setCurrentPage("tracker")}
+              disabled={!selectedProfile}
+            >
+              🎮 Run Tracker
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "history" ? "active" : ""}`}
+              onClick={() => setCurrentPage("history")}
+              disabled={!selectedProfile}
+            >
+              📜 Histórico
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "stats" ? "active" : ""}`}
+              onClick={() => setCurrentPage("stats")}
+              disabled={!selectedProfile}
+            >
+              📊 Estatísticas
+            </button>
+          </li>
+        </ul>
+        {selectedProfile && (
+          <div className="sidebar-footer">
+            <div className="current-profile">
+              <small>Perfil ativo:</small>
+              <strong>{selectedProfile.name}</strong>
+              <span>{selectedProfile.class} Lv{selectedProfile.level}</span>
+            </div>
+          </div>
+        )}
+      </nav>
+      <main className="main-content">
+        {renderPage()}
+      </main>
+    </div>
   );
 }
 

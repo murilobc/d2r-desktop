@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "d2r-desktop",
-        "width": 800,
-        "height": 600
+        "title": "D2R Tracker",
+        "width": 1100,
+        "height": 700,
+        "minWidth": 900,
+        "minHeight": 600
       }
     ],
     "security": {

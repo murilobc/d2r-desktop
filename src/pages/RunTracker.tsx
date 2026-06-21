@@ -1,8 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import type { Profile, Run, CreateItemInput } from "../types";
-import { AREAS, ITEM_TYPES, RARITIES } from "../types";
+import type { Profile, Run } from "../types";
+import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from "../api";
 import type { Item } from "../types";
+import type { GameItem } from "../data/items";
+import ItemSearch from "../components/ItemSearch";
 
 interface Props {
   profile: Profile;
@@ -16,11 +18,7 @@ export default function RunTracker({ profile }: Props) {
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<Item[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
-  const [itemForm, setItemForm] = useState<Omit<CreateItemInput, "run_id" | "profile_id">>({
-    name: "",
-    item_type: ITEM_TYPES[0],
-    rarity: RARITIES[0],
-  });
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadRuns = async () => {
@@ -76,19 +74,16 @@ export default function RunTracker({ profile }: Props) {
     loadRuns();
   };
 
-  const addItem = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const addItem = async (gameItem: GameItem) => {
     if (!activeRun) return;
     await createItem({
       run_id: activeRun.id,
       profile_id: profile.id,
-      name: itemForm.name,
-      item_type: itemForm.item_type,
-      rarity: itemForm.rarity,
-      notes: itemForm.notes,
+      name: gameItem.name,
+      item_type: gameItem.subcategory,
+      rarity: gameItem.category,
+      notes: undefined,
     });
-    setItemForm({ name: "", item_type: ITEM_TYPES[0], rarity: RARITIES[0] });
-    setShowItemForm(false);
     loadItems(activeRun.id);
   };
 
@@ -148,37 +143,17 @@ export default function RunTracker({ profile }: Props) {
             <div className="run-items-header">
               <h3>Itens Encontrados ({items.length})</h3>
               <button className="btn btn-sm" onClick={() => setShowItemForm(!showItemForm)}>
-                + Item
+                {showItemForm ? "Fechar" : "+ Item"}
               </button>
             </div>
 
             {showItemForm && (
-              <form className="item-form" onSubmit={addItem}>
-                <input
-                  type="text"
-                  placeholder="Nome do item"
-                  value={itemForm.name}
-                  onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                  required
+              <div className="item-form">
+                <ItemSearch
+                  onSelect={addItem}
+                  placeholder="Buscar item do D2R..."
                 />
-                <select
-                  value={itemForm.item_type}
-                  onChange={(e) => setItemForm({ ...itemForm, item_type: e.target.value })}
-                >
-                  {ITEM_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-                <select
-                  value={itemForm.rarity}
-                  onChange={(e) => setItemForm({ ...itemForm, rarity: e.target.value })}
-                >
-                  {RARITIES.map((r) => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-                <button type="submit" className="btn btn-sm btn-primary">Adicionar</button>
-              </form>
+              </div>
             )}
 
             <div className="items-list">

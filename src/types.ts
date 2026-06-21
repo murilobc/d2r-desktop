@@ -92,6 +92,7 @@ export const D2R_CLASSES = [
   "Paladin",
   "Druid",
   "Assassin",
+  "Warlock",
 ];
 
 export const DIFFICULTIES = ["Normal", "Nightmare", "Hell"];

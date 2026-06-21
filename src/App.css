@@ -564,3 +564,91 @@ body {
   background: var(--border);
   border-radius: 4px;
 }
+
+
+/* Item Search Combobox */
+.item-search {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.item-search-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.item-search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.item-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.item-search-category {
+  padding: 0.5rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.8rem;
+  min-width: 100px;
+}
+
+.item-search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.item-search-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.1s;
+}
+
+.item-search-option:hover,
+.item-search-option.highlighted {
+  background: rgba(233, 69, 96, 0.15);
+}
+
+.item-search-name {
+  font-weight: 500;
+}
+
+.item-search-tag {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+
+.item-search-empty,
+.item-search-more {
+  padding: 0.6rem 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  font-style: italic;
+}

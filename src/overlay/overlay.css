@@ -81,6 +81,11 @@ body {
   50% { opacity: 0.3; }
 }
 
+.overlay-session-label {
+  color: #666;
+  font-size: 10px;
+}
+
 .overlay-session-time {
   color: #aaa;
   font-family: monospace;
@@ -94,14 +99,15 @@ body {
   margin-right: 4px;
 }
 
-.overlay-timer {
+.overlay-run-timer {
   text-align: center;
-  font-size: 32px;
+  font-size: 38px;
   font-weight: bold;
   font-family: monospace;
   color: #fff;
-  margin: 4px 0;
+  margin: 6px 0;
   letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.3);
 }
 
 .overlay-stats {

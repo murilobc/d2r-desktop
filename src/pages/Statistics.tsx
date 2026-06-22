@@ -120,7 +120,10 @@ export default function Statistics({ profile }: Props) {
   }, [stats]);
 
   const exportPDF = () => {
-    if (!filteredStats) return;
+    if (!filteredStats || filteredStats.totalRuns === 0) {
+      alert("Sem dados para exportar. Complete algumas runs primeiro.");
+      return;
+    }
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -168,9 +171,13 @@ export default function Statistics({ profile }: Props) {
       margin: { left: 14 },
     });
 
+    // Helper to get last table Y position
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getLastY = () => (doc as any).lastAutoTable?.finalY ?? doc.internal.pageSize.getHeight() - 50;
+
     // Items by rarity
     if (filteredStats.rarityData.length > 0) {
-      const rarityY = (doc as unknown as Record<string, Record<string, number>>).lastAutoTable?.finalY ?? 100;
+      const rarityY = getLastY();
       doc.setFontSize(12);
       doc.text("Itens por Raridade", 14, rarityY + 10);
 
@@ -191,7 +198,7 @@ export default function Statistics({ profile }: Props) {
 
     // Top items
     if (filteredStats.topItems.length > 0) {
-      const topY = (doc as unknown as Record<string, Record<string, number>>).lastAutoTable?.finalY ?? 150;
+      const topY = getLastY();
       doc.setFontSize(12);
       doc.text("Top Itens Mais Encontrados", 14, topY + 10);
 

@@ -35,6 +35,9 @@ export const finishRun = (id: string, input: FinishRunInput) =>
 
 export const deleteRun = (id: string) => invoke<void>("delete_run", { id });
 
+export const updateRunArea = (id: string, area: string) =>
+  invoke<void>("update_run_area", { id, area });
+
 // Items
 export const createItem = (input: CreateItemInput) =>
   invoke<Item>("create_item", { input });

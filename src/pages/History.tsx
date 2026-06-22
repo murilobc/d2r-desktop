@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Profile, Run, Item } from "../types";
-import { getRuns, getItems, deleteRun } from "../api";
+import { AREAS } from "../types";
+import { getRuns, getItems, deleteRun, deleteItem, createItem, updateRunArea } from "../api";
+import type { GameItem } from "../data/items";
+import ItemSearch from "../components/ItemSearch";
 
 interface Props {
   profile: Profile;
@@ -10,6 +13,8 @@ export default function History({ profile }: Props) {
   const [runs, setRuns] = useState<Run[]>([]);
   const [expandedRun, setExpandedRun] = useState<string | null>(null);
   const [runItems, setRunItems] = useState<Record<string, Item[]>>({});
+  const [showItemSearch, setShowItemSearch] = useState<string | null>(null);
+  const [editingArea, setEditingArea] = useState<string | null>(null);
 
   const loadRuns = async () => {
     const data = await getRuns(profile.id);
@@ -23,13 +28,15 @@ export default function History({ profile }: Props) {
   const toggleExpand = async (runId: string) => {
     if (expandedRun === runId) {
       setExpandedRun(null);
+      setShowItemSearch(null);
+      setEditingArea(null);
       return;
     }
     setExpandedRun(runId);
-    if (!runItems[runId]) {
-      const items = await getItems(runId);
-      setRunItems((prev) => ({ ...prev, [runId]: items }));
-    }
+    setShowItemSearch(null);
+    setEditingArea(null);
+    const items = await getItems(runId);
+    setRunItems((prev) => ({ ...prev, [runId]: items }));
   };
 
   const handleDeleteRun = async (id: string) => {
@@ -37,6 +44,32 @@ export default function History({ profile }: Props) {
       await deleteRun(id);
       loadRuns();
     }
+  };
+
+  const handleDeleteItem = async (itemId: string, runId: string) => {
+    await deleteItem(itemId);
+    const items = await getItems(runId);
+    setRunItems((prev) => ({ ...prev, [runId]: items }));
+  };
+
+  const handleAddItem = async (gameItem: GameItem, runId: string) => {
+    await createItem({
+      run_id: runId,
+      profile_id: profile.id,
+      name: gameItem.name,
+      item_type: gameItem.subcategory,
+      rarity: gameItem.category,
+    });
+    const items = await getItems(runId);
+    setRunItems((prev) => ({ ...prev, [runId]: items }));
+  };
+
+  const handleChangeArea = async (runId: string, newArea: string) => {
+    await updateRunArea(runId, newArea);
+    setRuns((prev) =>
+      prev.map((r) => (r.id === runId ? { ...r, area: newArea } : r))
+    );
+    setEditingArea(null);
   };
 
   const formatTime = (secs: number) => {
@@ -80,20 +113,69 @@ export default function History({ profile }: Props) {
 
               {expandedRun === run.id && (
                 <div className="history-item-details">
+                  {/* Area edit */}
+                  <div className="history-edit-row">
+                    <span className="edit-label">Área:</span>
+                    {editingArea === run.id ? (
+                      <select
+                        value={run.area}
+                        onChange={(e) => handleChangeArea(run.id, e.target.value)}
+                        autoFocus
+                        onBlur={() => setEditingArea(null)}
+                      >
+                        {AREAS.map((a) => (
+                          <option key={a} value={a}>{a}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span
+                        className="editable-value"
+                        onClick={() => setEditingArea(run.id)}
+                        title="Clique para alterar"
+                      >
+                        {run.area} ✎
+                      </span>
+                    )}
+                  </div>
+
                   {run.notes && <p className="run-notes">Notas: {run.notes}</p>}
-                  {runItems[run.id] && runItems[run.id].length > 0 ? (
-                    <div className="items-list">
-                      {runItems[run.id].map((item) => (
-                        <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
-                          <span className="item-name">{item.name}</span>
-                          <span className="item-type">{item.item_type}</span>
-                          <span className="item-rarity">{item.rarity}</span>
-                        </div>
-                      ))}
+
+                  {/* Items */}
+                  <div className="history-items-section">
+                    <div className="run-items-header">
+                      <h4>Itens ({runItems[run.id]?.length || 0})</h4>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => setShowItemSearch(showItemSearch === run.id ? null : run.id)}
+                      >
+                        {showItemSearch === run.id ? "Fechar" : "+ Adicionar Item"}
+                      </button>
                     </div>
-                  ) : (
-                    <p className="empty-state-sm">Nenhum item encontrado nesta run.</p>
-                  )}
+
+                    {showItemSearch === run.id && (
+                      <div className="item-form">
+                        <ItemSearch
+                          onSelect={(item) => handleAddItem(item, run.id)}
+                          placeholder="Buscar item do D2R..."
+                        />
+                      </div>
+                    )}
+
+                    {runItems[run.id] && runItems[run.id].length > 0 ? (
+                      <div className="items-list">
+                        {runItems[run.id].map((item) => (
+                          <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
+                            <span className="item-name">{item.name}</span>
+                            <span className="item-type">{item.item_type}</span>
+                            <span className="item-rarity">{item.rarity}</span>
+                            <button className="btn-icon" onClick={() => handleDeleteItem(item.id, run.id)}>✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="empty-state-sm">Nenhum item nesta run.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

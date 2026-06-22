@@ -788,3 +788,49 @@ body {
   text-align: center;
   font-style: italic;
 }
+
+
+/* History edit */
+.history-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.edit-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.editable-value {
+  color: var(--text);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.editable-value:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent);
+}
+
+.history-edit-row select {
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.history-items-section {
+  margin-top: 0.5rem;
+}
+
+.history-items-section h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+}

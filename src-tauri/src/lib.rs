@@ -28,6 +28,7 @@ pub fn run() {
             commands::create_run,
             commands::get_runs,
             commands::finish_run,
+            commands::update_run_area,
             commands::delete_run,
             commands::create_item,
             commands::get_items,

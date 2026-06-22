@@ -191,6 +191,16 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
 }
 
 #[tauri::command]
+pub fn update_run_area(state: State<DbState>, id: String, area: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute(
+        "UPDATE runs SET area = ?1 WHERE id = ?2",
+        rusqlite::params![area, id],
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn delete_run(state: State<DbState>, id: String) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM items WHERE run_id = ?1", rusqlite::params![id])

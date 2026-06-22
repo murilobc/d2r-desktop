@@ -93,6 +93,16 @@ export default function History({ profile }: Props) {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
+  // Compute run number per area (chronological order)
+  const runNumbers: Record<string, number> = {};
+  const areaCounters: Record<string, number> = {};
+  // runs are DESC, so reverse to count chronologically
+  const runsAsc = [...runs].reverse();
+  for (const run of runsAsc) {
+    areaCounters[run.area] = (areaCounters[run.area] || 0) + 1;
+    runNumbers[run.id] = areaCounters[run.area];
+  }
+
   return (
     <div className="page">
       <div className="page-header">
@@ -108,7 +118,7 @@ export default function History({ profile }: Props) {
             <div key={run.id} className="history-item">
               <div className="history-item-header" onClick={() => toggleExpand(run.id)}>
                 <div className="history-item-info">
-                  <span className="history-area">{run.area}</span>
+                  <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
                   <span className="history-time">{formatTime(run.duration_secs)}</span>
                   <span className="history-date">
                     {new Date(run.started_at).toLocaleDateString("pt-BR")} {new Date(run.started_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}

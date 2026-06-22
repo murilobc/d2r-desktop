@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import Overlay from "./Overlay";
+import "../App.css";
 
 ReactDOM.createRoot(document.getElementById("overlay-root") as HTMLElement).render(
   <React.StrictMode>

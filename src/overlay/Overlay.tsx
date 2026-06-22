@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
+import ItemSearch from "../components/ItemSearch";
+import type { GameItem } from "../data/items";
 import "./overlay.css";
 
 interface OverlayState {
@@ -25,7 +27,6 @@ export default function Overlay() {
     area: "",
   });
   const [showItemSearch, setShowItemSearch] = useState(false);
-  const [itemQuery, setItemQuery] = useState("");
 
   // Listen for state updates from main window
   useEffect(() => {
@@ -48,16 +49,13 @@ export default function Overlay() {
     await invoke("overlay_action", { action });
   };
 
-  const handleAddItem = async () => {
-    if (itemQuery.trim()) {
-      await invoke("overlay_add_item", { name: itemQuery.trim() });
-      setItemQuery("");
-      setShowItemSearch(false);
-    }
+  const handleAddItem = async (gameItem: GameItem) => {
+    await invoke("overlay_add_item", { name: gameItem.name });
+    setShowItemSearch(false);
   };
 
   const startDrag = async (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest(".overlay-controls")) return;
+    if ((e.target as HTMLElement).closest(".overlay-controls") || (e.target as HTMLElement).closest(".overlay-item-search")) return;
     await getCurrentWindow().startDragging();
   };
 
@@ -105,14 +103,10 @@ export default function Overlay() {
       </div>
 
       {showItemSearch && (
-        <div className="overlay-item-input">
-          <input
-            type="text"
-            value={itemQuery}
-            onChange={(e) => setItemQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddItem()}
-            placeholder="Item name..."
-            autoFocus
+        <div className="overlay-item-search">
+          <ItemSearch
+            onSelect={handleAddItem}
+            placeholder="Search D2R item..."
           />
         </div>
       )}

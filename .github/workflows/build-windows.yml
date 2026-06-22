@@ -15,6 +15,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get version from tag
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version in package.json
+        shell: bash
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.version.outputs.version }}\"/" package.json
+
+      - name: Update version in tauri.conf.json
+        shell: bash
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.version.outputs.version }}\"/" src-tauri/tauri.conf.json
+
+      - name: Update version in Cargo.toml
+        shell: bash
+        run: |
+          sed -i "0,/^version = \".*\"/s//version = \"${{ steps.version.outputs.version }}\"/" src-tauri/Cargo.toml
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

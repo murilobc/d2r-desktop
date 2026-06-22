@@ -81,6 +81,11 @@ export interface AreaCount {
   count: number;
 }
 
+export interface DetailedRun {
+  run: Run;
+  items: Item[];
+}
+
 export const D2R_CLASSES = [
   "Amazon",
   "Necromancer",

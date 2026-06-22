@@ -93,3 +93,10 @@ pub struct AreaCount {
     pub area: String,
     pub count: i64,
 }
+
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DetailedRun {
+    pub run: Run,
+    pub items: Vec<Item>,
+}

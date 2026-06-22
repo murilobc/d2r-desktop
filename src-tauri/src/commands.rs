@@ -379,3 +379,80 @@ pub fn get_stats(state: State<DbState>, profile_id: String) -> Result<Stats, Str
         runs_by_area,
     })
 }
+
+#[tauri::command]
+pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter: Option<String>) -> Result<Vec<DetailedRun>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let runs: Vec<Run> = if let Some(ref area) = area_filter {
+        let mut stmt = conn
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
+            .map_err(|e| e.to_string())?;
+        let result = stmt.query_map(rusqlite::params![profile_id, area], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+        result
+    } else {
+        let mut stmt = conn
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
+            .map_err(|e| e.to_string())?;
+        let result = stmt.query_map(rusqlite::params![profile_id], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+        result
+    };
+
+    let mut detailed_runs = Vec::new();
+    for run in runs {
+        let mut stmt = conn
+            .prepare("SELECT id, run_id, profile_id, name, item_type, rarity, found_at, notes FROM items WHERE run_id = ?1 ORDER BY found_at ASC")
+            .map_err(|e| e.to_string())?;
+        let items = stmt
+            .query_map(rusqlite::params![run.id], |row| {
+                Ok(Item {
+                    id: row.get(0)?,
+                    run_id: row.get(1)?,
+                    profile_id: row.get(2)?,
+                    name: row.get(3)?,
+                    item_type: row.get(4)?,
+                    rarity: row.get(5)?,
+                    found_at: row.get(6)?,
+                    notes: row.get(7)?,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?;
+
+        detailed_runs.push(DetailedRun {
+            run,
+            items,
+        });
+    }
+
+    Ok(detailed_runs)
+}

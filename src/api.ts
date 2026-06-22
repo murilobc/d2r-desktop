@@ -9,6 +9,7 @@ import type {
   Item,
   CreateItemInput,
   Stats,
+  DetailedRun,
 } from "./types";
 
 // Profiles
@@ -53,3 +54,6 @@ export const deleteItem = (id: string) => invoke<void>("delete_item", { id });
 // Stats
 export const getStats = (profileId: string) =>
   invoke<Stats>("get_stats", { profileId });
+
+export const getDetailedRuns = (profileId: string, areaFilter?: string) =>
+  invoke<DetailedRun[]>("get_detailed_runs", { profileId, areaFilter: areaFilter || null });

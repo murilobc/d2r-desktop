@@ -17,6 +17,21 @@
         "height": 700,
         "minWidth": 900,
         "minHeight": 600
+      },
+      {
+        "label": "overlay",
+        "title": "D2R Overlay",
+        "url": "/overlay.html",
+        "width": 320,
+        "height": 220,
+        "x": 20,
+        "y": 20,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false
       }
     ],
     "security": {

@@ -8,6 +8,7 @@ import Statistics from "./pages/Statistics";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import UpdateChecker from "./components/UpdateChecker";
 import "./App.css";
 
@@ -21,6 +22,19 @@ function App() {
   const handleSelectProfile = (profile: Profile) => {
     setSelectedProfile(profile);
     setCurrentPage("tracker");
+  };
+
+  const toggleOverlay = async () => {
+    const overlay = await WebviewWindow.getByLabel("overlay");
+    if (overlay) {
+      const visible = await overlay.isVisible();
+      if (visible) {
+        await overlay.hide();
+      } else {
+        await overlay.show();
+        await overlay.setFocus();
+      }
+    }
   };
 
   const handleExport = async () => {
@@ -131,6 +145,9 @@ function App() {
           </li>
         </ul>
         <div className="sidebar-data-actions">
+          <button className="nav-btn" onClick={toggleOverlay}>
+            🖥️ Overlay
+          </button>
           <button className="nav-btn" onClick={handleExport}>
             💾 Export Data
           </button>

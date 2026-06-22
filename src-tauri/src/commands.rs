@@ -1,7 +1,7 @@
 use crate::db::DbState;
 use crate::models::*;
 use chrono::Utc;
-use tauri::State;
+use tauri::{Emitter, State};
 use uuid::Uuid;
 
 // ===== PROFILES =====
@@ -653,4 +653,19 @@ pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResu
         items_imported,
         skipped,
     })
+}
+
+// ===== OVERLAY =====
+
+#[tauri::command]
+pub fn overlay_action(app_handle: tauri::AppHandle, action: String) -> Result<(), String> {
+    // Emit event to main window so it can handle the action
+    app_handle.emit("overlay-action", action).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn overlay_add_item(app_handle: tauri::AppHandle, name: String) -> Result<(), String> {
+    app_handle.emit("overlay-add-item", name).map_err(|e| e.to_string())?;
+    Ok(())
 }

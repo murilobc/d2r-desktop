@@ -46,6 +46,8 @@ pub fn run() {
             commands::get_detailed_runs,
             commands::export_data,
             commands::import_data,
+            commands::overlay_action,
+            commands::overlay_add_item,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

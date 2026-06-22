@@ -8,6 +8,7 @@ import Statistics from "./pages/Statistics";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
+import UpdateChecker from "./components/UpdateChecker";
 import "./App.css";
 
 type Page = "profiles" | "tracker" | "history" | "stats";
@@ -87,6 +88,7 @@ function App() {
 
   return (
     <div className="app">
+      <UpdateChecker />
       <nav className="sidebar">
         <div className="sidebar-header">
           <h2>D2R Tracker</h2>

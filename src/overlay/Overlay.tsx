@@ -91,12 +91,13 @@ export default function Overlay() {
     <div className="overlay-container" onMouseDown={startDrag}>
       <div className="overlay-header">
         <span className={`rec-dot ${state.paused ? "paused" : ""}`}>●</span>
+        <span className="overlay-session-label">Session:</span>
         <span className="overlay-session-time">{formatTime(state.sessionElapsed)}</span>
         <span className="overlay-area">{state.area}</span>
         <button className="overlay-close" onClick={() => getCurrentWindow().hide()}>×</button>
       </div>
 
-      <div className="overlay-timer">{formatTime(state.runElapsed)}</div>
+      <div className="overlay-run-timer">{formatTime(state.runElapsed)}</div>
 
       <div className="overlay-stats">
         Run: {state.sessionRunCount} ({state.totalRunCount})

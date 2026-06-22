@@ -8,6 +8,14 @@ use uuid::Uuid;
 
 #[tauri::command]
 pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Result<Profile, String> {
+    // Input validation
+    if input.name.trim().is_empty() {
+        return Err("Profile name cannot be empty".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Profile name is too long (max 100 characters)".to_string());
+    }
+
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
@@ -214,6 +222,14 @@ pub fn delete_run(state: State<DbState>, id: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn create_item(state: State<DbState>, input: CreateItemInput) -> Result<Item, String> {
+    // Input validation
+    if input.name.trim().is_empty() {
+        return Err("Item name cannot be empty".to_string());
+    }
+    if input.name.len() > 200 {
+        return Err("Item name is too long (max 200 characters)".to_string());
+    }
+
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
@@ -536,6 +552,29 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
 #[tauri::command]
 pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResult, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Validate input data
+    for profile in &data.profiles {
+        if profile.id.is_empty() || profile.name.is_empty() || profile.class.is_empty() {
+            return Err("Invalid profile data: id, name, and class are required".to_string());
+        }
+        if profile.name.len() > 100 || profile.class.len() > 50 {
+            return Err("Invalid profile data: field length exceeds maximum".to_string());
+        }
+    }
+    for run in &data.runs {
+        if run.id.is_empty() || run.profile_id.is_empty() || run.area.is_empty() {
+            return Err("Invalid run data: id, profile_id, and area are required".to_string());
+        }
+    }
+    for item in &data.items {
+        if item.id.is_empty() || item.run_id.is_empty() || item.profile_id.is_empty() || item.name.is_empty() {
+            return Err("Invalid item data: id, run_id, profile_id, and name are required".to_string());
+        }
+        if item.name.len() > 200 {
+            return Err("Invalid item data: name length exceeds maximum".to_string());
+        }
+    }
 
     let mut profiles_imported = 0i64;
     let mut runs_imported = 0i64;

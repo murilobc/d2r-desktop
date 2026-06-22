@@ -18,8 +18,12 @@ pub fn run() {
         .setup(|app| {
             let db_path = db::get_db_path(&app.handle());
             let conn = Connection::open(db_path).expect("failed to open database");
-            conn.execute_batch("PRAGMA foreign_keys = ON;")
-                .expect("failed to enable foreign keys");
+            conn.execute_batch(
+                "PRAGMA foreign_keys = ON;
+                 PRAGMA journal_mode = WAL;
+                 PRAGMA busy_timeout = 5000;
+                 PRAGMA secure_delete = ON;"
+            ).expect("failed to set database pragmas");
             init_db(&conn).expect("failed to initialize database");
             app.manage(DbState(Mutex::new(conn)));
             Ok(())

@@ -66,6 +66,7 @@ export default function ItemSearch({ onSelect, placeholder = "Search item..." }:
       case "Rune": return "#ff8c00";
       case "Charm": return "var(--magic)";
       case "Jewel": return "#ff69b4";
+      case "Rare/Magic": return "var(--rare)";
       case "Base": return "var(--text-muted)";
       default: return "var(--text)";
     }

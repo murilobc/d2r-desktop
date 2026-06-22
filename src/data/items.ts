@@ -356,6 +356,43 @@ const JEWELS: GameItem[] = [
   // RotW Colossal Ancient Unique Jewels (already in UNIQUE_JEWELS above)
 ].map(name => ({ name, category: "Jewel", subcategory: "Jewel" }));
 
+// ===== MAGIC & RARE ITEMS (Boots, Gloves, Amulets) =====
+const MAGIC_RARE_ITEMS: GameItem[] = [
+  // Magic Boots (valuable affixes)
+  "Magic Boots FRW/FHR/Res", "Magic Boots Tri-Res/FRW", "Magic Boots FRW/MF",
+  "Magic Boots FHR/Res/MF", "Magic Boots FRW/FHR/Dex",
+  // Rare Boots (GG combos)
+  "Rare Boots FRW/FHR/Tri-Res", "Rare Boots FRW/FHR/Dual Res/MF",
+  "Rare Boots FRW/FHR/Tri-Res/MF", "Rare Boots FRW/FHR/Str/Res",
+  "Rare Boots FRW/Tri-Res/Life", "Rare Boots FRW/Dual Res/MF/Gold",
+  // Magic Gloves (valuable affixes)
+  "Magic Gloves 2/20 Java", "Magic Gloves 2/20 Martial Arts",
+  "Magic Gloves 2/20 Bow", "Magic Gloves 2/20 Shadow",
+  "Magic Gloves 3/20 Java", "Magic Gloves 3/20 Bow",
+  "Magic Gloves IAS/Knockback", "Magic Gloves IAS/Crushing Blow",
+  // Rare Gloves (GG combos)
+  "Rare Gloves 2/20/Life/Res Java", "Rare Gloves 2/20/Life/Res Bow",
+  "Rare Gloves 2/20/Life/Res Martial Arts", "Rare Gloves IAS/Str/Dex/Res",
+  "Rare Gloves IAS/Life Leech/Res/CB", "Rare Gloves IAS/Dual Leech/Res",
+  "Rare Gloves 2/20/MF Java", "Rare Gloves 2/20/Str/Dex",
+  // Magic Amulets (valuable affixes)
+  "Magic Amulet +2 Sorc/FCR", "Magic Amulet +2 Paladin/FCR",
+  "Magic Amulet +2 Necro/FCR", "Magic Amulet +2 Druid/FCR",
+  "Magic Amulet +2 Assassin/FCR", "Magic Amulet +2 Amazon/FCR",
+  "Magic Amulet +2 Barbarian/FCR", "Magic Amulet +2 Warlock/FCR",
+  "Magic Amulet +3 Lightning/FCR", "Magic Amulet +3 Cold/FCR",
+  "Magic Amulet +3 Fire/FCR", "Magic Amulet +3 PnB/FCR",
+  "Magic Amulet +3 Traps/FCR", "Magic Amulet +3 Warcries/FCR",
+  "Magic Amulet +3 Elemental/FCR", "Magic Amulet +3 Shape Shifting/FCR",
+  // Rare Amulets (GG combos)
+  "Rare Amulet +2 Sorc/FCR/Res/Life", "Rare Amulet +2 Paladin/FCR/Res/Life",
+  "Rare Amulet +2 Necro/FCR/Res/Life", "Rare Amulet +2 Assassin/FCR/Res/Life",
+  "Rare Amulet +2 Amazon/FCR/Res/Life", "Rare Amulet +2 Druid/FCR/Res/Life",
+  "Rare Amulet +2 Barbarian/FCR/Res/Life", "Rare Amulet +2 Warlock/FCR/Res/Life",
+  "Rare Amulet +2 Skills/FCR/Str/Res", "Rare Amulet +2 Skills/FCR/All Res",
+  "Rare Amulet +2 Skills/FCR/MF/Res", "Rare Amulet +2 Skills/FCR/Life/Mana",
+].map(name => ({ name, category: "Rare/Magic", subcategory: "Crafted" }));
+
 // ===== COMBINE ALL =====
 export const ALL_ITEMS: GameItem[] = [
   ...RUNES,
@@ -369,6 +406,7 @@ export const ALL_ITEMS: GameItem[] = [
   ...BASE_ITEMS,
   ...CHARMS,
   ...JEWELS,
+  ...MAGIC_RARE_ITEMS,
 ];
 
 // Categories for filtering
@@ -381,4 +419,5 @@ export const ITEM_CATEGORIES = [
   "Base",
   "Charm",
   "Jewel",
+  "Rare/Magic",
 ];

@@ -11,32 +11,46 @@ interface Props {
 
 export default function History({ profile }: Props) {
   const [runs, setRuns] = useState<Run[]>([]);
-  const [expandedRun, setExpandedRun] = useState<string | null>(null);
+  const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set());
   const [runItems, setRunItems] = useState<Record<string, Item[]>>({});
   const [showItemSearch, setShowItemSearch] = useState<string | null>(null);
   const [editingArea, setEditingArea] = useState<string | null>(null);
 
   const loadRuns = async () => {
     const data = await getRuns(profile.id);
-    setRuns(data.filter((r) => r.status === "completed"));
+    const completed = data.filter((r) => r.status === "completed");
+    setRuns(completed);
+
+    // Load items for all runs and auto-expand those with items
+    const itemsMap: Record<string, Item[]> = {};
+    const toExpand = new Set<string>();
+    for (const run of completed) {
+      const items = await getItems(run.id);
+      itemsMap[run.id] = items;
+      if (items.length > 0) {
+        toExpand.add(run.id);
+      }
+    }
+    setRunItems(itemsMap);
+    setExpandedRuns(toExpand);
   };
 
   useEffect(() => {
     loadRuns();
   }, [profile.id]);
 
-  const toggleExpand = async (runId: string) => {
-    if (expandedRun === runId) {
-      setExpandedRun(null);
-      setShowItemSearch(null);
-      setEditingArea(null);
-      return;
-    }
-    setExpandedRun(runId);
+  const toggleExpand = (runId: string) => {
+    setExpandedRuns((prev) => {
+      const next = new Set(prev);
+      if (next.has(runId)) {
+        next.delete(runId);
+      } else {
+        next.add(runId);
+      }
+      return next;
+    });
     setShowItemSearch(null);
     setEditingArea(null);
-    const items = await getItems(runId);
-    setRunItems((prev) => ({ ...prev, [runId]: items }));
   };
 
   const handleDeleteRun = async (id: string) => {
@@ -107,11 +121,11 @@ export default function History({ profile }: Props) {
                   >
                     Deletar
                   </button>
-                  <span className="expand-icon">{expandedRun === run.id ? "▼" : "▶"}</span>
+                  <span className="expand-icon">{expandedRuns.has(run.id) ? "▼" : "▶"}</span>
                 </div>
               </div>
 
-              {expandedRun === run.id && (
+              {expandedRuns.has(run.id) && (
                 <div className="history-item-details">
                   {/* Area edit */}
                   <div className="history-edit-row">

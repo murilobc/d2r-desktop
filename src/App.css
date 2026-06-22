@@ -991,3 +991,82 @@ body {
   font-weight: bold;
   font-size: 0.85em;
 }
+
+
+/* Update Banner */
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #0f3460, #16213e);
+  border-bottom: 2px solid var(--accent);
+  padding: 0.75rem 1.5rem;
+  z-index: 1000;
+}
+
+.update-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.update-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.update-info strong {
+  color: var(--success);
+  font-size: 0.9rem;
+}
+
+.update-notes {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.update-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.update-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progress-bar {
+  width: 150px;
+  height: 8px;
+  background: var(--bg-dark);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--success);
+  transition: width 0.2s;
+  border-radius: 4px;
+}
+
+.progress-text {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-family: monospace;
+}
+
+.update-error {
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+}

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { Profile } from "./types";
 import type { ExportData } from "./types";
 import Profiles from "./pages/Profiles";
@@ -6,6 +6,8 @@ import RunTracker from "./pages/RunTracker";
 import History from "./pages/History";
 import Statistics from "./pages/Statistics";
 import { exportData, importData } from "./api";
+import { save, open } from "@tauri-apps/plugin-dialog";
+import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import "./App.css";
 
 type Page = "profiles" | "tracker" | "history" | "stats";
@@ -14,7 +16,6 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectProfile = (profile: Profile) => {
     setSelectedProfile(profile);
@@ -25,24 +26,31 @@ function App() {
     try {
       const data = await exportData();
       const json = JSON.stringify(data, null, 2);
-      const blob = new Blob([json], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `d2r_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+
+      const filePath = await save({
+        defaultPath: `d2r_backup_${new Date().toISOString().slice(0, 10)}.json`,
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+
+      if (filePath) {
+        await writeTextFile(filePath, json);
+        alert("Dados exportados com sucesso!");
+      }
     } catch (e) {
       alert("Erro ao exportar: " + e);
     }
   };
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleImport = async () => {
     try {
-      const text = await file.text();
+      const filePath = await open({
+        filters: [{ name: "JSON", extensions: ["json"] }],
+        multiple: false,
+      });
+
+      if (!filePath) return;
+
+      const text = await readTextFile(filePath as string);
       const data: ExportData = JSON.parse(text);
 
       if (!data.version || !data.profiles || !data.runs || !data.items) {
@@ -62,9 +70,6 @@ function App() {
     } catch (err) {
       alert("Erro ao importar: " + err);
     }
-
-    // Reset input
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const renderPage = () => {
@@ -127,16 +132,9 @@ function App() {
           <button className="nav-btn" onClick={handleExport}>
             💾 Exportar Dados
           </button>
-          <button className="nav-btn" onClick={() => fileInputRef.current?.click()}>
+          <button className="nav-btn" onClick={handleImport}>
             📂 Importar Dados
           </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImport}
-            style={{ display: "none" }}
-          />
           {importMsg && <div className="import-msg">{importMsg}</div>}
         </div>
         {selectedProfile && (

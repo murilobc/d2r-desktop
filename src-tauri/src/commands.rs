@@ -456,3 +456,162 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
 
     Ok(detailed_runs)
 }
+
+// ===== EXPORT / IMPORT =====
+
+#[tauri::command]
+pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Profiles
+    let mut stmt = conn
+        .prepare("SELECT id, name, class, mode, created_at, updated_at FROM profiles ORDER BY created_at ASC")
+        .map_err(|e| e.to_string())?;
+    let profiles = stmt
+        .query_map([], |row| {
+            Ok(Profile {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                class: row.get(2)?,
+                mode: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Runs
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs ORDER BY started_at ASC")
+        .map_err(|e| e.to_string())?;
+    let runs = stmt
+        .query_map([], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Items
+    let mut stmt = conn
+        .prepare("SELECT id, run_id, profile_id, name, item_type, rarity, found_at, notes FROM items ORDER BY found_at ASC")
+        .map_err(|e| e.to_string())?;
+    let items = stmt
+        .query_map([], |row| {
+            Ok(Item {
+                id: row.get(0)?,
+                run_id: row.get(1)?,
+                profile_id: row.get(2)?,
+                name: row.get(3)?,
+                item_type: row.get(4)?,
+                rarity: row.get(5)?,
+                found_at: row.get(6)?,
+                notes: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(ExportData {
+        version: "1.0".to_string(),
+        exported_at: Utc::now().to_rfc3339(),
+        profiles,
+        runs,
+        items,
+    })
+}
+
+#[tauri::command]
+pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResult, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let mut profiles_imported = 0i64;
+    let mut runs_imported = 0i64;
+    let mut items_imported = 0i64;
+    let mut skipped = 0i64;
+
+    // Import profiles
+    for profile in &data.profiles {
+        let exists: bool = conn
+            .query_row(
+                "SELECT COUNT(*) > 0 FROM profiles WHERE id = ?1",
+                rusqlite::params![profile.id],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        if exists {
+            skipped += 1;
+            continue;
+        }
+
+        conn.execute(
+            "INSERT INTO profiles (id, name, class, mode, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            rusqlite::params![profile.id, profile.name, profile.class, profile.mode, profile.created_at, profile.updated_at],
+        ).map_err(|e| e.to_string())?;
+        profiles_imported += 1;
+    }
+
+    // Import runs
+    for run in &data.runs {
+        let exists: bool = conn
+            .query_row(
+                "SELECT COUNT(*) > 0 FROM runs WHERE id = ?1",
+                rusqlite::params![run.id],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        if exists {
+            skipped += 1;
+            continue;
+        }
+
+        conn.execute(
+            "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, finished_at, status, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            rusqlite::params![run.id, run.profile_id, run.area, run.duration_secs, run.started_at, run.finished_at, run.status, run.notes],
+        ).map_err(|e| e.to_string())?;
+        runs_imported += 1;
+    }
+
+    // Import items
+    for item in &data.items {
+        let exists: bool = conn
+            .query_row(
+                "SELECT COUNT(*) > 0 FROM items WHERE id = ?1",
+                rusqlite::params![item.id],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        if exists {
+            skipped += 1;
+            continue;
+        }
+
+        conn.execute(
+            "INSERT INTO items (id, run_id, profile_id, name, item_type, rarity, found_at, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            rusqlite::params![item.id, item.run_id, item.profile_id, item.name, item.item_type, item.rarity, item.found_at, item.notes],
+        ).map_err(|e| e.to_string())?;
+        items_imported += 1;
+    }
+
+    Ok(ImportResult {
+        profiles_imported,
+        runs_imported,
+        items_imported,
+        skipped,
+    })
+}

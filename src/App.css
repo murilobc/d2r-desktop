@@ -959,3 +959,27 @@ body {
 .btn-export:hover {
   background: #2980b9;
 }
+
+
+/* Data import/export */
+.sidebar-data-actions {
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-data-actions .nav-btn {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  opacity: 0.8;
+}
+
+.sidebar-data-actions .nav-btn:hover {
+  opacity: 1;
+}
+
+.import-msg {
+  padding: 0.5rem 1rem;
+  font-size: 0.7rem;
+  color: var(--success);
+  line-height: 1.3;
+}

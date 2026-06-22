@@ -10,6 +10,8 @@ import type {
   CreateItemInput,
   Stats,
   DetailedRun,
+  ExportData,
+  ImportResult,
 } from "./types";
 
 // Profiles
@@ -57,3 +59,10 @@ export const getStats = (profileId: string) =>
 
 export const getDetailedRuns = (profileId: string, areaFilter?: string) =>
   invoke<DetailedRun[]>("get_detailed_runs", { profileId, areaFilter: areaFilter || null });
+
+
+// Export / Import
+export const exportData = () => invoke<ExportData>("export_data");
+
+export const importData = (data: ExportData) =>
+  invoke<ImportResult>("import_data", { data });

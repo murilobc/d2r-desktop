@@ -100,3 +100,20 @@ pub struct DetailedRun {
     pub run: Run,
     pub items: Vec<Item>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ExportData {
+    pub version: String,
+    pub exported_at: String,
+    pub profiles: Vec<Profile>,
+    pub runs: Vec<Run>,
+    pub items: Vec<Item>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ImportResult {
+    pub profiles_imported: i64,
+    pub runs_imported: i64,
+    pub items_imported: i64,
+    pub skipped: i64,
+}

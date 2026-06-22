@@ -86,6 +86,21 @@ export interface DetailedRun {
   items: Item[];
 }
 
+export interface ExportData {
+  version: string;
+  exported_at: string;
+  profiles: Profile[];
+  runs: Run[];
+  items: Item[];
+}
+
+export interface ImportResult {
+  profiles_imported: number;
+  runs_imported: number;
+  items_imported: number;
+  skipped: number;
+}
+
 export const D2R_CLASSES = [
   "Amazon",
   "Necromancer",

@@ -50,5 +50,42 @@ pub fn init_db(conn: &Connection) -> Result<()> {
         );
         ",
     )?;
+
+    // Migration: if old schema had level/difficulty, migrate to mode
+    migrate_profiles(conn)?;
+
+    Ok(())
+}
+
+fn migrate_profiles(conn: &Connection) -> Result<()> {
+    // Check if 'mode' column exists
+    let has_mode: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('profiles') WHERE name = 'mode'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_mode {
+        // Old schema: add mode column and drop level/difficulty by recreating table
+        conn.execute_batch(
+            "
+            ALTER TABLE profiles RENAME TO profiles_old;
+
+            CREATE TABLE profiles (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                class TEXT NOT NULL,
+                mode TEXT NOT NULL DEFAULT 'Ladder',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+
+            INSERT INTO profiles (id, name, class, mode, created_at, updated_at)
+            SELECT id, name, class, 'Ladder', created_at, updated_at FROM profiles_old;
+
+            DROP TABLE profiles_old;
+            ",
+        )?;
+    }
+
     Ok(())
 }

@@ -206,10 +206,10 @@ export default function RunTracker({ profile }: Props) {
 
       {!sessionActive ? (
         <div className="start-session-card">
-          <h2>Iniciar Sessão</h2>
+          <h2>Start Session</h2>
           <div className="form-row">
             <div className="form-group">
-              <label>Área</label>
+              <label>Area</label>
               <select value={area} onChange={(e) => updateArea(e.target.value)}>
                 {AREAS.map((a) => (
                   <option key={a} value={a}>{a}</option>
@@ -218,7 +218,7 @@ export default function RunTracker({ profile }: Props) {
             </div>
           </div>
           <button className="btn btn-primary btn-lg" onClick={startSession}>
-            ▶ Iniciar Sessão
+            ▶ Start Session
           </button>
         </div>
       ) : (
@@ -251,16 +251,16 @@ export default function RunTracker({ profile }: Props) {
               ⏭ Next Run
             </button>
             <button className={`btn ${paused ? "btn-resume" : "btn-pause"}`} onClick={togglePause}>
-              {paused ? "▶ Retomar" : "⏸ Pausar"}
+              {paused ? "▶ Resume" : "⏸ Pause"}
             </button>
             <button className="btn btn-danger" onClick={endSession}>
-              ⏹ Finalizar Sessão
+              ⏹ End Session
             </button>
           </div>
 
           {/* Area display */}
           <div className="current-area-display">
-            <span className="area-label">Área:</span>
+            <span className="area-label">Area:</span>
             <select
               value={area}
               onChange={(e) => updateArea(e.target.value)}
@@ -275,9 +275,9 @@ export default function RunTracker({ profile }: Props) {
           {/* Items */}
           <div className="run-items">
             <div className="run-items-header">
-              <h3>Itens Encontrados ({items.length})</h3>
+              <h3>Items Found ({items.length})</h3>
               <button className="btn btn-sm" onClick={() => setShowItemForm(!showItemForm)}>
-                {showItemForm ? "Fechar" : "+ Item"}
+                {showItemForm ? "Close" : "+ Item"}
               </button>
             </div>
 
@@ -285,7 +285,7 @@ export default function RunTracker({ profile }: Props) {
               <div className="item-form">
                 <ItemSearch
                   onSelect={addItem}
-                  placeholder="Buscar item do D2R..."
+                  placeholder="Search D2R item..."
                 />
               </div>
             )}

@@ -54,7 +54,7 @@ export default function History({ profile }: Props) {
   };
 
   const handleDeleteRun = async (id: string) => {
-    if (confirm("Deletar esta run e seus itens?")) {
+    if (confirm("Delete this run and its items?")) {
       await deleteRun(id);
       loadRuns();
     }
@@ -106,12 +106,12 @@ export default function History({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Histórico</h1>
+        <h1>History</h1>
         <span className="badge">{profile.name} - {runs.length} runs</span>
       </div>
 
       {runs.length === 0 ? (
-        <p className="empty-state">Nenhuma run completada ainda.</p>
+        <p className="empty-state">No completed runs yet.</p>
       ) : (
         <div className="history-list">
           {runs.map((run) => (
@@ -121,7 +121,7 @@ export default function History({ profile }: Props) {
                   <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
                   <span className="history-time">{formatTime(run.duration_secs)}</span>
                   <span className="history-date">
-                    {new Date(run.started_at).toLocaleDateString("pt-BR")} {new Date(run.started_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(run.started_at).toLocaleDateString("en-US")} {new Date(run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                   </span>
                 </div>
                 <div className="history-item-actions">
@@ -129,7 +129,7 @@ export default function History({ profile }: Props) {
                     className="btn btn-sm btn-danger"
                     onClick={(e) => { e.stopPropagation(); handleDeleteRun(run.id); }}
                   >
-                    Deletar
+                    Delete
                   </button>
                   <span className="expand-icon">{expandedRuns.has(run.id) ? "▼" : "▶"}</span>
                 </div>
@@ -139,7 +139,7 @@ export default function History({ profile }: Props) {
                 <div className="history-item-details">
                   {/* Area edit */}
                   <div className="history-edit-row">
-                    <span className="edit-label">Área:</span>
+                    <span className="edit-label">Area:</span>
                     {editingArea === run.id ? (
                       <select
                         value={run.area}
@@ -155,24 +155,24 @@ export default function History({ profile }: Props) {
                       <span
                         className="editable-value"
                         onClick={() => setEditingArea(run.id)}
-                        title="Clique para alterar"
+                        title="Click to change"
                       >
                         {run.area} ✎
                       </span>
                     )}
                   </div>
 
-                  {run.notes && <p className="run-notes">Notas: {run.notes}</p>}
+                  {run.notes && <p className="run-notes">Notes: {run.notes}</p>}
 
                   {/* Items */}
                   <div className="history-items-section">
                     <div className="run-items-header">
-                      <h4>Itens ({runItems[run.id]?.length || 0})</h4>
+                      <h4>Items ({runItems[run.id]?.length || 0})</h4>
                       <button
                         className="btn btn-sm"
                         onClick={() => setShowItemSearch(showItemSearch === run.id ? null : run.id)}
                       >
-                        {showItemSearch === run.id ? "Fechar" : "+ Adicionar Item"}
+                        {showItemSearch === run.id ? "Close" : "+ Add Item"}
                       </button>
                     </div>
 
@@ -180,7 +180,7 @@ export default function History({ profile }: Props) {
                       <div className="item-form">
                         <ItemSearch
                           onSelect={(item) => handleAddItem(item, run.id)}
-                          placeholder="Buscar item do D2R..."
+                          placeholder="Search D2R item..."
                         />
                       </div>
                     )}
@@ -197,7 +197,7 @@ export default function History({ profile }: Props) {
                         ))}
                       </div>
                     ) : (
-                      <p className="empty-state-sm">Nenhum item nesta run.</p>
+                      <p className="empty-state-sm">No items in this run.</p>
                     )}
                   </div>
                 </div>

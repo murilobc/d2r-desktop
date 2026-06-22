@@ -121,7 +121,7 @@ export default function Statistics({ profile }: Props) {
 
   const exportPDF = () => {
     if (!filteredStats || filteredStats.totalRuns === 0) {
-      alert("Sem dados para exportar. Complete algumas runs primeiro.");
+      alert("No data to export. Complete some runs first.");
       return;
     }
 
@@ -130,40 +130,40 @@ export default function Statistics({ profile }: Props) {
 
     // Title
     doc.setFontSize(18);
-    doc.text("D2R Tracker - Relatório de Estatísticas", pageWidth / 2, 15, { align: "center" });
+    doc.text("D2R Tracker - Statistics Report", pageWidth / 2, 15, { align: "center" });
 
     // Profile info
     doc.setFontSize(10);
-    doc.text(`Perfil: ${profile.name} (${profile.class} - ${profile.mode})`, 14, 25);
-    doc.text(`Filtro: ${areaFilter === "All" ? "Todas as áreas" : areaFilter}`, 14, 30);
-    const dateStr = new Date().toLocaleDateString("pt-BR") + " " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    doc.text(`Gerado em: ${dateStr}`, 14, 35);
+    doc.text(`Profile: ${profile.name} (${profile.class} - ${profile.mode})`, 14, 25);
+    doc.text(`Filter: ${areaFilter === "All" ? "All areas" : areaFilter}`, 14, 30);
+    const dateStr = new Date().toLocaleDateString("en-US") + " " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    doc.text(`Generated at: ${dateStr}`, 14, 35);
 
     if (detailedRuns.length > 0) {
-      const firstDate = new Date(detailedRuns[detailedRuns.length - 1].run.started_at).toLocaleDateString("pt-BR");
-      const lastDate = new Date(detailedRuns[0].run.started_at).toLocaleDateString("pt-BR");
-      doc.text(`Período: ${firstDate} — ${lastDate}`, 14, 40);
+      const firstDate = new Date(detailedRuns[detailedRuns.length - 1].run.started_at).toLocaleDateString("en-US");
+      const lastDate = new Date(detailedRuns[0].run.started_at).toLocaleDateString("en-US");
+      doc.text(`Period: ${firstDate} — ${lastDate}`, 14, 40);
     }
 
     // Summary stats
     doc.setFontSize(12);
-    doc.text("Resumo", 14, 50);
+    doc.text("Summary", 14, 50);
     doc.setFontSize(9);
 
     const summaryData = [
-      ["Total de Runs", String(filteredStats.totalRuns)],
-      ["Total de Itens", String(filteredStats.totalItems)],
-      ["Tempo Total", formatTime(filteredStats.totalTime)],
-      ["Tempo Médio", formatTime(filteredStats.avgTime)],
-      ["Run Mais Rápida", formatTime(filteredStats.fastestTime)],
-      ["Run Mais Lenta", formatTime(filteredStats.slowestTime)],
-      ["Itens/Run", filteredStats.itemsPerRun.toFixed(2)],
-      ["Itens/Hora", filteredStats.itemsPerHour.toFixed(1)],
+      ["Total Runs", String(filteredStats.totalRuns)],
+      ["Total Items", String(filteredStats.totalItems)],
+      ["Total Time", formatTime(filteredStats.totalTime)],
+      ["Average Time", formatTime(filteredStats.avgTime)],
+      ["Fastest Run", formatTime(filteredStats.fastestTime)],
+      ["Slowest Run", formatTime(filteredStats.slowestTime)],
+      ["Items/Run", filteredStats.itemsPerRun.toFixed(2)],
+      ["Items/Hour", filteredStats.itemsPerHour.toFixed(1)],
     ];
 
     autoTable(doc, {
       startY: 53,
-      head: [["Métrica", "Valor"]],
+      head: [["Metric", "Value"]],
       body: summaryData,
       theme: "grid",
       headStyles: { fillColor: [233, 69, 96] },
@@ -179,11 +179,11 @@ export default function Statistics({ profile }: Props) {
     if (filteredStats.rarityData.length > 0) {
       const rarityY = getLastY();
       doc.setFontSize(12);
-      doc.text("Itens por Raridade", 14, rarityY + 10);
+      doc.text("Items by Rarity", 14, rarityY + 10);
 
       autoTable(doc, {
         startY: rarityY + 13,
-        head: [["Raridade", "Quantidade", "%"]],
+        head: [["Rarity", "Count", "%"]],
         body: filteredStats.rarityData.map((r) => [
           r.name,
           String(r.value),
@@ -200,11 +200,11 @@ export default function Statistics({ profile }: Props) {
     if (filteredStats.topItems.length > 0) {
       const topY = getLastY();
       doc.setFontSize(12);
-      doc.text("Top Itens Mais Encontrados", 14, topY + 10);
+      doc.text("Top Most Found Items", 14, topY + 10);
 
       autoTable(doc, {
         startY: topY + 13,
-        head: [["#", "Item", "Quantidade"]],
+        head: [["#", "Item", "Count"]],
         body: filteredStats.topItems.map(([name, count], idx) => [
           String(idx + 1),
           name,
@@ -221,14 +221,14 @@ export default function Statistics({ profile }: Props) {
     if (detailedRuns.length > 0) {
       doc.addPage();
       doc.setFontSize(12);
-      doc.text("Relatório Detalhado por Run", 14, 15);
+      doc.text("Detailed Report by Run", 14, 15);
 
       autoTable(doc, {
         startY: 20,
-        head: [["#", "Data", "Área", "Duração", "Itens", "Itens Encontrados"]],
+        head: [["#", "Date", "Area", "Duration", "Items", "Items Found"]],
         body: detailedRuns.map((dr, idx) => [
           String(idx + 1),
-          new Date(dr.run.started_at).toLocaleDateString("pt-BR"),
+          new Date(dr.run.started_at).toLocaleDateString("en-US"),
           dr.run.area,
           formatTimeFull(dr.run.duration_secs),
           String(dr.items.length),
@@ -250,23 +250,23 @@ export default function Statistics({ profile }: Props) {
     }
 
     // Save
-    const filename = `d2r_relatorio_${profile.name}_${areaFilter === "All" ? "todas" : areaFilter}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    const filename = `d2r_report_${profile.name}_${areaFilter === "All" ? "all" : areaFilter}_${new Date().toISOString().slice(0, 10)}.pdf`;
     doc.save(filename);
   };
 
-  if (!stats) return <div className="page"><p>Carregando...</p></div>;
+  if (!stats) return <div className="page"><p>Loading...</p></div>;
 
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Estatísticas</h1>
+        <h1>Statistics</h1>
         <div className="stats-header-actions">
           <select
             value={areaFilter}
             onChange={(e) => handleAreaChange(e.target.value)}
             className="stats-area-filter"
           >
-            <option value="All">Todas as áreas</option>
+            <option value="All">All areas</option>
             {availableAreas.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
@@ -275,10 +275,10 @@ export default function Statistics({ profile }: Props) {
             className={`btn ${showReport ? "btn-danger" : "btn-primary"}`}
             onClick={() => setShowReport(!showReport)}
           >
-            {showReport ? "Fechar Relatório" : "📊 Relatório Detalhado"}
+            {showReport ? "Close Report" : "📊 Detailed Report"}
           </button>
           <button className="btn btn-export" onClick={exportPDF}>
-            📄 Exportar PDF
+            📄 Export PDF
           </button>
         </div>
       </div>
@@ -289,35 +289,35 @@ export default function Statistics({ profile }: Props) {
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-value">{filteredStats.totalRuns}</div>
-              <div className="stat-label">Total de Runs</div>
+              <div className="stat-label">Total Runs</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{filteredStats.totalItems}</div>
-              <div className="stat-label">Total de Itens</div>
+              <div className="stat-label">Total Items</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{formatTime(filteredStats.totalTime)}</div>
-              <div className="stat-label">Tempo Total</div>
+              <div className="stat-label">Total Time</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{formatTime(filteredStats.avgTime)}</div>
-              <div className="stat-label">Tempo Médio</div>
+              <div className="stat-label">Average Time</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{formatTime(filteredStats.fastestTime)}</div>
-              <div className="stat-label">Mais Rápida</div>
+              <div className="stat-label">Fastest</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{filteredStats.itemsPerRun.toFixed(1)}</div>
-              <div className="stat-label">Itens/Run</div>
+              <div className="stat-label">Items/Run</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{filteredStats.itemsPerHour.toFixed(1)}</div>
-              <div className="stat-label">Itens/Hora</div>
+              <div className="stat-label">Items/Hour</div>
             </div>
             <div className="stat-card">
               <div className="stat-value">{formatTime(filteredStats.slowestTime)}</div>
-              <div className="stat-label">Mais Lenta</div>
+              <div className="stat-label">Slowest</div>
             </div>
           </div>
 
@@ -326,7 +326,7 @@ export default function Statistics({ profile }: Props) {
             {/* Run Duration Over Time */}
             {filteredStats.runTimeline.length > 1 && (
               <div className="chart-card">
-                <h3>Duração por Run (Eficiência)</h3>
+                <h3>Duration per Run (Efficiency)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={filteredStats.runTimeline}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
@@ -335,7 +335,7 @@ export default function Statistics({ profile }: Props) {
                     <Tooltip
                       contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }}
                       labelStyle={{ color: "#eaeaea" }}
-                      formatter={(value) => [formatTime(Number(value)), "Duração"]}
+                      formatter={(value) => [formatTime(Number(value)), "Duration"]}
                       labelFormatter={(label) => `Run #${label}`}
                     />
                     <Line type="monotone" dataKey="duration" stroke="#4ecdc4" strokeWidth={2} dot={false} />
@@ -347,7 +347,7 @@ export default function Statistics({ profile }: Props) {
             {/* Items per Run Over Time */}
             {filteredStats.runTimeline.length > 1 && (
               <div className="chart-card">
-                <h3>Itens por Run</h3>
+                <h3>Items per Run</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={filteredStats.runTimeline}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
@@ -367,7 +367,7 @@ export default function Statistics({ profile }: Props) {
             {/* Rarity Distribution Pie */}
             {filteredStats.rarityData.length > 0 && (
               <div className="chart-card">
-                <h3>Distribuição por Raridade</h3>
+                <h3>Rarity Distribution</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
@@ -392,7 +392,7 @@ export default function Statistics({ profile }: Props) {
             {/* Runs by Area Bar Chart */}
             {stats.runs_by_area.length > 0 && areaFilter === "All" && (
               <div className="chart-card">
-                <h3>Runs por Área</h3>
+                <h3>Runs by Area</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={stats.runs_by_area} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
@@ -409,13 +409,13 @@ export default function Statistics({ profile }: Props) {
           {/* Top Items Table */}
           {filteredStats.topItems.length > 0 && (
             <div className="stats-section">
-              <h3>Top 10 Itens Mais Encontrados</h3>
+              <h3>Top 10 Most Found Items</h3>
               <table className="stats-table">
                 <thead>
                   <tr>
                     <th>#</th>
                     <th>Item</th>
-                    <th>Quantidade</th>
+                    <th>Count</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -434,30 +434,30 @@ export default function Statistics({ profile }: Props) {
           {/* Detailed Report */}
           {showReport && (
             <div className="detailed-report">
-              <h2>Relatório Detalhado {areaFilter !== "All" ? `— ${areaFilter}` : ""}</h2>
+              <h2>Detailed Report {areaFilter !== "All" ? `— ${areaFilter}` : ""}</h2>
               <div className="report-summary">
-                <p><strong>Perfil:</strong> {profile.name} ({profile.class} - {profile.mode})</p>
-                <p><strong>Filtro:</strong> {areaFilter === "All" ? "Todas as áreas" : areaFilter}</p>
-                <p><strong>Período:</strong> {detailedRuns.length > 0 ? `${new Date(detailedRuns[detailedRuns.length - 1].run.started_at).toLocaleDateString("pt-BR")} — ${new Date(detailedRuns[0].run.started_at).toLocaleDateString("pt-BR")}` : "N/A"}</p>
-                <p><strong>Eficiência:</strong> {filteredStats.itemsPerHour.toFixed(1)} itens/hora | {filteredStats.itemsPerRun.toFixed(2)} itens/run</p>
+                <p><strong>Profile:</strong> {profile.name} ({profile.class} - {profile.mode})</p>
+                <p><strong>Filter:</strong> {areaFilter === "All" ? "All areas" : areaFilter}</p>
+                <p><strong>Period:</strong> {detailedRuns.length > 0 ? `${new Date(detailedRuns[detailedRuns.length - 1].run.started_at).toLocaleDateString("en-US")} — ${new Date(detailedRuns[0].run.started_at).toLocaleDateString("en-US")}` : "N/A"}</p>
+                <p><strong>Efficiency:</strong> {filteredStats.itemsPerHour.toFixed(1)} items/hour | {filteredStats.itemsPerRun.toFixed(2)} items/run</p>
               </div>
 
               <table className="report-table">
                 <thead>
                   <tr>
                     <th>#</th>
-                    <th>Data</th>
-                    <th>Área</th>
-                    <th>Duração</th>
-                    <th>Itens</th>
-                    <th>Itens Encontrados</th>
+                    <th>Date</th>
+                    <th>Area</th>
+                    <th>Duration</th>
+                    <th>Items</th>
+                    <th>Items Found</th>
                   </tr>
                 </thead>
                 <tbody>
                   {detailedRuns.map((dr, idx) => (
                     <tr key={dr.run.id}>
                       <td>{idx + 1}</td>
-                      <td>{new Date(dr.run.started_at).toLocaleDateString("pt-BR")} {new Date(dr.run.started_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</td>
+                      <td>{new Date(dr.run.started_at).toLocaleDateString("en-US")} {new Date(dr.run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</td>
                       <td>{dr.run.area}</td>
                       <td className="mono">{formatTimeFull(dr.run.duration_secs)}</td>
                       <td>{dr.items.length}</td>
@@ -476,7 +476,7 @@ export default function Statistics({ profile }: Props) {
       )}
 
       {filteredStats && filteredStats.totalRuns === 0 && (
-        <p className="empty-state">Nenhuma run completada {areaFilter !== "All" ? `em ${areaFilter}` : ""}.</p>
+        <p className="empty-state">No completed runs {areaFilter !== "All" ? `in ${areaFilter}` : ""}.</p>
       )}
     </div>
   );

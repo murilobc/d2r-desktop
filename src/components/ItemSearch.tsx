@@ -7,7 +7,7 @@ interface Props {
   placeholder?: string;
 }
 
-export default function ItemSearch({ onSelect, placeholder = "Buscar item..." }: Props) {
+export default function ItemSearch({ onSelect, placeholder = "Search item..." }: Props) {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [isOpen, setIsOpen] = useState(false);
@@ -98,7 +98,7 @@ export default function ItemSearch({ onSelect, placeholder = "Buscar item..." }:
       {isOpen && query.length > 0 && (
         <div className="item-search-dropdown" ref={listRef}>
           {filtered.length === 0 ? (
-            <div className="item-search-empty">Nenhum item encontrado</div>
+            <div className="item-search-empty">No items found</div>
           ) : (
             filtered.map((item, idx) => (
               <div
@@ -115,7 +115,7 @@ export default function ItemSearch({ onSelect, placeholder = "Buscar item..." }:
             ))
           )}
           {filtered.length === 50 && (
-            <div className="item-search-more">Digite mais para refinar...</div>
+            <div className="item-search-more">Type more to refine...</div>
           )}
         </div>
       )}

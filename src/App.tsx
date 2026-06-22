@@ -34,10 +34,10 @@ function App() {
 
       if (filePath) {
         await writeTextFile(filePath, json);
-        alert("Dados exportados com sucesso!");
+        alert("Data exported successfully!");
       }
     } catch (e) {
-      alert("Erro ao exportar: " + e);
+      alert("Export error: " + e);
     }
   };
 
@@ -54,13 +54,13 @@ function App() {
       const data: ExportData = JSON.parse(text);
 
       if (!data.version || !data.profiles || !data.runs || !data.items) {
-        alert("Arquivo inválido. Formato não reconhecido.");
+        alert("Invalid file. Format not recognized.");
         return;
       }
 
       const result = await importData(data);
       setImportMsg(
-        `Importado: ${result.profiles_imported} perfis, ${result.runs_imported} runs, ${result.items_imported} itens. ${result.skipped} duplicados ignorados.`
+        `Imported: ${result.profiles_imported} profiles, ${result.runs_imported} runs, ${result.items_imported} items. ${result.skipped} duplicates skipped.`
       );
       setTimeout(() => setImportMsg(null), 5000);
 
@@ -68,7 +68,7 @@ function App() {
       setCurrentPage("profiles");
       setSelectedProfile(null);
     } catch (err) {
-      alert("Erro ao importar: " + err);
+      alert("Import error: " + err);
     }
   };
 
@@ -97,7 +97,7 @@ function App() {
               className={`nav-btn ${currentPage === "profiles" ? "active" : ""}`}
               onClick={() => setCurrentPage("profiles")}
             >
-              👤 Perfis
+              👤 Profiles
             </button>
           </li>
           <li>
@@ -115,7 +115,7 @@ function App() {
               onClick={() => setCurrentPage("history")}
               disabled={!selectedProfile}
             >
-              📜 Histórico
+              📜 History
             </button>
           </li>
           <li>
@@ -124,23 +124,23 @@ function App() {
               onClick={() => setCurrentPage("stats")}
               disabled={!selectedProfile}
             >
-              📊 Estatísticas
+              📊 Statistics
             </button>
           </li>
         </ul>
         <div className="sidebar-data-actions">
           <button className="nav-btn" onClick={handleExport}>
-            💾 Exportar Dados
+            💾 Export Data
           </button>
           <button className="nav-btn" onClick={handleImport}>
-            📂 Importar Dados
+            📂 Import Data
           </button>
           {importMsg && <div className="import-msg">{importMsg}</div>}
         </div>
         {selectedProfile && (
           <div className="sidebar-footer">
             <div className="current-profile">
-              <small>Perfil ativo:</small>
+              <small>Active profile:</small>
               <strong>{selectedProfile.name}</strong>
               <span>{selectedProfile.class}</span>
             </div>

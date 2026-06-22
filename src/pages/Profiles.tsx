@@ -34,7 +34,7 @@ export default function Profiles({ onSelectProfile }: Props) {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Deletar este perfil e todos seus dados?")) {
+    if (confirm("Delete this profile and all its data?")) {
       await deleteProfile(id);
       loadProfiles();
     }
@@ -43,9 +43,9 @@ export default function Profiles({ onSelectProfile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Perfis</h1>
+        <h1>Profiles</h1>
         <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancelar" : "+ Novo Perfil"}
+          {showForm ? "Cancel" : "+ New Profile"}
         </button>
       </div>
 
@@ -53,17 +53,17 @@ export default function Profiles({ onSelectProfile }: Props) {
         <form className="form-card" onSubmit={handleCreate}>
           <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
-              <label>Nome</label>
+              <label>Name</label>
               <input
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 required
-                placeholder="Nome do personagem"
+                placeholder="Character name"
               />
             </div>
             <div className="form-group">
-              <label>Classe</label>
+              <label>Class</label>
               <select value={form.class} onChange={(e) => setForm({ ...form, class: e.target.value })}>
                 {D2R_CLASSES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -71,7 +71,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label>Modo</label>
+              <label>Mode</label>
               <select value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })}>
                 {GAME_MODES.map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -79,7 +79,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">Criar Perfil</button>
+          <button type="submit" className="btn btn-primary">Create Profile</button>
         </form>
       )}
 
@@ -95,16 +95,16 @@ export default function Profiles({ onSelectProfile }: Props) {
             </div>
             <div className="profile-card-actions">
               <button className="btn btn-sm" onClick={() => onSelectProfile(profile)}>
-                Selecionar
+                Select
               </button>
               <button className="btn btn-sm btn-danger" onClick={() => handleDelete(profile.id)}>
-                Deletar
+                Delete
               </button>
             </div>
           </div>
         ))}
         {profiles.length === 0 && !showForm && (
-          <p className="empty-state">Nenhum perfil criado. Crie um para começar!</p>
+          <p className="empty-state">No profiles created. Create one to get started!</p>
         )}
       </div>
     </div>

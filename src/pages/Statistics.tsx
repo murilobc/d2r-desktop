@@ -7,6 +7,8 @@ import {
 } from "recharts";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { save } from "@tauri-apps/plugin-dialog";
+import { writeFile } from "@tauri-apps/plugin-fs";
 
 interface Props {
   profile: Profile;
@@ -119,7 +121,7 @@ export default function Statistics({ profile }: Props) {
     return stats.runs_by_area.map((a) => a.area);
   }, [stats]);
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     if (!filteredStats || filteredStats.totalRuns === 0) {
       alert("No data to export. Complete some runs first.");
       return;
@@ -249,9 +251,23 @@ export default function Statistics({ profile }: Props) {
       });
     }
 
-    // Save
+    // Save via native dialog
     const filename = `d2r_report_${profile.name}_${areaFilter === "All" ? "all" : areaFilter}_${new Date().toISOString().slice(0, 10)}.pdf`;
-    doc.save(filename);
+
+    try {
+      const filePath = await save({
+        defaultPath: filename,
+        filters: [{ name: "PDF", extensions: ["pdf"] }],
+      });
+
+      if (filePath) {
+        const pdfBytes = doc.output("arraybuffer");
+        await writeFile(filePath, new Uint8Array(pdfBytes));
+        alert("PDF exported successfully!");
+      }
+    } catch (e) {
+      alert("Error exporting PDF: " + e);
+    }
   };
 
   if (!stats) return <div className="page"><p>Loading...</p></div>;

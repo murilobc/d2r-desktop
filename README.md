@@ -2,6 +2,22 @@
 
 A desktop application for tracking Magic Find runs in **Diablo II: Resurrected** (v3.2 — Reign of the Warlock). Built with Tauri, React, and Rust with a local SQLite database.
 
+## Screenshots (Mockups)
+
+> Note: These are SVG mockups representing the application layout. Actual screenshots may vary slightly.
+
+### Profiles
+![Profiles](docs/mockups/profiles.svg)
+
+### Run Tracker
+![Run Tracker](docs/mockups/run-tracker.svg)
+
+### History
+![History](docs/mockups/history.svg)
+
+### Statistics
+![Statistics](docs/mockups/statistics.svg)
+
 ## Features
 
 ### Profile Management

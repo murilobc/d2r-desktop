@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+  
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Perfis</text>
+  <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">📜 Histórico</text>
+  <rect x="0" y="190" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="190" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📊 Estatísticas</text>
+  
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Estatísticas</text>
+  
+  <!-- Header actions -->
+  <rect x="620" y="28" width="140" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="635" y="47" fill="#eaeaea" font-size="11">Todas as áreas</text>
+  <rect x="775" y="28" width="150" height="28" rx="4" fill="#e94560"/>
+  <text x="790" y="47" fill="white" font-size="11">📊 Relatório Detalhado</text>
+  <rect x="940" y="28" width="120" height="28" rx="4" fill="#3498db"/>
+  <text x="955" y="47" fill="white" font-size="11">📄 Exportar PDF</text>
+  
+  <!-- Stat cards row -->
+  <rect x="250" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="280" y="110" fill="#e94560" font-size="22" font-weight="bold">147</text>
+  <text x="268" y="135" fill="#a0a0a0" font-size="10">Total de Runs</text>
+  
+  <rect x="385" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="420" y="110" fill="#e94560" font-size="22" font-weight="bold">34</text>
+  <text x="400" y="135" fill="#a0a0a0" font-size="10">Total de Itens</text>
+  
+  <rect x="520" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="540" y="110" fill="#e94560" font-size="18" font-weight="bold">5h 23m</text>
+  <text x="545" y="135" fill="#a0a0a0" font-size="10">Tempo Total</text>
+  
+  <rect x="655" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="680" y="110" fill="#e94560" font-size="18" font-weight="bold">2m 12s</text>
+  <text x="677" y="135" fill="#a0a0a0" font-size="10">Tempo Médio</text>
+  
+  <rect x="790" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="815" y="110" fill="#e94560" font-size="18" font-weight="bold">1m 28s</text>
+  <text x="810" y="135" fill="#a0a0a0" font-size="10">Mais Rápida</text>
+  
+  <rect x="925" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="965" y="110" fill="#e94560" font-size="20" font-weight="bold">0.2</text>
+  <text x="948" y="135" fill="#a0a0a0" font-size="10">Itens/Run</text>
+  
+  <!-- Chart 1: Duration over time (line) -->
+  <rect x="250" y="175" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="200" fill="#a0a0a0" font-size="12">Duração por Run (Eficiência)</text>
+  <!-- Fake line chart -->
+  <polyline points="290,360 320,340 350,355 380,320 410,330 440,310 470,325 500,300 530,315 560,290 590,305 620,280" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+  <line x1="290" y1="370" x2="620" y2="370" stroke="#2a2a4a" stroke-width="1"/>
+  <line x1="290" y1="220" x2="290" y2="370" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- Chart 2: Rarity pie -->
+  <rect x="665" y="175" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="685" y="200" fill="#a0a0a0" font-size="12">Distribuição por Raridade</text>
+  <!-- Fake pie chart -->
+  <circle cx="860" cy="300" r="70" fill="none" stroke="#2a2a4a" stroke-width="1"/>
+  <path d="M860,300 L860,230 A70,70 0 0,1 920,270 Z" fill="#e94560"/>
+  <path d="M860,300 L920,270 A70,70 0 0,1 915,345 Z" fill="#4ecdc4"/>
+  <path d="M860,300 L915,345 A70,70 0 0,1 860,370 Z" fill="#ffd700"/>
+  <path d="M860,300 L860,370 A70,70 0 0,1 800,330 Z" fill="#6060ff"/>
+  <path d="M860,300 L800,330 A70,70 0 0,1 810,250 Z" fill="#00c400"/>
+  <path d="M860,300 L810,250 A70,70 0 0,1 860,230 Z" fill="#ff8c00"/>
+  <!-- Pie labels -->
+  <text x="920" y="240" fill="#e94560" font-size="9">Unique 35%</text>
+  <text x="940" y="310" fill="#4ecdc4" font-size="9">Rune 24%</text>
+  <text x="910" y="370" fill="#ffd700" font-size="9">Set 18%</text>
+  <text x="730" y="360" fill="#6060ff" font-size="9">Jewel 12%</text>
+  <text x="730" y="290" fill="#00c400" font-size="9">Runeword 8%</text>
+  <text x="750" y="245" fill="#ff8c00" font-size="9">Base 3%</text>
+  
+  <!-- Chart 3: Items per run (bar) -->
+  <rect x="250" y="415" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="440" fill="#a0a0a0" font-size="12">Itens por Run</text>
+  <!-- Fake bar chart -->
+  <line x1="290" y1="610" x2="620" y2="610" stroke="#2a2a4a" stroke-width="1"/>
+  <rect x="300" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="330" y="570" width="20" height="40" rx="2" fill="#e94560"/>
+  <rect x="360" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="390" y="550" width="20" height="60" rx="2" fill="#e94560"/>
+  <rect x="420" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="450" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="480" y="530" width="20" height="80" rx="2" fill="#e94560"/>
+  <rect x="510" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="540" y="570" width="20" height="40" rx="2" fill="#e94560"/>
+  <rect x="570" y="590" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="600" y="550" width="20" height="60" rx="2" fill="#e94560"/>
+  
+  <!-- Chart 4: Runs by area (horizontal bar) -->
+  <rect x="665" y="415" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="685" y="440" fill="#a0a0a0" font-size="12">Runs por Área</text>
+  <!-- Fake horizontal bars -->
+  <text x="690" y="475" fill="#a0a0a0" font-size="10">Mephisto</text>
+  <rect x="790" y="462" width="220" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="505" fill="#a0a0a0" font-size="10">Ancient Tunnels</text>
+  <rect x="790" y="492" width="150" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="535" fill="#a0a0a0" font-size="10">Chaos Sanctuary</text>
+  <rect x="790" y="522" width="100" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="565" fill="#a0a0a0" font-size="10">Pindleskin</text>
+  <rect x="790" y="552" width="70" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="595" fill="#a0a0a0" font-size="10">Countess</text>
+  <rect x="790" y="582" width="45" height="18" rx="2" fill="#ffd700"/>
+</svg>

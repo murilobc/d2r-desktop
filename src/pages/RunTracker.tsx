@@ -21,6 +21,7 @@ export default function RunTracker({ profile }: Props) {
   // Run state
   const [runElapsed, setRunElapsed] = useState(0);
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
+  const runElapsedRef = useRef(0);
 
   // Session stats
   const [sessionRunCount, setSessionRunCount] = useState(0);
@@ -76,7 +77,11 @@ export default function RunTracker({ profile }: Props) {
   useEffect(() => {
     if (currentRun && !paused) {
       runTimerRef.current = setInterval(() => {
-        setRunElapsed((prev) => prev + 1);
+        setRunElapsed((prev) => {
+          const next = prev + 1;
+          runElapsedRef.current = next;
+          return next;
+        });
       }, 100); // 100ms for tenths display
     } else {
       if (runTimerRef.current) clearInterval(runTimerRef.current);
@@ -106,13 +111,14 @@ export default function RunTracker({ profile }: Props) {
     const run = await createRun({ profile_id: profile.id, area });
     setCurrentRun(run);
     setRunElapsed(0);
+    runElapsedRef.current = 0;
     setItems([]);
   }, [profile.id, area]);
 
   // Finish current run and start next (split)
   const splitRun = async () => {
     if (!currentRun) return;
-    const durationSecs = Math.floor(runElapsed / 10); // convert tenths to seconds
+    const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
     await finishRun(currentRun.id, { duration_secs: durationSecs });
 
     const newTimes = [...sessionRunTimes, durationSecs];
@@ -137,7 +143,7 @@ export default function RunTracker({ profile }: Props) {
   // End session
   const endSession = async () => {
     if (currentRun) {
-      const durationSecs = Math.floor(runElapsed / 10);
+      const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
       await finishRun(currentRun.id, { duration_secs: durationSecs });
       if (durationSecs > 0) {
         const newTimes = [...sessionRunTimes, durationSecs];
@@ -156,7 +162,7 @@ export default function RunTracker({ profile }: Props) {
     setItems([]);
   };
 
-  // Sync state to overlay window
+  // Sync state to overlay window (emit on every tick for accurate display)
   useEffect(() => {
     emit("overlay-state-update", {
       sessionActive,
@@ -167,7 +173,7 @@ export default function RunTracker({ profile }: Props) {
       totalRunCount,
       area,
     });
-  }, [sessionActive, paused, sessionRunCount, totalRunCount, area]);
+  }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area]);
 
   // Listen for overlay actions
   useEffect(() => {

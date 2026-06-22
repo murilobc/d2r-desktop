@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
@@ -34,20 +34,6 @@ export default function Overlay() {
     });
     return () => { unlisten.then((fn) => fn()); };
   }, []);
-
-  // Timer increments locally for smooth display
-  const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    if (state.sessionActive && !state.paused) {
-      sessionTimerRef.current = setInterval(() => {
-        setState((prev) => ({ ...prev, sessionElapsed: prev.sessionElapsed + 1, runElapsed: prev.runElapsed + 1 }));
-      }, 100);
-    } else {
-      if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
-    }
-    return () => { if (sessionTimerRef.current) clearInterval(sessionTimerRef.current); };
-  }, [state.sessionActive, state.paused]);
 
   const formatTime = (tenths: number) => {
     const totalSecs = Math.floor(tenths / 10);

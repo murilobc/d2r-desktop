@@ -4,6 +4,8 @@ import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from "../api";
 import type { Item, Run } from "../types";
 import type { GameItem } from "../data/items";
+import { emit } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 
 interface Props {
@@ -153,6 +155,45 @@ export default function RunTracker({ profile }: Props) {
     setRunElapsed(0);
     setItems([]);
   };
+
+  // Sync state to overlay window
+  useEffect(() => {
+    emit("overlay-state-update", {
+      sessionActive,
+      paused,
+      sessionElapsed,
+      runElapsed,
+      sessionRunCount,
+      totalRunCount,
+      area,
+    });
+  }, [sessionActive, paused, sessionRunCount, totalRunCount, area]);
+
+  // Listen for overlay actions
+  useEffect(() => {
+    const unlistenAction = listen<string>("overlay-action", (event) => {
+      switch (event.payload) {
+        case "split": splitRun(); break;
+        case "pause": togglePause(); break;
+        case "end": endSession(); break;
+      }
+    });
+    const unlistenItem = listen<string>("overlay-add-item", (event) => {
+      if (!currentRun) return;
+      createItem({
+        run_id: currentRun.id,
+        profile_id: profile.id,
+        name: event.payload,
+        item_type: "Other",
+        rarity: "Unique",
+        notes: undefined,
+      }).then(() => { if (currentRun) loadItems(currentRun.id); });
+    });
+    return () => {
+      unlistenAction.then((fn) => fn());
+      unlistenItem.then((fn) => fn());
+    };
+  }, [currentRun, profile.id]);
 
   const addItem = async (gameItem: GameItem) => {
     if (!currentRun) return;

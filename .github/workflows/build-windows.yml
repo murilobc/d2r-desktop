@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+      - "rc-*"
   workflow_dispatch:
 
 jobs:
@@ -15,27 +16,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get version from tag
-        id: version
+      - name: Determine release type
+        id: release-type
         shell: bash
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "$TAG" == rc-* ]]; then
+            VERSION="${TAG#rc-}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "is_test=true" >> $GITHUB_OUTPUT
+            echo "release_name=D2R Tracker $TAG (Test Build)" >> $GITHUB_OUTPUT
+            echo "release_body=⚠️ This is a test build for internal testing. Do not use in production." >> $GITHUB_OUTPUT
+          else
+            VERSION="${TAG#v}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "is_test=false" >> $GITHUB_OUTPUT
+            echo "release_name=D2R Tracker $TAG" >> $GITHUB_OUTPUT
+            echo "release_body=Download the .msi or .exe installer below. The app will auto-update from this release." >> $GITHUB_OUTPUT
+          fi
 
       - name: Update version in package.json
         shell: bash
         run: |
-          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.version.outputs.version }}\"/" package.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" package.json
 
       - name: Update version in tauri.conf.json
         shell: bash
         run: |
-          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.version.outputs.version }}\"/" src-tauri/tauri.conf.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" src-tauri/tauri.conf.json
 
       - name: Update version in Cargo.toml
         shell: bash
         run: |
-          sed -i "0,/^version = \".*\"/s//version = \"${{ steps.version.outputs.version }}\"/" src-tauri/Cargo.toml
+          sed -i "0,/^version = \".*\"/s//version = \"${{ steps.release-type.outputs.version }}\"/" src-tauri/Cargo.toml
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -62,8 +75,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "D2R Tracker ${{ github.ref_name }}"
-          releaseBody: "Download the .msi or .exe installer below. The app will auto-update from this release."
-          releaseDraft: true
-          prerelease: false
-          includeUpdaterJson: true
+          releaseName: ${{ steps.release-type.outputs.release_name }}
+          releaseBody: ${{ steps.release-type.outputs.release_body }}
+          releaseDraft: ${{ steps.release-type.outputs.is_test == 'false' }}
+          prerelease: ${{ steps.release-type.outputs.is_test == 'true' }}
+          includeUpdaterJson: ${{ steps.release-type.outputs.is_test == 'false' }}

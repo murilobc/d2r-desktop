@@ -5,6 +5,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line,
 } from "recharts";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Props {
   profile: Profile;
@@ -117,6 +119,134 @@ export default function Statistics({ profile }: Props) {
     return stats.runs_by_area.map((a) => a.area);
   }, [stats]);
 
+  const exportPDF = () => {
+    if (!filteredStats) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("D2R Tracker - Relatório de Estatísticas", pageWidth / 2, 15, { align: "center" });
+
+    // Profile info
+    doc.setFontSize(10);
+    doc.text(`Perfil: ${profile.name} (${profile.class} - ${profile.mode})`, 14, 25);
+    doc.text(`Filtro: ${areaFilter === "All" ? "Todas as áreas" : areaFilter}`, 14, 30);
+    const dateStr = new Date().toLocaleDateString("pt-BR") + " " + new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    doc.text(`Gerado em: ${dateStr}`, 14, 35);
+
+    if (detailedRuns.length > 0) {
+      const firstDate = new Date(detailedRuns[detailedRuns.length - 1].run.started_at).toLocaleDateString("pt-BR");
+      const lastDate = new Date(detailedRuns[0].run.started_at).toLocaleDateString("pt-BR");
+      doc.text(`Período: ${firstDate} — ${lastDate}`, 14, 40);
+    }
+
+    // Summary stats
+    doc.setFontSize(12);
+    doc.text("Resumo", 14, 50);
+    doc.setFontSize(9);
+
+    const summaryData = [
+      ["Total de Runs", String(filteredStats.totalRuns)],
+      ["Total de Itens", String(filteredStats.totalItems)],
+      ["Tempo Total", formatTime(filteredStats.totalTime)],
+      ["Tempo Médio", formatTime(filteredStats.avgTime)],
+      ["Run Mais Rápida", formatTime(filteredStats.fastestTime)],
+      ["Run Mais Lenta", formatTime(filteredStats.slowestTime)],
+      ["Itens/Run", filteredStats.itemsPerRun.toFixed(2)],
+      ["Itens/Hora", filteredStats.itemsPerHour.toFixed(1)],
+    ];
+
+    autoTable(doc, {
+      startY: 53,
+      head: [["Métrica", "Valor"]],
+      body: summaryData,
+      theme: "grid",
+      headStyles: { fillColor: [233, 69, 96] },
+      styles: { fontSize: 9 },
+      margin: { left: 14 },
+    });
+
+    // Items by rarity
+    if (filteredStats.rarityData.length > 0) {
+      const rarityY = (doc as unknown as Record<string, Record<string, number>>).lastAutoTable?.finalY ?? 100;
+      doc.setFontSize(12);
+      doc.text("Itens por Raridade", 14, rarityY + 10);
+
+      autoTable(doc, {
+        startY: rarityY + 13,
+        head: [["Raridade", "Quantidade", "%"]],
+        body: filteredStats.rarityData.map((r) => [
+          r.name,
+          String(r.value),
+          `${((r.value / filteredStats.totalItems) * 100).toFixed(1)}%`,
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [78, 205, 196] },
+        styles: { fontSize: 9 },
+        margin: { left: 14 },
+      });
+    }
+
+    // Top items
+    if (filteredStats.topItems.length > 0) {
+      const topY = (doc as unknown as Record<string, Record<string, number>>).lastAutoTable?.finalY ?? 150;
+      doc.setFontSize(12);
+      doc.text("Top Itens Mais Encontrados", 14, topY + 10);
+
+      autoTable(doc, {
+        startY: topY + 13,
+        head: [["#", "Item", "Quantidade"]],
+        body: filteredStats.topItems.map(([name, count], idx) => [
+          String(idx + 1),
+          name,
+          String(count),
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [255, 215, 0], textColor: [0, 0, 0] },
+        styles: { fontSize: 9 },
+        margin: { left: 14 },
+      });
+    }
+
+    // Detailed runs table (new page)
+    if (detailedRuns.length > 0) {
+      doc.addPage();
+      doc.setFontSize(12);
+      doc.text("Relatório Detalhado por Run", 14, 15);
+
+      autoTable(doc, {
+        startY: 20,
+        head: [["#", "Data", "Área", "Duração", "Itens", "Itens Encontrados"]],
+        body: detailedRuns.map((dr, idx) => [
+          String(idx + 1),
+          new Date(dr.run.started_at).toLocaleDateString("pt-BR"),
+          dr.run.area,
+          formatTimeFull(dr.run.duration_secs),
+          String(dr.items.length),
+          dr.items.map((i) => i.name).join(", ") || "—",
+        ]),
+        theme: "grid",
+        headStyles: { fillColor: [233, 69, 96] },
+        styles: { fontSize: 7, cellWidth: "wrap" },
+        columnStyles: {
+          0: { cellWidth: 10 },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 20 },
+          4: { cellWidth: 12 },
+          5: { cellWidth: "auto" },
+        },
+        margin: { left: 14 },
+      });
+    }
+
+    // Save
+    const filename = `d2r_relatorio_${profile.name}_${areaFilter === "All" ? "todas" : areaFilter}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+  };
+
   if (!stats) return <div className="page"><p>Carregando...</p></div>;
 
   return (
@@ -139,6 +269,9 @@ export default function Statistics({ profile }: Props) {
             onClick={() => setShowReport(!showReport)}
           >
             {showReport ? "Fechar Relatório" : "📊 Relatório Detalhado"}
+          </button>
+          <button className="btn btn-export" onClick={exportPDF}>
+            📄 Exportar PDF
           </button>
         </div>
       </div>

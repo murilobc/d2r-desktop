@@ -943,3 +943,19 @@ body {
 .text-muted {
   color: var(--text-muted);
 }
+
+
+/* Export button */
+.btn-export {
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-export:hover {
+  background: #2980b9;
+}

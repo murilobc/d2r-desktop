@@ -41,6 +41,10 @@ Every change to this project MUST follow this workflow:
    - `git checkout main && git pull origin main`
    - `git tag vX.Y.Z && git push origin vX.Y.Z`
 
+9. **After creating a new release**, update the download links in `README.md`:
+   - Update the version number in the download table filenames (e.g. `d2r-desktop_X.Y.Z_x64-setup.exe`)
+   - This must go through the branch/PR workflow like any other change
+
 ## Verification Checklist
 
 Before pushing any branch, ALL of these must pass:

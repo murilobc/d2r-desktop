@@ -2,6 +2,15 @@
 
 A desktop application for tracking Magic Find runs in **Diablo II: Resurrected** (v3.2 — Reign of the Warlock). Built with Tauri, React, and Rust with a local SQLite database.
 
+## Download
+
+| Platform | Installer |
+|----------|-----------|
+| Windows (.exe) | [d2r-desktop_0.7.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_0.7.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_0.7.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_0.7.0_x64_en-US.msi) |
+
+> [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
+
 ## Screenshots (Mockups)
 
 > Note: These are SVG mockups representing the application layout. Actual screenshots may vary slightly.

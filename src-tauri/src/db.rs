@@ -19,8 +19,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             class TEXT NOT NULL,
-            level INTEGER NOT NULL DEFAULT 1,
-            difficulty TEXT NOT NULL DEFAULT 'Normal',
+            mode TEXT NOT NULL DEFAULT 'Ladder',
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         );

@@ -2,8 +2,7 @@ export interface Profile {
   id: string;
   name: string;
   class: string;
-  level: number;
-  difficulty: string;
+  mode: string;
   created_at: string;
   updated_at: string;
 }
@@ -11,13 +10,13 @@ export interface Profile {
 export interface CreateProfileInput {
   name: string;
   class: string;
+  mode: string;
 }
 
 export interface UpdateProfileInput {
   name?: string;
   class?: string;
-  level?: number;
-  difficulty?: string;
+  mode?: string;
 }
 
 export interface Run {
@@ -94,6 +93,8 @@ export const D2R_CLASSES = [
 ];
 
 export const DIFFICULTIES = ["Normal", "Nightmare", "Hell"];
+
+export const GAME_MODES = ["Ladder", "Non-Ladder", "Single Player"];
 
 export const RARITIES = [
   "Normal",

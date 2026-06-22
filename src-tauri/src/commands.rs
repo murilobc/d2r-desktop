@@ -11,20 +11,17 @@ pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Resul
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
-    let level = 1;
-    let difficulty = "Hell".to_string();
 
     conn.execute(
-        "INSERT INTO profiles (id, name, class, level, difficulty, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        rusqlite::params![id, input.name, input.class, level, difficulty, now, now],
+        "INSERT INTO profiles (id, name, class, mode, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+        rusqlite::params![id, input.name, input.class, input.mode, now, now],
     ).map_err(|e| e.to_string())?;
 
     Ok(Profile {
         id,
         name: input.name,
         class: input.class,
-        level,
-        difficulty,
+        mode: input.mode,
         created_at: now.clone(),
         updated_at: now,
     })
@@ -34,7 +31,7 @@ pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Resul
 pub fn get_profiles(state: State<DbState>) -> Result<Vec<Profile>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, name, class, level, difficulty, created_at, updated_at FROM profiles ORDER BY created_at DESC")
+        .prepare("SELECT id, name, class, mode, created_at, updated_at FROM profiles ORDER BY created_at DESC")
         .map_err(|e| e.to_string())?;
 
     let profiles = stmt
@@ -43,10 +40,9 @@ pub fn get_profiles(state: State<DbState>) -> Result<Vec<Profile>, String> {
                 id: row.get(0)?,
                 name: row.get(1)?,
                 class: row.get(2)?,
-                level: row.get(3)?,
-                difficulty: row.get(4)?,
-                created_at: row.get(5)?,
-                updated_at: row.get(6)?,
+                mode: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -63,7 +59,7 @@ pub fn update_profile(state: State<DbState>, id: String, input: UpdateProfileInp
 
     // Get current profile
     let mut stmt = conn
-        .prepare("SELECT id, name, class, level, difficulty, created_at, updated_at FROM profiles WHERE id = ?1")
+        .prepare("SELECT id, name, class, mode, created_at, updated_at FROM profiles WHERE id = ?1")
         .map_err(|e| e.to_string())?;
 
     let mut profile: Profile = stmt
@@ -72,10 +68,9 @@ pub fn update_profile(state: State<DbState>, id: String, input: UpdateProfileInp
                 id: row.get(0)?,
                 name: row.get(1)?,
                 class: row.get(2)?,
-                level: row.get(3)?,
-                difficulty: row.get(4)?,
-                created_at: row.get(5)?,
-                updated_at: row.get(6)?,
+                mode: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -86,17 +81,14 @@ pub fn update_profile(state: State<DbState>, id: String, input: UpdateProfileInp
     if let Some(class) = input.class {
         profile.class = class;
     }
-    if let Some(level) = input.level {
-        profile.level = level;
-    }
-    if let Some(difficulty) = input.difficulty {
-        profile.difficulty = difficulty;
+    if let Some(mode) = input.mode {
+        profile.mode = mode;
     }
     profile.updated_at = now;
 
     conn.execute(
-        "UPDATE profiles SET name = ?1, class = ?2, level = ?3, difficulty = ?4, updated_at = ?5 WHERE id = ?6",
-        rusqlite::params![profile.name, profile.class, profile.level, profile.difficulty, profile.updated_at, profile.id],
+        "UPDATE profiles SET name = ?1, class = ?2, mode = ?3, updated_at = ?4 WHERE id = ?5",
+        rusqlite::params![profile.name, profile.class, profile.mode, profile.updated_at, profile.id],
     ).map_err(|e| e.to_string())?;
 
     Ok(profile)

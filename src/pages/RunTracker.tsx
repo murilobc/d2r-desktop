@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from "react";
-import type { Profile, Run } from "../types";
+import { useEffect, useState, useRef, useCallback } from "react";
+import type { Profile } from "../types";
 import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from "../api";
-import type { Item } from "../types";
+import type { Item, Run } from "../types";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
 
@@ -11,93 +11,184 @@ interface Props {
 }
 
 export default function RunTracker({ profile }: Props) {
-  const [runs, setRuns] = useState<Run[]>([]);
-  const [activeRun, setActiveRun] = useState<Run | null>(null);
-  const [elapsed, setElapsed] = useState(0);
+  // Session state
+  const [sessionActive, setSessionActive] = useState(false);
+  const [sessionElapsed, setSessionElapsed] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  // Run state
+  const [runActive, setRunActive] = useState(false);
+  const [runElapsed, setRunElapsed] = useState(0);
+  const [currentRun, setCurrentRun] = useState<Run | null>(null);
+
+  // Session stats
+  const [sessionRunCount, setSessionRunCount] = useState(0);
+  const [totalRunCount, setTotalRunCount] = useState(0);
+  const [fastestTime, setFastestTime] = useState<number | null>(null);
+  const [sessionRunTimes, setSessionRunTimes] = useState<number[]>([]);
+
+  // Config
   const [area, setArea] = useState(AREAS[0]);
-  const [notes, setNotes] = useState("");
+
+  // Items
   const [items, setItems] = useState<Item[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
 
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Timers
+  const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const runTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const loadRuns = async () => {
-    const data = await getRuns(profile.id);
-    setRuns(data.filter((r) => r.status === "completed").slice(0, 5));
-    const inProgress = data.find((r) => r.status === "in_progress");
-    if (inProgress) {
-      setActiveRun(inProgress);
-      const startTime = new Date(inProgress.started_at).getTime();
-      setElapsed(Math.floor((Date.now() - startTime) / 1000));
+  // Load total run count
+  useEffect(() => {
+    getRuns(profile.id).then((data) => {
+      const completed = data.filter((r) => r.status === "completed");
+      setTotalRunCount(completed.length);
+      if (completed.length > 0) {
+        const fastest = Math.min(...completed.map((r) => r.duration_secs).filter((d) => d > 0));
+        setFastestTime(fastest === Infinity ? null : fastest);
+      }
+    });
+  }, [profile.id]);
+
+  // Session timer
+  useEffect(() => {
+    if (sessionActive && !paused) {
+      sessionTimerRef.current = setInterval(() => {
+        setSessionElapsed((prev) => prev + 1);
+      }, 100); // 100ms for tenths display
+    } else {
+      if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
     }
-  };
+    return () => {
+      if (sessionTimerRef.current) clearInterval(sessionTimerRef.current);
+    };
+  }, [sessionActive, paused]);
+
+  // Run timer
+  useEffect(() => {
+    if (runActive && !paused) {
+      runTimerRef.current = setInterval(() => {
+        setRunElapsed((prev) => prev + 1);
+      }, 100); // 100ms for tenths display
+    } else {
+      if (runTimerRef.current) clearInterval(runTimerRef.current);
+    }
+    return () => {
+      if (runTimerRef.current) clearInterval(runTimerRef.current);
+    };
+  }, [runActive, paused]);
 
   const loadItems = async (runId: string) => {
     const data = await getItems(runId);
     setItems(data);
   };
 
-  useEffect(() => {
-    loadRuns();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [profile.id]);
-
-  useEffect(() => {
-    if (activeRun) {
-      loadItems(activeRun.id);
-      timerRef.current = setInterval(() => {
-        setElapsed((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [activeRun?.id]);
-
-  const startRun = async () => {
-    const run = await createRun({ profile_id: profile.id, area, notes: notes || undefined });
-    setActiveRun(run);
-    setElapsed(0);
-    setItems([]);
-    setNotes("");
+  // Start session
+  const startSession = () => {
+    setSessionActive(true);
+    setSessionElapsed(0);
+    setSessionRunCount(0);
+    setSessionRunTimes([]);
+    setPaused(false);
+    startNewRun();
   };
 
-  const stopRun = async () => {
-    if (!activeRun) return;
-    await finishRun(activeRun.id, { duration_secs: elapsed, notes: notes || undefined });
-    setActiveRun(null);
-    setElapsed(0);
-    loadRuns();
+  // Start a new run within the session
+  const startNewRun = useCallback(async () => {
+    const run = await createRun({ profile_id: profile.id, area });
+    setCurrentRun(run);
+    setRunActive(true);
+    setRunElapsed(0);
+    setItems([]);
+  }, [profile.id, area]);
+
+  // Finish current run and start next (split)
+  const splitRun = async () => {
+    if (!currentRun) return;
+    const durationSecs = Math.floor(runElapsed / 10); // convert tenths to seconds
+    await finishRun(currentRun.id, { duration_secs: durationSecs });
+
+    const newTimes = [...sessionRunTimes, durationSecs];
+    setSessionRunTimes(newTimes);
+    setSessionRunCount((prev) => prev + 1);
+    setTotalRunCount((prev) => prev + 1);
+
+    // Update fastest
+    if (durationSecs > 0 && (fastestTime === null || durationSecs < fastestTime)) {
+      setFastestTime(durationSecs);
+    }
+
+    // Start next run immediately
+    startNewRun();
+  };
+
+  // Pause/resume
+  const togglePause = () => {
+    setPaused((prev) => !prev);
+  };
+
+  // End session
+  const endSession = async () => {
+    if (currentRun && runActive) {
+      const durationSecs = Math.floor(runElapsed / 10);
+      await finishRun(currentRun.id, { duration_secs: durationSecs });
+      if (durationSecs > 0) {
+        const newTimes = [...sessionRunTimes, durationSecs];
+        setSessionRunTimes(newTimes);
+        setSessionRunCount((prev) => prev + 1);
+        setTotalRunCount((prev) => prev + 1);
+        if (fastestTime === null || durationSecs < fastestTime) {
+          setFastestTime(durationSecs);
+        }
+      }
+    }
+    setRunActive(false);
+    setCurrentRun(null);
+    setSessionActive(false);
+    setPaused(false);
+    setRunElapsed(0);
+    setItems([]);
   };
 
   const addItem = async (gameItem: GameItem) => {
-    if (!activeRun) return;
+    if (!currentRun) return;
     await createItem({
-      run_id: activeRun.id,
+      run_id: currentRun.id,
       profile_id: profile.id,
       name: gameItem.name,
       item_type: gameItem.subcategory,
       rarity: gameItem.category,
       notes: undefined,
     });
-    loadItems(activeRun.id);
+    loadItems(currentRun.id);
   };
 
   const removeItem = async (id: string) => {
     await deleteItem(id);
-    if (activeRun) loadItems(activeRun.id);
+    if (currentRun) loadItems(currentRun.id);
   };
 
-  const formatTime = (secs: number) => {
+  // Format time with tenths: HH:MM:SS.T
+  const formatTimeTenths = (tenths: number) => {
+    const totalSecs = Math.floor(tenths / 10);
+    const t = tenths % 10;
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.${t}`;
+  };
+
+  // Format seconds to HH:MM:SS.0
+  const formatSecs = (secs: number) => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.0`;
   };
+
+  const averageTime = sessionRunTimes.length > 0
+    ? Math.floor(sessionRunTimes.reduce((a, b) => a + b, 0) / sessionRunTimes.length)
+    : null;
 
   return (
     <div className="page">
@@ -106,9 +197,9 @@ export default function RunTracker({ profile }: Props) {
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
-      {!activeRun ? (
-        <div className="start-run-card">
-          <h2>Iniciar Nova Run</h2>
+      {!sessionActive ? (
+        <div className="start-session-card">
+          <h2>Iniciar Sessão</h2>
           <div className="form-row">
             <div className="form-group">
               <label>Área</label>
@@ -118,27 +209,63 @@ export default function RunTracker({ profile }: Props) {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Notas</label>
-              <input
-                type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Opcional"
-              />
-            </div>
           </div>
-          <button className="btn btn-primary btn-lg" onClick={startRun}>
-            ▶ Iniciar Run
+          <button className="btn btn-primary btn-lg" onClick={startSession}>
+            ▶ Iniciar Sessão
           </button>
         </div>
       ) : (
-        <div className="active-run-card">
-          <div className="run-timer">
-            <span className="timer-display">{formatTime(elapsed)}</span>
-            <span className="run-area">{activeRun.area}</span>
+        <div className="session-card">
+          {/* Timer Display */}
+          <div className="timer-panel">
+            <div className="session-timer-row">
+              <span className={`recording-dot ${paused ? "paused" : ""}`}>●</span>
+              <span className="session-timer-label">Session time: {formatTimeTenths(sessionElapsed)}</span>
+            </div>
+
+            <div className="run-timer-display">
+              {formatTimeTenths(runElapsed)}
+            </div>
+
+            <div className="run-count-display">
+              ───── Run count: <span className="run-count-current">{sessionRunCount}</span>{" "}
+              <span className="run-count-total">({totalRunCount})</span> ─────
+            </div>
+
+            <div className="time-stats">
+              <span>Fastest time: {fastestTime !== null ? formatSecs(fastestTime) : "--:--:--.--"}</span>
+              <span>Average time: {averageTime !== null ? formatSecs(averageTime) : "--:--:--.--"}</span>
+            </div>
           </div>
 
+          {/* Controls */}
+          <div className="tracker-controls">
+            <button className="btn btn-split" onClick={splitRun} disabled={paused}>
+              ⏭ Next Run
+            </button>
+            <button className={`btn ${paused ? "btn-resume" : "btn-pause"}`} onClick={togglePause}>
+              {paused ? "▶ Retomar" : "⏸ Pausar"}
+            </button>
+            <button className="btn btn-danger" onClick={endSession}>
+              ⏹ Finalizar Sessão
+            </button>
+          </div>
+
+          {/* Area display */}
+          <div className="current-area-display">
+            <span className="area-label">Área:</span>
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              className="area-select-inline"
+            >
+              {AREAS.map((a) => (
+                <option key={a} value={a}>{a}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Items */}
           <div className="run-items">
             <div className="run-items-header">
               <h3>Itens Encontrados ({items.length})</h3>
@@ -167,34 +294,6 @@ export default function RunTracker({ profile }: Props) {
               ))}
             </div>
           </div>
-
-          <button className="btn btn-danger btn-lg" onClick={stopRun}>
-            ⏹ Finalizar Run
-          </button>
-        </div>
-      )}
-
-      {runs.length > 0 && (
-        <div className="recent-runs">
-          <h3>Últimas Runs</h3>
-          <table className="runs-table">
-            <thead>
-              <tr>
-                <th>Área</th>
-                <th>Duração</th>
-                <th>Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              {runs.map((run) => (
-                <tr key={run.id}>
-                  <td>{run.area}</td>
-                  <td>{formatTime(run.duration_secs)}</td>
-                  <td>{new Date(run.started_at).toLocaleDateString("pt-BR")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
     </div>

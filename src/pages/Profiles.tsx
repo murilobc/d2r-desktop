@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Profile, CreateProfileInput } from "../types";
-import { D2R_CLASSES } from "../types";
+import { D2R_CLASSES, GAME_MODES } from "../types";
 import { createProfile, getProfiles, deleteProfile } from "../api";
 
 interface Props {
@@ -13,6 +13,7 @@ export default function Profiles({ onSelectProfile }: Props) {
   const [form, setForm] = useState<CreateProfileInput>({
     name: "",
     class: D2R_CLASSES[0],
+    mode: GAME_MODES[0],
   });
 
   const loadProfiles = async () => {
@@ -27,7 +28,7 @@ export default function Profiles({ onSelectProfile }: Props) {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     await createProfile(form);
-    setForm({ name: "", class: D2R_CLASSES[0] });
+    setForm({ name: "", class: D2R_CLASSES[0], mode: GAME_MODES[0] });
     setShowForm(false);
     loadProfiles();
   };
@@ -69,6 +70,14 @@ export default function Profiles({ onSelectProfile }: Props) {
                 ))}
               </select>
             </div>
+            <div className="form-group">
+              <label>Modo</label>
+              <select value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })}>
+                {GAME_MODES.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <button type="submit" className="btn btn-primary">Criar Perfil</button>
         </form>
@@ -80,6 +89,9 @@ export default function Profiles({ onSelectProfile }: Props) {
             <div className="profile-card-header">
               <h3>{profile.name}</h3>
               <span className="badge">{profile.class}</span>
+            </div>
+            <div className="profile-card-body">
+              <p>{profile.mode}</p>
             </div>
             <div className="profile-card-actions">
               <button className="btn btn-sm" onClick={() => onSelectProfile(profile)}>

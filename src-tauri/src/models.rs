@@ -5,8 +5,7 @@ pub struct Profile {
     pub id: String,
     pub name: String,
     pub class: String,
-    pub level: i32,
-    pub difficulty: String,
+    pub mode: String,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -15,14 +14,14 @@ pub struct Profile {
 pub struct CreateProfileInput {
     pub name: String,
     pub class: String,
+    pub mode: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UpdateProfileInput {
     pub name: Option<String>,
     pub class: Option<String>,
-    pub level: Option<i32>,
-    pub difficulty: Option<String>,
+    pub mode: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

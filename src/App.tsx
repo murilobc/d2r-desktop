@@ -78,7 +78,7 @@ function App() {
             <div className="current-profile">
               <small>Perfil ativo:</small>
               <strong>{selectedProfile.name}</strong>
-              <span>{selectedProfile.class} Lv{selectedProfile.level}</span>
+              <span>{selectedProfile.class}</span>
             </div>
           </div>
         )}

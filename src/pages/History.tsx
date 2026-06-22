@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Profile, Run, Item } from "../types";
 import { AREAS } from "../types";
 import { getRuns, getItems, deleteRun, deleteItem, createItem, updateRunArea } from "../api";
@@ -21,14 +21,17 @@ export default function History({ profile }: Props) {
     const completed = data.filter((r) => r.status === "completed");
     setRuns(completed);
 
-    // Load items for all runs and auto-expand those with items
+    // Load items for all runs in parallel and auto-expand those with items
+    const itemResults = await Promise.all(
+      completed.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
+    );
+
     const itemsMap: Record<string, Item[]> = {};
     const toExpand = new Set<string>();
-    for (const run of completed) {
-      const items = await getItems(run.id);
-      itemsMap[run.id] = items;
+    for (const { runId, items } of itemResults) {
+      itemsMap[runId] = items;
       if (items.length > 0) {
-        toExpand.add(run.id);
+        toExpand.add(runId);
       }
     }
     setRunItems(itemsMap);
@@ -93,15 +96,17 @@ export default function History({ profile }: Props) {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Compute run number per area (chronological order)
-  const runNumbers: Record<string, number> = {};
-  const areaCounters: Record<string, number> = {};
-  // runs are DESC, so reverse to count chronologically
-  const runsAsc = [...runs].reverse();
-  for (const run of runsAsc) {
-    areaCounters[run.area] = (areaCounters[run.area] || 0) + 1;
-    runNumbers[run.id] = areaCounters[run.area];
-  }
+  // Compute run number per area (chronological order), memoized
+  const runNumbers = useMemo(() => {
+    const numbers: Record<string, number> = {};
+    const counters: Record<string, number> = {};
+    const runsAsc = [...runs].reverse();
+    for (const run of runsAsc) {
+      counters[run.area] = (counters[run.area] || 0) + 1;
+      numbers[run.id] = counters[run.area];
+    }
+    return numbers;
+  }, [runs]);
 
   return (
     <div className="page">

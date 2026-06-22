@@ -17,7 +17,6 @@ export default function RunTracker({ profile }: Props) {
   const [paused, setPaused] = useState(false);
 
   // Run state
-  const [runActive, setRunActive] = useState(false);
   const [runElapsed, setRunElapsed] = useState(0);
   const [currentRun, setCurrentRun] = useState<Run | null>(null);
 
@@ -73,7 +72,7 @@ export default function RunTracker({ profile }: Props) {
 
   // Run timer
   useEffect(() => {
-    if (runActive && !paused) {
+    if (currentRun && !paused) {
       runTimerRef.current = setInterval(() => {
         setRunElapsed((prev) => prev + 1);
       }, 100); // 100ms for tenths display
@@ -83,7 +82,7 @@ export default function RunTracker({ profile }: Props) {
     return () => {
       if (runTimerRef.current) clearInterval(runTimerRef.current);
     };
-  }, [runActive, paused]);
+  }, [currentRun, paused]);
 
   const loadItems = async (runId: string) => {
     const data = await getItems(runId);
@@ -104,7 +103,6 @@ export default function RunTracker({ profile }: Props) {
   const startNewRun = useCallback(async () => {
     const run = await createRun({ profile_id: profile.id, area });
     setCurrentRun(run);
-    setRunActive(true);
     setRunElapsed(0);
     setItems([]);
   }, [profile.id, area]);
@@ -136,7 +134,7 @@ export default function RunTracker({ profile }: Props) {
 
   // End session
   const endSession = async () => {
-    if (currentRun && runActive) {
+    if (currentRun) {
       const durationSecs = Math.floor(runElapsed / 10);
       await finishRun(currentRun.id, { duration_secs: durationSecs });
       if (durationSecs > 0) {
@@ -149,7 +147,6 @@ export default function RunTracker({ profile }: Props) {
         }
       }
     }
-    setRunActive(false);
     setCurrentRun(null);
     setSessionActive(false);
     setPaused(false);

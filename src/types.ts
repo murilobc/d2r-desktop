@@ -112,8 +112,6 @@ export const D2R_CLASSES = [
   "Warlock",
 ];
 
-export const DIFFICULTIES = ["Normal", "Nightmare", "Hell"];
-
 export const GAME_MODES = ["Ladder", "Non-Ladder", "Single Player"];
 
 export const RARITIES = [

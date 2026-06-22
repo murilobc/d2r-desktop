@@ -31,7 +31,7 @@ const RUNEWORDS: GameItem[] = [
   "Voice of Reason", "Wealth", "White", "Wind", "Wrath", "Zephyr",
   // Ladder Runewords (2.4+)
   "Bulwark", "Cure", "Ground", "Hearth", "Hustle", "Metamorphosis", "Mist",
-  "Mosaic", "Obsession", "Pattern", "Plague", "Temper", "Unbending Will", "Wisdom", "Flickering Flame",
+  "Mosaic", "Obsession", "Pattern", "Temper", "Unbending Will", "Wisdom", "Flickering Flame",
   // Reign of the Warlock (v3.0) new runewords
   "Authority", "Coven", "Void", "Vigilance", "Ritual"
 ].map(name => ({ name, category: "Runeword", subcategory: "Runeword" }));
@@ -45,8 +45,7 @@ const UNIQUE_WEAPONS: GameItem[] = [
   "Warlord's Trust", "Spellsteel", "Stormrider", "Boneslayer Blade", "The Minotaur",
   "Razor's Edge", "Rune Master", "Cranebeak", "Death Cleaver", "Ethereal Edge",
   "Hellslayer", "Messerschmidt's Reaver", "Executioner's Justice",
-  // Bows
-  "Pluckeye", "Witherstring", "Raven Claw", "Rogue's Bow", "Stormstrike",
+  // Bows  "Pluckeye", "Witherstring", "Raven Claw", "Rogue's Bow", "Stormstrike",
   "Wizendraw", "Hellclap", "Blastbark", "Skystrike", "Riphook", "Kuko Shakaku",
   "Endlesshail", "Witchwild String", "Cliffkiller", "Magewrath", "Goldstrike Arch",
   "Eaglehorn", "Widowmaker", "Windforce",
@@ -77,7 +76,7 @@ const UNIQUE_WEAPONS: GameItem[] = [
   "Zakarum's Hand", "The Fetid Sprinkler", "Hand of Blessed Light",
   "Heaven's Light", "The Redeemer", "Astreon's Iron Ward",
   // Spears
-  "The Dragon Chang", "Razortine", "Bloodthief", "Lance of Yaggai",
+  "The Dragon Chang", "Bloodthief", "Lance of Yaggai",
   "The Tannr Gorerod", "The Impaler", "Kelpie Snare", "Soulfeast Tine",
   "Hone Sundan", "Spire of Honor", "Arioc's Needle", "Viperfork", "Steel Pillar",
   // Staves
@@ -106,8 +105,6 @@ const UNIQUE_WEAPONS: GameItem[] = [
   "The Oculus", "Eschuta's Temper", "Death's Fathom",
   // RotW Warlock Unique Weapons
   "Dreadfang", "Bloodpact Shard",
-  // Additional Classic Uniques
-  "Horizon's Tornado", "Astreon's Iron Ward",
 ].map(name => ({ name, category: "Unique", subcategory: "Weapon" }));
 
 // ===== UNIQUE ARMOR =====

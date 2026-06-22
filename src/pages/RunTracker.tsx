@@ -28,7 +28,14 @@ export default function RunTracker({ profile }: Props) {
   const [sessionRunTimes, setSessionRunTimes] = useState<number[]>([]);
 
   // Config
-  const [area, setArea] = useState(AREAS[0]);
+  const [area, setArea] = useState(() => {
+    return localStorage.getItem(`d2r_last_area_${profile.id}`) || AREAS[0];
+  });
+
+  const updateArea = (newArea: string) => {
+    setArea(newArea);
+    localStorage.setItem(`d2r_last_area_${profile.id}`, newArea);
+  };
 
   // Items
   const [items, setItems] = useState<Item[]>([]);
@@ -203,7 +210,7 @@ export default function RunTracker({ profile }: Props) {
           <div className="form-row">
             <div className="form-group">
               <label>Área</label>
-              <select value={area} onChange={(e) => setArea(e.target.value)}>
+              <select value={area} onChange={(e) => updateArea(e.target.value)}>
                 {AREAS.map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
@@ -256,7 +263,7 @@ export default function RunTracker({ profile }: Props) {
             <span className="area-label">Área:</span>
             <select
               value={area}
-              onChange={(e) => setArea(e.target.value)}
+              onChange={(e) => updateArea(e.target.value)}
               className="area-select-inline"
             >
               {AREAS.map((a) => (

@@ -11,21 +11,21 @@
   <!-- Nav items -->
   <rect x="0" y="70" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
   <rect x="0" y="70" width="3" height="40" fill="#e94560"/>
-  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Perfis</text>
+  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
   <text x="20" y="135" fill="#eaeaea" font-size="14" opacity="0.4">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">📜 Histórico</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📊 Estatísticas</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">📜 History</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📊 Statistics</text>
   
   <!-- Data actions -->
   <line x1="0" y1="580" x2="220" y2="580" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="20" y="610" fill="#eaeaea" font-size="12" opacity="0.8">💾 Exportar Dados</text>
-  <text x="20" y="640" fill="#eaeaea" font-size="12" opacity="0.8">📂 Importar Dados</text>
+  <text x="20" y="610" fill="#eaeaea" font-size="12" opacity="0.8">💾 Export Data</text>
+  <text x="20" y="640" fill="#eaeaea" font-size="12" opacity="0.8">📂 Import Data</text>
   
   <!-- Main content -->
   <!-- Header -->
-  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Perfis</text>
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Profiles</text>
   <rect x="880" y="28" width="180" height="34" rx="4" fill="#e94560"/>
-  <text x="920" y="50" fill="white" font-size="13">+ Novo Perfil</text>
+  <text x="920" y="50" fill="white" font-size="13">+ New Profile</text>
   
   <!-- Profile cards -->
   <!-- Card 1 -->
@@ -35,9 +35,9 @@
   <text x="432" y="110" fill="#eaeaea" font-size="11">Sorceress</text>
   <text x="270" y="138" fill="#a0a0a0" font-size="12">Ladder</text>
   <rect x="270" y="155" width="80" height="28" rx="4" fill="none" stroke="#4ecdc4"/>
-  <text x="280" y="174" fill="#4ecdc4" font-size="11">Selecionar</text>
+  <text x="289" y="174" fill="#4ecdc4" font-size="11">Select</text>
   <rect x="360" y="155" width="65" height="28" rx="4" fill="none" stroke="#e94560"/>
-  <text x="373" y="174" fill="#e94560" font-size="11">Deletar</text>
+  <text x="373" y="174" fill="#e94560" font-size="11">Delete</text>
   
   <!-- Card 2 -->
   <rect x="540" y="80" width="270" height="120" rx="8" fill="#16213e" stroke="#2a2a4a"/>
@@ -46,9 +46,9 @@
   <text x="715" y="110" fill="#eaeaea" font-size="11">Paladin</text>
   <text x="560" y="138" fill="#a0a0a0" font-size="12">Ladder</text>
   <rect x="560" y="155" width="80" height="28" rx="4" fill="none" stroke="#4ecdc4"/>
-  <text x="570" y="174" fill="#4ecdc4" font-size="11">Selecionar</text>
+  <text x="579" y="174" fill="#4ecdc4" font-size="11">Select</text>
   <rect x="650" y="155" width="65" height="28" rx="4" fill="none" stroke="#e94560"/>
-  <text x="663" y="174" fill="#e94560" font-size="11">Deletar</text>
+  <text x="663" y="174" fill="#e94560" font-size="11">Delete</text>
   
   <!-- Card 3 -->
   <rect x="830" y="80" width="230" height="120" rx="8" fill="#16213e" stroke="#2a2a4a"/>
@@ -57,24 +57,24 @@
   <text x="978" y="110" fill="#eaeaea" font-size="11">Warlock</text>
   <text x="850" y="138" fill="#a0a0a0" font-size="12">Single Player</text>
   <rect x="850" y="155" width="80" height="28" rx="4" fill="none" stroke="#4ecdc4"/>
-  <text x="860" y="174" fill="#4ecdc4" font-size="11">Selecionar</text>
+  <text x="869" y="174" fill="#4ecdc4" font-size="11">Select</text>
   <rect x="940" y="155" width="65" height="28" rx="4" fill="none" stroke="#e94560"/>
-  <text x="953" y="174" fill="#e94560" font-size="11">Deletar</text>
+  <text x="953" y="174" fill="#e94560" font-size="11">Delete</text>
   
   <!-- Form (shown) -->
   <rect x="250" y="230" width="810" height="180" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="260" fill="#a0a0a0" font-size="11">Nome</text>
+  <text x="270" y="260" fill="#a0a0a0" font-size="11">Name</text>
   <rect x="270" y="268" width="300" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="280" y="289" fill="#666" font-size="12">Nome do personagem</text>
+  <text x="280" y="289" fill="#666" font-size="12">Character name</text>
   
-  <text x="590" y="260" fill="#a0a0a0" font-size="11">Classe</text>
+  <text x="590" y="260" fill="#a0a0a0" font-size="11">Class</text>
   <rect x="590" y="268" width="150" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="600" y="289" fill="#eaeaea" font-size="12">Sorceress</text>
   
-  <text x="760" y="260" fill="#a0a0a0" font-size="11">Modo</text>
+  <text x="760" y="260" fill="#a0a0a0" font-size="11">Mode</text>
   <rect x="760" y="268" width="150" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="770" y="289" fill="#eaeaea" font-size="12">Ladder</text>
   
-  <rect x="270" y="325" width="120" height="34" rx="4" fill="#e94560"/>
-  <text x="287" y="347" fill="white" font-size="13">Criar Perfil</text>
+  <rect x="270" y="325" width="130" height="34" rx="4" fill="#e94560"/>
+  <text x="287" y="347" fill="white" font-size="13">Create Profile</text>
 </svg>

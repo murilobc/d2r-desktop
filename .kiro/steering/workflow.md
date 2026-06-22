@@ -8,29 +8,36 @@ inclusion: always
 
 Every change to this project MUST follow this workflow:
 
-1. **Create a feature branch** from `main` before making any changes:
+1. **Update main first** before starting any work:
+   - `git checkout main && git pull origin main`
+
+2. **Create a feature branch** from the updated `main`:
    - Branch naming: `feat/short-description`, `fix/short-description`, or `refactor/short-description`
    - Command: `git checkout -b feat/feature-name`
 
-2. **Make changes on the branch** — never commit directly to `main`
+3. **Make changes on the branch** — never commit directly to `main`
 
-3. **Run all checks before committing:**
+4. **Run all checks before committing:**
+   - Tests: `npm test`
    - TypeScript: `npx tsc --noEmit`
    - Rust: `cd src-tauri && cargo check`
    - Vite build: `npx vite build`
 
-4. **Commit with descriptive messages** following conventional commits:
+5. **Commit with descriptive messages** following conventional commits:
    - `feat:` for new features
    - `fix:` for bug fixes
    - `refactor:` for code improvements
    - `docs:` for documentation
    - `chore:` for maintenance
 
-5. **Push the branch and create a Pull Request:**
+6. **Push the branch and create a Pull Request:**
    - Push: `git push -u origin branch-name`
    - Create PR: `gh pr create --title "type: description" --body "..." --base main`
 
-6. **Only after PR is approved and merged**, create a tag if a release is needed:
+7. **Return to main** after the PR is created:
+   - `git checkout main`
+
+8. **Only after PR is approved and merged**, create a tag if a release is needed:
    - `git checkout main && git pull origin main`
    - `git tag vX.Y.Z && git push origin vX.Y.Z`
 

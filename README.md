@@ -4,6 +4,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 ## Download
 
+![Downloads](https://img.shields.io/github/downloads/murilobc/d2r-desktop/total?style=flat-square&color=4ecdc4)
+
 | Platform | Installer |
 |----------|-----------|
 | Windows (.exe) | [d2r-desktop_0.7.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_0.7.0_x64-setup.exe) |

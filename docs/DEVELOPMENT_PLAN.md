@@ -31,32 +31,9 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 2. Holy Grail Tracker
+## 2. ~~Holy Grail Tracker~~ ❌ CANCELLED
 
-**Branch:** `feat/holy-grail`
-**Effort:** ~4-6 hours
-**Dependencies:** None
-
-### Tasks:
-1. Create SQLite table: `grail_progress (id, profile_id, item_name, found_at, run_id)`
-2. Add Rust commands: `get_grail_progress`, `mark_grail_item`, `unmark_grail_item`
-3. Register commands in `lib.rs`
-4. Add API functions in `api.ts`
-5. Create `src/pages/HolyGrail.tsx` page
-6. UI: progress bar (X/total), filter tabs (All/Uniques/Sets/Runes/Missing/Found)
-7. Searchable list with checkmarks, color-coded by rarity
-8. Auto-mark items when added to a run via `create_item` (trigger in RunTracker/History)
-9. Add Holy Grail nav item to sidebar (🏆)
-10. Statistics integration: grail completion % in stats page
-11. Add tests for grail page and commands
-12. Update README
-
-### Acceptance Criteria:
-- [ ] Shows total progress (e.g., "127/563 — 22.6%")
-- [ ] Items auto-mark when found during runs
-- [ ] Can manually mark/unmark items
-- [ ] Filter between missing and found
-- [ ] Progress persists per profile
+**Reason:** Will not be implemented. Removed from roadmap.
 
 ---
 
@@ -409,11 +386,10 @@ Each feature should follow this workflow:
 | Version | Features | Status |
 |---------|----------|--------|
 | v1.0.0 | Global Hotkeys + DB Indexes + Player Count | ✅ Released |
-| v1.1.0 | Holy Grail Tracker | Planned |
-| v1.2.0 | MF Calculator + Session Goals | Planned |
-| v1.3.0 | Sound Notifications + Streak Tracking | Planned |
-| v1.4.0 | History Pagination + Custom Areas | Planned |
-| v1.5.0 | Drop Calculator | Planned |
+| v1.1.0 | MF Calculator + Session Goals | Planned |
+| v1.2.0 | Sound Notifications + Streak Tracking | Planned |
+| v1.3.0 | History Pagination + Custom Areas | Planned |
+| v1.4.0 | Drop Calculator | Planned |
 | v2.0.0 | Route Tracking + OBS Integration + Comparison Mode | Planned |
 
 ---

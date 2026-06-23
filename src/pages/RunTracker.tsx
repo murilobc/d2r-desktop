@@ -107,12 +107,16 @@ export default function RunTracker({ profile }: Props) {
 
   // Start a new run within the session
   const startNewRun = useCallback(async () => {
-    const run = await createRun({ profile_id: profile.id, area, player_count: playerCount });
+    const run = await createRun({
+      profile_id: profile.id,
+      area,
+      player_count: profile.mode === "Single Player" ? playerCount : undefined,
+    });
     setCurrentRun(run);
     setRunElapsed(0);
     runElapsedRef.current = 0;
     setItems([]);
-  }, [profile.id, area, playerCount]);
+  }, [profile.id, profile.mode, area, playerCount]);
 
   // Finish current run and start next (split)
   const splitRun = async () => {
@@ -259,14 +263,16 @@ export default function RunTracker({ profile }: Props) {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Players</label>
-              <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
-                {[1,2,3,4,5,6,7,8].map((n) => (
-                  <option key={n} value={n}>/players {n}</option>
-                ))}
-              </select>
-            </div>
+            {profile.mode === "Single Player" && (
+              <div className="form-group">
+                <label>Players</label>
+                <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
+                  {[1,2,3,4,5,6,7,8].map((n) => (
+                    <option key={n} value={n}>/players {n}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           <button className="btn btn-primary btn-lg" onClick={startSession}>
             ▶ Start Session

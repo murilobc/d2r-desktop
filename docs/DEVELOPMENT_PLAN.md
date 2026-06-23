@@ -142,11 +142,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 7. Sound Notifications
+## 7. Sound Notifications ✅ IMPLEMENTED (PR #26)
 
-**Branch:** `feat/sound-notifications`
+**Branch:** `feat/sound-notifications-streak-tracking`
 **Effort:** ~2-3 hours
-**Dependencies:** None (but pairs well with Session Goals)
+**Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add audio files to `public/sounds/` (milestone.mp3, alert.mp3, item-found.mp3)
@@ -162,10 +163,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 7. Update README
 
 ### Acceptance Criteria:
-- [ ] Sounds play at correct trigger points
-- [ ] Sounds can be disabled globally
-- [ ] Volume is configurable
-- [ ] Doesn't interfere with game audio
+- [x] Sounds play at correct trigger points
+- [x] Sounds can be disabled globally
+- [x] Volume is configurable
+- [x] Doesn't interfere with game audio
 
 ---
 
@@ -340,11 +341,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 15. Run Streak Tracking
+## 15. Run Streak Tracking ✅ IMPLEMENTED (PR #26)
 
-**Branch:** `feat/streak-tracking`
+**Branch:** `feat/sound-notifications-streak-tracking`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Compute streaks from existing data (runs without items = dry streak)
@@ -356,10 +358,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 7. Update README
 
 ### Acceptance Criteria:
-- [ ] Shows current dry streak during session
-- [ ] Statistics page shows all-time streak records
-- [ ] Streaks calculated from existing run/item data
-- [ ] Per-area breakdown available
+- [x] Shows current dry streak during session
+- [x] Statistics page shows all-time streak records
+- [x] Streaks calculated from existing run/item data
+- [x] Per-area breakdown available
 
 ---
 
@@ -389,7 +391,7 @@ Each feature should follow this workflow:
 |---------|----------|--------|
 | v1.0.0 | Global Hotkeys + DB Indexes + Player Count | ✅ Released |
 | v1.1.0 | MF Calculator + Session Goals | ✅ Released |
-| v1.2.0 | Sound Notifications + Streak Tracking | Planned |
+| v1.2.0 | Sound Notifications + Streak Tracking | ✅ Released |
 | v1.3.0 | History Pagination + Custom Areas | Planned |
 | v1.4.0 | Drop Calculator | Planned |
 | v2.0.0 | Route Tracking + OBS Integration + Comparison Mode | Planned |

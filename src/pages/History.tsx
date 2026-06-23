@@ -131,6 +131,7 @@ export default function History({ profile }: Props) {
                 <div className="history-item-info">
                   <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
                   <span className="history-time">{formatTime(run.duration_secs)}</span>
+                  {run.player_count && <span className="history-players">/p{run.player_count}</span>}
                   <span className="history-date">
                     {new Date(run.started_at).toLocaleDateString("en-US")} {new Date(run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                   </span>

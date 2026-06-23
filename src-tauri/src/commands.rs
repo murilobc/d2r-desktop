@@ -123,8 +123,8 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
     let id = Uuid::new_v4().to_string();
 
     conn.execute(
-        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5)",
-        rusqlite::params![id, input.profile_id, input.area, now, input.notes],
+        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes, player_count) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5, ?6)",
+        rusqlite::params![id, input.profile_id, input.area, now, input.notes, input.player_count],
     ).map_err(|e| e.to_string())?;
 
     Ok(Run {
@@ -136,6 +136,7 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
         finished_at: None,
         status: "in_progress".to_string(),
         notes: input.notes,
+        player_count: input.player_count,
     })
 }
 
@@ -143,7 +144,7 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
 pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
         .map_err(|e| e.to_string())?;
 
     let runs = stmt
@@ -157,6 +158,7 @@ pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, S
                 finished_at: row.get(5)?,
                 status: row.get(6)?,
                 notes: row.get(7)?,
+                player_count: row.get(8)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -177,7 +179,7 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
     ).map_err(|e| e.to_string())?;
 
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE id = ?1")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE id = ?1")
         .map_err(|e| e.to_string())?;
 
     let run = stmt
@@ -191,6 +193,7 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
                 finished_at: row.get(5)?,
                 status: row.get(6)?,
                 notes: row.get(7)?,
+                player_count: row.get(8)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -402,7 +405,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
 
     let runs: Vec<Run> = if let Some(ref area) = area_filter {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id, area], |row| {
             Ok(Run {
@@ -414,6 +417,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 finished_at: row.get(5)?,
                 status: row.get(6)?,
                 notes: row.get(7)?,
+                player_count: row.get(8)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -422,7 +426,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
         result
     } else {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id], |row| {
             Ok(Run {
@@ -434,6 +438,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 finished_at: row.get(5)?,
                 status: row.get(6)?,
                 notes: row.get(7)?,
+                player_count: row.get(8)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -500,7 +505,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
 
     // Runs
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes FROM runs ORDER BY started_at ASC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs ORDER BY started_at ASC")
         .map_err(|e| e.to_string())?;
     let runs = stmt
         .query_map([], |row| {
@@ -513,6 +518,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
                 finished_at: row.get(5)?,
                 status: row.get(6)?,
                 notes: row.get(7)?,
+                player_count: row.get(8)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -619,8 +625,8 @@ pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResu
         }
 
         conn.execute(
-            "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, finished_at, status, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-            rusqlite::params![run.id, run.profile_id, run.area, run.duration_secs, run.started_at, run.finished_at, run.status, run.notes],
+            "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+            rusqlite::params![run.id, run.profile_id, run.area, run.duration_secs, run.started_at, run.finished_at, run.status, run.notes, run.player_count],
         ).map_err(|e| e.to_string())?;
         runs_imported += 1;
     }

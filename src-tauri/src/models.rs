@@ -34,6 +34,7 @@ pub struct Run {
     pub finished_at: Option<String>,
     pub status: String,
     pub notes: Option<String>,
+    pub player_count: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -41,6 +42,7 @@ pub struct CreateRunInput {
     pub profile_id: String,
     pub area: String,
     pub notes: Option<String>,
+    pub player_count: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

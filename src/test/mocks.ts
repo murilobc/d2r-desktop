@@ -30,6 +30,7 @@ export const mockRun: Run = {
   finished_at: "2026-06-15T14:02:00Z",
   status: "completed",
   notes: null,
+  player_count: 1,
 };
 
 export const mockRuns: Run[] = [
@@ -43,6 +44,7 @@ export const mockRuns: Run[] = [
     finished_at: "2026-06-15T14:06:35Z",
     status: "completed",
     notes: null,
+    player_count: 1,
   },
   {
     id: "run-3",
@@ -53,6 +55,7 @@ export const mockRuns: Run[] = [
     finished_at: "2026-06-15T14:13:30Z",
     status: "completed",
     notes: "Good loot session",
+    player_count: 3,
   },
 ];
 

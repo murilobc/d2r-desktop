@@ -37,11 +37,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 3. MF Effective Calculator
+## 3. MF Effective Calculator ✅ IMPLEMENTED (PR #25)
 
-**Branch:** `feat/mf-calculator`
+**Branch:** `feat/mf-calculator-session-goals`
 **Effort:** ~1-2 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add `magic_find` optional field to Profile model (Rust + TypeScript)
@@ -55,10 +56,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] User inputs total MF in profile
-- [ ] Widget shows effective MF for each rarity type
-- [ ] Calculations match known D2R formulas
-- [ ] Optional — doesn't block usage if not set
+- [x] User inputs total MF in profile
+- [x] Widget shows effective MF for each rarity type
+- [x] Calculations match known D2R formulas
+- [x] Optional — doesn't block usage if not set
 
 ---
 
@@ -115,11 +116,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 6. Session Goals
+## 6. Session Goals ✅ IMPLEMENTED (PR #25)
 
-**Branch:** `feat/session-goals`
+**Branch:** `feat/mf-calculator-session-goals`
 **Effort:** ~3-4 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add goal configuration UI to session start screen (before clicking "Start Session")
@@ -133,10 +135,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] User can set "50 runs" or "2 hours" goal before starting
-- [ ] Progress visible during session
-- [ ] Clear visual feedback when goal is reached
-- [ ] Session continues after goal (not auto-stopped)
+- [x] User can set "50 runs" or "2 hours" goal before starting
+- [x] Progress visible during session
+- [x] Clear visual feedback when goal is reached
+- [x] Session continues after goal (not auto-stopped)
 
 ---
 
@@ -386,7 +388,7 @@ Each feature should follow this workflow:
 | Version | Features | Status |
 |---------|----------|--------|
 | v1.0.0 | Global Hotkeys + DB Indexes + Player Count | ✅ Released |
-| v1.1.0 | MF Calculator + Session Goals | Planned |
+| v1.1.0 | MF Calculator + Session Goals | ✅ Released |
 | v1.2.0 | Sound Notifications + Streak Tracking | Planned |
 | v1.3.0 | History Pagination + Custom Areas | Planned |
 | v1.4.0 | Drop Calculator | Planned |

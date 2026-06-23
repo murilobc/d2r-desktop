@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import type { Profile, Run, Item } from "../types";
 import { AREAS } from "../types";
-import { getRuns, getItems, deleteRun, deleteItem, createItem, updateRunArea } from "../api";
+import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated } from "../api";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
 
@@ -15,27 +15,37 @@ export default function History({ profile }: Props) {
   const [runItems, setRunItems] = useState<Record<string, Item[]>>({});
   const [showItemSearch, setShowItemSearch] = useState<string | null>(null);
   const [editingArea, setEditingArea] = useState<string | null>(null);
+  const [totalRuns, setTotalRuns] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  const loadRuns = async () => {
-    const data = await getRuns(profile.id);
-    const completed = data.filter((r) => r.status === "completed");
-    setRuns(completed);
+  const PAGE_SIZE = 50;
 
-    // Load items for all runs in parallel and auto-expand those with items
+  const loadRuns = async (append = false) => {
+    setLoading(true);
+    const offset = append ? runs.length : 0;
+    const result = await getRunsPaginated(profile.id, offset, PAGE_SIZE);
+    setTotalRuns(result.total);
+
+    const newRuns = append ? [...runs, ...result.runs] : result.runs;
+    setRuns(newRuns);
+
+    // Load items only for the new batch and auto-expand those with items
+    const batchRuns = result.runs;
     const itemResults = await Promise.all(
-      completed.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
+      batchRuns.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
     );
 
-    const itemsMap: Record<string, Item[]> = {};
-    const toExpand = new Set<string>();
+    const newItems = append ? { ...runItems } : {};
+    const toExpand = append ? new Set(expandedRuns) : new Set<string>();
     for (const { runId, items } of itemResults) {
-      itemsMap[runId] = items;
+      newItems[runId] = items;
       if (items.length > 0) {
         toExpand.add(runId);
       }
     }
-    setRunItems(itemsMap);
+    setRunItems(newItems);
     setExpandedRuns(toExpand);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -112,7 +122,7 @@ export default function History({ profile }: Props) {
     <div className="page">
       <div className="page-header">
         <h1>History</h1>
-        <span className="badge">{profile.name} - {runs.length} runs</span>
+        <span className="badge">{profile.name} - {totalRuns} runs</span>
       </div>
 
       {runs.length === 0 ? (
@@ -219,6 +229,16 @@ export default function History({ profile }: Props) {
               )}
             </div>
           ))}
+          {runs.length < totalRuns && (
+            <button
+              className="btn btn-primary btn-lg"
+              style={{ width: "100%", marginTop: "1rem" }}
+              onClick={() => loadRuns(true)}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : `Load More (${runs.length}/${totalRuns})`}
+            </button>
+          )}
         </div>
       )}
     </div>

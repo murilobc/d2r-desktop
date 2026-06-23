@@ -13,6 +13,7 @@ describe("RunTracker Page", () => {
     localStorage.clear();
     mockInvoke.mockImplementation(async (cmd) => {
       if (cmd === "get_runs") return [];
+      if (cmd === "get_custom_areas") return [];
       if (cmd === "create_run") return {
         id: "run-new",
         profile_id: mockProfile.id,

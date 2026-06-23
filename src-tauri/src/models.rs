@@ -122,3 +122,17 @@ pub struct ImportResult {
     pub items_imported: i64,
     pub skipped: i64,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PaginatedRuns {
+    pub runs: Vec<Run>,
+    pub total: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CustomArea {
+    pub id: String,
+    pub profile_id: String,
+    pub name: String,
+    pub created_at: String,
+}

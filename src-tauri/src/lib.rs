@@ -49,6 +49,10 @@ pub fn run() {
             commands::import_data,
             commands::overlay_action,
             commands::overlay_add_item,
+            commands::get_runs_paginated,
+            commands::get_custom_areas,
+            commands::add_custom_area,
+            commands::delete_custom_area,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -106,6 +106,18 @@ export interface ImportResult {
   skipped: number;
 }
 
+export interface PaginatedRuns {
+  runs: Run[];
+  total: number;
+}
+
+export interface CustomArea {
+  id: string;
+  profile_id: string;
+  name: string;
+  created_at: string;
+}
+
 export const D2R_CLASSES = [
   "Amazon",
   "Necromancer",

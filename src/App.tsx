@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Profile, ExportData } from "./types";
 import Profiles from "./pages/Profiles";
 import RunTracker from "./pages/RunTracker";
 import History from "./pages/History";
 import Statistics from "./pages/Statistics";
+import Settings from "./pages/Settings";
+import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
@@ -11,12 +13,17 @@ import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import UpdateChecker from "./components/UpdateChecker";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "history" | "stats";
+type Page = "profiles" | "tracker" | "history" | "stats" | "settings";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
+
+  // Register global hotkeys on app startup
+  useEffect(() => {
+    registerHotkeys().catch(console.warn);
+  }, []);
 
   const handleSelectProfile = (profile: Profile) => {
     setSelectedProfile(profile);
@@ -96,6 +103,8 @@ function App() {
         return selectedProfile ? <History profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "stats":
         return selectedProfile ? <Statistics profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "settings":
+        return <Settings />;
     }
   };
 
@@ -144,6 +153,12 @@ function App() {
           </li>
         </ul>
         <div className="sidebar-data-actions">
+          <button
+            className={`nav-btn ${currentPage === "settings" ? "active" : ""}`}
+            onClick={() => setCurrentPage("settings")}
+          >
+            ⚙️ Settings
+          </button>
           <button className="nav-btn" onClick={toggleOverlay}>
             🖥️ Overlay
           </button>

@@ -42,6 +42,12 @@ vi.mock("@tauri-apps/plugin-updater", () => ({
   check: vi.fn().mockResolvedValue(null),
 }));
 
+vi.mock("@tauri-apps/plugin-global-shortcut", () => ({
+  register: vi.fn().mockResolvedValue(undefined),
+  unregisterAll: vi.fn().mockResolvedValue(undefined),
+  isRegistered: vi.fn().mockResolvedValue(false),
+}));
+
 vi.mock("@tauri-apps/plugin-process", () => ({
   relaunch: vi.fn(),
 }));

@@ -31,6 +31,7 @@ export default function RunTracker({ profile }: Props) {
   const [area, setArea] = useState(() => {
     return localStorage.getItem(`d2r_last_area_${profile.id}`) || AREAS[0];
   });
+  const [playerCount, setPlayerCount] = useState<number>(1);
 
   const updateArea = (newArea: string) => {
     setArea(newArea);
@@ -106,12 +107,12 @@ export default function RunTracker({ profile }: Props) {
 
   // Start a new run within the session
   const startNewRun = useCallback(async () => {
-    const run = await createRun({ profile_id: profile.id, area });
+    const run = await createRun({ profile_id: profile.id, area, player_count: playerCount });
     setCurrentRun(run);
     setRunElapsed(0);
     runElapsedRef.current = 0;
     setItems([]);
-  }, [profile.id, area]);
+  }, [profile.id, area, playerCount]);
 
   // Finish current run and start next (split)
   const splitRun = async () => {
@@ -255,6 +256,14 @@ export default function RunTracker({ profile }: Props) {
               <select value={area} onChange={(e) => updateArea(e.target.value)}>
                 {AREAS.map((a) => (
                   <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Players</label>
+              <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
+                {[1,2,3,4,5,6,7,8].map((n) => (
+                  <option key={n} value={n}>/players {n}</option>
                 ))}
               </select>
             </div>

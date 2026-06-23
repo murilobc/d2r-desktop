@@ -1160,3 +1160,11 @@ body {
 .settings-note strong {
   color: var(--text);
 }
+
+
+/* Player count */
+.history-players {
+  color: var(--magic);
+  font-size: 0.75rem;
+  font-family: monospace;
+}

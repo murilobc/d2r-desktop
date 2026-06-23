@@ -63,6 +63,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
         ",
     )?;
 
+    // Migration: add player_count column if missing
+    migrate_player_count(conn)?;
+
     Ok(())
 }
 
@@ -94,6 +97,19 @@ fn migrate_profiles(conn: &Connection) -> Result<()> {
             DROP TABLE profiles_old;
             ",
         )?;
+    }
+
+    Ok(())
+}
+
+fn migrate_player_count(conn: &Connection) -> Result<()> {
+    let has_col: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('runs') WHERE name = 'player_count'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_col {
+        conn.execute_batch("ALTER TABLE runs ADD COLUMN player_count INTEGER DEFAULT NULL;")?;
     }
 
     Ok(())

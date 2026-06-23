@@ -28,12 +28,14 @@ export interface Run {
   finished_at: string | null;
   status: string;
   notes: string | null;
+  player_count: number | null;
 }
 
 export interface CreateRunInput {
   profile_id: string;
   area: string;
   notes?: string;
+  player_count?: number;
 }
 
 export interface FinishRunInput {

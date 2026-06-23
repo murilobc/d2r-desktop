@@ -32,6 +32,7 @@ The Profiles screen is your starting point. Here you manage your characters.
 - **Name** — Your character name (e.g. "MFSorc", "HammerPally")
 - **Class** — Select from all 8 D2R classes (Amazon, Necromancer, Barbarian, Sorceress, Paladin, Druid, Assassin, Warlock)
 - **Mode** — Ladder, Non-Ladder, or Single Player
+- **MF %** — Optional Magic Find value (used for effective MF calculator)
 - **Create Profile** — Saves the new profile
 - **Select** — Activates the profile and navigates to Run Tracker
 - **Delete** — Permanently removes the profile and all associated runs/items (asks for confirmation)
@@ -56,13 +57,22 @@ The Run Tracker is the core of the application. It manages your farming sessions
 - **Run count** — Current session runs + total all-time runs in parentheses
 - **Fastest time** — Best run time in this session
 - **Average time** — Average run duration in this session
+- **Dry streak** — Runs since last item found (resets when you log an item)
+- **Goal progress** — Shows progress toward run count or time goal (if set)
 - **⏭ Next Run** — Finishes the current run (saves duration) and immediately starts the next one
 - **⏸ Pause / ▶ Resume** — Pauses both session and run timers
 - **⏹ End Session** — Finishes the last run and stops the session
 - **Area selector** (during session) — Change area mid-session if needed
 - **+ Item** — Opens the item search to log a drop found during the current run
-- **Item search** — Searchable combobox with the full D2R v3.2 item database (500+ items), filterable by category (Rune, Runeword, Unique, Set, Base, Charm, Jewel, Rare/Magic)
+- **Item search** — Searchable combobox with the full D2R v3.2 item database (895+ items), filterable by category (Rune, Runeword, Unique, Set, Base, Charm, Jewel, Rare/Magic)
 - **✕** — Remove an item from the current run
+
+**Session start options:**
+- **Area** — Choose farming area (remembers last used, supports custom areas)
+- **Add custom area** — Type a new area name to add to your list
+- **Players** (Single Player only) — Set /players 1-8
+- **Session Goal** — Set a run count or time target
+- **MF Calculator** — Shows effective MF with diminishing returns (if MF is set in profile)
 
 ---
 
@@ -95,7 +105,8 @@ A compact, always-on-top window that floats over D2R while you play. Toggle it f
 The History screen shows all completed runs with full details.
 
 **Functions:**
-- **Run list** — All completed runs sorted newest first, showing area + run number (e.g. "Mephisto #47"), duration, and date/time
+- **Run list** — Completed runs sorted newest first, showing area + run number (e.g. "Mephisto #47"), duration, player count badge, and date/time
+- **Pagination** — Loads 50 runs at a time with "Load More" button for performance
 - **Auto-expand** — Runs that have items found are automatically expanded for quick viewing
 - **Click to expand/collapse** — Toggle run details manually
 - **Area: [name] ✎** — Click to change the run's area retroactively
@@ -125,6 +136,47 @@ The Statistics screen provides analytics and reporting on your farming data.
 
 ---
 
+### Drop Calculator
+
+![Drop Calculator](docs/mockups/drop-calculator.svg)
+
+The Drop Calculator shows what items can drop in each D2R farming area.
+
+**Functions:**
+- **Filter buttons** — All / TC85+ (areas that can drop every item) / Bosses
+- **Area list** — All farming areas with area level and TC badge
+- **Area Level** — Determines which items can drop from monsters
+- **Treasure Class** — Max item tier that the area supports
+- **Monster Types** — What enemies spawn in the area
+- **Notable Drops** — High-value items known to drop here
+- **Tips** — Community farming strategies for the area
+- **TC85+ badge** — Green badge on areas where every item in the game can drop
+
+No profile selection required — accessible anytime from the sidebar.
+
+---
+
+### Settings
+
+![Settings](docs/mockups/settings.svg)
+
+The Settings page lets you configure global hotkeys and sound notifications.
+
+**Global Hotkeys:**
+- **Next Run (Split)** — Default: F9. Works even when D2R is focused.
+- **Pause / Resume** — Default: F10
+- **End Session** — Default: F11
+- **Click to rebind** — Click a hotkey button, then press your desired key/combo
+- **Reset to Defaults** — Restores F9/F10/F11
+
+**Sound Notifications:**
+- **Enable/disable toggle** — Master on/off for all sounds
+- **Volume slider** — 0-100%
+- **Test buttons** — Preview each sound type (Item, Milestone, Alert, Goal)
+- **Triggers:** Item found → beep, every 10 runs → milestone, goal reached → celebration
+
+---
+
 ### Sidebar
 
 The sidebar is always visible and provides navigation and utilities.
@@ -134,8 +186,10 @@ The sidebar is always visible and provides navigation and utilities.
 - 🎮 **Run Tracker** — Active farming session
 - 📜 **History** — Past runs
 - 📊 **Statistics** — Analytics and reports
+- 🎲 **Drop Calculator** — Area drop information
 
 **Utilities:**
+- ⚙️ **Settings** — Hotkeys and sound configuration
 - 🖥️ **Overlay** — Toggle the in-game overlay window
 - 💾 **Export Data** — Save all profiles, runs, and items as JSON backup (native Save dialog)
 - 📂 **Import Data** — Load a JSON backup file (native Open dialog, skips duplicates)
@@ -203,9 +257,13 @@ d2r-desktop/
 ├── src/                       # React frontend
 │   ├── api.ts                 # Tauri command bindings
 │   ├── types.ts               # TypeScript interfaces and constants
-│   ├── data/items.ts          # D2R v3.2 item database (500+ items)
+│   ├── data/
+│   │   ├── items.ts           # D2R v3.2 item database (895+ items)
+│   │   └── areas.ts           # Area metadata (alvl, TC, drops, tips)
 │   ├── components/            # Reusable components
-│   │   └── ItemSearch.tsx     # Searchable combobox
+│   │   ├── ItemSearch.tsx     # Searchable combobox
+│   │   ├── MFCalculator.tsx   # Effective MF widget
+│   │   └── UpdateChecker.tsx  # Auto-update banner
 │   ├── overlay/               # In-game overlay window
 │   │   ├── Overlay.tsx
 │   │   ├── overlay.css
@@ -214,7 +272,11 @@ d2r-desktop/
 │   │   ├── Profiles.tsx
 │   │   ├── RunTracker.tsx
 │   │   ├── History.tsx
-│   │   └── Statistics.tsx
+│   │   ├── Statistics.tsx
+│   │   ├── DropCalculator.tsx
+│   │   └── Settings.tsx
+│   ├── utils/
+│   │   └── audio.ts           # Sound notification system
 │   └── test/                  # Test setup and mocks
 ├── src-tauri/                 # Rust backend
 │   └── src/

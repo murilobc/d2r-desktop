@@ -105,6 +105,10 @@ const UNIQUE_WEAPONS: GameItem[] = [
   "The Oculus", "Eschuta's Temper", "Death's Fathom",
   // RotW Warlock Unique Weapons
   "Dreadfang", "Bloodpact Shard",
+  // Additional Classic Unique Weapons
+  "Nord's Tenderizer", "Demon Limb", "Baranar's Star",
+  "Lycander's Flank", "Blood Raven's Charge", "Stoneraven",
+  "Runewind", "Shadowkiller", "Jade Figurine",
 ].map(name => ({ name, category: "Unique", subcategory: "Weapon" }));
 
 // ===== UNIQUE ARMOR =====
@@ -157,6 +161,9 @@ const UNIQUE_ARMOR: GameItem[] = [
   "Gheed's Wager",
   // RotW Warlock Unique Armor
   "Hellwarden's Will",
+  // Additional Classic Unique Armor
+  "Silks of the Victor", "The Spirit Shroud", "Skin of the Vipermagi",
+  "Skin of the Flayed One", "Iron Pelt", "Veil of Steel",
 ].map(name => ({ name, category: "Unique", subcategory: "Armor" }));
 
 // ===== UNIQUE JEWELRY =====
@@ -356,7 +363,7 @@ const JEWELS: GameItem[] = [
   // RotW Colossal Ancient Unique Jewels (already in UNIQUE_JEWELS above)
 ].map(name => ({ name, category: "Jewel", subcategory: "Jewel" }));
 
-// ===== MAGIC & RARE ITEMS (Boots, Gloves, Amulets) =====
+// ===== MAGIC & RARE ITEMS (Boots, Gloves, Amulets, Circlets) =====
 const MAGIC_RARE_ITEMS: GameItem[] = [
   // Magic Boots (valuable affixes)
   "Magic Boots FRW/FHR/Res", "Magic Boots Tri-Res/FRW", "Magic Boots FRW/MF",
@@ -391,6 +398,21 @@ const MAGIC_RARE_ITEMS: GameItem[] = [
   "Rare Amulet +2 Barbarian/FCR/Res/Life", "Rare Amulet +2 Warlock/FCR/Res/Life",
   "Rare Amulet +2 Skills/FCR/Str/Res", "Rare Amulet +2 Skills/FCR/All Res",
   "Rare Amulet +2 Skills/FCR/MF/Res", "Rare Amulet +2 Skills/FCR/Life/Mana",
+  // Magic Circlets/Tiaras/Diadems/Coronets (valuable affixes)
+  "Magic Circlet +2 Skills/FCR", "Magic Circlet +2 Skills/20 FCR",
+  "Magic Tiara +2 Skills/FCR", "Magic Tiara +2 Skills/30 FRW",
+  "Magic Diadem +2 Skills/FCR", "Magic Diadem +2 Skills/IAS",
+  "Magic Coronet +2 Skills/FCR", "Magic Coronet +2 Skills/MF",
+  "Magic Circlet +3 Fire/20 FCR", "Magic Circlet +3 Lightning/20 FCR",
+  "Magic Circlet +3 Cold/20 FCR", "Magic Circlet +3 PnB/20 FCR",
+  "Magic Circlet +3 Elemental/20 FCR", "Magic Circlet +3 Traps/20 FCR",
+  // Rare Circlets/Tiaras/Diadems/Coronets (GG combos)
+  "Rare Circlet +2 Skills/FCR/Res/Str", "Rare Circlet +2 Skills/FCR/Dual Res/Life",
+  "Rare Circlet +2 Skills/FCR/All Res/Sockets", "Rare Circlet +2 Skills/20 FCR/Str/Res",
+  "Rare Tiara +2 Skills/FCR/Res/Life/Sockets", "Rare Tiara +2 Skills/20 FCR/FHR/Res",
+  "Rare Diadem +2 Skills/FCR/Res/Life", "Rare Diadem +2 Skills/FCR/All Res/Sockets",
+  "Rare Diadem +2 Skills/IAS/Res/Life", "Rare Diadem +2 Skills/FCR/Str/Dex/Res",
+  "Rare Coronet +2 Skills/FCR/Res/Life", "Rare Coronet +2 Skills/20 FCR/FHR/Res",
 ].map(name => ({ name, category: "Rare/Magic", subcategory: "Crafted" }));
 
 // ===== COMBINE ALL =====

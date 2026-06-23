@@ -66,6 +66,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add player_count column if missing
     migrate_player_count(conn)?;
 
+    // Migration: add magic_find column to profiles if missing
+    migrate_magic_find(conn)?;
+
     Ok(())
 }
 
@@ -110,6 +113,19 @@ fn migrate_player_count(conn: &Connection) -> Result<()> {
 
     if !has_col {
         conn.execute_batch("ALTER TABLE runs ADD COLUMN player_count INTEGER DEFAULT NULL;")?;
+    }
+
+    Ok(())
+}
+
+fn migrate_magic_find(conn: &Connection) -> Result<()> {
+    let has_col: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('profiles') WHERE name = 'magic_find'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_col {
+        conn.execute_batch("ALTER TABLE profiles ADD COLUMN magic_find INTEGER DEFAULT NULL;")?;
     }
 
     Ok(())

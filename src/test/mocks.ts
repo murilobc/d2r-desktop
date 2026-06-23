@@ -5,6 +5,7 @@ export const mockProfile: Profile = {
   name: "TestSorc",
   class: "Sorceress",
   mode: "Ladder",
+  magic_find: 300,
   created_at: "2026-06-01T10:00:00Z",
   updated_at: "2026-06-01T10:00:00Z",
 };
@@ -16,6 +17,7 @@ export const mockProfiles: Profile[] = [
     name: "HammerPally",
     class: "Paladin",
     mode: "Non-Ladder",
+    magic_find: null,
     created_at: "2026-06-02T10:00:00Z",
     updated_at: "2026-06-02T10:00:00Z",
   },

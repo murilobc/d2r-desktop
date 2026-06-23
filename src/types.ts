@@ -3,6 +3,7 @@ export interface Profile {
   name: string;
   class: string;
   mode: string;
+  magic_find: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -11,12 +12,14 @@ export interface CreateProfileInput {
   name: string;
   class: string;
   mode: string;
+  magic_find?: number;
 }
 
 export interface UpdateProfileInput {
   name?: string;
   class?: string;
   mode?: string;
+  magic_find?: number;
 }
 
 export interface Run {

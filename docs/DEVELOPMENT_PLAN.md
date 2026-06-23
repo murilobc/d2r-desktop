@@ -4,11 +4,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 1. Global Hotkeys
+## 1. Global Hotkeys ✅ IMPLEMENTED (PR #21)
 
 **Branch:** `feat/global-hotkeys`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Install `@tauri-apps/plugin-global-shortcut` (npm + Cargo)
@@ -23,10 +24,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 10. Update README with hotkey documentation
 
 ### Acceptance Criteria:
-- [ ] User can split/pause/end session without alt-tabbing
-- [ ] Hotkeys work even when app is not focused
-- [ ] Hotkeys are configurable via Settings page
-- [ ] Hotkeys don't conflict with D2R default bindings
+- [x] User can split/pause/end session without alt-tabbing
+- [x] Hotkeys work even when app is not focused
+- [x] Hotkeys are configurable via Settings page
+- [x] Hotkeys don't conflict with D2R default bindings
 
 ---
 
@@ -403,15 +404,15 @@ Each feature should follow this workflow:
 
 ## Version Planning
 
-| Version | Features |
-|---------|----------|
-| v1.0.0 | Global Hotkeys + DB Indexes + Player Count |
-| v1.1.0 | Holy Grail Tracker |
-| v1.2.0 | MF Calculator + Session Goals |
-| v1.3.0 | Sound Notifications + Streak Tracking |
-| v1.4.0 | History Pagination + Custom Areas |
-| v1.5.0 | Drop Calculator |
-| v2.0.0 | Route Tracking + OBS Integration + Comparison Mode |
+| Version | Features | Status |
+|---------|----------|--------|
+| v1.0.0 | Global Hotkeys + DB Indexes + Player Count | 🔄 In progress (1/3 done) |
+| v1.1.0 | Holy Grail Tracker | Planned |
+| v1.2.0 | MF Calculator + Session Goals | Planned |
+| v1.3.0 | Sound Notifications + Streak Tracking | Planned |
+| v1.4.0 | History Pagination + Custom Areas | Planned |
+| v1.5.0 | Drop Calculator | Planned |
+| v2.0.0 | Route Tracking + OBS Integration + Comparison Mode | Planned |
 
 ---
 

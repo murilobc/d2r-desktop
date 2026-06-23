@@ -170,11 +170,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 8. Pagination in History
+## 8. Pagination in History ✅ IMPLEMENTED (PR #27)
 
-**Branch:** `refactor/history-pagination`
+**Branch:** `feat/history-pagination-custom-areas`
 **Effort:** ~2-3 hours
-**Dependencies:** Database Indexes (recommended first)
+**Dependencies:** Database Indexes
+**Status:** Merged
 
 ### Tasks:
 1. Add `get_runs_paginated` Rust command with `offset` and `limit` params
@@ -188,18 +189,19 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 9. Update README if needed
 
 ### Acceptance Criteria:
-- [ ] History loads in < 500ms even with 5000+ runs
-- [ ] "Load More" adds next batch seamlessly
-- [ ] Items only fetched when run is expanded
-- [ ] Run numbers still calculated correctly across pages
+- [x] History loads in < 500ms even with 5000+ runs
+- [x] "Load More" adds next batch seamlessly
+- [x] Items only fetched when run is expanded
+- [x] Run numbers still calculated correctly across pages
 
 ---
 
-## 9. Drop Rate Calculator
+## 9. Drop Rate Calculator ✅ IMPLEMENTED (PR #28)
 
 **Branch:** `feat/drop-calculator`
 **Effort:** ~6-8 hours (complex)
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Research: compile area level data for all D2R areas (TC85, TC87, etc.)
@@ -214,10 +216,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 10. Update README
 
 ### Acceptance Criteria:
-- [ ] User selects an area and sees what can drop there
-- [ ] Shows relative rarity of items in that area
-- [ ] Accounts for area level restrictions
-- [ ] Informative, not necessarily exact (that's Silospen's job)
+- [x] User selects an area and sees what can drop there
+- [x] Shows relative rarity of items in that area
+- [x] Accounts for area level restrictions
+- [x] Informative, not necessarily exact (that's Silospen's job)
 
 ---
 
@@ -317,11 +319,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 14. Custom Area List
+## 14. Custom Area List ✅ IMPLEMENTED (PR #27)
 
-**Branch:** `feat/custom-areas`
+**Branch:** `feat/history-pagination-custom-areas`
 **Effort:** ~2 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Create `custom_areas` table: `id, profile_id, name, created_at`
@@ -334,10 +337,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 8. Update README
 
 ### Acceptance Criteria:
-- [ ] User can add any area name
-- [ ] Custom areas appear in all area selectors
-- [ ] Can be deleted
-- [ ] Don't interfere with default areas
+- [x] User can add any area name
+- [x] Custom areas appear in all area selectors
+- [x] Can be deleted
+- [x] Don't interfere with default areas
 
 ---
 
@@ -392,8 +395,8 @@ Each feature should follow this workflow:
 | v1.0.0 | Global Hotkeys + DB Indexes + Player Count | ✅ Released |
 | v1.1.0 | MF Calculator + Session Goals | ✅ Released |
 | v1.2.0 | Sound Notifications + Streak Tracking | ✅ Released |
-| v1.3.0 | History Pagination + Custom Areas | Planned |
-| v1.4.0 | Drop Calculator | Planned |
+| v1.3.0 | History Pagination + Custom Areas | ✅ Released |
+| v1.4.0 | Drop Calculator | ✅ Released |
 | v2.0.0 | Route Tracking + OBS Integration + Comparison Mode | Planned |
 
 ---

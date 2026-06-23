@@ -85,11 +85,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 4. Database Indexes
+## 4. Database Indexes ✅ IMPLEMENTED (PR #22)
 
 **Branch:** `refactor/db-indexes`
 **Effort:** ~30 minutes
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add index creation to `init_db()` in `db.rs`:
@@ -104,17 +105,18 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 4. No frontend changes needed
 
 ### Acceptance Criteria:
-- [ ] Indexes created on app startup (idempotent)
-- [ ] History and Statistics load faster with 1000+ runs
-- [ ] No migration issues with existing databases
+- [x] Indexes created on app startup (idempotent)
+- [x] History and Statistics load faster with 1000+ runs
+- [x] No migration issues with existing databases
 
 ---
 
-## 5. Player Count Tracking
+## 5. Player Count Tracking ✅ IMPLEMENTED (PR #23)
 
 **Branch:** `feat/player-count`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add `player_count` column to runs table (nullable INTEGER)
@@ -129,10 +131,10 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 10. Update README
 
 ### Acceptance Criteria:
-- [ ] User can set /players X for each session
-- [ ] Player count stored per run
-- [ ] Statistics can be filtered by player count
-- [ ] Backward compatible (old runs have null)
+- [x] User can set /players X for each session
+- [x] Player count stored per run
+- [x] Statistics can be filtered by player count
+- [x] Backward compatible (old runs have null)
 
 ---
 
@@ -406,7 +408,7 @@ Each feature should follow this workflow:
 
 | Version | Features | Status |
 |---------|----------|--------|
-| v1.0.0 | Global Hotkeys + DB Indexes + Player Count | 🔄 In progress (1/3 done) |
+| v1.0.0 | Global Hotkeys + DB Indexes + Player Count | ✅ Released |
 | v1.1.0 | Holy Grail Tracker | Planned |
 | v1.2.0 | MF Calculator + Session Goals | Planned |
 | v1.3.0 | Sound Notifications + Streak Tracking | Planned |

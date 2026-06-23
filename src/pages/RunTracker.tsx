@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Profile, Item, Run } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea } from "../api";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
@@ -34,6 +34,8 @@ export default function RunTracker({ profile }: Props) {
     return localStorage.getItem(`d2r_last_area_${profile.id}`) || AREAS[0];
   });
   const [playerCount, setPlayerCount] = useState<number>(1);
+  const [customAreas, setCustomAreas] = useState<string[]>([]);
+  const [newAreaInput, setNewAreaInput] = useState("");
 
   // Session goals
   const [goalType, setGoalType] = useState<"none" | "runs" | "time">("none");
@@ -66,7 +68,12 @@ export default function RunTracker({ profile }: Props) {
         setFastestTime(fastest === Infinity ? null : fastest);
       }
     });
+    getCustomAreas(profile.id).then((areas) => {
+      setCustomAreas(areas.map((a) => a.name));
+    });
   }, [profile.id]);
+
+  const allAreas = [...AREAS.filter(a => a !== "Other"), ...customAreas, "Other"];
 
   // Session timer
   useEffect(() => {
@@ -287,10 +294,30 @@ export default function RunTracker({ profile }: Props) {
             <div className="form-group">
               <label>Area</label>
               <select value={area} onChange={(e) => updateArea(e.target.value)}>
-                {AREAS.map((a) => (
+                {allAreas.map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>
+              <div className="add-area-row">
+                <input
+                  type="text"
+                  value={newAreaInput}
+                  onChange={(e) => setNewAreaInput(e.target.value)}
+                  placeholder="Add custom area..."
+                  className="add-area-input"
+                />
+                <button
+                  className="btn btn-sm"
+                  onClick={async () => {
+                    if (newAreaInput.trim()) {
+                      await addCustomArea(profile.id, newAreaInput.trim());
+                      setCustomAreas([...customAreas, newAreaInput.trim()]);
+                      setNewAreaInput("");
+                    }
+                  }}
+                  disabled={!newAreaInput.trim()}
+                >+</button>
+              </div>
             </div>
             {profile.mode === "Single Player" && (
               <div className="form-group">
@@ -387,7 +414,7 @@ export default function RunTracker({ profile }: Props) {
               onChange={(e) => updateArea(e.target.value)}
               className="area-select-inline"
             >
-              {AREAS.map((a) => (
+              {allAreas.map((a) => (
                 <option key={a} value={a}>{a}</option>
               ))}
             </select>

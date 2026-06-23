@@ -175,6 +175,43 @@ pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, S
 }
 
 #[tauri::command]
+pub fn get_runs_paginated(state: State<DbState>, profile_id: String, offset: i64, limit: i64) -> Result<PaginatedRuns, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let total: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM runs WHERE profile_id = ?1 AND status = 'completed'",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC LIMIT ?2 OFFSET ?3")
+        .map_err(|e| e.to_string())?;
+
+    let runs = stmt
+        .query_map(rusqlite::params![profile_id, limit, offset], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+                player_count: row.get(8)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(PaginatedRuns { runs, total })
+}
+
+#[tauri::command]
 pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> Result<Run, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
@@ -680,5 +717,59 @@ pub fn overlay_action(app_handle: tauri::AppHandle, action: String) -> Result<()
 #[tauri::command]
 pub fn overlay_add_item(app_handle: tauri::AppHandle, name: String) -> Result<(), String> {
     app_handle.emit("overlay-add-item", name).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ===== CUSTOM AREAS =====
+
+#[tauri::command]
+pub fn get_custom_areas(state: State<DbState>, profile_id: String) -> Result<Vec<CustomArea>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, created_at FROM custom_areas WHERE profile_id = ?1 ORDER BY name ASC")
+        .map_err(|e| e.to_string())?;
+
+    let areas = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(CustomArea {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                created_at: row.get(3)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(areas)
+}
+
+#[tauri::command]
+pub fn add_custom_area(state: State<DbState>, profile_id: String, name: String) -> Result<CustomArea, String> {
+    if name.trim().is_empty() {
+        return Err("Area name cannot be empty".to_string());
+    }
+    if name.len() > 100 {
+        return Err("Area name is too long".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+
+    conn.execute(
+        "INSERT INTO custom_areas (id, profile_id, name, created_at) VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![id, profile_id, name, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(CustomArea { id, profile_id, name, created_at: now })
+}
+
+#[tauri::command]
+pub fn delete_custom_area(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM custom_areas WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
     Ok(())
 }

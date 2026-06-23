@@ -12,6 +12,8 @@ import type {
   DetailedRun,
   ExportData,
   ImportResult,
+  PaginatedRuns,
+  CustomArea,
 } from "./types";
 
 // Profiles
@@ -66,3 +68,18 @@ export const exportData = () => invoke<ExportData>("export_data");
 
 export const importData = (data: ExportData) =>
   invoke<ImportResult>("import_data", { data });
+
+
+// Paginated runs
+export const getRunsPaginated = (profileId: string, offset: number, limit: number) =>
+  invoke<PaginatedRuns>("get_runs_paginated", { profileId, offset, limit });
+
+// Custom areas
+export const getCustomAreas = (profileId: string) =>
+  invoke<CustomArea[]>("get_custom_areas", { profileId });
+
+export const addCustomArea = (profileId: string, name: string) =>
+  invoke<CustomArea>("add_custom_area", { profileId, name });
+
+export const deleteCustomArea = (id: string) =>
+  invoke<void>("delete_custom_area", { id });

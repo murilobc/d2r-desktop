@@ -12,6 +12,7 @@ describe("History Page", () => {
     vi.clearAllMocks();
     mockInvoke.mockImplementation(async (cmd, args) => {
       if (cmd === "get_runs") return mockRuns;
+      if (cmd === "get_runs_paginated") return { runs: mockRuns, total: mockRuns.length };
       if (cmd === "get_items") {
         const { runId } = args as { runId: string };
         if (runId === "run-1") return mockItems;
@@ -47,13 +48,14 @@ describe("History Page", () => {
   it("shows run count in badge", async () => {
     render(<History profile={mockProfile} />);
     await waitFor(() => {
-      expect(screen.getByText("TestSorc - 3 runs")).toBeInTheDocument();
+      expect(screen.getByText(`TestSorc - ${mockRuns.length} runs`)).toBeInTheDocument();
     });
   });
 
   it("shows empty state when no runs", async () => {
     mockInvoke.mockImplementation(async (cmd) => {
       if (cmd === "get_runs") return [];
+      if (cmd === "get_runs_paginated") return { runs: [], total: 0 };
       return undefined;
     });
 

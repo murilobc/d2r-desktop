@@ -47,6 +47,14 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             FOREIGN KEY (run_id) REFERENCES runs(id) ON DELETE CASCADE,
             FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS custom_areas (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
         ",
     )?;
 

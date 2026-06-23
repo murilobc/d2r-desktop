@@ -1252,3 +1252,26 @@ body {
   display: flex;
   gap: 0.4rem;
 }
+
+
+/* Custom area input */
+.add-area-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.add-area-input {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.75rem;
+}
+
+.add-area-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}

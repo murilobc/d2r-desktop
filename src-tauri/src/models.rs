@@ -6,6 +6,7 @@ pub struct Profile {
     pub name: String,
     pub class: String,
     pub mode: String,
+    pub magic_find: Option<i32>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -15,6 +16,7 @@ pub struct CreateProfileInput {
     pub name: String,
     pub class: String,
     pub mode: String,
+    pub magic_find: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -22,6 +24,7 @@ pub struct UpdateProfileInput {
     pub name: Option<String>,
     pub class: Option<String>,
     pub mode: Option<String>,
+    pub magic_find: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

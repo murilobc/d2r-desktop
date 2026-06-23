@@ -78,6 +78,17 @@ export default function Profiles({ onSelectProfile }: Props) {
                 ))}
               </select>
             </div>
+            <div className="form-group">
+              <label>MF %</label>
+              <input
+                type="number"
+                min={0}
+                max={9999}
+                value={form.magic_find ?? ""}
+                onChange={(e) => setForm({ ...form, magic_find: e.target.value ? parseInt(e.target.value) : undefined })}
+                placeholder="Optional"
+              />
+            </div>
           </div>
           <button type="submit" className="btn btn-primary">Create Profile</button>
         </form>

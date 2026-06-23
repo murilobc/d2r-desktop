@@ -5,6 +5,7 @@ import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from 
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
+import MFCalculator from "../components/MFCalculator";
 
 interface Props {
   profile: Profile;
@@ -32,6 +33,10 @@ export default function RunTracker({ profile }: Props) {
     return localStorage.getItem(`d2r_last_area_${profile.id}`) || AREAS[0];
   });
   const [playerCount, setPlayerCount] = useState<number>(1);
+
+  // Session goals
+  const [goalType, setGoalType] = useState<"none" | "runs" | "time">("none");
+  const [goalValue, setGoalValue] = useState<number>(50);
 
   const updateArea = (newArea: string) => {
     setArea(newArea);
@@ -274,9 +279,31 @@ export default function RunTracker({ profile }: Props) {
               </div>
             )}
           </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Session Goal</label>
+              <select value={goalType} onChange={(e) => setGoalType(e.target.value as "none" | "runs" | "time")}>
+                <option value="none">No goal</option>
+                <option value="runs">Run count</option>
+                <option value="time">Time (minutes)</option>
+              </select>
+            </div>
+            {goalType !== "none" && (
+              <div className="form-group">
+                <label>{goalType === "runs" ? "Target runs" : "Target minutes"}</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={goalValue}
+                  onChange={(e) => setGoalValue(parseInt(e.target.value) || 1)}
+                />
+              </div>
+            )}
+          </div>
           <button className="btn btn-primary btn-lg" onClick={startSession}>
             ▶ Start Session
           </button>
+          {profile.magic_find && <MFCalculator magicFind={profile.magic_find} />}
         </div>
       ) : (
         <div className="session-card">
@@ -299,6 +326,16 @@ export default function RunTracker({ profile }: Props) {
             <div className="time-stats">
               <span>Fastest time: {fastestTime !== null ? formatSecs(fastestTime) : "--:--:--.--"}</span>
               <span>Average time: {averageTime !== null ? formatSecs(averageTime) : "--:--:--.--"}</span>
+              {goalType === "runs" && (
+                <span className={sessionRunCount >= goalValue ? "goal-reached" : ""}>
+                  Goal: {sessionRunCount}/{goalValue} runs {sessionRunCount >= goalValue ? "✓" : ""}
+                </span>
+              )}
+              {goalType === "time" && (
+                <span className={Math.floor(sessionElapsed / 600) >= goalValue ? "goal-reached" : ""}>
+                  Goal: {Math.floor(sessionElapsed / 600)}/{goalValue} min {Math.floor(sessionElapsed / 600) >= goalValue ? "✓" : ""}
+                </span>
+              )}
             </div>
           </div>
 

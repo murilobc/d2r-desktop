@@ -5,6 +5,7 @@ import RunTracker from "./pages/RunTracker";
 import History from "./pages/History";
 import Statistics from "./pages/Statistics";
 import Settings from "./pages/Settings";
+import DropCalculator from "./pages/DropCalculator";
 import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
@@ -13,7 +14,7 @@ import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import UpdateChecker from "./components/UpdateChecker";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "history" | "stats" | "settings";
+type Page = "profiles" | "tracker" | "history" | "stats" | "drops" | "settings";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
@@ -103,6 +104,8 @@ function App() {
         return selectedProfile ? <History profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "stats":
         return selectedProfile ? <Statistics profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "drops":
+        return <DropCalculator />;
       case "settings":
         return <Settings />;
     }
@@ -149,6 +152,14 @@ function App() {
               disabled={!selectedProfile}
             >
               📊 Statistics
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "drops" ? "active" : ""}`}
+              onClick={() => setCurrentPage("drops")}
+            >
+              🎲 Drop Calculator
             </button>
           </li>
         </ul>

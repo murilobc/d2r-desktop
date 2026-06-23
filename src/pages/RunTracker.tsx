@@ -6,6 +6,7 @@ import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 import MFCalculator from "../components/MFCalculator";
+import { playSound } from "../utils/audio";
 
 interface Props {
   profile: Profile;
@@ -37,6 +38,7 @@ export default function RunTracker({ profile }: Props) {
   // Session goals
   const [goalType, setGoalType] = useState<"none" | "runs" | "time">("none");
   const [goalValue, setGoalValue] = useState<number>(50);
+  const goalReachedRef = useRef(false);
 
   const updateArea = (newArea: string) => {
     setArea(newArea);
@@ -46,6 +48,9 @@ export default function RunTracker({ profile }: Props) {
   // Items
   const [items, setItems] = useState<Item[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
+
+  // Streak tracking
+  const [currentStreak, setCurrentStreak] = useState(0); // runs since last item
 
   // Timers
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -107,6 +112,7 @@ export default function RunTracker({ profile }: Props) {
     setSessionRunCount(0);
     setSessionRunTimes([]);
     setPaused(false);
+    goalReachedRef.current = false;
     startNewRun();
   };
 
@@ -131,7 +137,11 @@ export default function RunTracker({ profile }: Props) {
 
     const newTimes = [...sessionRunTimes, durationSecs];
     setSessionRunTimes(newTimes);
-    setSessionRunCount((prev) => prev + 1);
+    setSessionRunCount((prev) => {
+      const next = prev + 1;
+      if (next % 10 === 0) playSound("milestone");
+      return next;
+    });
     setTotalRunCount((prev) => prev + 1);
 
     // Update fastest
@@ -141,6 +151,7 @@ export default function RunTracker({ profile }: Props) {
 
     // Start next run immediately
     startNewRun();
+    setCurrentStreak((prev) => prev + 1);
   };
 
   // Pause/resume
@@ -172,6 +183,17 @@ export default function RunTracker({ profile }: Props) {
 
   // Sync state to overlay window (emit on every tick for accurate display)
   useEffect(() => {
+    // Check if goal just reached
+    if (goalType !== "none" && !goalReachedRef.current) {
+      const reached = goalType === "runs"
+        ? sessionRunCount >= goalValue
+        : Math.floor(sessionElapsed / 600) >= goalValue;
+      if (reached) {
+        goalReachedRef.current = true;
+        playSound("goal");
+      }
+    }
+
     emit("overlay-state-update", {
       sessionActive,
       paused,
@@ -219,7 +241,9 @@ export default function RunTracker({ profile }: Props) {
       rarity: gameItem.category,
       notes: undefined,
     });
+    playSound("item");
     loadItems(currentRun.id);
+    setCurrentStreak(0);
   };
 
   const removeItem = async (id: string) => {
@@ -335,6 +359,9 @@ export default function RunTracker({ profile }: Props) {
                 <span className={Math.floor(sessionElapsed / 600) >= goalValue ? "goal-reached" : ""}>
                   Goal: {Math.floor(sessionElapsed / 600)}/{goalValue} min {Math.floor(sessionElapsed / 600) >= goalValue ? "✓" : ""}
                 </span>
+              )}
+              {currentStreak > 0 && (
+                <span className="streak-display">Dry streak: {currentStreak} runs</span>
               )}
             </div>
           </div>

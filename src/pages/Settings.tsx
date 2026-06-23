@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
+import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
 
 const DEFAULT_HOTKEYS = {
   nextRun: "F9",
@@ -156,6 +157,67 @@ export default function Settings() {
           <strong>Tip:</strong> Click a hotkey button, then press the desired key or combination (e.g., F9, Ctrl+Shift+S).
           Avoid keys used by D2R (F1-F8 are skill hotkeys).
         </div>
+      </div>
+
+      <SoundSettings />
+    </div>
+  );
+}
+
+function SoundSettings() {
+  const [prefs, setPrefs] = useState(getSoundPrefs);
+
+  const toggleEnabled = () => {
+    const updated = { ...prefs, enabled: !prefs.enabled };
+    setPrefs(updated);
+    setSoundPrefs(updated);
+  };
+
+  const changeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updated = { ...prefs, volume: parseInt(e.target.value) };
+    setPrefs(updated);
+    setSoundPrefs(updated);
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>Sound Notifications</h2>
+      <p className="settings-description">
+        Audio cues for milestones, item finds, and alerts during farming sessions.
+      </p>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Enable sounds</span>
+        <button className={`hotkey-btn ${prefs.enabled ? "recording" : ""}`} onClick={toggleEnabled}>
+          {prefs.enabled ? "ON" : "OFF"}
+        </button>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Volume</span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={prefs.volume}
+          onChange={changeVolume}
+          className="volume-slider"
+        />
+        <span className="volume-value">{prefs.volume}%</span>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Test sounds</span>
+        <div className="sound-test-btns">
+          <button className="btn btn-sm" onClick={() => playSound("item")}>Item</button>
+          <button className="btn btn-sm" onClick={() => playSound("milestone")}>Milestone</button>
+          <button className="btn btn-sm" onClick={() => playSound("alert")}>Alert</button>
+          <button className="btn btn-sm" onClick={() => playSound("goal")}>Goal</button>
+        </div>
+      </div>
+
+      <div className="settings-note">
+        <strong>Triggers:</strong> Item found → beep, every 10 runs → milestone, run exceeds 2× average → alert, goal reached → celebration.
       </div>
     </div>
   );

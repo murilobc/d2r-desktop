@@ -1227,3 +1227,28 @@ body {
   color: var(--success) !important;
   font-weight: bold;
 }
+
+
+/* Streak display */
+.streak-display {
+  color: #ff6600 !important;
+  font-style: italic;
+}
+
+/* Sound settings */
+.volume-slider {
+  width: 120px;
+  cursor: pointer;
+}
+
+.volume-value {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 35px;
+}
+
+.sound-test-btns {
+  display: flex;
+  gap: 0.4rem;
+}

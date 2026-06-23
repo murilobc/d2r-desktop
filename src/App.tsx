@@ -1,6 +1,5 @@
 import { useState } from "react";
-import type { Profile } from "./types";
-import type { ExportData } from "./types";
+import type { Profile, ExportData } from "./types";
 import Profiles from "./pages/Profiles";
 import RunTracker from "./pages/RunTracker";
 import History from "./pages/History";
@@ -65,7 +64,7 @@ function App() {
 
       if (!filePath) return;
 
-      const text = await readTextFile(filePath as string);
+      const text = await readTextFile(filePath);
       const data: ExportData = JSON.parse(text);
 
       if (!data.version || !data.profiles || !data.runs || !data.items) {

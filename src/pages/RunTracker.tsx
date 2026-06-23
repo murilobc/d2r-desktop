@@ -1,11 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import type { Profile } from "../types";
+import type { Profile, Item, Run } from "../types";
 import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem } from "../api";
-import type { Item, Run } from "../types";
 import type { GameItem } from "../data/items";
-import { emit } from "@tauri-apps/api/event";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 
 interface Props {

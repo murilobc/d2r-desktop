@@ -1,8 +1,7 @@
 use rusqlite::{Connection, Result};
 use std::path::PathBuf;
 use std::sync::Mutex;
-use tauri::AppHandle;
-use tauri::Manager;
+use tauri::{AppHandle, Manager};
 
 pub struct DbState(pub Mutex<Connection>);
 

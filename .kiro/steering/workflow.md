@@ -61,7 +61,38 @@ cd src-tauri && cargo check
 
 # 4. Frontend build (catches bundling issues)
 npx vite build
+
+# 5. Security audit (npm)
+npm audit
+
+# 6. Security audit (Rust)
+cd src-tauri && cargo audit
 ```
+
+## Code Review Checklist
+
+Before creating a PR, review the changes for:
+
+### Clean Code:
+- No duplicate imports
+- No unused variables or imports
+- No `any` types unless explicitly justified with a comment
+- Functions are concise and single-responsibility
+- No hardcoded values that should be constants
+
+### Security:
+- No SQL string interpolation (use `rusqlite::params!` always)
+- Input validation on all Tauri commands that accept user input
+- No secrets or keys in code (check `.gitignore`)
+- File system operations scoped to allowed directories
+- CSP not loosened without justification
+- `npm audit` reports 0 vulnerabilities
+- `cargo audit` reports 0 vulnerabilities (warnings about unmaintained deps are acceptable if they come from Tauri)
+
+### Accessibility:
+- Clickable non-button elements have `role="button"`, `tabIndex={0}`, and `onKeyDown`
+- Form labels are associated with controls
+- Interactive elements are keyboard-navigable
 
 If any check fails, fix the issue before pushing.
 

@@ -121,7 +121,13 @@ export default function History({ profile }: Props) {
         <div className="history-list">
           {runs.map((run) => (
             <div key={run.id} className="history-item">
-              <div className="history-item-header" onClick={() => toggleExpand(run.id)}>
+              <div
+                className="history-item-header"
+                role="button"
+                tabIndex={0}
+                onClick={() => toggleExpand(run.id)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggleExpand(run.id); }}
+              >
                 <div className="history-item-info">
                   <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
                   <span className="history-time">{formatTime(run.duration_secs)}</span>
@@ -159,7 +165,10 @@ export default function History({ profile }: Props) {
                     ) : (
                       <span
                         className="editable-value"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setEditingArea(run.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setEditingArea(run.id); }}
                         title="Click to change"
                       >
                         {run.area} ✎

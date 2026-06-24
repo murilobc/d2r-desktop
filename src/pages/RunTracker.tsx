@@ -7,6 +7,7 @@ import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 import MFCalculator from "../components/MFCalculator";
+import TierBadge from "../components/TierBadge";
 import { playSound } from "../utils/audio";
 
 interface Props {
@@ -556,6 +557,7 @@ export default function RunTracker({ profile }: Props) {
               {items.map((item) => (
                 <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
                   <span className="item-name">{item.name}</span>
+                  <TierBadge itemName={item.name} category={item.rarity} />
                   <span className="item-type">{item.item_type}</span>
                   <span className="item-rarity">{item.rarity}</span>
                   <button className="btn-icon" onClick={() => removeItem(item.id)}>✕</button>

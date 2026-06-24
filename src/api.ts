@@ -14,6 +14,7 @@ import type {
   ImportResult,
   PaginatedRuns,
   CustomArea,
+  ObsStatsInput,
 } from "./types";
 
 // Profiles
@@ -83,3 +84,10 @@ export const addCustomArea = (profileId: string, name: string) =>
 
 export const deleteCustomArea = (id: string) =>
   invoke<void>("delete_custom_area", { id });
+
+// OBS Integration
+export const writeObsStats = (input: ObsStatsInput): Promise<string> =>
+  invoke<string>("write_obs_stats", { input });
+
+export const getObsFilePath = (): Promise<string> =>
+  invoke<string>("get_obs_file_path");

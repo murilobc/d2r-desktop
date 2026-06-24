@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_1.5.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_1.5.0_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_1.5.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_1.5.0_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_2.0.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_2.0.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_2.0.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_2.0.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -194,17 +194,95 @@ The sidebar is always visible and provides navigation and utilities.
 **Navigation:**
 - 👤 **Profiles** — Manage characters
 - 🎮 **Run Tracker** — Active farming session
+- 🗺️ **Routes** — Define and manage multi-area farming routes
 - 📜 **History** — Past runs
 - 📊 **Statistics** — Analytics and reports
+- ⚔️ **Compare** — Compare farming efficiency between areas or time periods
 - 🎲 **Drop Calculator** — Area drop information
 
 **Utilities:**
-- ⚙️ **Settings** — Hotkeys and sound configuration
+- ⚙️ **Settings** — Hotkeys, sound, and OBS configuration
 - 🖥️ **Overlay** — Toggle the in-game overlay window
 - 💾 **Export Data** — Save all profiles, runs, and items as JSON backup (native Save dialog)
 - 📂 **Import Data** — Load a JSON backup file (native Open dialog, skips duplicates)
 
 **Active profile indicator** — Shows the currently selected profile name and class at the bottom.
+
+---
+
+### Route Editor (v2.0.0)
+
+Define multi-area farming routes and use them in the Run Tracker for auto-advancing through steps.
+
+**Functions:**
+- **Route list** — Shows all routes for the active profile with edit/delete actions
+- **Create route** — Name your route and add areas from the picker
+- **Area sequence** — Drag-and-drop to reorder areas in the route
+- **Add/Remove areas** — Build your route from all available areas (built-in + custom)
+- **Minimum 2 areas** — Save button disabled until route has at least 2 areas
+
+**Route Mode in Run Tracker:**
+- **Toggle** — Switch between single-area and route mode before starting a session
+- **Route selector** — Choose which route to run
+- **Auto-advance** — On split, automatically moves to the next area in the route
+- **Cycle tracking** — Wraps back to the first area when the route completes, counting cycles
+- **Step indicator** — Shows "Step 2/4: Pindleskin" during the session
+
+**Route Statistics:**
+- Total completed cycles, average cycle time, items per cycle
+
+---
+
+### Comparison Mode (v2.0.0)
+
+Compare farming efficiency between two areas or two time periods side-by-side.
+
+**Functions:**
+- **Area vs Area** — Select two areas to compare efficiency metrics
+- **Date Range vs Date Range** — Compare two time periods to track improvement
+- **Metrics** — Items/hour, unique items/hour, average time per run, fastest, slowest, items/run
+- **Winner highlighting** — Green border on the better-performing subject
+- **Percentage difference badges** — Shows how much better/worse one is vs the other
+- **Significance emphasis** — Bold gold color when difference exceeds 20%
+- **Grouped bar chart** — Visual side-by-side comparison (Recharts)
+- **Sample size warning** — Badge when a subject has fewer than 5 completed runs
+
+---
+
+### OBS Integration (v2.0.0)
+
+Write live session stats to a text file for OBS Studio stream overlays.
+
+**Setup:**
+1. Go to Settings → OBS Integration → Enable
+2. Choose format: Plain Text or JSON
+3. Copy the file path shown
+4. In OBS: Add "Text (GDI+)" source → Check "Read from file" → Paste the path
+
+**Output content:**
+- Run Count, Session Time, Current Area, Last 3 Items Found
+- Updates every 1 second during active sessions
+- Atomic writes (no partial reads by OBS)
+
+---
+
+### Item Value Tiers (v2.0.0)
+
+Color-coded value badges on items based on D2R community trading values.
+
+**Tiers:**
+| Tier | Color | Points | Examples |
+|------|-------|--------|----------|
+| GG | Gold | 20 | Sur-Zod runes, Enigma, Griffon's Eye, Tyrael's Might |
+| High | Purple | 8 | Gul-Lo runes, Shako, HotO, CTA, Stone of Jordan |
+| Mid | Blue | 3 | Pul-Ist runes, Spirit, Vipermagi, Goldwrap |
+| Low | Green | 1 | Hel-Lem runes, Stealth, Peasant Crown |
+| Worthless | Gray | 0 | El-Dol runes, low-level uniques |
+
+**Integration:**
+- **Run Tracker** — Badge shown next to each logged item
+- **History** — Badge on items + filter dropdown to show only valuable finds
+- **Statistics** — "Item Value Summary" with total points and tier breakdown
 
 ---
 
@@ -283,19 +361,22 @@ d2r-desktop/
 │   ├── pages/                 # App pages
 │   │   ├── Profiles.tsx
 │   │   ├── RunTracker.tsx
+│   │   ├── RouteEditor.tsx    # Multi-area route management
 │   │   ├── History.tsx
 │   │   ├── Statistics.tsx
+│   │   ├── Comparison.tsx     # Area/date range efficiency comparison
 │   │   ├── DropCalculator.tsx
 │   │   └── Settings.tsx
 │   ├── utils/
-│   │   └── audio.ts           # Sound notification system
+│   │   ├── audio.ts           # Sound notification system
+│   │   └── comparison.ts      # Comparison helper functions
 │   └── test/                  # Test setup and mocks
 ├── src-tauri/                 # Rust backend
 │   └── src/
 │       ├── lib.rs             # App setup & plugin registration
 │       ├── db.rs              # SQLite connection & migrations
 │       ├── models.rs          # Data structs
-│       └── commands.rs        # Tauri commands (CRUD, stats, overlay)
+│       └── commands.rs        # Tauri commands (CRUD, stats, routes, comparison, OBS)
 ├── .github/workflows/         # CI/CD
 │   ├── ci.yml                 # PR checks (tests, tsc, cargo, vite)
 │   └── build-windows.yml     # Release builds (signed, with updater)

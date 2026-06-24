@@ -223,11 +223,12 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 
 ---
 
-## 10. Streamer Mode / OBS Integration
+## 10. Streamer Mode / OBS Integration ✅ IMPLEMENTED (PR #34)
 
 **Branch:** `feat/obs-integration`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Add Rust command: `write_obs_stats` that writes current state to a text file
@@ -241,18 +242,19 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 9. Update README with OBS setup guide
 
 ### Acceptance Criteria:
-- [ ] Text file updates live during session
-- [ ] OBS can read it as a Text source
-- [ ] File is clean and readable
-- [ ] No performance impact (async writes)
+- [x] Text file updates live during session
+- [x] OBS can read it as a Text source
+- [x] File is clean and readable
+- [x] No performance impact (async writes)
 
 ---
 
-## 11. Multi-Area Route Tracking
+## 11. Multi-Area Route Tracking ✅ IMPLEMENTED (PR #35)
 
-**Branch:** `feat/route-tracking`
+**Branch:** `feat/v2-route-tracking-comparison`
 **Effort:** ~4-5 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Create `routes` table: `id, profile_id, name, areas (JSON array), created_at`
@@ -266,18 +268,19 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] User can define a route (e.g., Meph → Pindle → Andy)
-- [ ] Run Tracker advances through route steps
-- [ ] Statistics show efficiency per complete route cycle
-- [ ] Can still use single-area mode
+- [x] User can define a route (e.g., Meph → Pindle → Andy)
+- [x] Run Tracker advances through route steps
+- [x] Statistics show efficiency per complete route cycle
+- [x] Can still use single-area mode
 
 ---
 
-## 12. Item Value Estimation
+## 12. Item Value Estimation ✅ IMPLEMENTED (PR #36)
 
 **Branch:** `feat/item-values`
 **Effort:** ~3-4 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Create `src/data/item-values.ts` with tier mapping (Worthless/Low/Mid/High/GG)
@@ -290,9 +293,9 @@ Task breakdown for each feature suggestion. Each feature = one branch + one PR.
 8. Update README
 
 ### Acceptance Criteria:
-- [ ] Each logged item shows a value tier
-- [ ] Statistics include value-based metrics
-- [ ] Tiers are reasonable for current D2R economy
+- [x] Each logged item shows a value tier
+- [x] Statistics include value-based metrics
+- [x] Tiers are reasonable for current D2R economy
 
 ---
 
@@ -397,7 +400,7 @@ Each feature should follow this workflow:
 | v1.2.0 | Sound Notifications + Streak Tracking | ✅ Released |
 | v1.3.0 | History Pagination + Custom Areas | ✅ Released |
 | v1.4.0 | Drop Calculator | ✅ Released |
-| v2.0.0 | Route Tracking + OBS Integration + Comparison Mode | Planned |
+| v2.0.0 | Route Tracking + OBS Integration + Comparison Mode + Item Values | ✅ Released |
 
 ---
 

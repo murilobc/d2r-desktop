@@ -5,6 +5,7 @@ on:
     tags:
       - "v*"
       - "rc-*"
+    branches: []
   workflow_dispatch:
 
 jobs:

@@ -38,6 +38,8 @@ pub struct Run {
     pub status: String,
     pub notes: Option<String>,
     pub player_count: Option<i64>,
+    pub route_id: Option<String>,
+    pub route_step_index: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -46,6 +48,8 @@ pub struct CreateRunInput {
     pub area: String,
     pub notes: Option<String>,
     pub player_count: Option<i64>,
+    pub route_id: Option<String>,
+    pub route_step_index: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -135,4 +139,79 @@ pub struct CustomArea {
     pub profile_id: String,
     pub name: String,
     pub created_at: String,
+}
+
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Route {
+    pub id: String,
+    pub profile_id: String,
+    pub name: String,
+    pub areas: Vec<String>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateRouteInput {
+    pub profile_id: String,
+    pub name: String,
+    pub areas: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdateRouteInput {
+    pub name: String,
+    pub areas: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RouteStats {
+    pub route_id: String,
+    pub route_name: String,
+    pub total_cycles: i64,
+    pub avg_cycle_time_secs: f64,
+    pub total_items: i64,
+    pub items_per_cycle: f64,
+}
+
+// ===== COMPARISON MODE =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "type")]
+pub enum ComparisonRequest {
+    #[serde(rename = "area")]
+    Area {
+        profile_id: String,
+        area_a: String,
+        area_b: String,
+    },
+    #[serde(rename = "date_range")]
+    DateRange {
+        profile_id: String,
+        start_a: String,
+        end_a: String,
+        start_b: String,
+        end_b: String,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SubjectMetrics {
+    pub label: String,
+    pub total_runs: i64,
+    pub total_items: i64,
+    pub total_unique_items: i64,
+    pub total_duration_secs: i64,
+    pub items_per_hour: f64,
+    pub unique_items_per_hour: f64,
+    pub items_per_run: f64,
+    pub avg_time_per_run: f64,
+    pub fastest_run_secs: Option<i64>,
+    pub slowest_run_secs: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ComparisonResult {
+    pub subject_a: SubjectMetrics,
+    pub subject_b: SubjectMetrics,
 }

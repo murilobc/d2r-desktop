@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import type { Profile, Item, Run } from "../types";
+import type { Profile, Item, Run, Route } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes } from "../api";
 import { getObsPrefs } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -43,6 +43,14 @@ export default function RunTracker({ profile }: Props) {
   const [goalValue, setGoalValue] = useState<number>(50);
   const goalReachedRef = useRef(false);
 
+  // Route mode
+  const [routeMode, setRouteMode] = useState(false);
+  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [cycleCount, setCycleCount] = useState(0);
+  const currentStepIndexRef = useRef(0);
+
   const updateArea = (newArea: string) => {
     setArea(newArea);
     localStorage.setItem(`d2r_last_area_${profile.id}`, newArea);
@@ -71,6 +79,9 @@ export default function RunTracker({ profile }: Props) {
     });
     getCustomAreas(profile.id).then((areas) => {
       setCustomAreas(areas.map((a) => a.name));
+    });
+    getRoutes(profile.id).then((routes) => {
+      setAvailableRoutes(routes);
     });
   }, [profile.id]);
 
@@ -121,6 +132,14 @@ export default function RunTracker({ profile }: Props) {
     setSessionRunTimes([]);
     setPaused(false);
     goalReachedRef.current = false;
+
+    if (routeMode && selectedRoute) {
+      setCurrentStepIndex(0);
+      currentStepIndexRef.current = 0;
+      setCycleCount(0);
+      updateArea(selectedRoute.areas[0]);
+    }
+
     startNewRun();
   };
 
@@ -130,12 +149,14 @@ export default function RunTracker({ profile }: Props) {
       profile_id: profile.id,
       area,
       player_count: profile.mode === "Single Player" ? playerCount : undefined,
+      route_id: routeMode && selectedRoute ? selectedRoute.id : undefined,
+      route_step_index: routeMode && selectedRoute ? currentStepIndexRef.current : undefined,
     });
     setCurrentRun(run);
     setRunElapsed(0);
     runElapsedRef.current = 0;
     setItems([]);
-  }, [profile.id, profile.mode, area, playerCount]);
+  }, [profile.id, profile.mode, area, playerCount, routeMode, selectedRoute]);
 
   // Finish current run and start next (split)
   const splitRun = async () => {
@@ -155,6 +176,17 @@ export default function RunTracker({ profile }: Props) {
     // Update fastest
     if (durationSecs > 0 && (fastestTime === null || durationSecs < fastestTime)) {
       setFastestTime(durationSecs);
+    }
+
+    // Route mode: advance step
+    if (routeMode && selectedRoute) {
+      const nextIndex = (currentStepIndexRef.current + 1) % selectedRoute.areas.length;
+      if (nextIndex === 0) {
+        setCycleCount((prev) => prev + 1);
+      }
+      setCurrentStepIndex(nextIndex);
+      currentStepIndexRef.current = nextIndex;
+      updateArea(selectedRoute.areas[nextIndex]);
     }
 
     // Start next run immediately
@@ -377,8 +409,49 @@ export default function RunTracker({ profile }: Props) {
                   type="number"
                   min={1}
                   value={goalValue}
-                  onChange={(e) => setGoalValue(parseInt(e.target.value) || 1)}
+                  onChange={(e) => setGoalValue(Number.parseInt(e.target.value) || 1)}
                 />
+              </div>
+            )}
+          </div>
+          {/* Route Mode */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="route-mode-toggle">Route Mode</label>
+              <label className="toggle-label">
+                <input
+                  id="route-mode-toggle"
+                  type="checkbox"
+                  checked={routeMode}
+                  onChange={(e) => {
+                    setRouteMode(e.target.checked);
+                    if (!e.target.checked) setSelectedRoute(null);
+                  }}
+                  disabled={availableRoutes.length === 0}
+                />
+                <span>{routeMode ? "On" : "Off"}</span>
+              </label>
+              {availableRoutes.length === 0 && (
+                <small className="text-muted">Create routes in the Route Editor first</small>
+              )}
+            </div>
+            {routeMode && (
+              <div className="form-group">
+                <label htmlFor="route-select">Route</label>
+                <select
+                  id="route-select"
+                  value={selectedRoute?.id || ""}
+                  onChange={(e) => {
+                    const route = availableRoutes.find((r) => r.id === e.target.value) || null;
+                    setSelectedRoute(route);
+                    if (route) updateArea(route.areas[0]);
+                  }}
+                >
+                  <option value="">Select route...</option>
+                  {availableRoutes.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name} ({r.areas.length} areas)</option>
+                  ))}
+                </select>
               </div>
             )}
           </div>
@@ -436,6 +509,16 @@ export default function RunTracker({ profile }: Props) {
               ⏹ End Session
             </button>
           </div>
+
+          {/* Route step indicator */}
+          {routeMode && selectedRoute && (
+            <div className="route-step-indicator">
+              <span className="route-step-label">
+                Step {currentStepIndex + 1}/{selectedRoute.areas.length}: <strong>{selectedRoute.areas[currentStepIndex]}</strong>
+              </span>
+              <span className="route-cycle-count">Cycle: {cycleCount}</span>
+            </div>
+          )}
 
           {/* Area display */}
           <div className="current-area-display">

@@ -33,6 +33,8 @@ export const mockRun: Run = {
   status: "completed",
   notes: null,
   player_count: 1,
+  route_id: null,
+  route_step_index: null,
 };
 
 export const mockRuns: Run[] = [
@@ -47,6 +49,8 @@ export const mockRuns: Run[] = [
     status: "completed",
     notes: null,
     player_count: 1,
+    route_id: null,
+    route_step_index: null,
   },
   {
     id: "run-3",
@@ -58,6 +62,8 @@ export const mockRuns: Run[] = [
     status: "completed",
     notes: "Good loot session",
     player_count: 3,
+    route_id: null,
+    route_step_index: null,
   },
 ];
 

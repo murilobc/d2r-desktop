@@ -53,6 +53,8 @@ pub fn run() {
             commands::get_custom_areas,
             commands::add_custom_area,
             commands::delete_custom_area,
+            commands::write_obs_stats,
+            commands::get_obs_file_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

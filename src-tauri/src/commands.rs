@@ -1,7 +1,8 @@
 use crate::db::DbState;
 use crate::models::*;
 use chrono::Utc;
-use tauri::{Emitter, State};
+use serde::Deserialize;
+use tauri::{Emitter, Manager, State};
 use uuid::Uuid;
 
 // ===== PROFILES =====
@@ -772,4 +773,79 @@ pub fn delete_custom_area(state: State<DbState>, id: String) -> Result<(), Strin
     conn.execute("DELETE FROM custom_areas WHERE id = ?1", rusqlite::params![id])
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+// ===== OBS INTEGRATION =====
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ObsStatsInput {
+    pub run_count: i64,
+    pub session_time: String,
+    pub current_area: String,
+    pub last_items: Vec<String>,
+    pub format: String,
+}
+
+fn format_plain_text(input: &ObsStatsInput) -> String {
+    let items_str = input.last_items.join(", ");
+    format!(
+        "Run Count: {}\nSession Time: {}\nCurrent Area: {}\nLast Items: {}\n",
+        input.run_count, input.session_time, input.current_area, items_str
+    )
+}
+
+fn format_json(input: &ObsStatsInput) -> String {
+    let items_json: Vec<String> = input
+        .last_items
+        .iter()
+        .map(|item| format!("\"{}\"", item.replace('\\', "\\\\").replace('"', "\\\"")))
+        .collect();
+    format!(
+        "{{\"runCount\":{},\"sessionTime\":\"{}\",\"currentArea\":\"{}\",\"lastItems\":[{}]}}",
+        input.run_count,
+        input.session_time.replace('\\', "\\\\").replace('"', "\\\""),
+        input.current_area.replace('\\', "\\\\").replace('"', "\\\""),
+        items_json.join(",")
+    )
+}
+
+#[tauri::command]
+pub fn write_obs_stats(app_handle: tauri::AppHandle, input: ObsStatsInput) -> Result<String, String> {
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?;
+
+    std::fs::create_dir_all(&app_data_dir).map_err(|e| e.to_string())?;
+
+    let file_path = app_data_dir.join("obs_stats.txt");
+    let tmp_path = app_data_dir.join("obs_stats.txt.tmp");
+
+    let content = match input.format.as_str() {
+        "json" => format_json(&input),
+        _ => format_plain_text(&input),
+    };
+
+    std::fs::write(&tmp_path, &content).map_err(|e| e.to_string())?;
+
+    if std::fs::rename(&tmp_path, &file_path).is_err() {
+        // Fallback: direct write if rename fails (e.g. Windows file locking)
+        std::fs::write(&file_path, &content).map_err(|e| e.to_string())?;
+        // Clean up tmp file if it still exists
+        let _ = std::fs::remove_file(&tmp_path);
+    }
+
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn get_obs_file_path(app_handle: tauri::AppHandle) -> Result<String, String> {
+    let app_data_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| e.to_string())?;
+
+    let file_path = app_data_dir.join("obs_stats.txt");
+    Ok(file_path.to_string_lossy().to_string())
 }

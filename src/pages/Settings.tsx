@@ -2,6 +2,27 @@ import { useEffect, useState } from "react";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
+import { getObsFilePath } from "../api";
+
+// OBS Preferences
+interface ObsPrefs {
+  enabled: boolean;
+  format: "text" | "json";
+}
+
+const OBS_STORAGE_KEY = "d2r_obs_prefs";
+
+export function getObsPrefs(): ObsPrefs {
+  const stored = localStorage.getItem(OBS_STORAGE_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* ignore */ }
+  }
+  return { enabled: false, format: "text" };
+}
+
+function saveObsPrefs(prefs: ObsPrefs) {
+  localStorage.setItem(OBS_STORAGE_KEY, JSON.stringify(prefs));
+}
 
 const DEFAULT_HOTKEYS = {
   nextRun: "F9",
@@ -160,6 +181,7 @@ export default function Settings() {
       </div>
 
       <SoundSettings />
+      <ObsSettings />
     </div>
   );
 }
@@ -218,6 +240,82 @@ function SoundSettings() {
 
       <div className="settings-note">
         <strong>Triggers:</strong> Item found → beep, every 10 runs → milestone, run exceeds 2× average → alert, goal reached → celebration.
+      </div>
+    </div>
+  );
+}
+
+function ObsSettings() {
+  const [prefs, setPrefs] = useState<ObsPrefs>(getObsPrefs);
+  const [filePath, setFilePath] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (prefs.enabled) {
+      getObsFilePath().then(setFilePath).catch(console.error);
+    }
+  }, [prefs.enabled]);
+
+  const toggleEnabled = () => {
+    const updated = { ...prefs, enabled: !prefs.enabled };
+    setPrefs(updated);
+    saveObsPrefs(updated);
+  };
+
+  const changeFormat = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updated = { ...prefs, format: e.target.value as "text" | "json" };
+    setPrefs(updated);
+    saveObsPrefs(updated);
+  };
+
+  const copyPath = () => {
+    navigator.clipboard.writeText(filePath).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>OBS Integration</h2>
+      <p className="settings-description">
+        Write live session stats to a text file that OBS can read as a Text (GDI+) source for stream overlays.
+      </p>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Enable OBS mode</span>
+        <button className={`hotkey-btn ${prefs.enabled ? "recording" : ""}`} onClick={toggleEnabled}>
+          {prefs.enabled ? "ON" : "OFF"}
+        </button>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Output format</span>
+        <select value={prefs.format} onChange={changeFormat} className="hotkey-btn">
+          <option value="text">Plain Text</option>
+          <option value="json">JSON</option>
+        </select>
+      </div>
+
+      {prefs.enabled && filePath && (
+        <>
+          <div className="hotkey-row">
+            <span className="hotkey-label">File path</span>
+            <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
+              {filePath}
+            </span>
+          </div>
+          <div className="hotkey-row">
+            <span className="hotkey-label" />
+            <button className="btn btn-sm" onClick={copyPath}>
+              {copied ? "Copied!" : "Copy path"}
+            </button>
+          </div>
+        </>
+      )}
+
+      <div className="settings-note">
+        <strong>Tip:</strong> In OBS, add a "Text (GDI+)" source and check "Read from file", then paste the path above.
       </div>
     </div>
   );

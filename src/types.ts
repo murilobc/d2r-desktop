@@ -118,6 +118,14 @@ export interface CustomArea {
   created_at: string;
 }
 
+export interface ObsStatsInput {
+  runCount: number;
+  sessionTime: string;
+  currentArea: string;
+  lastItems: string[];
+  format: "text" | "json";
+}
+
 export const D2R_CLASSES = [
   "Amazon",
   "Necromancer",

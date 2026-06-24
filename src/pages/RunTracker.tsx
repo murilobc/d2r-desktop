@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Profile, Item, Run } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats } from "../api";
+import { getObsPrefs } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
@@ -275,6 +276,36 @@ export default function RunTracker({ profile }: Props) {
     const s = secs % 60;
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.0`;
   };
+
+  // Format session time for OBS output (no tenths needed)
+  const formatSessionTimeForObs = (tenths: number): string => {
+    const totalSecs = Math.floor(tenths / 10);
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const s = totalSecs % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  // OBS stats write interval
+  useEffect(() => {
+    const obsPrefs = getObsPrefs();
+    if (!sessionActive || !obsPrefs.enabled) return;
+
+    const interval = setInterval(() => {
+      const prefs = getObsPrefs(); // re-read in case toggled during session
+      if (!prefs.enabled) return;
+
+      writeObsStats({
+        runCount: sessionRunCount,
+        sessionTime: formatSessionTimeForObs(sessionElapsed),
+        currentArea: area,
+        lastItems: items.slice(-3).reverse().map(i => i.name),
+        format: prefs.format,
+      }).catch(console.error);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sessionActive, sessionRunCount, area, items, sessionElapsed]);
 
   const averageTime = sessionRunTimes.length > 0
     ? Math.floor(sessionRunTimes.reduce((a, b) => a + b, 0) / sessionRunTimes.length)

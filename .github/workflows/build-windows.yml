@@ -1,4 +1,4 @@
-name: Build Windows Installer
+name: Build Installers
 
 on:
   push:
@@ -8,8 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: ""
+          - platform: ubuntu-22.04
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
     permissions:
       contents: write
 
@@ -32,23 +41,20 @@ jobs:
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "is_test=false" >> $GITHUB_OUTPUT
             echo "release_name=D2R Tracker $TAG" >> $GITHUB_OUTPUT
-            echo "release_body=Download the .msi or .exe installer below. The app will auto-update from this release." >> $GITHUB_OUTPUT
+            echo "release_body=Download installers below. Windows: .exe/.msi | Linux: .deb (Ubuntu/Debian), .rpm (Fedora), .AppImage (universal)." >> $GITHUB_OUTPUT
           fi
 
       - name: Update version in package.json
         shell: bash
-        run: |
-          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" package.json
+        run: sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" package.json
 
       - name: Update version in tauri.conf.json
         shell: bash
-        run: |
-          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" src-tauri/tauri.conf.json
+        run: sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.release-type.outputs.version }}\"/" src-tauri/tauri.conf.json
 
       - name: Update version in Cargo.toml
         shell: bash
-        run: |
-          sed -i "0,/^version = \".*\"/s//version = \"${{ steps.release-type.outputs.version }}\"/" src-tauri/Cargo.toml
+        run: sed -i "0,/^version = \".*\"/s//version = \"${{ steps.release-type.outputs.version }}\"/" src-tauri/Cargo.toml
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -63,6 +69,12 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
+
+      - name: Install Linux system dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
 
       - name: Install frontend dependencies
         run: npm ci

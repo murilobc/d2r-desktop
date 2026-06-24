@@ -67,6 +67,14 @@ The Run Tracker is the core of the application. It manages your farming sessions
 - **Item search** — Searchable combobox with the full D2R v3.2 item database (895+ items), filterable by category (Rune, Runeword, Unique, Set, Base, Charm, Jewel, Rare/Magic)
 - **✕** — Remove an item from the current run
 
+**Item Value Tiers:**
+Each logged item automatically displays a color-coded value tier badge based on community pricing (d2jsp, traderie, diablo2.io):
+- **GG** (gold) — Sur-Zod runes, Tyrael's Might, Griffon's Eye, perfect rares (20 pts)
+- **High** (purple) — Gul-Lo runes, Shako, Arachnid Mesh, SoJ (8 pts)
+- **Mid** (blue) — Pul-Ist runes, Vipermagi, Spirit, skillers (3 pts)
+- **Low** (green) — Hel-Lem runes, Stealth, basic usable items (1 pt)
+- **Worthless** (hidden) — El-Dol runes, low-level uniques (0 pts)
+
 **Session start options:**
 - **Area** — Choose farming area (remembers last used, supports custom areas)
 - **Add custom area** — Type a new area name to add to your list
@@ -114,6 +122,7 @@ The History screen shows all completed runs with full details.
 - **+ Add Item** — Add items to a past run (uses the full searchable item database)
 - **✕** — Remove an item from the run
 - **Delete** — Permanently remove a run and its items
+- **Filter by tier** — Dropdown to filter visible items within runs by value tier (All / Worthless / Low / Mid / High / GG)
 
 ---
 
@@ -126,6 +135,7 @@ The Statistics screen provides analytics and reporting on your farming data.
 **Functions:**
 - **Area filter** — Filter all stats and charts by a specific area, or view all areas combined
 - **Summary cards** — Total Runs, Total Items, Total Time, Average Time, Fastest, Slowest, Items/Run, Items/Hour
+- **Item Value Summary** — Total value points from all items found, with a breakdown showing count per tier (GG, High, Mid, Low)
 - **Duration per Run chart** — Line chart showing run time over time (efficiency trend)
 - **Items per Run chart** — Bar chart showing drops per run
 - **Rarity Distribution** — Pie chart of items by rarity type
@@ -259,10 +269,12 @@ d2r-desktop/
 │   ├── types.ts               # TypeScript interfaces and constants
 │   ├── data/
 │   │   ├── items.ts           # D2R v3.2 item database (895+ items)
+│   │   ├── item-values.ts     # Item value tier estimation (Worthless/Low/Mid/High/GG)
 │   │   └── areas.ts           # Area metadata (alvl, TC, drops, tips)
 │   ├── components/            # Reusable components
 │   │   ├── ItemSearch.tsx     # Searchable combobox
 │   │   ├── MFCalculator.tsx   # Effective MF widget
+│   │   ├── TierBadge.tsx      # Item value tier badge
 │   │   └── UpdateChecker.tsx  # Auto-update banner
 │   ├── overlay/               # In-game overlay window
 │   │   ├── Overlay.tsx

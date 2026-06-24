@@ -1672,3 +1672,100 @@ body {
   color: var(--gold);
   font-weight: bold;
 }
+
+/* Item Value Tier Badges */
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid currentColor;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.tier-worthless {
+  color: #6b7280;
+}
+
+.tier-low {
+  color: #22c55e;
+}
+
+.tier-mid {
+  color: #3b82f6;
+}
+
+.tier-high {
+  color: #a855f7;
+}
+
+.tier-gg {
+  color: #f59e0b;
+}
+
+/* Tier filter in History */
+.tier-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tier-filter label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tier-filter select {
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+/* Session Value in Statistics */
+.session-value-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.session-value-card h3 {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+}
+
+.value-total {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.tier-breakdown {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tier-breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.tier-breakdown-count {
+  font-weight: bold;
+  font-size: 0.9rem;
+}

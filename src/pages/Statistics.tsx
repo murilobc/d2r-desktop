@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { calculateTotalValue, getTierBreakdown, TIERS, TIER_NAMES } from "../data/item-values";
 
 interface Props {
   profile: Profile;
@@ -90,6 +91,11 @@ export default function Statistics({ profile }: Props) {
         items: dr.items.length,
       }));
 
+    // Value metrics
+    const allItems = detailedRuns.flatMap((dr) => dr.items.map((i) => ({ name: i.name, rarity: i.rarity })));
+    const totalValue = calculateTotalValue(allItems);
+    const tierBreakdown = getTierBreakdown(allItems);
+
     return {
       totalRuns,
       totalItems,
@@ -102,6 +108,8 @@ export default function Statistics({ profile }: Props) {
       rarityData: Object.entries(rarityMap).map(([rarity, count]) => ({ name: rarity, value: count })),
       topItems,
       runTimeline,
+      totalValue,
+      tierBreakdown,
     };
   }, [detailedRuns]);
 
@@ -356,6 +364,22 @@ export default function Statistics({ profile }: Props) {
               <div className="stat-label">Slowest</div>
             </div>
           </div>
+
+          {/* Value Metrics */}
+          {filteredStats.totalItems > 0 && (
+            <div className="session-value-card">
+              <h3>Item Value Summary</h3>
+              <div className="value-total">{filteredStats.totalValue} pts</div>
+              <div className="tier-breakdown">
+                {TIER_NAMES.filter((t) => filteredStats.tierBreakdown[t] > 0).map((t) => (
+                  <div key={t} className="tier-breakdown-item">
+                    <span className={`tier-badge ${TIERS[t].cssClass}`}>{TIERS[t].label}</span>
+                    <span className="tier-breakdown-count">×{filteredStats.tierBreakdown[t]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Charts */}
           <div className="charts-grid">

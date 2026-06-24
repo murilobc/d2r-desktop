@@ -4,6 +4,9 @@ import { AREAS } from "../types";
 import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated } from "../api";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
+import TierBadge from "../components/TierBadge";
+import type { TierName } from "../data/item-values";
+import { getItemTierName, TIER_NAMES, TIERS } from "../data/item-values";
 
 interface Props {
   profile: Profile;
@@ -17,6 +20,7 @@ export default function History({ profile }: Props) {
   const [editingArea, setEditingArea] = useState<string | null>(null);
   const [totalRuns, setTotalRuns] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [tierFilter, setTierFilter] = useState<"all" | TierName>("all");
 
   const PAGE_SIZE = 50;
 
@@ -129,6 +133,19 @@ export default function History({ profile }: Props) {
         <p className="empty-state">No completed runs yet.</p>
       ) : (
         <div className="history-list">
+          <div className="tier-filter">
+            <label htmlFor="history-tier-filter">Filter by tier:</label>
+            <select
+              id="history-tier-filter"
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value as "all" | TierName)}
+            >
+              <option value="all">All tiers</option>
+              {TIER_NAMES.map((t) => (
+                <option key={t} value={t}>{TIERS[t].label}</option>
+              ))}
+            </select>
+          </div>
           {runs.map((run) => (
             <div key={run.id} className="history-item">
               <div
@@ -212,9 +229,12 @@ export default function History({ profile }: Props) {
 
                     {runItems[run.id] && runItems[run.id].length > 0 ? (
                       <div className="items-list">
-                        {runItems[run.id].map((item) => (
+                        {runItems[run.id]
+                          .filter((item) => tierFilter === "all" || getItemTierName(item.name, item.rarity) === tierFilter)
+                          .map((item) => (
                           <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
                             <span className="item-name">{item.name}</span>
+                            <TierBadge itemName={item.name} category={item.rarity} />
                             <span className="item-type">{item.item_type}</span>
                             <span className="item-rarity">{item.rarity}</span>
                             <button className="btn-icon" onClick={() => handleDeleteItem(item.id, run.id)}>✕</button>

@@ -1452,3 +1452,96 @@ body {
 .dc-summary strong {
   color: var(--success);
 }
+
+
+/* Drop Calculator Tabs & Rates */
+.dc-tabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dc-rates-config {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.dc-config-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.dc-config-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dc-config-item label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.dc-config-item input,
+.dc-config-item select {
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.8rem;
+  width: 80px;
+}
+
+.dc-config-suffix {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.dc-prob-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.dc-prob-table th,
+.dc-prob-table td {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.dc-prob-table th {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.dc-item-name {
+  font-weight: 500;
+}
+
+.dc-item-name.rarity-unique { color: var(--unique); }
+.dc-item-name.rarity-set { color: var(--set); }
+.dc-item-name.rarity-rune { color: #ff8c00; }
+
+.dc-chance {
+  font-family: monospace;
+  color: var(--success);
+}
+
+.dc-runs {
+  font-family: monospace;
+  color: var(--text-muted);
+}
+
+.dc-note {
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: italic;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { Profile, CreateProfileInput } from "../types";
+import type { Profile, CreateProfileInput, UpdateProfileInput } from "../types";
 import { D2R_CLASSES, GAME_MODES } from "../types";
-import { createProfile, getProfiles, deleteProfile } from "../api";
+import { createProfile, getProfiles, deleteProfile, updateProfile } from "../api";
 
 interface Props {
   onSelectProfile: (profile: Profile) => void;
@@ -10,6 +10,7 @@ interface Props {
 export default function Profiles({ onSelectProfile }: Props) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
   const [form, setForm] = useState<CreateProfileInput>({
     name: "",
     class: D2R_CLASSES[0],
@@ -33,6 +34,27 @@ export default function Profiles({ onSelectProfile }: Props) {
     loadProfiles();
   };
 
+  const handleEdit = (profile: Profile) => {
+    setEditingProfile(profile);
+    setShowForm(false);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProfile) return;
+
+    const input: UpdateProfileInput = {
+      name: editingProfile.name,
+      class: editingProfile.class,
+      mode: editingProfile.mode,
+      magic_find: editingProfile.magic_find ?? undefined,
+    };
+
+    await updateProfile(editingProfile.id, input);
+    setEditingProfile(null);
+    loadProfiles();
+  };
+
   const handleDelete = async (id: string) => {
     if (confirm("Delete this profile and all its data?")) {
       await deleteProfile(id);
@@ -44,7 +66,7 @@ export default function Profiles({ onSelectProfile }: Props) {
     <div className="page">
       <div className="page-header">
         <h1>Profiles</h1>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+        <button className="btn btn-primary" onClick={() => { setShowForm(!showForm); setEditingProfile(null); }}>
           {showForm ? "Cancel" : "+ New Profile"}
         </button>
       </div>
@@ -85,12 +107,60 @@ export default function Profiles({ onSelectProfile }: Props) {
                 min={0}
                 max={9999}
                 value={form.magic_find ?? ""}
-                onChange={(e) => setForm({ ...form, magic_find: e.target.value ? parseInt(e.target.value) : undefined })}
+                onChange={(e) => setForm({ ...form, magic_find: e.target.value ? Number(e.target.value) : undefined })}
                 placeholder="Optional"
               />
             </div>
           </div>
           <button type="submit" className="btn btn-primary">Create Profile</button>
+        </form>
+      )}
+
+      {editingProfile && (
+        <form className="form-card" onSubmit={handleSaveEdit}>
+          <h3 style={{ marginBottom: "0.75rem" }}>Edit Profile</h3>
+          <div className="form-row">
+            <div className="form-group" style={{ flex: 2 }}>
+              <label>Name</label>
+              <input
+                type="text"
+                value={editingProfile.name}
+                onChange={(e) => setEditingProfile({ ...editingProfile, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Class</label>
+              <select value={editingProfile.class} onChange={(e) => setEditingProfile({ ...editingProfile, class: e.target.value })}>
+                {D2R_CLASSES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Mode</label>
+              <select value={editingProfile.mode} onChange={(e) => setEditingProfile({ ...editingProfile, mode: e.target.value })}>
+                {GAME_MODES.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>MF %</label>
+              <input
+                type="number"
+                min={0}
+                max={9999}
+                value={editingProfile.magic_find ?? ""}
+                onChange={(e) => setEditingProfile({ ...editingProfile, magic_find: e.target.value ? Number(e.target.value) : null })}
+                placeholder="Optional"
+              />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button type="submit" className="btn btn-primary">Save</button>
+            <button type="button" className="btn" onClick={() => setEditingProfile(null)}>Cancel</button>
+          </div>
         </form>
       )}
 
@@ -102,11 +172,14 @@ export default function Profiles({ onSelectProfile }: Props) {
               <span className="badge">{profile.class}</span>
             </div>
             <div className="profile-card-body">
-              <p>{profile.mode}</p>
+              <p>{profile.mode}{profile.magic_find ? ` • ${profile.magic_find}% MF` : ""}</p>
             </div>
             <div className="profile-card-actions">
               <button className="btn btn-sm" onClick={() => onSelectProfile(profile)}>
                 Select
+              </button>
+              <button className="btn btn-sm" onClick={() => handleEdit(profile)}>
+                Edit
               </button>
               <button className="btn btn-sm btn-danger" onClick={() => handleDelete(profile.id)}>
                 Delete

@@ -55,6 +55,17 @@ pub fn init_db(conn: &Connection) -> Result<()> {
             created_at TEXT NOT NULL,
             FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS routes (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            areas TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_routes_profile ON routes(profile_id);
         ",
     )?;
 
@@ -76,6 +87,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
 
     // Migration: add magic_find column to profiles if missing
     migrate_magic_find(conn)?;
+
+    // Migration: add routes table and route columns to runs
+    migrate_routes(conn)?;
 
     Ok(())
 }
@@ -135,6 +149,33 @@ fn migrate_magic_find(conn: &Connection) -> Result<()> {
     if !has_col {
         conn.execute_batch("ALTER TABLE profiles ADD COLUMN magic_find INTEGER DEFAULT NULL;")?;
     }
+
+    Ok(())
+}
+
+fn migrate_routes(conn: &Connection) -> Result<()> {
+    // Add route_id column to runs if missing
+    let has_route_id: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('runs') WHERE name = 'route_id'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_route_id {
+        conn.execute_batch("ALTER TABLE runs ADD COLUMN route_id TEXT DEFAULT NULL;")?;
+    }
+
+    // Add route_step_index column to runs if missing
+    let has_step_index: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('runs') WHERE name = 'route_step_index'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_step_index {
+        conn.execute_batch("ALTER TABLE runs ADD COLUMN route_step_index INTEGER DEFAULT NULL;")?;
+    }
+
+    // Add index for route lookups
+    conn.execute_batch("CREATE INDEX IF NOT EXISTS idx_runs_route ON runs(route_id);")?;
 
     Ok(())
 }

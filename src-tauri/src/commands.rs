@@ -2,6 +2,7 @@ use crate::db::DbState;
 use crate::models::*;
 use chrono::Utc;
 use serde::Deserialize;
+use serde_json;
 use tauri::{Emitter, Manager, State};
 use uuid::Uuid;
 
@@ -130,8 +131,8 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
     let id = Uuid::new_v4().to_string();
 
     conn.execute(
-        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes, player_count) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5, ?6)",
-        rusqlite::params![id, input.profile_id, input.area, now, input.notes, input.player_count],
+        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes, player_count, route_id, route_step_index) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5, ?6, ?7, ?8)",
+        rusqlite::params![id, input.profile_id, input.area, now, input.notes, input.player_count, input.route_id, input.route_step_index],
     ).map_err(|e| e.to_string())?;
 
     Ok(Run {
@@ -144,6 +145,8 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
         status: "in_progress".to_string(),
         notes: input.notes,
         player_count: input.player_count,
+        route_id: input.route_id,
+        route_step_index: input.route_step_index,
     })
 }
 
@@ -151,7 +154,7 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
 pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
         .map_err(|e| e.to_string())?;
 
     let runs = stmt
@@ -166,6 +169,8 @@ pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, S
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -188,7 +193,7 @@ pub fn get_runs_paginated(state: State<DbState>, profile_id: String, offset: i64
         .map_err(|e| e.to_string())?;
 
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC LIMIT ?2 OFFSET ?3")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC LIMIT ?2 OFFSET ?3")
         .map_err(|e| e.to_string())?;
 
     let runs = stmt
@@ -203,6 +208,8 @@ pub fn get_runs_paginated(state: State<DbState>, profile_id: String, offset: i64
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -223,7 +230,7 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
     ).map_err(|e| e.to_string())?;
 
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE id = ?1")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE id = ?1")
         .map_err(|e| e.to_string())?;
 
     let run = stmt
@@ -238,6 +245,8 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -449,7 +458,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
 
     let runs: Vec<Run> = if let Some(ref area) = area_filter {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id, area], |row| {
             Ok(Run {
@@ -462,6 +471,8 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -470,7 +481,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
         result
     } else {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id], |row| {
             Ok(Run {
@@ -483,6 +494,8 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -550,7 +563,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
 
     // Runs
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count FROM runs ORDER BY started_at ASC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs ORDER BY started_at ASC")
         .map_err(|e| e.to_string())?;
     let runs = stmt
         .query_map([], |row| {
@@ -564,6 +577,8 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
                 status: row.get(6)?,
                 notes: row.get(7)?,
                 player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -704,6 +719,293 @@ pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResu
         items_imported,
         skipped,
     })
+}
+
+// ===== ROUTES =====
+
+#[tauri::command]
+pub fn create_route(state: State<DbState>, input: CreateRouteInput) -> Result<Route, String> {
+    if input.name.trim().is_empty() {
+        return Err("Route name cannot be empty".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Route name is too long (max 100 characters)".to_string());
+    }
+    if input.areas.len() < 2 {
+        return Err("Route must contain at least 2 areas".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+    let areas_json = serde_json::to_string(&input.areas).map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO routes (id, profile_id, name, areas, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+        rusqlite::params![id, input.profile_id, input.name, areas_json, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(Route {
+        id,
+        profile_id: input.profile_id,
+        name: input.name,
+        areas: input.areas,
+        created_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_routes(state: State<DbState>, profile_id: String) -> Result<Vec<Route>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, areas, created_at FROM routes WHERE profile_id = ?1 ORDER BY created_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let routes = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            let areas_json: String = row.get(3)?;
+            let areas: Vec<String> = serde_json::from_str(&areas_json)
+                .unwrap_or_default();
+            Ok(Route {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                areas,
+                created_at: row.get(4)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(routes)
+}
+
+#[tauri::command]
+pub fn update_route(state: State<DbState>, id: String, input: UpdateRouteInput) -> Result<Route, String> {
+    if input.name.trim().is_empty() {
+        return Err("Route name cannot be empty".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Route name is too long (max 100 characters)".to_string());
+    }
+    if input.areas.len() < 2 {
+        return Err("Route must contain at least 2 areas".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Verify route exists
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM routes WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Route not found".to_string());
+    }
+
+    let areas_json = serde_json::to_string(&input.areas).map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "UPDATE routes SET name = ?1, areas = ?2 WHERE id = ?3",
+        rusqlite::params![input.name, areas_json, id],
+    ).map_err(|e| e.to_string())?;
+
+    // Fetch updated route
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, areas, created_at FROM routes WHERE id = ?1")
+        .map_err(|e| e.to_string())?;
+
+    let route = stmt
+        .query_row(rusqlite::params![id], |row| {
+            let areas_json: String = row.get(3)?;
+            let areas: Vec<String> = serde_json::from_str(&areas_json)
+                .unwrap_or_default();
+            Ok(Route {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                areas,
+                created_at: row.get(4)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    Ok(route)
+}
+
+#[tauri::command]
+pub fn delete_route(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM routes WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Route not found".to_string());
+    }
+
+    conn.execute("DELETE FROM routes WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_route_stats(state: State<DbState>, route_id: String) -> Result<RouteStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Get route name and area count
+    let (route_name, route_area_count): (String, usize) = {
+        let mut stmt = conn
+            .prepare("SELECT name, areas FROM routes WHERE id = ?1")
+            .map_err(|e| e.to_string())?;
+        stmt.query_row(rusqlite::params![route_id], |row| {
+            let name: String = row.get(0)?;
+            let areas_json: String = row.get(1)?;
+            let areas: Vec<String> = serde_json::from_str(&areas_json).unwrap_or_default();
+            Ok((name, areas.len()))
+        }).map_err(|e| e.to_string())?
+    };
+
+    // Get all completed runs for this route, ordered by started_at
+    let mut stmt = conn
+        .prepare("SELECT route_step_index, duration_secs FROM runs WHERE route_id = ?1 AND status = 'completed' ORDER BY started_at ASC")
+        .map_err(|e| e.to_string())?;
+
+    let runs: Vec<(i64, i64)> = stmt
+        .query_map(rusqlite::params![route_id], |row| {
+            Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Group into cycles: a cycle is a sequence of runs with step indices 0..N-1
+    let mut total_cycles: i64 = 0;
+    let mut total_cycle_time: i64 = 0;
+    let mut total_items: i64 = 0;
+
+    // Collect runs into groups by detecting when step wraps back to 0
+    let mut current_cycle: Vec<(i64, i64)> = Vec::new();
+
+    for (step_index, duration) in &runs {
+        // If we see step 0 and we already have items in current_cycle, check if previous cycle is complete
+        if *step_index == 0 && !current_cycle.is_empty() {
+            // Check if the previous cycle is complete (has all steps 0..N-1)
+            if is_complete_cycle(&current_cycle, route_area_count) {
+                total_cycles += 1;
+                total_cycle_time += current_cycle.iter().map(|(_, d)| d).sum::<i64>();
+            }
+            current_cycle.clear();
+        }
+        current_cycle.push((*step_index, *duration));
+    }
+
+    // Check final cycle
+    if is_complete_cycle(&current_cycle, route_area_count) {
+        total_cycles += 1;
+        total_cycle_time += current_cycle.iter().map(|(_, d)| d).sum::<i64>();
+    }
+
+    // Count items in complete cycles
+    // Re-iterate to count items for complete cycles
+    let mut current_cycle_runs: Vec<(i64, i64)> = Vec::new();
+    let mut cycle_start_indices: Vec<usize> = Vec::new();
+    let mut cycle_lengths: Vec<usize> = Vec::new();
+    let mut idx = 0;
+
+    // Reprocess to get cycle boundaries
+    for (step_index, duration) in &runs {
+        if *step_index == 0 && !current_cycle_runs.is_empty() {
+            if is_complete_cycle(&current_cycle_runs, route_area_count) {
+                cycle_start_indices.push(idx - current_cycle_runs.len());
+                cycle_lengths.push(current_cycle_runs.len());
+            }
+            current_cycle_runs.clear();
+        }
+        current_cycle_runs.push((*step_index, *duration));
+        idx += 1;
+    }
+    if is_complete_cycle(&current_cycle_runs, route_area_count) {
+        cycle_start_indices.push(idx - current_cycle_runs.len());
+        cycle_lengths.push(current_cycle_runs.len());
+    }
+
+    // Now count items: get run IDs for complete cycles
+    // We need to query items, so let's get all run IDs for this route and count
+    let mut stmt = conn
+        .prepare("SELECT id, route_step_index FROM runs WHERE route_id = ?1 AND status = 'completed' ORDER BY started_at ASC")
+        .map_err(|e| e.to_string())?;
+
+    let run_ids: Vec<(String, i64)> = stmt
+        .query_map(rusqlite::params![route_id], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Count items for runs in complete cycles
+    for i in 0..cycle_start_indices.len() {
+        let start = cycle_start_indices[i];
+        let len = cycle_lengths[i];
+        for j in start..(start + len) {
+            if j < run_ids.len() {
+                let item_count: i64 = conn
+                    .query_row(
+                        "SELECT COUNT(*) FROM items WHERE run_id = ?1",
+                        rusqlite::params![run_ids[j].0],
+                        |row| row.get(0),
+                    )
+                    .map_err(|e| e.to_string())?;
+                total_items += item_count;
+            }
+        }
+    }
+
+    let avg_cycle_time_secs = if total_cycles > 0 {
+        total_cycle_time as f64 / total_cycles as f64
+    } else {
+        0.0
+    };
+
+    let items_per_cycle = if total_cycles > 0 {
+        total_items as f64 / total_cycles as f64
+    } else {
+        0.0
+    };
+
+    Ok(RouteStats {
+        route_id,
+        route_name,
+        total_cycles,
+        avg_cycle_time_secs,
+        total_items,
+        items_per_cycle,
+    })
+}
+
+fn is_complete_cycle(cycle: &[(i64, i64)], area_count: usize) -> bool {
+    if cycle.len() != area_count {
+        return false;
+    }
+    // Check that steps are 0, 1, 2, ..., N-1 in order
+    for (i, (step, _)) in cycle.iter().enumerate() {
+        if *step != i as i64 {
+            return false;
+        }
+    }
+    true
 }
 
 // ===== OVERLAY =====
@@ -848,4 +1150,123 @@ pub fn get_obs_file_path(app_handle: tauri::AppHandle) -> Result<String, String>
 
     let file_path = app_data_dir.join("obs_stats.txt");
     Ok(file_path.to_string_lossy().to_string())
+}
+
+// ===== COMPARISON MODE =====
+
+/// Pure computation function for subject metrics.
+/// Each tuple in run_data is (duration_secs, item_count, unique_item_count).
+pub fn compute_subject_metrics(label: &str, run_data: &[(i64, i64, i64)]) -> SubjectMetrics {
+    let total_runs = run_data.len() as i64;
+    let total_items: i64 = run_data.iter().map(|(_, items, _)| items).sum();
+    let total_unique_items: i64 = run_data.iter().map(|(_, _, unique)| unique).sum();
+    let total_duration_secs: i64 = run_data.iter().map(|(d, _, _)| d).sum();
+
+    let nonzero_durations: Vec<i64> = run_data.iter().map(|(d, _, _)| *d).filter(|d| *d > 0).collect();
+    let nonzero_duration: i64 = nonzero_durations.iter().sum();
+    let count_nonzero = nonzero_durations.len() as i64;
+
+    let items_per_hour = if nonzero_duration > 0 {
+        (total_items as f64 / nonzero_duration as f64) * 3600.0
+    } else {
+        0.0
+    };
+
+    let unique_items_per_hour = if nonzero_duration > 0 {
+        (total_unique_items as f64 / nonzero_duration as f64) * 3600.0
+    } else {
+        0.0
+    };
+
+    let avg_time_per_run = if count_nonzero > 0 {
+        nonzero_duration as f64 / count_nonzero as f64
+    } else {
+        0.0
+    };
+
+    let items_per_run = if total_runs > 0 {
+        total_items as f64 / total_runs as f64
+    } else {
+        0.0
+    };
+
+    let fastest_run_secs = nonzero_durations.iter().copied().min();
+    let slowest_run_secs = nonzero_durations.iter().copied().max();
+
+    SubjectMetrics {
+        label: label.to_string(),
+        total_runs,
+        total_items,
+        total_unique_items,
+        total_duration_secs,
+        items_per_hour,
+        unique_items_per_hour,
+        items_per_run,
+        avg_time_per_run,
+        fastest_run_secs,
+        slowest_run_secs,
+    }
+}
+
+fn query_run_data(conn: &rusqlite::Connection, profile_id: &str, area: Option<&str>, date_start: Option<&str>, date_end: Option<&str>) -> Result<Vec<(i64, i64, i64)>, String> {
+    let (sql, params): (String, Vec<Box<dyn rusqlite::types::ToSql>>) = if let Some(area_val) = area {
+        (
+            "SELECT r.duration_secs, COUNT(i.id) as item_count, SUM(CASE WHEN i.rarity IN ('Unique', 'Set', 'Runeword') THEN 1 ELSE 0 END) as unique_count FROM runs r LEFT JOIN items i ON i.run_id = r.id WHERE r.profile_id = ?1 AND r.status = 'completed' AND r.area = ?2 GROUP BY r.id".to_string(),
+            vec![Box::new(profile_id.to_string()) as Box<dyn rusqlite::types::ToSql>, Box::new(area_val.to_string())],
+        )
+    } else if let (Some(start), Some(end)) = (date_start, date_end) {
+        (
+            "SELECT r.duration_secs, COUNT(i.id) as item_count, SUM(CASE WHEN i.rarity IN ('Unique', 'Set', 'Runeword') THEN 1 ELSE 0 END) as unique_count FROM runs r LEFT JOIN items i ON i.run_id = r.id WHERE r.profile_id = ?1 AND r.status = 'completed' AND r.started_at >= ?2 AND r.started_at < ?3 GROUP BY r.id".to_string(),
+            vec![
+                Box::new(profile_id.to_string()) as Box<dyn rusqlite::types::ToSql>,
+                Box::new(start.to_string()),
+                Box::new(format!("{}T23:59:59", end)),
+            ],
+        )
+    } else {
+        return Err("Invalid query parameters".to_string());
+    };
+
+    let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
+    let params_refs: Vec<&dyn rusqlite::types::ToSql> = params.iter().map(|p| p.as_ref()).collect();
+    let rows = stmt
+        .query_map(params_refs.as_slice(), |row| {
+            let duration: i64 = row.get(0)?;
+            let item_count: i64 = row.get(1)?;
+            let unique_count: i64 = row.get::<_, Option<i64>>(2)?.unwrap_or(0);
+            Ok((duration, item_count, unique_count))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(rows)
+}
+
+#[tauri::command]
+pub fn get_comparison(state: State<DbState>, request: ComparisonRequest) -> Result<ComparisonResult, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let (subject_a, subject_b) = match &request {
+        ComparisonRequest::Area { profile_id, area_a, area_b } => {
+            let data_a = query_run_data(&conn, profile_id, Some(area_a), None, None)?;
+            let data_b = query_run_data(&conn, profile_id, Some(area_b), None, None)?;
+            (
+                compute_subject_metrics(area_a, &data_a),
+                compute_subject_metrics(area_b, &data_b),
+            )
+        }
+        ComparisonRequest::DateRange { profile_id, start_a, end_a, start_b, end_b } => {
+            let label_a = format!("{} — {}", start_a, end_a);
+            let label_b = format!("{} — {}", start_b, end_b);
+            let data_a = query_run_data(&conn, profile_id, None, Some(start_a), Some(end_a))?;
+            let data_b = query_run_data(&conn, profile_id, None, Some(start_b), Some(end_b))?;
+            (
+                compute_subject_metrics(&label_a, &data_a),
+                compute_subject_metrics(&label_b, &data_b),
+            )
+        }
+    };
+
+    Ok(ComparisonResult { subject_a, subject_b })
 }

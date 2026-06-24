@@ -15,6 +15,12 @@ import type {
   PaginatedRuns,
   CustomArea,
   ObsStatsInput,
+  Route,
+  CreateRouteInput,
+  UpdateRouteInput,
+  RouteStats,
+  ComparisonRequest,
+  ComparisonResult,
 } from "./types";
 
 // Profiles
@@ -91,3 +97,23 @@ export const writeObsStats = (input: ObsStatsInput): Promise<string> =>
 
 export const getObsFilePath = (): Promise<string> =>
   invoke<string>("get_obs_file_path");
+
+// Routes
+export const createRoute = (input: CreateRouteInput) =>
+  invoke<Route>("create_route", { input });
+
+export const getRoutes = (profileId: string) =>
+  invoke<Route[]>("get_routes", { profileId });
+
+export const updateRoute = (id: string, input: UpdateRouteInput) =>
+  invoke<Route>("update_route", { id, input });
+
+export const deleteRoute = (id: string) =>
+  invoke<void>("delete_route", { id });
+
+export const getRouteStats = (routeId: string) =>
+  invoke<RouteStats>("get_route_stats", { routeId });
+
+// Comparison
+export const getComparison = (request: ComparisonRequest) =>
+  invoke<ComparisonResult>("get_comparison", { request });

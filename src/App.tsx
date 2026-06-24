@@ -4,8 +4,10 @@ import Profiles from "./pages/Profiles";
 import RunTracker from "./pages/RunTracker";
 import History from "./pages/History";
 import Statistics from "./pages/Statistics";
+import Comparison from "./pages/Comparison";
 import Settings from "./pages/Settings";
 import DropCalculator from "./pages/DropCalculator";
+import RouteEditor from "./pages/RouteEditor";
 import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
@@ -14,7 +16,7 @@ import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import UpdateChecker from "./components/UpdateChecker";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "history" | "stats" | "drops" | "settings";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "drops" | "settings";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
@@ -100,10 +102,14 @@ function App() {
         return <Profiles onSelectProfile={handleSelectProfile} />;
       case "tracker":
         return selectedProfile ? <RunTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "routes":
+        return selectedProfile ? <RouteEditor profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "history":
         return selectedProfile ? <History profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "stats":
         return selectedProfile ? <Statistics profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "comparison":
+        return selectedProfile ? <Comparison profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "drops":
         return <DropCalculator />;
       case "settings":
@@ -138,6 +144,15 @@ function App() {
           </li>
           <li>
             <button
+              className={`nav-btn ${currentPage === "routes" ? "active" : ""}`}
+              onClick={() => setCurrentPage("routes")}
+              disabled={!selectedProfile}
+            >
+              🗺️ Routes
+            </button>
+          </li>
+          <li>
+            <button
               className={`nav-btn ${currentPage === "history" ? "active" : ""}`}
               onClick={() => setCurrentPage("history")}
               disabled={!selectedProfile}
@@ -152,6 +167,15 @@ function App() {
               disabled={!selectedProfile}
             >
               📊 Statistics
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "comparison" ? "active" : ""}`}
+              onClick={() => setCurrentPage("comparison")}
+              disabled={!selectedProfile}
+            >
+              ⚔️ Compare
             </button>
           </li>
           <li>

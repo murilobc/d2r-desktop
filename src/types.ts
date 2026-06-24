@@ -32,6 +32,8 @@ export interface Run {
   status: string;
   notes: string | null;
   player_count: number | null;
+  route_id: string | null;
+  route_step_index: number | null;
 }
 
 export interface CreateRunInput {
@@ -39,6 +41,8 @@ export interface CreateRunInput {
   area: string;
   notes?: string;
   player_count?: number;
+  route_id?: string;
+  route_step_index?: number;
 }
 
 export interface FinishRunInput {
@@ -193,3 +197,63 @@ export const AREAS = [
   "Worldstone Keep",
   "Other",
 ];
+
+export interface Route {
+  id: string;
+  profile_id: string;
+  name: string;
+  areas: string[];
+  created_at: string;
+}
+
+export interface CreateRouteInput {
+  profile_id: string;
+  name: string;
+  areas: string[];
+}
+
+export interface UpdateRouteInput {
+  name: string;
+  areas: string[];
+}
+
+export interface RouteStats {
+  route_id: string;
+  route_name: string;
+  total_cycles: number;
+  avg_cycle_time_secs: number;
+  total_items: number;
+  items_per_cycle: number;
+}
+
+// ===== COMPARISON MODE =====
+
+export interface ComparisonRequest {
+  type: "area" | "date_range";
+  profile_id: string;
+  area_a?: string;
+  area_b?: string;
+  start_a?: string;
+  end_a?: string;
+  start_b?: string;
+  end_b?: string;
+}
+
+export interface SubjectMetrics {
+  label: string;
+  total_runs: number;
+  total_items: number;
+  total_unique_items: number;
+  total_duration_secs: number;
+  items_per_hour: number;
+  unique_items_per_hour: number;
+  items_per_run: number;
+  avg_time_per_run: number;
+  fastest_run_secs: number | null;
+  slowest_run_secs: number | null;
+}
+
+export interface ComparisonResult {
+  subject_a: SubjectMetrics;
+  subject_b: SubjectMetrics;
+}

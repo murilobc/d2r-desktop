@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import type { Profile, Stats, DetailedRun } from "../types";
-import { getStats, getDetailedRuns } from "../api";
+import type { Profile, Stats, DetailedRun, Route, RouteStats } from "../types";
+import { getStats, getDetailedRuns, getRoutes, getRouteStats } from "../api";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line,
@@ -25,9 +25,15 @@ export default function Statistics({ profile }: Props) {
   const [areaFilter, setAreaFilter] = useState<string>("All");
   const [showReport, setShowReport] = useState(false);
 
+  // Route statistics
+  const [routes, setRoutes] = useState<Route[]>([]);
+  const [selectedRouteId, setSelectedRouteId] = useState<string>("");
+  const [routeStats, setRouteStats] = useState<RouteStats | null>(null);
+
   useEffect(() => {
     getStats(profile.id).then(setStats);
     loadDetailedRuns("All");
+    getRoutes(profile.id).then(setRoutes);
   }, [profile.id]);
 
   const loadDetailedRuns = async (area: string) => {
@@ -270,6 +276,20 @@ export default function Statistics({ profile }: Props) {
     }
   };
 
+  const handleRouteSelect = async (routeId: string) => {
+    setSelectedRouteId(routeId);
+    if (routeId) {
+      try {
+        const stats = await getRouteStats(routeId);
+        setRouteStats(stats);
+      } catch {
+        setRouteStats(null);
+      }
+    } else {
+      setRouteStats(null);
+    }
+  };
+
   if (!stats) return <div className="page"><p>Loading...</p></div>;
 
   return (
@@ -493,6 +513,50 @@ export default function Statistics({ profile }: Props) {
 
       {filteredStats && filteredStats.totalRuns === 0 && (
         <p className="empty-state">No completed runs {areaFilter !== "All" ? `in ${areaFilter}` : ""}.</p>
+      )}
+
+      {/* Route Statistics Section */}
+      {routes.length > 0 && (
+        <div className="stats-section route-stats-section">
+          <h2>Route Statistics</h2>
+          <div className="form-group">
+            <label htmlFor="route-stats-select">Select Route</label>
+            <select
+              id="route-stats-select"
+              value={selectedRouteId}
+              onChange={(e) => handleRouteSelect(e.target.value)}
+              className="stats-area-filter"
+            >
+              <option value="">Select a route...</option>
+              {routes.map((r) => (
+                <option key={r.id} value={r.id}>{r.name} ({r.areas.length} areas)</option>
+              ))}
+            </select>
+          </div>
+          {routeStats && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-value">{routeStats.total_cycles}</div>
+                <div className="stat-label">Total Cycles</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{formatTime(routeStats.avg_cycle_time_secs)}</div>
+                <div className="stat-label">Avg Cycle Time</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{routeStats.total_items}</div>
+                <div className="stat-label">Total Items</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-value">{routeStats.items_per_cycle.toFixed(1)}</div>
+                <div className="stat-label">Items/Cycle</div>
+              </div>
+            </div>
+          )}
+          {selectedRouteId && routeStats && routeStats.total_cycles === 0 && (
+            <p className="empty-state">No completed cycles for this route yet.</p>
+          )}
+        </div>
       )}
     </div>
   );

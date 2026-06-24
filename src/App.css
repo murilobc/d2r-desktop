@@ -1545,3 +1545,130 @@ body {
   color: var(--text-muted);
   font-style: italic;
 }
+
+
+/* ===== COMPARISON MODE ===== */
+
+.comparison-type-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.comparison-type-toggle .btn {
+  flex: 1;
+  max-width: 200px;
+}
+
+.comparison-selectors {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.comparison-selectors .form-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.comparison-selectors .form-group {
+  flex: 1;
+  min-width: 140px;
+}
+
+.comparison-notice {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: var(--gold);
+}
+
+.comparison-error {
+  background: rgba(233, 69, 96, 0.1);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  color: var(--danger);
+}
+
+.comparison-results {
+  margin-top: 1rem;
+}
+
+.comparison-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.comparison-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.comparison-card h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.comparison-warning {
+  font-size: 0.75rem;
+  color: var(--gold);
+  font-weight: normal;
+}
+
+.comparison-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.comparison-metric {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.comparison-metric.winner {
+  border-color: var(--success);
+  background: rgba(78, 205, 196, 0.05);
+}
+
+.comparison-metric-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.comparison-metric-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.comparison-metric-diff {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.comparison-metric-diff.significant {
+  color: var(--gold);
+  font-weight: bold;
+}

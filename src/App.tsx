@@ -41,6 +41,7 @@ function App() {
         await overlay.hide();
       } else {
         await overlay.show();
+        await overlay.setAlwaysOnTop(true);
         await overlay.setFocus();
       }
     }

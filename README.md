@@ -104,6 +104,28 @@ A compact, always-on-top window that floats over D2R while you play. Toggle it f
 
 **Requirements:** D2R must be in Windowed or Windowed Fullscreen mode (Fullscreen Exclusive blocks all overlays).
 
+**Linux (Wayland) — Tiling Compositors:**
+
+On Hyprland, Niri, and similar tiling Wayland compositors, the overlay may not stay on top by default. Add these window rules to your compositor config:
+
+**Hyprland** (`~/.config/hypr/hyprland.conf`):
+```
+windowrulev2 = float, title:^(D2R Overlay)$
+windowrulev2 = pin, title:^(D2R Overlay)$
+windowrulev2 = noborder, title:^(D2R Overlay)$
+windowrulev2 = noshadow, title:^(D2R Overlay)$
+windowrulev2 = nofocus, title:^(D2R Overlay)$
+```
+
+**Niri** (`~/.config/niri/config.kdl`):
+```
+window-rule {
+    match title="D2R Overlay"
+    open-floating true
+    default-column-display "floating"
+}
+```
+
 ---
 
 ### History

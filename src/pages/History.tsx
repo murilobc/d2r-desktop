@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import type { Profile, Run, Item } from "../types";
 import { AREAS } from "../types";
-import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated } from "../api";
+import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated, getStats } from "../api";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
 import TierBadge from "../components/TierBadge";
@@ -21,6 +21,7 @@ export default function History({ profile }: Props) {
   const [totalRuns, setTotalRuns] = useState(0);
   const [loading, setLoading] = useState(false);
   const [tierFilter, setTierFilter] = useState<"all" | TierName>("all");
+  const [areaTotals, setAreaTotals] = useState<Record<string, number>>({});
 
   const PAGE_SIZE = 50;
 
@@ -52,8 +53,19 @@ export default function History({ profile }: Props) {
     setLoading(false);
   };
 
+  // Load area totals for correct run numbering
+  const loadAreaTotals = async () => {
+    const stats = await getStats(profile.id);
+    const totals: Record<string, number> = {};
+    for (const entry of stats.runs_by_area) {
+      totals[entry.area] = entry.count;
+    }
+    setAreaTotals(totals);
+  };
+
   useEffect(() => {
     loadRuns();
+    loadAreaTotals();
   }, [profile.id]);
 
   const toggleExpand = (runId: string) => {
@@ -110,17 +122,21 @@ export default function History({ profile }: Props) {
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  // Compute run number per area (chronological order), memoized
+  // Compute run number per area using global totals
+  // Runs are in DESC order (newest first), so the first run of each area = total for that area
+  // and each subsequent run decrements
   const runNumbers = useMemo(() => {
     const numbers: Record<string, number> = {};
     const counters: Record<string, number> = {};
-    const runsAsc = [...runs].reverse();
-    for (const run of runsAsc) {
-      counters[run.area] = (counters[run.area] || 0) + 1;
+    for (const run of runs) {
+      if (counters[run.area] === undefined) {
+        counters[run.area] = areaTotals[run.area] || 0;
+      }
       numbers[run.id] = counters[run.area];
+      counters[run.area]--;
     }
     return numbers;
-  }, [runs]);
+  }, [runs, areaTotals]);
 
   return (
     <div className="page">

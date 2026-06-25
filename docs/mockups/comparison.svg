@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+  
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
+  <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <rect x="0" y="270" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="270" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14">⚙️ Settings</text>
+  
+  <!-- Active profile -->
+  <line x1="0" y1="630" x2="220" y2="630" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="655" fill="#a0a0a0" font-size="10">Active profile:</text>
+  <text x="20" y="672" fill="#eaeaea" font-size="13" font-weight="bold">MFSorc</text>
+  <text x="20" y="690" fill="#a0a0a0" font-size="11">Sorceress</text>
+  
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">⚔️ Comparison Mode</text>
+  
+  <!-- Type toggle -->
+  <rect x="250" y="70" width="150" height="30" rx="4" fill="#e94560"/>
+  <text x="275" y="90" fill="#ffffff" font-size="11" font-weight="bold">Area vs Area</text>
+  <rect x="405" y="70" width="200" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="425" y="90" fill="#a0a0a0" font-size="11">Date Range vs Date Range</text>
+  
+  <!-- Area selectors -->
+  <text x="250" y="130" fill="#a0a0a0" font-size="11">Area A</text>
+  <rect x="250" y="137" width="200" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="265" y="157" fill="#eaeaea" font-size="12">Mephisto</text>
+  <text x="430" y="157" fill="#a0a0a0" font-size="14">▼</text>
+  
+  <text x="480" y="157" fill="#a0a0a0" font-size="14">vs</text>
+  
+  <text x="520" y="130" fill="#a0a0a0" font-size="11">Area B</text>
+  <rect x="520" y="137" width="200" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="535" y="157" fill="#eaeaea" font-size="12">Ancient Tunnels</text>
+  <text x="700" y="157" fill="#a0a0a0" font-size="14">▼</text>
+  
+  <!-- Compare button -->
+  <rect x="740" y="137" width="100" height="30" rx="4" fill="#4ecdc4"/>
+  <text x="764" y="157" fill="#000" font-size="12" font-weight="bold">Compare</text>
+  
+  <!-- Results section -->
+  <text x="250" y="205" fill="#eaeaea" font-size="16" font-weight="bold">Results</text>
+  
+  <!-- Left card: Mephisto (winner on Items/Hour) -->
+  <rect x="250" y="218" width="380" height="180" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="248" fill="#eaeaea" font-size="15" font-weight="bold">Mephisto</text>
+  
+  <text x="270" y="278" fill="#a0a0a0" font-size="11">Total Runs</text>
+  <text x="270" y="296" fill="#eaeaea" font-size="16" font-weight="bold">147</text>
+  
+  <text x="420" y="278" fill="#a0a0a0" font-size="11">Items/Hour</text>
+  <rect x="415" y="283" width="80" height="22" rx="3" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="420" y="296" fill="#4ecdc4" font-size="16" font-weight="bold">4.2 ★</text>
+  
+  <text x="270" y="330" fill="#a0a0a0" font-size="11">Unique/Hour</text>
+  <text x="270" y="348" fill="#eaeaea" font-size="16" font-weight="bold">0.8</text>
+  
+  <text x="420" y="330" fill="#a0a0a0" font-size="11">Avg Time</text>
+  <text x="420" y="348" fill="#eaeaea" font-size="16" font-weight="bold">2m 18s</text>
+  
+  <text x="270" y="385" fill="#a0a0a0" font-size="10">+35% items/hour vs Ancient Tunnels</text>
+  
+  <!-- Right card: Ancient Tunnels (winner on Unique/Hour) -->
+  <rect x="650" y="218" width="380" height="180" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="670" y="248" fill="#eaeaea" font-size="15" font-weight="bold">Ancient Tunnels</text>
+  
+  <text x="670" y="278" fill="#a0a0a0" font-size="11">Total Runs</text>
+  <text x="670" y="296" fill="#eaeaea" font-size="16" font-weight="bold">89</text>
+  
+  <text x="820" y="278" fill="#a0a0a0" font-size="11">Items/Hour</text>
+  <text x="820" y="296" fill="#eaeaea" font-size="16" font-weight="bold">3.1</text>
+  
+  <text x="670" y="330" fill="#a0a0a0" font-size="11">Unique/Hour</text>
+  <rect x="665" y="335" width="80" height="22" rx="3" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="670" y="348" fill="#4ecdc4" font-size="16" font-weight="bold">1.2 ★</text>
+  
+  <text x="820" y="330" fill="#a0a0a0" font-size="11">Avg Time</text>
+  <text x="820" y="348" fill="#eaeaea" font-size="16" font-weight="bold">3m 45s</text>
+  
+  <text x="670" y="385" fill="#a0a0a0" font-size="10">+50% unique/hour vs Mephisto</text>
+  
+  <!-- Bar chart section -->
+  <rect x="250" y="415" width="810" height="250" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="445" fill="#a0a0a0" font-size="12">Side-by-Side Comparison</text>
+  
+  <!-- Chart legend -->
+  <rect x="700" y="430" width="12" height="12" rx="2" fill="#e94560"/>
+  <text x="718" y="441" fill="#a0a0a0" font-size="10">Mephisto</text>
+  <rect x="790" y="430" width="12" height="12" rx="2" fill="#4ecdc4"/>
+  <text x="808" y="441" fill="#a0a0a0" font-size="10">Ancient Tunnels</text>
+  
+  <!-- Chart axes -->
+  <line x1="320" y1="470" x2="320" y2="640" stroke="#2a2a4a" stroke-width="1"/>
+  <line x1="320" y1="640" x2="1000" y2="640" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- Grouped bars: Items/Hour -->
+  <rect x="370" y="530" width="40" height="110" rx="2" fill="#e94560"/>
+  <rect x="415" y="560" width="40" height="80" rx="2" fill="#4ecdc4"/>
+  <text x="390" y="655" fill="#a0a0a0" font-size="9" text-anchor="middle">Items/Hr</text>
+  
+  <!-- Grouped bars: Unique/Hour -->
+  <rect x="520" y="590" width="40" height="50" rx="2" fill="#e94560"/>
+  <rect x="565" y="570" width="40" height="70" rx="2" fill="#4ecdc4"/>
+  <text x="545" y="655" fill="#a0a0a0" font-size="9" text-anchor="middle">Unique/Hr</text>
+  
+  <!-- Grouped bars: Items/Run -->
+  <rect x="670" y="580" width="40" height="60" rx="2" fill="#e94560"/>
+  <rect x="715" y="595" width="40" height="45" rx="2" fill="#4ecdc4"/>
+  <text x="695" y="655" fill="#a0a0a0" font-size="9" text-anchor="middle">Items/Run</text>
+  
+  <!-- Grouped bars: Avg Time (inverted - lower is better) -->
+  <rect x="820" y="570" width="40" height="70" rx="2" fill="#e94560"/>
+  <rect x="865" y="530" width="40" height="110" rx="2" fill="#4ecdc4"/>
+  <text x="845" y="655" fill="#a0a0a0" font-size="9" text-anchor="middle">Avg Time</text>
+</svg>

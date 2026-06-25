@@ -8,9 +8,11 @@
   <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
   <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
   <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14">📜 History</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14">📊 Statistics</text>
-  <text x="20" y="255" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
   
   <line x1="0" y1="530" x2="220" y2="530" stroke="#2a2a4a" stroke-width="1"/>
   <rect x="0" y="540" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
@@ -21,51 +23,80 @@
   <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Settings</text>
   
   <!-- Global Hotkeys section -->
-  <rect x="250" y="75" width="810" height="250" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <rect x="250" y="75" width="810" height="195" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="270" y="103" fill="#eaeaea" font-size="15" font-weight="bold">Global Hotkeys</text>
-  <text x="270" y="125" fill="#a0a0a0" font-size="11">Keyboard shortcuts that work even when the app is not focused.</text>
+  <text x="270" y="120" fill="#a0a0a0" font-size="11">Keyboard shortcuts that work even when the app is not focused.</text>
   
   <!-- Hotkey rows -->
-  <text x="280" y="165" fill="#eaeaea" font-size="12">Next Run (Split)</text>
-  <rect x="700" y="148" width="120" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="740" y="168" fill="#eaeaea" font-family="monospace" font-size="12">F9</text>
+  <text x="280" y="153" fill="#eaeaea" font-size="12">Next Run (Split)</text>
+  <rect x="700" y="138" width="120" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="740" y="157" fill="#eaeaea" font-family="monospace" font-size="12">F9</text>
   
-  <line x1="270" y1="185" x2="1040" y2="185" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="210" fill="#eaeaea" font-size="12">Pause / Resume</text>
-  <rect x="700" y="193" width="120" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="735" y="213" fill="#eaeaea" font-family="monospace" font-size="12">F10</text>
+  <line x1="270" y1="170" x2="1040" y2="170" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="195" fill="#eaeaea" font-size="12">Pause / Resume</text>
+  <rect x="700" y="180" width="120" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="735" y="199" fill="#eaeaea" font-family="monospace" font-size="12">F10</text>
   
-  <line x1="270" y1="230" x2="1040" y2="230" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="255" fill="#eaeaea" font-size="12">End Session</text>
-  <rect x="700" y="238" width="120" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="735" y="258" fill="#eaeaea" font-family="monospace" font-size="12">F11</text>
-  
-  <rect x="280" y="285" width="120" height="26" rx="4" fill="none" stroke="#4ecdc4"/>
-  <text x="290" y="302" fill="#4ecdc4" font-size="10">Reset to Defaults</text>
+  <line x1="270" y1="212" x2="1040" y2="212" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="237" fill="#eaeaea" font-size="12">End Session</text>
+  <rect x="700" y="222" width="120" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="735" y="241" fill="#eaeaea" font-family="monospace" font-size="12">F11</text>
   
   <!-- Sound Notifications section -->
-  <rect x="250" y="345" width="810" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="373" fill="#eaeaea" font-size="15" font-weight="bold">Sound Notifications</text>
-  <text x="270" y="395" fill="#a0a0a0" font-size="11">Audio cues for milestones, item finds, and alerts during sessions.</text>
+  <rect x="250" y="285" width="810" height="155" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="313" fill="#eaeaea" font-size="15" font-weight="bold">Sound Notifications</text>
+  <text x="270" y="330" fill="#a0a0a0" font-size="11">Audio cues for milestones, item finds, and alerts during sessions.</text>
   
-  <text x="280" y="430" fill="#eaeaea" font-size="12">Enable sounds</text>
-  <rect x="700" y="415" width="60" height="26" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
-  <text x="718" y="433" fill="#4ecdc4" font-size="11">ON</text>
+  <text x="280" y="360" fill="#eaeaea" font-size="12">Enable sounds</text>
+  <rect x="700" y="345" width="60" height="26" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
+  <text x="718" y="363" fill="#4ecdc4" font-size="11">ON</text>
   
-  <line x1="270" y1="450" x2="1040" y2="450" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="475" fill="#eaeaea" font-size="12">Volume</text>
-  <rect x="700" y="462" width="120" height="6" rx="3" fill="#2a2a4a"/>
-  <rect x="700" y="462" width="60" height="6" rx="3" fill="#4ecdc4"/>
-  <text x="830" y="470" fill="#a0a0a0" font-family="monospace" font-size="10">50%</text>
+  <line x1="270" y1="378" x2="1040" y2="378" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="403" fill="#eaeaea" font-size="12">Volume</text>
+  <rect x="700" y="393" width="120" height="6" rx="3" fill="#2a2a4a"/>
+  <rect x="700" y="393" width="60" height="6" rx="3" fill="#4ecdc4"/>
+  <text x="830" y="400" fill="#a0a0a0" font-family="monospace" font-size="10">50%</text>
   
-  <line x1="270" y1="490" x2="1040" y2="490" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="515" fill="#eaeaea" font-size="12">Test sounds</text>
-  <rect x="700" y="500" width="50" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="710" y="516" fill="#eaeaea" font-size="9">Item</text>
-  <rect x="758" y="500" width="75" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="768" y="516" fill="#eaeaea" font-size="9">Milestone</text>
-  <rect x="841" y="500" width="50" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="852" y="516" fill="#eaeaea" font-size="9">Alert</text>
-  <rect x="899" y="500" width="50" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="912" y="516" fill="#eaeaea" font-size="9">Goal</text>
+  <line x1="270" y1="415" x2="1040" y2="415" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="430" fill="#eaeaea" font-size="12">Test sounds</text>
+  <rect x="700" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="712" y="433" fill="#eaeaea" font-size="9">Item</text>
+  <rect x="758" y="418" width="75" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="768" y="433" fill="#eaeaea" font-size="9">Milestone</text>
+  <rect x="841" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="852" y="433" fill="#eaeaea" font-size="9">Alert</text>
+  <rect x="899" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="912" y="433" fill="#eaeaea" font-size="9">Goal</text>
+  
+  <!-- OBS Integration section -->
+  <rect x="250" y="455" width="810" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="483" fill="#eaeaea" font-size="15" font-weight="bold">OBS Integration</text>
+  <text x="270" y="500" fill="#a0a0a0" font-size="11">Write live session stats to a text file for OBS stream overlays.</text>
+  
+  <!-- Enable OBS mode -->
+  <text x="280" y="530" fill="#eaeaea" font-size="12">Enable OBS mode</text>
+  <rect x="700" y="515" width="60" height="26" rx="4" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4"/>
+  <text x="718" y="533" fill="#4ecdc4" font-size="11" font-weight="bold">ON</text>
+  
+  <line x1="270" y1="548" x2="1040" y2="548" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- Output format -->
+  <text x="280" y="573" fill="#eaeaea" font-size="12">Output format</text>
+  <rect x="700" y="558" width="140" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="712" y="576" fill="#eaeaea" font-size="11">Plain Text</text>
+  <text x="818" y="576" fill="#a0a0a0" font-size="11">▼</text>
+  
+  <line x1="270" y1="592" x2="1040" y2="592" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- File path -->
+  <text x="280" y="617" fill="#eaeaea" font-size="12">File path</text>
+  <rect x="700" y="602" width="260" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="712" y="620" fill="#a0a0a0" font-family="monospace" font-size="9">C:\Users\...\AppData\...\obs_stats.txt</text>
+  <rect x="968" y="602" width="70" height="26" rx="4" fill="none" stroke="#4ecdc4"/>
+  <text x="978" y="619" fill="#4ecdc4" font-size="9">Copy path</text>
+  
+  <line x1="270" y1="636" x2="1040" y2="636" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- Tip -->
+  <text x="280" y="660" fill="#ffaa00" font-size="11">💡 Tip: In OBS, add "Text (GDI+)" source → Check "Read from file" → Paste the path above.</text>
 </svg>

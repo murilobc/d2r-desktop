@@ -13,8 +13,12 @@
   <rect x="0" y="70" width="3" height="40" fill="#e94560"/>
   <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
   <text x="20" y="135" fill="#eaeaea" font-size="14" opacity="0.4">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">📜 History</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📊 Statistics</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14" opacity="0.4">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14" opacity="0.4">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14" opacity="0.4">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14" opacity="0.4">⚙️ Settings</text>
   
   <!-- Data actions -->
   <line x1="0" y1="580" x2="220" y2="580" stroke="#2a2a4a" stroke-width="1"/>

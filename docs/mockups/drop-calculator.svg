@@ -8,11 +8,14 @@
   <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
   <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
   <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14">📜 History</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14">📊 Statistics</text>
-  <rect x="0" y="230" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
-  <rect x="0" y="230" width="3" height="40" fill="#e94560"/>
-  <text x="20" y="255" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
+  <rect x="0" y="310" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="310" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14">⚙️ Settings</text>
   
   <!-- Main content -->
   <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Drop Calculator</text>

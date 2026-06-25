@@ -8,10 +8,20 @@
   <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
   <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
   <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14">📜 History</text>
-  <rect x="0" y="190" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
-  <rect x="0" y="190" width="3" height="40" fill="#e94560"/>
-  <text x="20" y="215" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
+  <rect x="0" y="230" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="230" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14">⚙️ Settings</text>
+  
+  <!-- Active profile -->
+  <line x1="0" y1="630" x2="220" y2="630" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="655" fill="#a0a0a0" font-size="10">Active profile:</text>
+  <text x="20" y="672" fill="#eaeaea" font-size="13" font-weight="bold">MFSorc</text>
+  <text x="20" y="690" fill="#a0a0a0" font-size="11">Sorceress</text>
   
   <!-- Main content -->
   <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Statistics</text>
@@ -25,86 +35,104 @@
   <text x="947" y="47" fill="white" font-size="11">📄 Export PDF</text>
   
   <!-- Stat cards row -->
-  <rect x="250" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="280" y="110" fill="#e94560" font-size="22" font-weight="bold">147</text>
-  <text x="270" y="135" fill="#a0a0a0" font-size="10">Total Runs</text>
+  <rect x="250" y="75" width="120" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="280" y="105" fill="#e94560" font-size="20" font-weight="bold">147</text>
+  <text x="270" y="128" fill="#a0a0a0" font-size="10">Total Runs</text>
   
-  <rect x="385" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="420" y="110" fill="#e94560" font-size="22" font-weight="bold">34</text>
-  <text x="403" y="135" fill="#a0a0a0" font-size="10">Total Items</text>
+  <rect x="380" y="75" width="120" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="415" y="105" fill="#e94560" font-size="20" font-weight="bold">34</text>
+  <text x="398" y="128" fill="#a0a0a0" font-size="10">Total Items</text>
   
-  <rect x="520" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="540" y="110" fill="#e94560" font-size="18" font-weight="bold">5h 23m</text>
-  <text x="548" y="135" fill="#a0a0a0" font-size="10">Total Time</text>
+  <rect x="510" y="75" width="120" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="525" y="105" fill="#e94560" font-size="16" font-weight="bold">5h 23m</text>
+  <text x="538" y="128" fill="#a0a0a0" font-size="10">Total Time</text>
   
-  <rect x="655" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="675" y="110" fill="#e94560" font-size="18" font-weight="bold">2m 12s</text>
-  <text x="672" y="135" fill="#a0a0a0" font-size="10">Average Time</text>
+  <rect x="640" y="75" width="120" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="655" y="105" fill="#e94560" font-size="16" font-weight="bold">2m 12s</text>
+  <text x="660" y="128" fill="#a0a0a0" font-size="10">Average Time</text>
   
-  <rect x="790" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="815" y="110" fill="#e94560" font-size="18" font-weight="bold">1m 28s</text>
-  <text x="822" y="135" fill="#a0a0a0" font-size="10">Fastest</text>
+  <rect x="770" y="75" width="120" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="790" y="105" fill="#e94560" font-size="16" font-weight="bold">1m 28s</text>
+  <text x="808" y="128" fill="#a0a0a0" font-size="10">Fastest</text>
   
-  <rect x="925" y="75" width="120" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="965" y="110" fill="#e94560" font-size="20" font-weight="bold">0.2</text>
-  <text x="950" y="135" fill="#a0a0a0" font-size="10">Items/Run</text>
+  <rect x="900" y="75" width="150" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="940" y="105" fill="#e94560" font-size="18" font-weight="bold">0.2</text>
+  <text x="935" y="128" fill="#a0a0a0" font-size="10">Items/Run</text>
+  
+  <!-- Item Value Summary card -->
+  <rect x="250" y="155" width="395" height="80" rx="8" fill="#16213e" stroke="#ffaa00"/>
+  <text x="270" y="178" fill="#ffaa00" font-size="13" font-weight="bold">Item Value Summary</text>
+  <text x="270" y="200" fill="#eaeaea" font-size="16" font-weight="bold">Total Value: <tspan fill="#ffaa00">47 pts</tspan></text>
+  <text x="270" y="222" fill="#a0a0a0" font-size="11">
+    <tspan fill="#f59e0b">GG: 1</tspan> • <tspan fill="#a855f7">High: 2</tspan> • <tspan fill="#3b82f6">Mid: 5</tspan> • <tspan fill="#22c55e">Low: 3</tspan>
+  </text>
+  
+  <!-- Route Statistics card -->
+  <rect x="665" y="155" width="395" height="80" rx="8" fill="#16213e" stroke="#4ecdc4"/>
+  <text x="685" y="178" fill="#4ecdc4" font-size="13" font-weight="bold">Route Statistics</text>
+  <rect x="820" y="163" width="120" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="835" y="178" fill="#eaeaea" font-size="9">Boss Run ▼</text>
+  <text x="685" y="200" fill="#eaeaea" font-size="11">Cycles: <tspan fill="#4ecdc4" font-weight="bold">12</tspan></text>
+  <text x="785" y="200" fill="#eaeaea" font-size="11">Avg Cycle: <tspan fill="#4ecdc4" font-weight="bold">6m 45s</tspan></text>
+  <text x="685" y="222" fill="#eaeaea" font-size="11">Items/Cycle: <tspan fill="#4ecdc4" font-weight="bold">1.8</tspan></text>
+  <text x="785" y="222" fill="#eaeaea" font-size="11">Value/Cycle: <tspan fill="#4ecdc4" font-weight="bold">4.2 pts</tspan></text>
   
   <!-- Chart 1: Duration over time (line) -->
-  <rect x="250" y="175" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="200" fill="#a0a0a0" font-size="12">Duration per Run (Efficiency)</text>
+  <rect x="250" y="250" width="395" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="275" fill="#a0a0a0" font-size="12">Duration per Run (Efficiency)</text>
   <!-- Fake line chart -->
-  <polyline points="290,360 320,340 350,355 380,320 410,330 440,310 470,325 500,300 530,315 560,290 590,305 620,280" fill="none" stroke="#4ecdc4" stroke-width="2"/>
-  <line x1="290" y1="370" x2="620" y2="370" stroke="#2a2a4a" stroke-width="1"/>
-  <line x1="290" y1="220" x2="290" y2="370" stroke="#2a2a4a" stroke-width="1"/>
+  <polyline points="290,420 320,400 350,415 380,380 410,390 440,370 470,385 500,360 530,375 560,350 590,365 620,340" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+  <line x1="290" y1="430" x2="620" y2="430" stroke="#2a2a4a" stroke-width="1"/>
+  <line x1="290" y1="290" x2="290" y2="430" stroke="#2a2a4a" stroke-width="1"/>
   
   <!-- Chart 2: Rarity pie -->
-  <rect x="665" y="175" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="685" y="200" fill="#a0a0a0" font-size="12">Rarity Distribution</text>
+  <rect x="665" y="250" width="395" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="685" y="275" fill="#a0a0a0" font-size="12">Rarity Distribution</text>
   <!-- Fake pie chart -->
-  <circle cx="860" cy="300" r="70" fill="none" stroke="#2a2a4a" stroke-width="1"/>
-  <path d="M860,300 L860,230 A70,70 0 0,1 920,270 Z" fill="#e94560"/>
-  <path d="M860,300 L920,270 A70,70 0 0,1 915,345 Z" fill="#4ecdc4"/>
-  <path d="M860,300 L915,345 A70,70 0 0,1 860,370 Z" fill="#ffd700"/>
-  <path d="M860,300 L860,370 A70,70 0 0,1 800,330 Z" fill="#6060ff"/>
-  <path d="M860,300 L800,330 A70,70 0 0,1 810,250 Z" fill="#00c400"/>
-  <path d="M860,300 L810,250 A70,70 0 0,1 860,230 Z" fill="#ff8c00"/>
+  <circle cx="860" cy="360" r="60" fill="none" stroke="#2a2a4a" stroke-width="1"/>
+  <path d="M860,360 L860,300 A60,60 0 0,1 910,330 Z" fill="#e94560"/>
+  <path d="M860,360 L910,330 A60,60 0 0,1 905,395 Z" fill="#4ecdc4"/>
+  <path d="M860,360 L905,395 A60,60 0 0,1 860,420 Z" fill="#ffd700"/>
+  <path d="M860,360 L860,420 A60,60 0 0,1 810,390 Z" fill="#6060ff"/>
+  <path d="M860,360 L810,390 A60,60 0 0,1 820,315 Z" fill="#00c400"/>
+  <path d="M860,360 L820,315 A60,60 0 0,1 860,300 Z" fill="#ff8c00"/>
   <!-- Pie labels -->
-  <text x="920" y="240" fill="#e94560" font-size="9">Unique 35%</text>
-  <text x="940" y="310" fill="#4ecdc4" font-size="9">Rune 24%</text>
-  <text x="910" y="370" fill="#ffd700" font-size="9">Set 18%</text>
-  <text x="730" y="360" fill="#6060ff" font-size="9">Jewel 12%</text>
-  <text x="730" y="290" fill="#00c400" font-size="9">Runeword 8%</text>
-  <text x="750" y="245" fill="#ff8c00" font-size="9">Base 3%</text>
+  <text x="920" y="310" fill="#e94560" font-size="9">Unique 35%</text>
+  <text x="930" y="370" fill="#4ecdc4" font-size="9">Rune 24%</text>
+  <text x="910" y="420" fill="#ffd700" font-size="9">Set 18%</text>
+  <text x="730" y="410" fill="#6060ff" font-size="9">Jewel 12%</text>
+  <text x="730" y="360" fill="#00c400" font-size="9">Runeword 8%</text>
+  <text x="750" y="310" fill="#ff8c00" font-size="9">Base 3%</text>
   
   <!-- Chart 3: Items per run (bar) -->
-  <rect x="250" y="415" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="440" fill="#a0a0a0" font-size="12">Items per Run</text>
+  <rect x="250" y="465" width="395" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="490" fill="#a0a0a0" font-size="12">Items per Run</text>
   <!-- Fake bar chart -->
-  <line x1="290" y1="610" x2="620" y2="610" stroke="#2a2a4a" stroke-width="1"/>
-  <rect x="300" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="330" y="570" width="20" height="40" rx="2" fill="#e94560"/>
-  <rect x="360" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="390" y="550" width="20" height="60" rx="2" fill="#e94560"/>
-  <rect x="420" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="450" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="480" y="530" width="20" height="80" rx="2" fill="#e94560"/>
-  <rect x="510" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="540" y="570" width="20" height="40" rx="2" fill="#e94560"/>
-  <rect x="570" y="590" width="20" height="20" rx="2" fill="#e94560"/>
-  <rect x="600" y="550" width="20" height="60" rx="2" fill="#e94560"/>
+  <line x1="290" y1="640" x2="620" y2="640" stroke="#2a2a4a" stroke-width="1"/>
+  <rect x="300" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="330" y="600" width="20" height="40" rx="2" fill="#e94560"/>
+  <rect x="360" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="390" y="580" width="20" height="60" rx="2" fill="#e94560"/>
+  <rect x="420" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="450" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="480" y="560" width="20" height="80" rx="2" fill="#e94560"/>
+  <rect x="510" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="540" y="600" width="20" height="40" rx="2" fill="#e94560"/>
+  <rect x="570" y="620" width="20" height="20" rx="2" fill="#e94560"/>
+  <rect x="600" y="580" width="20" height="60" rx="2" fill="#e94560"/>
   
   <!-- Chart 4: Runs by area (horizontal bar) -->
-  <rect x="665" y="415" width="395" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="685" y="440" fill="#a0a0a0" font-size="12">Runs by Area</text>
+  <rect x="665" y="465" width="395" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="685" y="490" fill="#a0a0a0" font-size="12">Runs by Area</text>
   <!-- Fake horizontal bars -->
-  <text x="690" y="475" fill="#a0a0a0" font-size="10">Mephisto</text>
-  <rect x="790" y="462" width="220" height="18" rx="2" fill="#ffd700"/>
-  <text x="690" y="505" fill="#a0a0a0" font-size="10">Ancient Tunnels</text>
-  <rect x="790" y="492" width="150" height="18" rx="2" fill="#ffd700"/>
-  <text x="690" y="535" fill="#a0a0a0" font-size="10">Chaos Sanctuary</text>
-  <rect x="790" y="522" width="100" height="18" rx="2" fill="#ffd700"/>
-  <text x="690" y="565" fill="#a0a0a0" font-size="10">Pindleskin</text>
-  <rect x="790" y="552" width="70" height="18" rx="2" fill="#ffd700"/>
-  <text x="690" y="595" fill="#a0a0a0" font-size="10">Countess</text>
-  <rect x="790" y="582" width="45" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="520" fill="#a0a0a0" font-size="10">Mephisto</text>
+  <rect x="790" y="507" width="220" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="548" fill="#a0a0a0" font-size="10">Ancient Tunnels</text>
+  <rect x="790" y="535" width="150" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="576" fill="#a0a0a0" font-size="10">Chaos Sanctuary</text>
+  <rect x="790" y="563" width="100" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="604" fill="#a0a0a0" font-size="10">Pindleskin</text>
+  <rect x="790" y="591" width="70" height="18" rx="2" fill="#ffd700"/>
+  <text x="690" y="632" fill="#a0a0a0" font-size="10">Countess</text>
+  <rect x="790" y="619" width="45" height="18" rx="2" fill="#ffd700"/>
 </svg>

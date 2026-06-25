@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+  
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
+  <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
+  <rect x="0" y="150" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="150" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14">⚙️ Settings</text>
+  
+  <!-- Active profile -->
+  <line x1="0" y1="630" x2="220" y2="630" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="655" fill="#a0a0a0" font-size="10">Active profile:</text>
+  <text x="20" y="672" fill="#eaeaea" font-size="13" font-weight="bold">MFSorc</text>
+  <text x="20" y="690" fill="#a0a0a0" font-size="11">Sorceress</text>
+  
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Route Editor</text>
+  <rect x="880" y="28" width="160" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="892" y="47" fill="#eaeaea" font-size="11">MFSorc - Sorceress</text>
+  
+  <!-- Route name input -->
+  <rect x="250" y="75" width="810" height="310" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="103" fill="#eaeaea" font-size="15" font-weight="bold">Create Route</text>
+  
+  <text x="270" y="135" fill="#a0a0a0" font-size="11">Route Name</text>
+  <rect x="270" y="142" width="350" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="282" y="162" fill="#eaeaea" font-size="12">Meph-Pindle-Andy Route</text>
+  
+  <!-- Area sequence -->
+  <text x="270" y="200" fill="#a0a0a0" font-size="11">Area Sequence</text>
+  
+  <!-- Area card 1 -->
+  <rect x="270" y="210" width="500" height="34" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="285" y="232" fill="#999" font-size="14">⋮⋮</text>
+  <text x="310" y="232" fill="#4ecdc4" font-size="12" font-weight="bold">1.</text>
+  <text x="330" y="232" fill="#eaeaea" font-size="12">Mephisto</text>
+  <text x="740" y="232" fill="#e94560" font-size="14">×</text>
+  
+  <!-- Area card 2 -->
+  <rect x="270" y="250" width="500" height="34" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="285" y="272" fill="#999" font-size="14">⋮⋮</text>
+  <text x="310" y="272" fill="#4ecdc4" font-size="12" font-weight="bold">2.</text>
+  <text x="330" y="272" fill="#eaeaea" font-size="12">Pindleskin</text>
+  <text x="740" y="272" fill="#e94560" font-size="14">×</text>
+  
+  <!-- Area card 3 -->
+  <rect x="270" y="290" width="500" height="34" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="285" y="312" fill="#999" font-size="14">⋮⋮</text>
+  <text x="310" y="312" fill="#4ecdc4" font-size="12" font-weight="bold">3.</text>
+  <text x="330" y="312" fill="#eaeaea" font-size="12">Andariel</text>
+  <text x="740" y="312" fill="#e94560" font-size="14">×</text>
+  
+  <!-- Add area dropdown -->
+  <rect x="270" y="335" width="350" height="30" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
+  <text x="282" y="355" fill="#999" font-size="12">Add area to route...</text>
+  <text x="595" y="355" fill="#4ecdc4" font-size="12">▼</text>
+  
+  <!-- Save button -->
+  <rect x="270" y="370" width="100" height="30" rx="4" fill="#4ecdc4"/>
+  <text x="294" y="390" fill="#000" font-size="12" font-weight="bold">Save Route</text>
+  
+  <!-- My Routes section -->
+  <text x="250" y="420" fill="#eaeaea" font-size="18" font-weight="bold">My Routes</text>
+  
+  <!-- Route card 1 -->
+  <rect x="250" y="435" width="810" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="462" fill="#eaeaea" font-size="14" font-weight="500">Boss Run</text>
+  <text x="270" y="485" fill="#a0a0a0" font-size="11">Mephisto → Pindleskin → Andariel</text>
+  <rect x="900" y="448" width="55" height="24" rx="4" fill="none" stroke="#4ecdc4"/>
+  <text x="913" y="464" fill="#4ecdc4" font-size="10">Edit</text>
+  <rect x="962" y="448" width="65" height="24" rx="4" fill="none" stroke="#e94560"/>
+  <text x="972" y="464" fill="#e94560" font-size="10">Delete</text>
+  
+  <!-- Route card 2 -->
+  <rect x="250" y="515" width="810" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="542" fill="#eaeaea" font-size="14" font-weight="500">Pit-AT Farm</text>
+  <text x="270" y="565" fill="#a0a0a0" font-size="11">Pit → Ancient Tunnels</text>
+  <rect x="900" y="528" width="55" height="24" rx="4" fill="none" stroke="#4ecdc4"/>
+  <text x="913" y="544" fill="#4ecdc4" font-size="10">Edit</text>
+  <rect x="962" y="528" width="65" height="24" rx="4" fill="none" stroke="#e94560"/>
+  <text x="972" y="544" fill="#e94560" font-size="10">Delete</text>
+</svg>

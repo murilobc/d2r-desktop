@@ -234,6 +234,8 @@ The sidebar is always visible and provides navigation and utilities.
 
 ### Route Editor (v2.0.0)
 
+![Route Editor](docs/mockups/route-editor.svg)
+
 Define multi-area farming routes and use them in the Run Tracker for auto-advancing through steps.
 
 **Functions:**
@@ -256,6 +258,8 @@ Define multi-area farming routes and use them in the Run Tracker for auto-advanc
 ---
 
 ### Comparison Mode (v2.0.0)
+
+![Comparison](docs/mockups/comparison.svg)
 
 Compare farming efficiency between two areas or two time periods side-by-side.
 

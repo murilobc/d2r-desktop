@@ -18,6 +18,18 @@ describe("History Page", () => {
         if (runId === "run-1") return mockItems;
         return [];
       }
+      if (cmd === "get_stats") return {
+        total_runs: mockRuns.length,
+        total_items: mockItems.length,
+        total_time_secs: 600,
+        avg_run_duration_secs: 120,
+        items_per_run: 1.0,
+        items_by_rarity: [],
+        runs_by_area: [
+          { area: "Mephisto", count: 2 },
+          { area: "Ancient Tunnels", count: 1 },
+        ],
+      };
       return undefined;
     });
   });
@@ -56,6 +68,11 @@ describe("History Page", () => {
     mockInvoke.mockImplementation(async (cmd) => {
       if (cmd === "get_runs") return [];
       if (cmd === "get_runs_paginated") return { runs: [], total: 0 };
+      if (cmd === "get_stats") return {
+        total_runs: 0, total_items: 0, total_time_secs: 0,
+        avg_run_duration_secs: 0, items_per_run: 0,
+        items_by_rarity: [], runs_by_area: [],
+      };
       return undefined;
     });
 

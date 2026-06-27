@@ -3,11 +3,6 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '.kiro/**'
-      - 'LICENSE'
 
 jobs:
   check:
@@ -15,37 +10,66 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Detect code changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'src-tauri/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'tsconfig.json'
+              - 'vite.config.ts'
+              - 'index.html'
+              - 'overlay.html'
+              - 'public/**'
+
       - name: Setup Node.js
+        if: steps.filter.outputs.code == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
 
       - name: Setup Rust
+        if: steps.filter.outputs.code == 'true'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust cache
+        if: steps.filter.outputs.code == 'true'
         uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
 
       - name: Install system dependencies
+        if: steps.filter.outputs.code == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
 
       - name: Install frontend dependencies
+        if: steps.filter.outputs.code == 'true'
         run: npm ci
 
       - name: Run tests
+        if: steps.filter.outputs.code == 'true'
         run: npm test
 
       - name: TypeScript check
+        if: steps.filter.outputs.code == 'true'
         run: npx tsc --noEmit
 
       - name: Rust check
+        if: steps.filter.outputs.code == 'true'
         run: cargo check
         working-directory: src-tauri
 
       - name: Frontend build
+        if: steps.filter.outputs.code == 'true'
         run: npx vite build
+
+      - name: Skip (docs-only change)
+        if: steps.filter.outputs.code != 'true'
+        run: echo "No code changes detected — skipping build checks."

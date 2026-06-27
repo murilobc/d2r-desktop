@@ -28,9 +28,10 @@ describe("ObsSettings Component", () => {
   it("toggle persists enabled state to localStorage", () => {
     render(<Settings />);
 
-    // Initially OFF
-    const toggleBtn = screen.getByText("OFF", { selector: ".settings-section:last-child button" });
-    expect(toggleBtn).toBeInTheDocument();
+    // Find the OBS toggle button within OBS section
+    const obsSection = screen.getByText("OBS Integration").closest(".settings-section")!;
+    const toggleBtn = obsSection.querySelector("button")!;
+    expect(toggleBtn.textContent).toBe("OFF");
 
     // Click to enable
     fireEvent.click(toggleBtn);
@@ -40,7 +41,7 @@ describe("ObsSettings Component", () => {
     expect(stored.enabled).toBe(true);
 
     // Button should now say ON
-    expect(screen.getAllByText("ON").length).toBeGreaterThanOrEqual(1);
+    expect(toggleBtn.textContent).toBe("ON");
   });
 
   it("toggle disables and persists state to localStorage", () => {

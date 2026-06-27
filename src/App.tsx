@@ -8,6 +8,7 @@ import Comparison from "./pages/Comparison";
 import Settings from "./pages/Settings";
 import DropCalculator from "./pages/DropCalculator";
 import RouteEditor from "./pages/RouteEditor";
+import HeraldTracker from "./pages/HeraldTracker";
 import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
@@ -17,7 +18,7 @@ import UpdateChecker from "./components/UpdateChecker";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "drops" | "settings";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "drops" | "settings";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
@@ -111,6 +112,8 @@ function App() {
         return selectedProfile ? <Statistics profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "comparison":
         return selectedProfile ? <Comparison profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "heralds":
+        return selectedProfile ? <HeraldTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "drops":
         return <DropCalculator />;
       case "settings":
@@ -179,6 +182,15 @@ function App() {
               disabled={!selectedProfile}
             >
               ⚔️ Compare
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "heralds" ? "active" : ""}`}
+              onClick={() => setCurrentPage("heralds")}
+              disabled={!selectedProfile}
+            >
+              ⚔️ Heralds
             </button>
           </li>
           <li>

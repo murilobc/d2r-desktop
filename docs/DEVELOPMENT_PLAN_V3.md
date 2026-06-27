@@ -60,11 +60,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 3. Terror Zone Integration
+## 3. Terror Zone Integration ✅ IMPLEMENTED (PR #55)
 
-**Branch:** `feat/terror-zones`
+**Branch:** `feat/v2.2-tz-heralds`
 **Effort:** ~4-5 hours
 **Dependencies:** Run Notes / Quick Tags (#2 — for TZ-aware tagging)
+**Status:** Merged
 
 ### Tasks:
 1. Research TZ rotation schedule data source (community API or static rotation JSON)
@@ -79,19 +80,20 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README with TZ feature documentation
 
 ### Acceptance Criteria:
-- [ ] Active Terror Zone displayed in RunTracker with time remaining
-- [ ] User receives notification when a preferred TZ activates
-- [ ] Runs are auto-tagged as TZ when area matches active Terror Zone
-- [ ] Statistics compare TZ performance vs normal runs
-- [ ] TZ data can be updated without app rebuild (JSON config)
+- [x] Active Terror Zone displayed in RunTracker with time remaining
+- [x] User receives notification when a preferred TZ activates
+- [x] Runs are auto-tagged as TZ when area matches active Terror Zone
+- [x] Statistics compare TZ performance vs normal runs
+- [x] TZ data can be updated without app rebuild (JSON config)
 
 ---
 
-## 4. Herald Tracking
+## 4. Herald Tracking ✅ IMPLEMENTED (PR #55)
 
-**Branch:** `feat/herald-tracking`
+**Branch:** `feat/v2.2-tz-heralds`
 **Effort:** ~3-4 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Create `herald_encounters` table: `id, profile_id, tier (1-5), area, result (success/fail), sunder_charm TEXT NULL, notes, encountered_at`
@@ -105,10 +107,10 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] User can log Herald encounters with tier, area, and result
-- [ ] Sunder Charm collection checklist tracks which charms have been found
-- [ ] Statistics show success rate and progression per tier
-- [ ] Herald data is per-profile
+- [x] User can log Herald encounters with tier, area, and result
+- [x] Sunder Charm collection checklist tracks which charms have been found
+- [x] Statistics show success rate and progression per tier
+- [x] Herald data is per-profile
 
 ---
 
@@ -443,7 +445,7 @@ Each feature should follow this workflow:
 | Version | Features | Effort (est.) | Status |
 |---------|----------|---------------|--------|
 | v2.1.0 | Dark/Light Theme Toggle + Run Notes/Quick Tags | ~3-5h | ✅ Released |
-| v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | 🔲 Planned |
+| v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | ✅ Released |
 | v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | 🔲 Planned |
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | 🔲 Planned |
 | v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | 🔲 Planned |

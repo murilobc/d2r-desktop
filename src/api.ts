@@ -21,6 +21,9 @@ import type {
   RouteStats,
   ComparisonRequest,
   ComparisonResult,
+  HeraldEncounter,
+  CreateHeraldEncounterInput,
+  HeraldStats,
 } from "./types";
 
 // Profiles
@@ -120,3 +123,16 @@ export const getRouteStats = (routeId: string) =>
 // Comparison
 export const getComparison = (request: ComparisonRequest) =>
   invoke<ComparisonResult>("get_comparison", { request });
+
+// Herald Tracking
+export const createHeraldEncounter = (input: CreateHeraldEncounterInput) =>
+  invoke<HeraldEncounter>("create_herald_encounter", { input });
+
+export const getHeraldEncounters = (profileId: string) =>
+  invoke<HeraldEncounter[]>("get_herald_encounters", { profileId });
+
+export const getHeraldStats = (profileId: string) =>
+  invoke<HeraldStats>("get_herald_stats", { profileId });
+
+export const deleteHeraldEncounter = (id: string) =>
+  invoke<void>("delete_herald_encounter", { id });

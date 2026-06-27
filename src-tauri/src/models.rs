@@ -223,3 +223,43 @@ pub struct ComparisonResult {
     pub subject_a: SubjectMetrics,
     pub subject_b: SubjectMetrics,
 }
+
+// ===== HERALD TRACKING =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HeraldEncounter {
+    pub id: String,
+    pub profile_id: String,
+    pub tier: i64,
+    pub area: String,
+    pub result: String,
+    pub sunder_charm: Option<String>,
+    pub notes: Option<String>,
+    pub encountered_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateHeraldEncounterInput {
+    pub profile_id: String,
+    pub tier: i64,
+    pub area: String,
+    pub result: String,
+    pub sunder_charm: Option<String>,
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HeraldStats {
+    pub total_encounters: i64,
+    pub success_count: i64,
+    pub fail_count: i64,
+    pub encounters_by_tier: Vec<TierCount>,
+    pub sunder_charms_found: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TierCount {
+    pub tier: i64,
+    pub count: i64,
+    pub successes: i64,
+}

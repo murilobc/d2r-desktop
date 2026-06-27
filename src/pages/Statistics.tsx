@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import type { Profile, Stats, DetailedRun, Route, RouteStats } from "../types";
+import { parseTags } from "../types";
 import { getStats, getDetailedRuns, getRoutes, getRouteStats } from "../api";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -539,6 +540,11 @@ export default function Statistics({ profile }: Props) {
         <p className="empty-state">No completed runs {areaFilter !== "All" ? `in ${areaFilter}` : ""}.</p>
       )}
 
+      {/* TZ Performance Section */}
+      {filteredStats && filteredStats.totalRuns > 0 && (
+        <TZPerformance detailedRuns={detailedRuns} />
+      )}
+
       {/* Route Statistics Section */}
       {routes.length > 0 && (
         <div className="stats-section route-stats-section">
@@ -582,6 +588,90 @@ export default function Statistics({ profile }: Props) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function TZPerformance({ detailedRuns }: { readonly detailedRuns: DetailedRun[] }) {
+  const tzStats = useMemo(() => {
+    const tzRuns = detailedRuns.filter((dr) => {
+      const tags = parseTags(dr.run.tags);
+      return tags.includes("tz");
+    });
+    const normalRuns = detailedRuns.filter((dr) => {
+      const tags = parseTags(dr.run.tags);
+      return !tags.includes("tz");
+    });
+
+    if (tzRuns.length === 0) return null;
+
+    const calcMetrics = (runs: DetailedRun[]) => {
+      const totalRuns = runs.length;
+      const totalItems = runs.reduce((sum, dr) => sum + dr.items.length, 0);
+      const durations = runs.map((dr) => dr.run.duration_secs).filter((d) => d > 0);
+      const totalTime = durations.reduce((sum, d) => sum + d, 0);
+      const avgTime = durations.length > 0 ? totalTime / durations.length : 0;
+      const itemsPerHour = totalTime > 0 ? (totalItems / totalTime) * 3600 : 0;
+      const itemsPerRun = totalRuns > 0 ? totalItems / totalRuns : 0;
+      return { totalRuns, totalItems, avgTime, itemsPerHour, itemsPerRun };
+    };
+
+    return {
+      tz: calcMetrics(tzRuns),
+      normal: calcMetrics(normalRuns),
+    };
+  }, [detailedRuns]);
+
+  if (!tzStats) return null;
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
+  return (
+    <div className="stats-section">
+      <h2>⚡ TZ Performance</h2>
+      <p className="settings-description">
+        Comparing runs tagged as Terror Zone vs normal runs.
+      </p>
+      <table className="stats-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>⚡ Terror Zone</th>
+            <th>Normal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Runs</td>
+            <td>{tzStats.tz.totalRuns}</td>
+            <td>{tzStats.normal.totalRuns}</td>
+          </tr>
+          <tr>
+            <td>Items</td>
+            <td>{tzStats.tz.totalItems}</td>
+            <td>{tzStats.normal.totalItems}</td>
+          </tr>
+          <tr>
+            <td>Items/Hour</td>
+            <td>{tzStats.tz.itemsPerHour.toFixed(1)}</td>
+            <td>{tzStats.normal.itemsPerHour.toFixed(1)}</td>
+          </tr>
+          <tr>
+            <td>Items/Run</td>
+            <td>{tzStats.tz.itemsPerRun.toFixed(2)}</td>
+            <td>{tzStats.normal.itemsPerRun.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td>Avg Time</td>
+            <td>{formatTime(tzStats.tz.avgTime)}</td>
+            <td>{formatTime(tzStats.normal.avgTime)}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

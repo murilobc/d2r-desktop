@@ -1299,3 +1299,138 @@ pub fn get_comparison(state: State<DbState>, request: ComparisonRequest) -> Resu
 
     Ok(ComparisonResult { subject_a, subject_b })
 }
+
+// ===== HERALD TRACKING =====
+
+#[tauri::command]
+pub fn create_herald_encounter(state: State<DbState>, input: CreateHeraldEncounterInput) -> Result<HeraldEncounter, String> {
+    // Input validation
+    if input.tier < 1 || input.tier > 5 {
+        return Err("Herald tier must be between 1 and 5".to_string());
+    }
+    if input.result != "success" && input.result != "fail" {
+        return Err("Result must be 'success' or 'fail'".to_string());
+    }
+    if input.area.trim().is_empty() {
+        return Err("Area cannot be empty".to_string());
+    }
+    if input.area.len() > 200 {
+        return Err("Area name is too long (max 200 characters)".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+
+    conn.execute(
+        "INSERT INTO herald_encounters (id, profile_id, tier, area, result, sunder_charm, notes, encountered_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        rusqlite::params![id, input.profile_id, input.tier, input.area, input.result, input.sunder_charm, input.notes, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(HeraldEncounter {
+        id,
+        profile_id: input.profile_id,
+        tier: input.tier,
+        area: input.area,
+        result: input.result,
+        sunder_charm: input.sunder_charm,
+        notes: input.notes,
+        encountered_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_herald_encounters(state: State<DbState>, profile_id: String) -> Result<Vec<HeraldEncounter>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, tier, area, result, sunder_charm, notes, encountered_at FROM herald_encounters WHERE profile_id = ?1 ORDER BY encountered_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let encounters = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(HeraldEncounter {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                tier: row.get(2)?,
+                area: row.get(3)?,
+                result: row.get(4)?,
+                sunder_charm: row.get(5)?,
+                notes: row.get(6)?,
+                encountered_at: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(encounters)
+}
+
+#[tauri::command]
+pub fn get_herald_stats(state: State<DbState>, profile_id: String) -> Result<HeraldStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let total_encounters: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM herald_encounters WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let success_count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM herald_encounters WHERE profile_id = ?1 AND result = 'success'",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let fail_count = total_encounters - success_count;
+
+    // Encounters by tier
+    let mut stmt = conn
+        .prepare("SELECT tier, COUNT(*) as total, SUM(CASE WHEN result = 'success' THEN 1 ELSE 0 END) as successes FROM herald_encounters WHERE profile_id = ?1 GROUP BY tier ORDER BY tier")
+        .map_err(|e| e.to_string())?;
+
+    let encounters_by_tier = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(TierCount {
+                tier: row.get(0)?,
+                count: row.get(1)?,
+                successes: row.get(2)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Sunder charms found (distinct values)
+    let mut stmt = conn
+        .prepare("SELECT DISTINCT sunder_charm FROM herald_encounters WHERE profile_id = ?1 AND sunder_charm IS NOT NULL AND sunder_charm != '' ORDER BY sunder_charm")
+        .map_err(|e| e.to_string())?;
+
+    let sunder_charms_found = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            row.get::<_, String>(0)
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(HeraldStats {
+        total_encounters,
+        success_count,
+        fail_count,
+        encounters_by_tier,
+        sunder_charms_found,
+    })
+}
+
+#[tauri::command]
+pub fn delete_herald_encounter(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM herald_encounters WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}

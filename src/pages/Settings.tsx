@@ -3,6 +3,7 @@ import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
 import { getObsFilePath } from "../api";
+import { TERROR_ZONES, loadTZPrefs, saveTZPrefs, type TerrorZonePrefs } from "../data/terror-zones";
 
 // OBS Preferences
 interface ObsPrefs {
@@ -182,6 +183,7 @@ export default function Settings() {
 
       <SoundSettings />
       <ObsSettings />
+      <TerrorZoneSettings />
     </div>
   );
 }
@@ -316,6 +318,64 @@ function ObsSettings() {
 
       <div className="settings-note">
         <strong>Tip:</strong> In OBS, add a "Text (GDI+)" source and check "Read from file", then paste the path above.
+      </div>
+    </div>
+  );
+}
+
+function TerrorZoneSettings() {
+  const [prefs, setPrefs] = useState<TerrorZonePrefs>(loadTZPrefs);
+
+  const toggleZone = (zoneName: string) => {
+    const updated = { ...prefs };
+    if (updated.preferredZones.includes(zoneName)) {
+      updated.preferredZones = updated.preferredZones.filter((z) => z !== zoneName);
+    } else {
+      updated.preferredZones = [...updated.preferredZones, zoneName];
+    }
+    setPrefs(updated);
+    saveTZPrefs(updated);
+  };
+
+  const toggleSound = () => {
+    const updated = { ...prefs, soundNotification: !prefs.soundNotification };
+    setPrefs(updated);
+    saveTZPrefs(updated);
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>Terror Zones</h2>
+      <p className="settings-description">
+        Configure preferred Terror Zones for notifications. When a preferred zone becomes active, you can receive an audio alert.
+      </p>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Sound notification</span>
+        <button className={`hotkey-btn ${prefs.soundNotification ? "recording" : ""}`} onClick={toggleSound}>
+          {prefs.soundNotification ? "ON" : "OFF"}
+        </button>
+      </div>
+
+      <div className="tz-prefs-list">
+        <span className="hotkey-label">Preferred zones</span>
+        <div className="tz-prefs-grid">
+          {TERROR_ZONES.map((tz) => (
+            <label key={tz.name} className="tz-pref-item">
+              <input
+                type="checkbox"
+                checked={prefs.preferredZones.includes(tz.name)}
+                onChange={() => toggleZone(tz.name)}
+              />
+              <span>{tz.name}</span>
+              <span className="tz-pref-tier">({tz.tier})</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="settings-note">
+        <strong>Tip:</strong> Select zones you want to farm. When one of these zones becomes the active Terror Zone, you will be notified (if sound is enabled).
       </div>
     </div>
   );

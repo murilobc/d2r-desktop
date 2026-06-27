@@ -62,6 +62,10 @@ pub fn run() {
             commands::delete_route,
             commands::get_route_stats,
             commands::get_comparison,
+            commands::create_herald_encounter,
+            commands::get_herald_encounters,
+            commands::get_herald_stats,
+            commands::delete_herald_encounter,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

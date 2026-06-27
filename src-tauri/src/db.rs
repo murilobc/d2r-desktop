@@ -94,6 +94,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add tags column to runs
     migrate_tags(conn)?;
 
+    // Migration: add herald_encounters table
+    migrate_herald_encounters(conn)?;
+
     Ok(())
 }
 
@@ -192,6 +195,27 @@ fn migrate_tags(conn: &Connection) -> Result<()> {
     if !has_tags {
         conn.execute_batch("ALTER TABLE runs ADD COLUMN tags TEXT DEFAULT NULL;")?;
     }
+
+    Ok(())
+}
+
+fn migrate_herald_encounters(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS herald_encounters (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            tier INTEGER NOT NULL,
+            area TEXT NOT NULL,
+            result TEXT NOT NULL,
+            sunder_charm TEXT,
+            notes TEXT,
+            encountered_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_herald_profile ON herald_encounters(profile_id);
+        ",
+    )?;
 
     Ok(())
 }

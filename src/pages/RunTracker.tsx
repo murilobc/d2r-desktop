@@ -9,6 +9,8 @@ import ItemSearch from "../components/ItemSearch";
 import MFCalculator from "../components/MFCalculator";
 import TierBadge from "../components/TierBadge";
 import QuickTags from "../components/QuickTags";
+import TerrorZoneDisplay from "../components/TerrorZoneDisplay";
+import { isAreaInTerrorZone, loadCurrentTZ } from "../data/terror-zones";
 import { playSound } from "../utils/audio";
 
 interface Props {
@@ -359,12 +361,36 @@ export default function RunTracker({ profile }: Props) {
     }
   };
 
+  // Auto-tag run with "tz" when area matches active Terror Zone
+  const autoTagTZ = (currentArea: string) => {
+    const currentTZ = loadCurrentTZ();
+    if (currentTZ && isAreaInTerrorZone(currentArea, currentTZ)) {
+      if (!runTags.includes("tz")) {
+        const newTags = [...runTags, "tz"];
+        setRunTags(newTags);
+        if (currentRun) {
+          updateRunTags(currentRun.id, newTags).catch(console.error);
+        }
+      }
+    }
+  };
+
+  // Check TZ match when area changes
+  useEffect(() => {
+    if (sessionActive && currentRun) {
+      autoTagTZ(area);
+    }
+  }, [area, sessionActive, currentRun]);
+
   return (
     <div className="page">
       <div className="page-header">
         <h1>Run Tracker</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
+
+      {/* Terror Zone Display */}
+      <TerrorZoneDisplay onTZChange={() => autoTagTZ(area)} />
 
       {!sessionActive ? (
         <div className="start-session-card">

@@ -271,3 +271,39 @@ export interface ComparisonResult {
   subject_a: SubjectMetrics;
   subject_b: SubjectMetrics;
 }
+
+// ===== HERALD TRACKING =====
+
+export interface HeraldEncounter {
+  id: string;
+  profile_id: string;
+  tier: number;
+  area: string;
+  result: string;
+  sunder_charm: string | null;
+  notes: string | null;
+  encountered_at: string;
+}
+
+export interface CreateHeraldEncounterInput {
+  profile_id: string;
+  tier: number;
+  area: string;
+  result: string;
+  sunder_charm?: string;
+  notes?: string;
+}
+
+export interface HeraldStats {
+  total_encounters: number;
+  success_count: number;
+  fail_count: number;
+  encounters_by_tier: HeraldTierCount[];
+  sunder_charms_found: string[];
+}
+
+export interface HeraldTierCount {
+  tier: number;
+  count: number;
+  successes: number;
+}

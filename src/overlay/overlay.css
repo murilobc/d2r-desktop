@@ -15,17 +15,64 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+:root,
+[data-theme="dark"] {
+  --ov-bg: rgba(0, 0, 0, 0.85);
+  --ov-border: rgba(233, 69, 96, 0.6);
+  --ov-text: #eaeaea;
+  --ov-text-muted: #888;
+  --ov-accent: #e94560;
+  --ov-session-label: #666;
+  --ov-session-time: #aaa;
+  --ov-area: #4ecdc4;
+  --ov-timer: #fff;
+  --ov-timer-shadow: rgba(78, 205, 196, 0.3);
+  --ov-stats: #ff6600;
+  --ov-close: #666;
+  --ov-split: #4ecdc4;
+  --ov-pause: #ffaa00;
+  --ov-stop: #e94560;
+  --ov-item-bg: #333;
+  --ov-item-color: #4ecdc4;
+  --ov-input-bg: rgba(255, 255, 255, 0.1);
+  --ov-input-border: #444;
+  --ov-dropdown-bg: rgba(0, 0, 0, 0.95);
+}
+
+[data-theme="light"] {
+  --ov-bg: rgba(255, 255, 255, 0.92);
+  --ov-border: rgba(220, 38, 38, 0.5);
+  --ov-text: #1e293b;
+  --ov-text-muted: #64748b;
+  --ov-accent: #dc2626;
+  --ov-session-label: #94a3b8;
+  --ov-session-time: #475569;
+  --ov-area: #0d9488;
+  --ov-timer: #1e293b;
+  --ov-timer-shadow: rgba(13, 148, 136, 0.2);
+  --ov-stats: #ea580c;
+  --ov-close: #94a3b8;
+  --ov-split: #0d9488;
+  --ov-pause: #d97706;
+  --ov-stop: #dc2626;
+  --ov-item-bg: #e2e8f0;
+  --ov-item-color: #0d9488;
+  --ov-input-bg: rgba(0, 0, 0, 0.05);
+  --ov-input-border: #cbd5e1;
+  --ov-dropdown-bg: rgba(255, 255, 255, 0.98);
+}
+
 #overlay-root {
   height: 100%;
   width: 100%;
 }
 
 .overlay-container {
-  background: rgba(0, 0, 0, 0.85);
-  border: 1px solid rgba(233, 69, 96, 0.6);
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border);
   border-radius: 8px;
   padding: 10px 14px;
-  color: #eaeaea;
+  color: var(--ov-text);
   width: 100%;
   height: 100%;
   cursor: grab;
@@ -44,7 +91,7 @@ body {
 }
 
 .overlay-msg {
-  color: #888;
+  color: var(--ov-text-muted);
   font-size: 11px;
   margin-top: 8px;
 }
@@ -58,7 +105,7 @@ body {
 }
 
 .overlay-title {
-  color: #e94560;
+  color: var(--ov-accent);
   font-weight: bold;
   font-size: 12px;
 }
@@ -67,7 +114,7 @@ body {
   margin-left: auto;
   background: none;
   border: none;
-  color: #666;
+  color: var(--ov-close);
   font-size: 16px;
   cursor: pointer;
   line-height: 1;
@@ -75,7 +122,7 @@ body {
 }
 
 .overlay-close:hover {
-  color: #e94560;
+  color: var(--ov-accent);
 }
 
 .rec-dot {
@@ -95,18 +142,18 @@ body {
 }
 
 .overlay-session-label {
-  color: #666;
+  color: var(--ov-session-label);
   font-size: 10px;
 }
 
 .overlay-session-time {
-  color: #aaa;
+  color: var(--ov-session-time);
   font-family: monospace;
   font-size: 11px;
 }
 
 .overlay-area {
-  color: #4ecdc4;
+  color: var(--ov-area);
   font-size: 10px;
   margin-left: auto;
   margin-right: 4px;
@@ -117,16 +164,16 @@ body {
   font-size: 38px;
   font-weight: bold;
   font-family: monospace;
-  color: #fff;
+  color: var(--ov-timer);
   margin: 6px 0;
   letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(78, 205, 196, 0.3);
+  text-shadow: 0 0 8px var(--ov-timer-shadow);
 }
 
 .overlay-stats {
   text-align: center;
   font-size: 11px;
-  color: #ff6600;
+  color: var(--ov-stats);
   margin-bottom: 8px;
   font-family: monospace;
 }
@@ -151,7 +198,7 @@ body {
 }
 
 .ov-split {
-  background: #4ecdc4;
+  background: var(--ov-split);
   color: #000;
 }
 
@@ -161,18 +208,18 @@ body {
 }
 
 .ov-pause {
-  background: #ffaa00;
+  background: var(--ov-pause);
   color: #000;
 }
 
 .ov-stop {
-  background: #e94560;
+  background: var(--ov-stop);
   color: #fff;
 }
 
 .ov-item {
-  background: #333;
-  color: #4ecdc4;
+  background: var(--ov-item-bg);
+  color: var(--ov-item-color);
   font-weight: bold;
   font-size: 16px;
 }
@@ -186,28 +233,28 @@ body {
 }
 
 .overlay-item-search .item-search-input {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #444;
+  background: var(--ov-input-bg);
+  border-color: var(--ov-input-border);
   font-size: 11px;
   padding: 5px 8px;
 }
 
 .overlay-item-search .item-search-input:focus {
-  border-color: #4ecdc4;
+  border-color: var(--ov-area);
 }
 
 .overlay-item-search .item-search-category {
   font-size: 10px;
   padding: 4px;
   min-width: 70px;
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #444;
+  background: var(--ov-input-bg);
+  border-color: var(--ov-input-border);
 }
 
 .overlay-item-search .item-search-dropdown {
   max-height: 180px;
-  background: rgba(0, 0, 0, 0.95);
-  border-color: #444;
+  background: var(--ov-dropdown-bg);
+  border-color: var(--ov-input-border);
 }
 
 .overlay-item-search .item-search-option {

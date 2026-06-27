@@ -35,6 +35,7 @@ export const mockRun: Run = {
   player_count: 1,
   route_id: null,
   route_step_index: null,
+  tags: null,
 };
 
 export const mockRuns: Run[] = [
@@ -51,6 +52,7 @@ export const mockRuns: Run[] = [
     player_count: 1,
     route_id: null,
     route_step_index: null,
+    tags: null,
   },
   {
     id: "run-3",
@@ -64,6 +66,7 @@ export const mockRuns: Run[] = [
     player_count: 3,
     route_id: null,
     route_step_index: null,
+    tags: null,
   },
 ];
 

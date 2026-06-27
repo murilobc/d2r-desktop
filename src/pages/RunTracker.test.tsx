@@ -23,6 +23,7 @@ describe("RunTracker Page", () => {
         finished_at: null,
         status: "in_progress",
         notes: null,
+        tags: null,
       };
       if (cmd === "get_items") return [];
       if (cmd === "finish_run") return {};
@@ -121,6 +122,7 @@ describe("RunTracker OBS Integration", () => {
         finished_at: null,
         status: "in_progress",
         notes: null,
+        tags: null,
       };
       if (cmd === "get_items") return [];
       if (cmd === "finish_run") return {};

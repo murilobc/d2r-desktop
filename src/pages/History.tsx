@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import type { Profile, Run, Item } from "../types";
-import { AREAS } from "../types";
+import { AREAS, parseTags } from "../types";
 import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated, getStats } from "../api";
+import { PREDEFINED_TAGS } from "../components/QuickTags";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
 import TierBadge from "../components/TierBadge";
@@ -22,6 +23,7 @@ export default function History({ profile }: Props) {
   const [loading, setLoading] = useState(false);
   const [tierFilter, setTierFilter] = useState<"all" | TierName>("all");
   const [areaTotals, setAreaTotals] = useState<Record<string, number>>({});
+  const [tagFilter, setTagFilter] = useState<string>("all");
 
   const PAGE_SIZE = 50;
 
@@ -138,6 +140,23 @@ export default function History({ profile }: Props) {
     return numbers;
   }, [runs, areaTotals]);
 
+  // Collect all unique tags from loaded runs
+  const availableTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    for (const run of runs) {
+      for (const tag of parseTags(run.tags)) {
+        tagSet.add(tag);
+      }
+    }
+    return Array.from(tagSet).sort();
+  }, [runs]);
+
+  // Filter runs by tag
+  const filteredRuns = useMemo(() => {
+    if (tagFilter === "all") return runs;
+    return runs.filter((run) => parseTags(run.tags).includes(tagFilter));
+  }, [runs, tagFilter]);
+
   return (
     <div className="page">
       <div className="page-header">
@@ -161,8 +180,24 @@ export default function History({ profile }: Props) {
                 <option key={t} value={t}>{TIERS[t].label}</option>
               ))}
             </select>
+            <div className="tag-filter">
+              <label htmlFor="history-tag-filter">Filter by tag:</label>
+              <select
+                id="history-tag-filter"
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+              >
+                <option value="all">All tags</option>
+                {availableTags.map((tag) => {
+                  const predefined = PREDEFINED_TAGS.find((t) => t.value === tag);
+                  return (
+                    <option key={tag} value={tag}>{predefined ? predefined.label : tag}</option>
+                  );
+                })}
+              </select>
+            </div>
           </div>
-          {runs.map((run) => (
+          {filteredRuns.map((run) => (
             <div key={run.id} className="history-item">
               <div
                 className="history-item-header"
@@ -175,6 +210,14 @@ export default function History({ profile }: Props) {
                   <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
                   <span className="history-time">{formatTime(run.duration_secs)}</span>
                   {run.player_count && <span className="history-players">/p{run.player_count}</span>}
+                  {parseTags(run.tags).length > 0 && (
+                    <span className="tag-badges">
+                      {parseTags(run.tags).map((tag) => {
+                        const predefined = PREDEFINED_TAGS.find((t) => t.value === tag);
+                        return <span key={tag} className="tag-badge">{predefined ? predefined.label : tag}</span>;
+                      })}
+                    </span>
+                  )}
                   <span className="history-date">
                     {new Date(run.started_at).toLocaleDateString("en-US")} {new Date(run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                   </span>

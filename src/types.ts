@@ -34,6 +34,7 @@ export interface Run {
   player_count: number | null;
   route_id: string | null;
   route_step_index: number | null;
+  tags: string | null;
 }
 
 export interface CreateRunInput {
@@ -43,11 +44,24 @@ export interface CreateRunInput {
   player_count?: number;
   route_id?: string;
   route_step_index?: number;
+  tags?: string[];
 }
 
 export interface FinishRunInput {
   duration_secs: number;
   notes?: string;
+  tags?: string[];
+}
+
+/** Parse tags from the JSON string stored in the database */
+export function parseTags(tags: string | null): string[] {
+  if (!tags) return [];
+  try {
+    const parsed = JSON.parse(tags);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 export interface Item {

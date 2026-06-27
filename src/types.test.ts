@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { D2R_CLASSES, GAME_MODES, AREAS, RARITIES, ITEM_TYPES } from "./types";
+import { D2R_CLASSES, GAME_MODES, AREAS, RARITIES, ITEM_TYPES, parseTags } from "./types";
 
 describe("Type Constants", () => {
   it("should have 8 classes including Warlock", () => {
@@ -55,5 +55,33 @@ describe("Type Constants", () => {
     checkDuplicates(AREAS, "AREAS");
     checkDuplicates(RARITIES, "RARITIES");
     checkDuplicates(ITEM_TYPES, "ITEM_TYPES");
+  });
+});
+
+
+describe("parseTags", () => {
+  it("returns empty array for null", () => {
+    expect(parseTags(null)).toEqual([]);
+  });
+
+  it("returns empty array for empty string", () => {
+    expect(parseTags("")).toEqual([]);
+  });
+
+  it("parses valid JSON array string", () => {
+    expect(parseTags('["gg","fast","death"]')).toEqual(["gg", "fast", "death"]);
+  });
+
+  it("returns empty array for invalid JSON", () => {
+    expect(parseTags("not-json")).toEqual([]);
+  });
+
+  it("returns empty array for JSON non-array", () => {
+    expect(parseTags('"hello"')).toEqual([]);
+    expect(parseTags("42")).toEqual([]);
+  });
+
+  it("handles empty JSON array", () => {
+    expect(parseTags("[]")).toEqual([]);
   });
 });

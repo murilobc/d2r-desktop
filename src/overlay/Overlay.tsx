@@ -28,6 +28,12 @@ export default function Overlay() {
   });
   const [showItemSearch, setShowItemSearch] = useState(false);
 
+  // Apply theme from localStorage on mount
+  useEffect(() => {
+    const theme = localStorage.getItem("d2r-theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+  }, []);
+
   // Listen for state updates from main window
   useEffect(() => {
     const unlisten = listen<OverlayState>("overlay-state-update", (event) => {

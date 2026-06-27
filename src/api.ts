@@ -50,6 +50,9 @@ export const deleteRun = (id: string) => invoke<void>("delete_run", { id });
 export const updateRunArea = (id: string, area: string) =>
   invoke<void>("update_run_area", { id, area });
 
+export const updateRunTags = (id: string, tags: string[]) =>
+  invoke<void>("update_run_tags", { id, input: { tags } });
+
 // Items
 export const createItem = (input: CreateItemInput) =>
   invoke<Item>("create_item", { input });

@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="dark"] {
   --bg-dark: #1a1a2e;
   --bg-card: #16213e;
   --bg-sidebar: #0f3460;
@@ -15,6 +16,35 @@
   --rare: #ffff00;
   --magic: #6060ff;
   --runeword: #c4a000;
+  --bg-overlay: rgba(0, 0, 0, 0.2);
+  --timer-bg: #000;
+  --timer-text: #fff;
+  --scrollbar-track: #1a1a2e;
+  --scrollbar-thumb: #2a2a4a;
+}
+
+[data-theme="light"] {
+  --bg-dark: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-sidebar: #e2e8f0;
+  --accent: #dc2626;
+  --accent-hover: #ef4444;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --success: #0d9488;
+  --danger: #dc2626;
+  --gold: #d97706;
+  --unique: #92400e;
+  --set: #16a34a;
+  --rare: #ca8a04;
+  --magic: #4f46e5;
+  --runeword: #92400e;
+  --bg-overlay: rgba(0, 0, 0, 0.05);
+  --timer-bg: #1e293b;
+  --timer-text: #f8fafc;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
 }
 
 * {
@@ -292,7 +322,7 @@ body {
 .timer-panel {
   text-align: center;
   padding: 1.5rem 0;
-  background: #000;
+  background: var(--timer-bg);
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -331,7 +361,7 @@ body {
   font-size: 3.5rem;
   font-weight: bold;
   font-family: monospace;
-  color: #fff;
+  color: var(--timer-text);
   letter-spacing: 2px;
   margin-bottom: 1rem;
 }
@@ -494,7 +524,7 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.4rem 0.6rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-overlay);
   border-radius: 4px;
   font-size: 0.85rem;
 }
@@ -615,7 +645,7 @@ body {
 .history-item-details {
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--bg-overlay);
 }
 
 .run-notes {
@@ -693,11 +723,11 @@ body {
 }
 
 .main-content::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+  background: var(--scrollbar-track);
 }
 
 .main-content::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
@@ -891,7 +921,7 @@ body {
 .report-summary {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-overlay);
   border-radius: 6px;
 }
 
@@ -1151,7 +1181,7 @@ body {
 .settings-note {
   margin-top: 1.5rem;
   padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-overlay);
   border-radius: 6px;
   font-size: 0.8rem;
   color: var(--text-muted);
@@ -1174,7 +1204,7 @@ body {
 .mf-calculator {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-overlay);
   border-radius: 6px;
   border: 1px solid var(--border);
 }
@@ -1420,7 +1450,7 @@ body {
 
 .dc-drop-item {
   padding: 0.4rem 0.6rem;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-overlay);
   border-radius: 4px;
   font-size: 0.85rem;
   color: var(--unique);
@@ -1768,4 +1798,86 @@ body {
 .tier-breakdown-count {
   font-weight: bold;
   font-size: 0.9rem;
+}
+
+
+/* Quick Tags */
+.quick-tags {
+  margin: 0.75rem 0;
+  padding: 0.5rem 0;
+}
+
+.quick-tags-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-right: 0.5rem;
+}
+
+.quick-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.quick-tag-btn {
+  padding: 0.3rem 0.6rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-tag-btn:hover {
+  border-color: var(--accent);
+  background: rgba(233, 69, 96, 0.1);
+}
+
+.quick-tag-btn.active {
+  background: rgba(233, 69, 96, 0.25);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* Tag badges in History */
+.tag-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag-badge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: rgba(233, 69, 96, 0.15);
+  border: 1px solid rgba(233, 69, 96, 0.3);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* Tag filter in History */
+.tag-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tag-filter label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tag-filter select {
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.8rem;
 }

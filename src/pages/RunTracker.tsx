@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Profile, Item, Run, Route } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags } from "../api";
 import { getObsPrefs } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 import MFCalculator from "../components/MFCalculator";
 import TierBadge from "../components/TierBadge";
+import QuickTags from "../components/QuickTags";
 import { playSound } from "../utils/audio";
 
 interface Props {
@@ -63,6 +64,9 @@ export default function RunTracker({ profile }: Props) {
 
   // Streak tracking
   const [currentStreak, setCurrentStreak] = useState(0); // runs since last item
+
+  // Tags
+  const [runTags, setRunTags] = useState<string[]>([]);
 
   // Timers
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -157,13 +161,14 @@ export default function RunTracker({ profile }: Props) {
     setRunElapsed(0);
     runElapsedRef.current = 0;
     setItems([]);
+    setRunTags([]);
   }, [profile.id, profile.mode, area, playerCount, routeMode, selectedRoute]);
 
   // Finish current run and start next (split)
   const splitRun = async () => {
     if (!currentRun) return;
     const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
-    await finishRun(currentRun.id, { duration_secs: durationSecs });
+    await finishRun(currentRun.id, { duration_secs: durationSecs, tags: runTags.length > 0 ? runTags : undefined });
 
     const newTimes = [...sessionRunTimes, durationSecs];
     setSessionRunTimes(newTimes);
@@ -204,7 +209,7 @@ export default function RunTracker({ profile }: Props) {
   const endSession = async () => {
     if (currentRun) {
       const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
-      await finishRun(currentRun.id, { duration_secs: durationSecs });
+      await finishRun(currentRun.id, { duration_secs: durationSecs, tags: runTags.length > 0 ? runTags : undefined });
       if (durationSecs > 0) {
         const newTimes = [...sessionRunTimes, durationSecs];
         setSessionRunTimes(newTimes);
@@ -343,6 +348,16 @@ export default function RunTracker({ profile }: Props) {
   const averageTime = sessionRunTimes.length > 0
     ? Math.floor(sessionRunTimes.reduce((a, b) => a + b, 0) / sessionRunTimes.length)
     : null;
+
+  const handleTagToggle = (tag: string) => {
+    const newTags = runTags.includes(tag)
+      ? runTags.filter((t) => t !== tag)
+      : [...runTags, tag];
+    setRunTags(newTags);
+    if (currentRun) {
+      updateRunTags(currentRun.id, newTags).catch(console.error);
+    }
+  };
 
   return (
     <div className="page">
@@ -520,6 +535,9 @@ export default function RunTracker({ profile }: Props) {
               <span className="route-cycle-count">Cycle: {cycleCount}</span>
             </div>
           )}
+
+          {/* Quick Tags */}
+          <QuickTags activeTags={runTags} onToggle={handleTagToggle} />
 
           {/* Area display */}
           <div className="current-area-display">

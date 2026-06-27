@@ -130,9 +130,11 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
     let now = Utc::now().to_rfc3339();
     let id = Uuid::new_v4().to_string();
 
+    let tags_json = input.tags.as_ref().map(|t| serde_json::to_string(t).unwrap_or_default());
+
     conn.execute(
-        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes, player_count, route_id, route_step_index) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5, ?6, ?7, ?8)",
-        rusqlite::params![id, input.profile_id, input.area, now, input.notes, input.player_count, input.route_id, input.route_step_index],
+        "INSERT INTO runs (id, profile_id, area, duration_secs, started_at, status, notes, player_count, route_id, route_step_index, tags) VALUES (?1, ?2, ?3, 0, ?4, 'in_progress', ?5, ?6, ?7, ?8, ?9)",
+        rusqlite::params![id, input.profile_id, input.area, now, input.notes, input.player_count, input.route_id, input.route_step_index, tags_json],
     ).map_err(|e| e.to_string())?;
 
     Ok(Run {
@@ -147,6 +149,7 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
         player_count: input.player_count,
         route_id: input.route_id,
         route_step_index: input.route_step_index,
+        tags: tags_json,
     })
 }
 
@@ -154,7 +157,7 @@ pub fn create_run(state: State<DbState>, input: CreateRunInput) -> Result<Run, S
 pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 ORDER BY started_at DESC")
         .map_err(|e| e.to_string())?;
 
     let runs = stmt
@@ -171,6 +174,7 @@ pub fn get_runs(state: State<DbState>, profile_id: String) -> Result<Vec<Run>, S
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -193,7 +197,7 @@ pub fn get_runs_paginated(state: State<DbState>, profile_id: String, offset: i64
         .map_err(|e| e.to_string())?;
 
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC LIMIT ?2 OFFSET ?3")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC LIMIT ?2 OFFSET ?3")
         .map_err(|e| e.to_string())?;
 
     let runs = stmt
@@ -210,6 +214,7 @@ pub fn get_runs_paginated(state: State<DbState>, profile_id: String, offset: i64
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -224,13 +229,22 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
 
-    conn.execute(
-        "UPDATE runs SET duration_secs = ?1, finished_at = ?2, status = 'completed', notes = ?3 WHERE id = ?4",
-        rusqlite::params![input.duration_secs, now, input.notes, id],
-    ).map_err(|e| e.to_string())?;
+    let tags_json = input.tags.as_ref().map(|t| serde_json::to_string(t).unwrap_or_default());
+
+    if tags_json.is_some() {
+        conn.execute(
+            "UPDATE runs SET duration_secs = ?1, finished_at = ?2, status = 'completed', notes = ?3, tags = ?4 WHERE id = ?5",
+            rusqlite::params![input.duration_secs, now, input.notes, tags_json, id],
+        ).map_err(|e| e.to_string())?;
+    } else {
+        conn.execute(
+            "UPDATE runs SET duration_secs = ?1, finished_at = ?2, status = 'completed', notes = ?3 WHERE id = ?4",
+            rusqlite::params![input.duration_secs, now, input.notes, id],
+        ).map_err(|e| e.to_string())?;
+    }
 
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE id = ?1")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE id = ?1")
         .map_err(|e| e.to_string())?;
 
     let run = stmt
@@ -247,6 +261,7 @@ pub fn finish_run(state: State<DbState>, id: String, input: FinishRunInput) -> R
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -260,6 +275,17 @@ pub fn update_run_area(state: State<DbState>, id: String, area: String) -> Resul
     conn.execute(
         "UPDATE runs SET area = ?1 WHERE id = ?2",
         rusqlite::params![area, id],
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn update_run_tags(state: State<DbState>, id: String, input: UpdateRunTagsInput) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let tags_json = serde_json::to_string(&input.tags).map_err(|e| e.to_string())?;
+    conn.execute(
+        "UPDATE runs SET tags = ?1 WHERE id = ?2",
+        rusqlite::params![tags_json, id],
     ).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -458,7 +484,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
 
     let runs: Vec<Run> = if let Some(ref area) = area_filter {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id, area], |row| {
             Ok(Run {
@@ -473,6 +499,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -481,7 +508,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
         result
     } else {
         let mut stmt = conn
-            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
             .map_err(|e| e.to_string())?;
         let result = stmt.query_map(rusqlite::params![profile_id], |row| {
             Ok(Run {
@@ -496,6 +523,7 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -563,7 +591,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
 
     // Runs
     let mut stmt = conn
-        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index FROM runs ORDER BY started_at ASC")
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs ORDER BY started_at ASC")
         .map_err(|e| e.to_string())?;
     let runs = stmt
         .query_map([], |row| {
@@ -579,6 +607,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
                 player_count: row.get(8)?,
                 route_id: row.get(9)?,
                 route_step_index: row.get(10)?,
+                tags: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?

@@ -91,6 +91,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add routes table and route columns to runs
     migrate_routes(conn)?;
 
+    // Migration: add tags column to runs
+    migrate_tags(conn)?;
+
     Ok(())
 }
 
@@ -176,6 +179,19 @@ fn migrate_routes(conn: &Connection) -> Result<()> {
 
     // Add index for route lookups
     conn.execute_batch("CREATE INDEX IF NOT EXISTS idx_runs_route ON runs(route_id);")?;
+
+    Ok(())
+}
+
+fn migrate_tags(conn: &Connection) -> Result<()> {
+    let has_tags: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('runs') WHERE name = 'tags'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_tags {
+        conn.execute_batch("ALTER TABLE runs ADD COLUMN tags TEXT DEFAULT NULL;")?;
+    }
 
     Ok(())
 }

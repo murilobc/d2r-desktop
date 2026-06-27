@@ -14,6 +14,7 @@ import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import UpdateChecker from "./components/UpdateChecker";
+import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
 type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "drops" | "settings";
@@ -22,6 +23,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
+  const { theme, toggleTheme } = useTheme();
 
   // Register global hotkeys on app startup
   useEffect(() => {
@@ -197,6 +199,9 @@ function App() {
           </button>
           <button className="nav-btn" onClick={toggleOverlay}>
             🖥️ Overlay
+          </button>
+          <button className="nav-btn" onClick={toggleTheme}>
+            {theme === "dark" ? "☀️" : "🌙"} Theme
           </button>
           <button className="nav-btn" onClick={handleExport}>
             💾 Export Data

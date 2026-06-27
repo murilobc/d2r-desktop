@@ -40,6 +40,7 @@ pub struct Run {
     pub player_count: Option<i64>,
     pub route_id: Option<String>,
     pub route_step_index: Option<i64>,
+    pub tags: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -50,12 +51,19 @@ pub struct CreateRunInput {
     pub player_count: Option<i64>,
     pub route_id: Option<String>,
     pub route_step_index: Option<i64>,
+    pub tags: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FinishRunInput {
     pub duration_secs: i64,
     pub notes: Option<String>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateRunTagsInput {
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

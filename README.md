@@ -106,7 +106,7 @@ A compact, always-on-top window that floats over D2R while you play. Toggle it f
 
 **Linux (Wayland) — Tiling Compositors:**
 
-On Hyprland, Niri, and similar tiling Wayland compositors, the overlay may not stay on top by default. Add these window rules to your compositor config:
+On Hyprland, Niri, MangoWC, and similar tiling Wayland compositors, the overlay may not stay on top by default. Add these window rules to your compositor config:
 
 **Hyprland** (`~/.config/hypr/hyprland.conf`):
 ```
@@ -125,6 +125,17 @@ window-rule {
     default-column-display "floating"
 }
 ```
+
+**MangoWC / Mango** (`~/.config/mango/config`):
+
+MangoWC does not yet support automatic window rules by title. Use the `toggleoverlay` command to pin the overlay window above all others:
+
+```
+# Add a keybinding to toggle overlay mode (keeps window on top of all others)
+bind=SUPER,o,toggleoverlay,
+```
+
+After opening the D2R Overlay, focus it and press `Super+O` to activate overlay mode. The window will stay on top of all other windows including the game.
 
 ---
 

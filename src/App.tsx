@@ -103,8 +103,6 @@ function App() {
     switch (currentPage) {
       case "profiles":
         return <Profiles onSelectProfile={handleSelectProfile} />;
-      case "tracker":
-        return selectedProfile ? <RunTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "routes":
         return selectedProfile ? <RouteEditor profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "history":
@@ -117,6 +115,8 @@ function App() {
         return <DropCalculator />;
       case "settings":
         return <Settings />;
+      default:
+        return null;
     }
   };
 
@@ -222,7 +222,13 @@ function App() {
         )}
       </nav>
       <main className="main-content">
-        {renderPage()}
+        {/* RunTracker stays mounted to preserve session state across tab switches */}
+        {selectedProfile && (
+          <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
+            <RunTracker profile={selectedProfile} />
+          </div>
+        )}
+        {currentPage !== "tracker" && renderPage()}
       </main>
     </div>
   );

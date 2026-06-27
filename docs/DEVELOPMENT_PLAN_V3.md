@@ -7,11 +7,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 1. Dark/Light Theme Toggle
+## 1. Dark/Light Theme Toggle ✅ IMPLEMENTED (PR #47)
 
-**Branch:** `feat/theme-toggle`
+**Branch:** `feat/v2.1-theme-tags`
 **Effort:** ~1-2 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Audit `App.css` and `overlay.css` — extract all color values into CSS custom properties (`:root` level)
@@ -24,18 +25,19 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 8. Update README with theme toggle mention
 
 ### Acceptance Criteria:
-- [ ] Toggle switches between dark and light themes instantly
-- [ ] Preference persists across app restarts via localStorage
-- [ ] All pages and components render correctly in both themes
-- [ ] Overlay window adapts to the selected theme
+- [x] Toggle switches between dark and light themes instantly
+- [x] Preference persists across app restarts via localStorage
+- [x] All pages and components render correctly in both themes
+- [x] Overlay window adapts to the selected theme
 
 ---
 
-## 2. Run Notes / Quick Tags
+## 2. Run Notes / Quick Tags ✅ IMPLEMENTED (PR #47)
 
-**Branch:** `feat/run-tags`
+**Branch:** `feat/v2.1-theme-tags`
 **Effort:** ~2-3 hours
 **Dependencies:** None (benefits from existing `notes` field on Run model)
+**Status:** Merged
 
 ### Tasks:
 1. Add `tags` column to `runs` table (`TEXT`, JSON array stored as string, nullable)
@@ -50,11 +52,11 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README
 
 ### Acceptance Criteria:
-- [ ] User can tag runs with one or more quick-tag buttons during a session
-- [ ] Tags are stored per run and visible in History
-- [ ] History can be filtered by one or multiple tags
-- [ ] Custom tags can be typed in addition to predefined buttons
-- [ ] Overlay supports tagging without leaving the game
+- [x] User can tag runs with one or more quick-tag buttons during a session
+- [x] Tags are stored per run and visible in History
+- [x] History can be filtered by one or multiple tags
+- [x] Custom tags can be typed in addition to predefined buttons
+- [x] Overlay supports tagging without leaving the game
 
 ---
 
@@ -440,7 +442,7 @@ Each feature should follow this workflow:
 
 | Version | Features | Effort (est.) | Status |
 |---------|----------|---------------|--------|
-| v2.1.0 | Dark/Light Theme Toggle + Run Notes/Quick Tags | ~3-5h | 🔲 Planned |
+| v2.1.0 | Dark/Light Theme Toggle + Run Notes/Quick Tags | ~3-5h | ✅ Released |
 | v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | 🔲 Planned |
 | v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | 🔲 Planned |
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | 🔲 Planned |

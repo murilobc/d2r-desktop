@@ -139,7 +139,11 @@ export default function RouteEditor({ profile }: Props) {
     }
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSave = async () => {
+    if (!canSave) return;
+    setSaving(true);
     try {
       if (editingRouteId) {
         await updateRoute(editingRouteId, { name, areas });
@@ -149,7 +153,9 @@ export default function RouteEditor({ profile }: Props) {
       resetForm();
       await loadRoutes();
     } catch (e) {
-      alert("Error: " + e);
+      alert("Error saving route: " + e);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -237,14 +243,20 @@ export default function RouteEditor({ profile }: Props) {
               type="button"
               className="btn btn-primary"
               onClick={handleSave}
-              disabled={!canSave}
+              disabled={!canSave || saving}
             >
-              {editingRouteId ? "Update Route" : "Save Route"}
+              {saving ? "Saving..." : editingRouteId ? "Update Route" : "Save Route"}
             </button>
             {editingRouteId && (
               <button type="button" className="btn" onClick={resetForm}>
                 Cancel
               </button>
+            )}
+            {!canSave && name.trim() === "" && areas.length >= 2 && (
+              <small className="text-muted">Enter a route name</small>
+            )}
+            {!canSave && areas.length < 2 && (
+              <small className="text-muted">Add at least 2 areas</small>
             )}
           </div>
         </div>

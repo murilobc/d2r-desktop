@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Profile, Item, Run, Route } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea } from "../api";
 import { getObsPrefs } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -587,7 +587,14 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
             <span className="area-label">Area:</span>
             <select
               value={area}
-              onChange={(e) => updateArea(e.target.value)}
+              onChange={(e) => {
+                const newArea = e.target.value;
+                updateArea(newArea);
+                // Also update the current run in the database so it's recorded correctly
+                if (currentRun) {
+                  updateRunArea(currentRun.id, newArea).catch(console.error);
+                }
+              }}
               className="area-select-inline"
             >
               {allAreas.map((a) => (

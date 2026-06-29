@@ -71,7 +71,7 @@ body {
   background: var(--ov-bg);
   border: 1px solid var(--ov-border);
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   color: var(--ov-text);
   width: 100%;
   height: 100%;
@@ -79,6 +79,7 @@ body {
   user-select: none;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .overlay-container:active {
@@ -99,9 +100,9 @@ body {
 .overlay-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  font-size: 11px;
+  gap: 5px;
+  margin-bottom: 2px;
+  font-size: 10px;
 }
 
 .overlay-title {
@@ -161,40 +162,42 @@ body {
 
 .overlay-run-timer {
   text-align: center;
-  font-size: 38px;
+  font-size: 34px;
   font-weight: bold;
   font-family: monospace;
   color: var(--ov-timer);
-  margin: 6px 0;
+  margin: 2px 0;
   letter-spacing: 1px;
   text-shadow: 0 0 8px var(--ov-timer-shadow);
+  line-height: 1;
 }
 
 .overlay-stats {
   text-align: center;
   font-size: 11px;
   color: var(--ov-stats);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   font-family: monospace;
 }
 
 .overlay-controls {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   justify-content: center;
   cursor: default;
 }
 
 .ov-btn {
-  width: 36px;
-  height: 28px;
+  width: 44px;
+  height: 30px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: filter 0.15s;
 }
 
 .ov-split {
@@ -229,7 +232,10 @@ body {
 }
 
 .overlay-item-search {
-  margin-top: 8px;
+  margin-top: 6px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .overlay-item-search .item-search-input {

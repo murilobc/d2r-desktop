@@ -10,7 +10,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
-import { calculateTotalValue, getTierBreakdown, TIERS, TIER_NAMES } from "../data/item-values";
+import { calculateTotalValue, getTierBreakdown, getItemTier, TIERS, TIER_NAMES } from "../data/item-values";
 
 interface Props {
   profile: Profile;
@@ -79,7 +79,30 @@ export default function Statistics({ profile }: Props) {
       });
     });
     const topItems = Object.entries(itemNameMap)
+      .filter(([name]) => {
+        // Exclude worthless-tier items (low runes, trash uniques) from most-found list
+        const tier = getItemTier(name);
+        return tier.name !== "worthless";
+      })
       .sort(([, a], [, b]) => b - a)
+      .slice(0, 10);
+
+    // Top 10 most valuable items found (by tier points, then by count)
+    const allItemsList = detailedRuns.flatMap((dr) =>
+      dr.items.map((i) => ({ name: i.name, rarity: i.rarity }))
+    );
+    const valuableItemMap: Record<string, { count: number; points: number }> = {};
+    allItemsList.forEach((item) => {
+      const tier = getItemTier(item.name, item.rarity);
+      if (tier.points > 0) {
+        if (!valuableItemMap[item.name]) {
+          valuableItemMap[item.name] = { count: 0, points: tier.points };
+        }
+        valuableItemMap[item.name].count++;
+      }
+    });
+    const topValuable = Object.entries(valuableItemMap)
+      .sort(([, a], [, b]) => b.points - a.points || b.count - a.count)
       .slice(0, 10);
 
     // Run duration over time (for line chart)
@@ -108,6 +131,7 @@ export default function Statistics({ profile }: Props) {
       itemsPerHour,
       rarityData: Object.entries(rarityMap).map(([rarity, count]) => ({ name: rarity, value: count })),
       topItems,
+      topValuable,
       runTimeline,
       totalValue,
       tierBreakdown,
@@ -487,6 +511,36 @@ export default function Statistics({ profile }: Props) {
                       <td>{count}</td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Top Valuable Items Table */}
+          {filteredStats.topValuable.length > 0 && (
+            <div className="stats-section">
+              <h3>Top 10 Most Valuable Finds</h3>
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Item</th>
+                    <th>Tier</th>
+                    <th>Found</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredStats.topValuable.map(([name, data], idx) => {
+                    const tier = getItemTier(name);
+                    return (
+                      <tr key={name}>
+                        <td>{idx + 1}</td>
+                        <td>{name}</td>
+                        <td><span className={`tier-badge ${tier.cssClass}`}>{tier.label}</span></td>
+                        <td>{data.count}×</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

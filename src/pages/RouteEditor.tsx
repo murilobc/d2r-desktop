@@ -174,14 +174,15 @@ export default function RouteEditor({ profile }: Props) {
           <h2>{editingRouteId ? "Edit Route" : "Create Route"}</h2>
 
           <div className="form-group">
-            <label htmlFor="route-name-input">Route Name</label>
+            <label htmlFor="route-name-input">Route Name <span style={{ color: "var(--accent)" }}>*</span></label>
             <input
               id="route-name-input"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., MF Route A"
+              placeholder="e.g., MF Route A (required)"
               maxLength={100}
+              required
             />
           </div>
 

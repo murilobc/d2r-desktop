@@ -491,58 +491,61 @@ export default function Statistics({ profile }: Props) {
             )}
           </div>
 
-          {/* Top Items Table */}
-          {filteredStats.topItems.length > 0 && (
-            <div className="stats-section">
-              <h3>Top 10 Most Found Items</h3>
-              <table className="stats-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Item</th>
-                    <th>Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStats.topItems.map(([name, count], idx) => (
-                    <tr key={name}>
-                      <td>{idx + 1}</td>
-                      <td>{name}</td>
-                      <td>{count}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Top Valuable Items Table */}
-          {filteredStats.topValuable.length > 0 && (
-            <div className="stats-section">
-              <h3>Top 10 Most Valuable Finds</h3>
-              <table className="stats-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Item</th>
-                    <th>Tier</th>
-                    <th>Found</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStats.topValuable.map(([name, data], idx) => {
-                    const tier = getItemTier(name);
-                    return (
-                      <tr key={name}>
-                        <td>{idx + 1}</td>
-                        <td>{name}</td>
-                        <td><span className={`tier-badge ${tier.cssClass}`}>{tier.label}</span></td>
-                        <td>{data.count}×</td>
+          {/* Top Items Tables */}
+          {(filteredStats.topItems.length > 0 || filteredStats.topValuable.length > 0) && (
+            <div className="top-items-grid">
+              {filteredStats.topItems.length > 0 && (
+                <div className="stats-card">
+                  <h3>🏆 Top 10 Most Found Items</h3>
+                  <table className="stats-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>Count</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {filteredStats.topItems.map(([name, count], idx) => (
+                        <tr key={name}>
+                          <td>{idx + 1}</td>
+                          <td>{name}</td>
+                          <td>{count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {filteredStats.topValuable.length > 0 && (
+                <div className="stats-card">
+                  <h3>💎 Top 10 Most Valuable Finds</h3>
+                  <table className="stats-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>Tier</th>
+                        <th>Found</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStats.topValuable.map(([name, data], idx) => {
+                        const tier = getItemTier(name);
+                        return (
+                          <tr key={name}>
+                            <td>{idx + 1}</td>
+                            <td>{name}</td>
+                            <td><span className={`tier-badge ${tier.cssClass}`}>{tier.label}</span></td>
+                            <td>{data.count}×</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 

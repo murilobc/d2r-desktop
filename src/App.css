@@ -479,6 +479,209 @@ body {
   flex-shrink: 0;
 }
 
+/* ===== HERALD TRACKER ===== */
+
+.herald-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.herald-section h2 {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 700px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--success);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.3rem;
+}
+
+.tier-progression {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tier-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  flex: 1;
+  min-width: 140px;
+  opacity: 0.5;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.tier-progress-item.tier-active {
+  opacity: 1;
+  border-color: var(--success);
+}
+
+.tier-progress-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.tier-active .tier-progress-badge {
+  background: var(--success);
+  color: #000;
+}
+
+.tier-progress-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tier-progress-stats span:first-child {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sunder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .sunder-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sunder-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  opacity: 0.5;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.sunder-card.sunder-found {
+  opacity: 1;
+  border-color: var(--success);
+  background: rgba(78, 205, 196, 0.05);
+}
+
+.sunder-icon {
+  font-size: 1.2rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.sunder-found .sunder-icon {
+  background: var(--success);
+  color: #000;
+  font-weight: 700;
+}
+
+.sunder-name {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sunder-charm-name {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 0.1rem;
+}
+
+.herald-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.herald-form .btn-primary {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+}
+
+.result-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.result-toggle .btn {
+  flex: 1;
+  max-width: 120px;
+}
+
+.text-success {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.text-danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
 /* Profile Cards */
 .profiles-grid {
   display: grid;

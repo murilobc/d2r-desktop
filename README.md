@@ -50,6 +50,7 @@ The Run Tracker is the core of the application. It manages your farming sessions
 **Functions:**
 - **Area selector** — Choose which area you're farming (remembers your last selection)
 - **▶ Start Session** — Begins a new farming session with timer and first run
+- **Terror Zone display** — Shows the currently active Terror Zone with tier badge; auto-tags runs with "tz" when area matches
 
 **During an active session:**
 - **Session timer** (top, small) — Total time since session started, with recording indicator
@@ -62,7 +63,9 @@ The Run Tracker is the core of the application. It manages your farming sessions
 - **⏭ Next Run** — Finishes the current run (saves duration) and immediately starts the next one
 - **⏸ Pause / ▶ Resume** — Pauses both session and run timers
 - **⏹ End Session** — Finishes the last run and stops the session
-- **Area selector** (during session) — Change area mid-session if needed
+- **Area selector** (during session) — Change area mid-session without losing streak or stats
+- **Quick Tags** — Tag runs with 🔥 GG, 💀 Death, ⚡ Fast, etc. for filtering later
+- **Route Mode** — Toggle route mode + step indicator showing current area during route sessions
 - **+ Item** — Opens the item search to log a drop found during the current run
 - **Item search** — Searchable combobox with the full D2R v3.2 item database (895+ items), filterable by category (Rune, Runeword, Unique, Set, Base, Charm, Jewel, Rare/Magic)
 - **✕** — Remove an item from the current run
@@ -80,6 +83,7 @@ Each logged item automatically displays a color-coded value tier badge based on 
 - **Add custom area** — Type a new area name to add to your list
 - **Players** (Single Player only) — Set /players 1-8
 - **Session Goal** — Set a run count or time target
+- **Route Mode** — Toggle between single-area and route mode (select from saved routes)
 - **MF Calculator** — Shows effective MF with diminishing returns (if MF is set in profile)
 
 ---
@@ -169,11 +173,14 @@ The Statistics screen provides analytics and reporting on your farming data.
 - **Area filter** — Filter all stats and charts by a specific area, or view all areas combined
 - **Summary cards** — Total Runs, Total Items, Total Time, Average Time, Fastest, Slowest, Items/Run, Items/Hour
 - **Item Value Summary** — Total value points from all items found, with a breakdown showing count per tier (GG, High, Mid, Low)
+- **Top 10 Most Valuable Finds** — Ranked table of highest-tier items found, sorted by point value
 - **Duration per Run chart** — Line chart showing run time over time (efficiency trend)
 - **Items per Run chart** — Bar chart showing drops per run
 - **Rarity Distribution** — Pie chart of items by rarity type
 - **Runs by Area** — Horizontal bar chart showing farming distribution
 - **Top 10 Most Found Items** — Table ranking your most common drops
+- **⚡ TZ Performance** — Comparison table of Terror Zone runs vs normal runs (items/hour, items/run, avg time)
+- **Route Statistics** — Select a route to view total cycles, average cycle time, items per cycle
 - **📊 Detailed Report** — Expandable table with every run listed (date, area, duration, items found)
 - **📄 Export PDF** — Generates a full PDF report with all stats, charts data, and run-by-run details (opens native Save dialog)
 
@@ -199,11 +206,26 @@ No profile selection required — accessible anytime from the sidebar.
 
 ---
 
+### Herald Tracker
+
+![Herald Tracker](docs/mockups/herald-tracker.svg)
+
+Track Herald of Terror encounters and Sunder Charm farming progress.
+
+**Functions:**
+- **Stats panel** — Total encounters, success rate, victories, defeats
+- **Tier progression** — Visual T1-T5 badges showing encounters and win rate per tier
+- **Sunder Charm collection** — Grid of 6 elements (Cold, Fire, Lightning, Physical, Poison, Magic) with found/unfound status
+- **Log encounter** — Form to record tier, area, result (success/fail), optional sunder charm drop, notes
+- **History table** — All past encounters with date, tier, area, result, drops
+
+---
+
 ### Settings
 
 ![Settings](docs/mockups/settings.svg)
 
-The Settings page lets you configure global hotkeys and sound notifications.
+The Settings page lets you configure global hotkeys, sound notifications, OBS integration, and Terror Zone preferences.
 
 **Global Hotkeys:**
 - **Next Run (Split)** — Default: F9. Works even when D2R is focused.
@@ -218,6 +240,18 @@ The Settings page lets you configure global hotkeys and sound notifications.
 - **Test buttons** — Preview each sound type (Item, Milestone, Alert, Goal)
 - **Triggers:** Item found → beep, every 10 runs → milestone, goal reached → celebration
 
+**OBS Integration:**
+- **Enable/disable toggle** — Write live stats to file for OBS
+- **Output format** — Plain Text or JSON
+- **File path** — Shown when enabled, with copy button
+
+**Terror Zones:**
+- **Sound notification toggle** — Audio alert when a preferred zone becomes active
+- **Preferred zones** — Checkbox grid of all Terror Zones to select favorites
+
+**Theme:**
+- **Dark/Light toggle** — Switch between dark and light modes from the sidebar (○/● Theme button)
+
 ---
 
 ### Sidebar
@@ -226,18 +260,20 @@ The sidebar is always visible and provides navigation and utilities.
 
 **Navigation:**
 - 👤 **Profiles** — Manage characters
-- 🎮 **Run Tracker** — Active farming session
-- 🗺️ **Routes** — Define and manage multi-area farming routes
-- 📜 **History** — Past runs
-- 📊 **Statistics** — Analytics and reports
-- ⚔️ **Compare** — Compare farming efficiency between areas or time periods
-- 🎲 **Drop Calculator** — Area drop information
+- ▶ **Run Tracker** — Active farming session
+- ↗ **Routes** — Define multi-area farming routes
+- ☰ **History** — Past runs
+- ◈ **Statistics** — Analytics and reports
+- ⇄ **Compare** — Area/date range efficiency comparison
+- ◆ **Heralds** — Herald of Terror encounter tracking
+- ∿ **Drops** — Drop rate calculator
 
 **Utilities:**
-- ⚙️ **Settings** — Hotkeys, sound, and OBS configuration
-- 🖥️ **Overlay** — Toggle the in-game overlay window
-- 💾 **Export Data** — Save all profiles, runs, and items as JSON backup (native Save dialog)
-- 📂 **Import Data** — Load a JSON backup file (native Open dialog, skips duplicates)
+- ⚙ **Settings** — Hotkeys, sound, OBS, Terror Zone configuration
+- ◳ **Overlay** — Toggle the in-game overlay window
+- ○/● **Theme** — Switch between dark and light modes
+- ↓ **Export** — Save all data as JSON backup
+- ↑ **Import** — Load a JSON backup file
 
 **Active profile indicator** — Shows the currently selected profile name and class at the bottom.
 
@@ -385,23 +421,29 @@ d2r-desktop/
 │   ├── data/
 │   │   ├── items.ts           # D2R v3.2 item database (895+ items)
 │   │   ├── item-values.ts     # Item value tier estimation (Worthless/Low/Mid/High/GG)
-│   │   └── areas.ts           # Area metadata (alvl, TC, drops, tips)
-│   ├── components/            # Reusable components
+│   │   ├── areas.ts           # Area metadata (alvl, TC, drops, tips)
+│   │   └── terror-zones.ts   # Terror Zone definitions and preferences
+│   ├── components/
 │   │   ├── ItemSearch.tsx     # Searchable combobox
 │   │   ├── MFCalculator.tsx   # Effective MF widget
 │   │   ├── TierBadge.tsx      # Item value tier badge
+│   │   ├── TerrorZoneDisplay.tsx # Active Terror Zone indicator
+│   │   ├── QuickTags.tsx      # Quick tag buttons for run tagging
 │   │   └── UpdateChecker.tsx  # Auto-update banner
+│   ├── hooks/
+│   │   └── useTheme.ts       # Dark/light theme toggle hook
 │   ├── overlay/               # In-game overlay window
 │   │   ├── Overlay.tsx
 │   │   ├── overlay.css
 │   │   └── main.tsx
-│   ├── pages/                 # App pages
+│   ├── pages/
 │   │   ├── Profiles.tsx
 │   │   ├── RunTracker.tsx
 │   │   ├── RouteEditor.tsx    # Multi-area route management
 │   │   ├── History.tsx
 │   │   ├── Statistics.tsx
 │   │   ├── Comparison.tsx     # Area/date range efficiency comparison
+│   │   ├── HeraldTracker.tsx  # Herald of Terror encounter tracking
 │   │   ├── DropCalculator.tsx
 │   │   └── Settings.tsx
 │   ├── utils/
@@ -416,7 +458,7 @@ d2r-desktop/
 │       └── commands.rs        # Tauri commands (CRUD, stats, routes, comparison, OBS)
 ├── .github/workflows/         # CI/CD
 │   ├── ci.yml                 # PR checks (tests, tsc, cargo, vite)
-│   └── build-windows.yml     # Release builds (signed, with updater)
+│   └── build.yml             # Release builds (signed, with updater)
 └── docs/mockups/              # SVG mockups for README
 ```
 

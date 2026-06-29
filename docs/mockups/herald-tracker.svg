@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
+  <text x="20" y="135" fill="#eaeaea" font-size="14">▶ Run Tracker</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14">↗ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14">☰ History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14">◈ Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14">⇄ Compare</text>
+  <rect x="0" y="310" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="310" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="335" fill="#eaeaea" font-size="14">◆ Heralds</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14">∿ Drops</text>
+  <text x="20" y="430" fill="#eaeaea" font-size="14">⚙ Settings</text>
+
+  <!-- Active profile -->
+  <line x1="0" y1="630" x2="220" y2="630" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="655" fill="#a0a0a0" font-size="10">Active profile:</text>
+  <text x="20" y="672" fill="#eaeaea" font-size="13" font-weight="bold">MFSorc</text>
+  <text x="20" y="690" fill="#a0a0a0" font-size="11">Sorceress</text>
+
+  <!-- Main content area -->
+  <!-- Page header -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">⚔️ Herald Tracker</text>
+  <rect x="430" y="32" width="120" height="24" rx="12" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="445" y="49" fill="#a0a0a0" font-size="11">MFSorc - Sorceress</text>
+
+  <!-- Stats Grid (4 cards) -->
+  <rect x="250" y="70" width="190" height="75" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="345" y="105" fill="#eaeaea" font-size="22" font-weight="bold" text-anchor="middle">24</text>
+  <text x="345" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Total Encounters</text>
+
+  <rect x="455" y="70" width="190" height="75" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="550" y="105" fill="#4ecdc4" font-size="22" font-weight="bold" text-anchor="middle">75.0%</text>
+  <text x="550" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Success Rate</text>
+
+  <rect x="660" y="70" width="190" height="75" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="755" y="105" fill="#4ecdc4" font-size="22" font-weight="bold" text-anchor="middle">18</text>
+  <text x="755" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Victories</text>
+
+  <rect x="865" y="70" width="190" height="75" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="960" y="105" fill="#e94560" font-size="22" font-weight="bold" text-anchor="middle">6</text>
+  <text x="960" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Defeats</text>
+
+  <!-- Tier Progression section -->
+  <text x="250" y="180" fill="#eaeaea" font-size="15" font-weight="bold">Tier Progression</text>
+  
+  <!-- T1 badge -->
+  <circle cx="310" cy="220" r="28" fill="#16213e" stroke="#4ecdc4" stroke-width="2"/>
+  <text x="310" y="215" fill="#4ecdc4" font-size="14" font-weight="bold" text-anchor="middle">T1</text>
+  <text x="310" y="232" fill="#a0a0a0" font-size="8" text-anchor="middle">8 enc</text>
+  <text x="310" y="260" fill="#a0a0a0" font-size="9" text-anchor="middle">7/8 won</text>
+
+  <!-- T2 badge -->
+  <circle cx="410" cy="220" r="28" fill="#16213e" stroke="#4ecdc4" stroke-width="2"/>
+  <text x="410" y="215" fill="#4ecdc4" font-size="14" font-weight="bold" text-anchor="middle">T2</text>
+  <text x="410" y="232" fill="#a0a0a0" font-size="8" text-anchor="middle">6 enc</text>
+  <text x="410" y="260" fill="#a0a0a0" font-size="9" text-anchor="middle">5/6 won</text>
+
+  <!-- T3 badge -->
+  <circle cx="510" cy="220" r="28" fill="#16213e" stroke="#4ecdc4" stroke-width="2"/>
+  <text x="510" y="215" fill="#4ecdc4" font-size="14" font-weight="bold" text-anchor="middle">T3</text>
+  <text x="510" y="232" fill="#a0a0a0" font-size="8" text-anchor="middle">5 enc</text>
+  <text x="510" y="260" fill="#a0a0a0" font-size="9" text-anchor="middle">4/5 won</text>
+
+  <!-- T4 badge -->
+  <circle cx="610" cy="220" r="28" fill="#16213e" stroke="#e94560" stroke-width="2"/>
+  <text x="610" y="215" fill="#e94560" font-size="14" font-weight="bold" text-anchor="middle">T4</text>
+  <text x="610" y="232" fill="#a0a0a0" font-size="8" text-anchor="middle">3 enc</text>
+  <text x="610" y="260" fill="#a0a0a0" font-size="9" text-anchor="middle">1/3 won</text>
+
+  <!-- T5 badge -->
+  <circle cx="710" cy="220" r="28" fill="#16213e" stroke="#2a2a4a" stroke-width="2"/>
+  <text x="710" y="215" fill="#a0a0a0" font-size="14" font-weight="bold" text-anchor="middle">T5</text>
+  <text x="710" y="232" fill="#a0a0a0" font-size="8" text-anchor="middle">2 enc</text>
+  <text x="710" y="260" fill="#a0a0a0" font-size="9" text-anchor="middle">1/2 won</text>
+
+  <!-- Sunder Charm Collection -->
+  <text x="250" y="300" fill="#eaeaea" font-size="15" font-weight="bold">Sunder Charm Collection</text>
+
+  <!-- Row 1: Cold, Fire, Lightning -->
+  <rect x="250" y="315" width="160" height="55" rx="6" fill="#16213e" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="270" y="337" fill="#4ecdc4" font-size="13">✓</text>
+  <text x="290" y="337" fill="#eaeaea" font-size="12">❄️ Cold</text>
+  <text x="270" y="358" fill="#a0a0a0" font-size="9">Cold Rupture</text>
+
+  <rect x="425" y="315" width="160" height="55" rx="6" fill="#16213e" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="445" y="337" fill="#4ecdc4" font-size="13">✓</text>
+  <text x="465" y="337" fill="#eaeaea" font-size="12">🔥 Fire</text>
+  <text x="445" y="358" fill="#a0a0a0" font-size="9">Flame Rift</text>
+
+  <rect x="600" y="315" width="160" height="55" rx="6" fill="#16213e" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="620" y="337" fill="#4ecdc4" font-size="13">✓</text>
+  <text x="640" y="337" fill="#eaeaea" font-size="12">⚡ Lightning</text>
+  <text x="620" y="358" fill="#a0a0a0" font-size="9">Crack of the Heavens</text>
+
+  <!-- Row 2: Physical, Poison, Magic -->
+  <rect x="250" y="380" width="160" height="55" rx="6" fill="#16213e" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="270" y="402" fill="#a0a0a0" font-size="13">○</text>
+  <text x="290" y="402" fill="#eaeaea" font-size="12">💀 Physical</text>
+  <text x="270" y="423" fill="#a0a0a0" font-size="9">Bone Break</text>
+
+  <rect x="425" y="380" width="160" height="55" rx="6" fill="#16213e" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="445" y="402" fill="#a0a0a0" font-size="13">○</text>
+  <text x="465" y="402" fill="#eaeaea" font-size="12">☠️ Poison</text>
+  <text x="445" y="423" fill="#a0a0a0" font-size="9">Rotting Fissure</text>
+
+  <rect x="600" y="380" width="160" height="55" rx="6" fill="#16213e" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="620" y="402" fill="#a0a0a0" font-size="13">○</text>
+  <text x="640" y="402" fill="#eaeaea" font-size="12">🟣 Magic</text>
+  <text x="620" y="423" fill="#a0a0a0" font-size="9">Black Cleft</text>
+
+  <!-- Log Encounter Form -->
+  <text x="250" y="470" fill="#eaeaea" font-size="15" font-weight="bold">Log Encounter</text>
+
+  <rect x="250" y="483" width="810" height="90" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  
+  <!-- Form fields -->
+  <text x="270" y="506" fill="#a0a0a0" font-size="10">Tier</text>
+  <rect x="270" y="512" width="100" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="285" y="530" fill="#eaeaea" font-size="11">Tier 3</text>
+  <text x="355" y="530" fill="#a0a0a0" font-size="10">▼</text>
+
+  <text x="390" y="506" fill="#a0a0a0" font-size="10">Area</text>
+  <rect x="390" y="512" width="150" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="405" y="530" fill="#eaeaea" font-size="11">Chaos Sanctuary</text>
+  <text x="525" y="530" fill="#a0a0a0" font-size="10">▼</text>
+
+  <text x="560" y="506" fill="#a0a0a0" font-size="10">Result</text>
+  <rect x="560" y="512" width="70" height="26" rx="4" fill="#4ecdc4"/>
+  <text x="575" y="530" fill="#000" font-size="11" font-weight="bold">✓ Win</text>
+  <rect x="635" y="512" width="70" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="650" y="530" fill="#a0a0a0" font-size="11">✕ Fail</text>
+
+  <text x="725" y="506" fill="#a0a0a0" font-size="10">Sunder Charm</text>
+  <rect x="725" y="512" width="140" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="740" y="530" fill="#a0a0a0" font-size="11">None</text>
+  <text x="850" y="530" fill="#a0a0a0" font-size="10">▼</text>
+
+  <!-- Submit button -->
+  <rect x="890" y="512" width="140" height="26" rx="4" fill="#e94560"/>
+  <text x="920" y="530" fill="#fff" font-size="11" font-weight="bold">Log Encounter</text>
+
+  <!-- Notes row -->
+  <text x="270" y="558" fill="#a0a0a0" font-size="10">Notes</text>
+  <rect x="310" y="545" width="500" height="22" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="325" y="560" fill="#555" font-size="10">Optional notes...</text>
+
+  <!-- Encounter History (table preview) -->
+  <text x="250" y="605" fill="#eaeaea" font-size="15" font-weight="bold">Encounter History</text>
+
+  <rect x="250" y="615" width="810" height="75" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+  <!-- Table header -->
+  <text x="270" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Date</text>
+  <text x="380" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Tier</text>
+  <text x="440" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Area</text>
+  <text x="600" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Result</text>
+  <text x="680" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Sunder</text>
+  <text x="810" y="635" fill="#a0a0a0" font-size="10" font-weight="bold">Notes</text>
+  <line x1="265" y1="640" x2="1040" y2="640" stroke="#2a2a4a" stroke-width="1"/>
+  <!-- Row 1 -->
+  <text x="270" y="658" fill="#eaeaea" font-size="10">01/15/2025</text>
+  <rect x="378" y="647" width="30" height="16" rx="3" fill="rgba(78,205,196,0.2)"/>
+  <text x="385" y="659" fill="#4ecdc4" font-size="9" font-weight="bold">T3</text>
+  <text x="440" y="658" fill="#eaeaea" font-size="10">Chaos Sanctuary</text>
+  <text x="600" y="658" fill="#4ecdc4" font-size="10">✓ Won</text>
+  <text x="680" y="658" fill="#eaeaea" font-size="10">Cold Rupture</text>
+  <text x="810" y="658" fill="#a0a0a0" font-size="10">Lucky drop!</text>
+  <!-- Row 2 -->
+  <text x="270" y="678" fill="#eaeaea" font-size="10">01/14/2025</text>
+  <rect x="378" y="667" width="30" height="16" rx="3" fill="rgba(233,69,96,0.2)"/>
+  <text x="385" y="679" fill="#e94560" font-size="9" font-weight="bold">T4</text>
+  <text x="440" y="678" fill="#eaeaea" font-size="10">Worldstone Keep</text>
+  <text x="600" y="678" fill="#e94560" font-size="10">✕ Lost</text>
+  <text x="680" y="678" fill="#a0a0a0" font-size="10">—</text>
+  <text x="810" y="678" fill="#a0a0a0" font-size="10">Close fight</text>
+</svg>

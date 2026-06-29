@@ -145,7 +145,7 @@ function App() {
               onClick={() => setCurrentPage("tracker")}
               disabled={!selectedProfile}
             >
-              🎮 Run Tracker
+              ▶ Run Tracker
             </button>
           </li>
           <li>
@@ -154,7 +154,7 @@ function App() {
               onClick={() => setCurrentPage("routes")}
               disabled={!selectedProfile}
             >
-              🗺️ Routes
+              ↗ Routes
             </button>
           </li>
           <li>
@@ -163,7 +163,7 @@ function App() {
               onClick={() => setCurrentPage("history")}
               disabled={!selectedProfile}
             >
-              📜 History
+              ☰ History
             </button>
           </li>
           <li>
@@ -172,7 +172,7 @@ function App() {
               onClick={() => setCurrentPage("stats")}
               disabled={!selectedProfile}
             >
-              📊 Statistics
+              ◈ Statistics
             </button>
           </li>
           <li>
@@ -181,7 +181,7 @@ function App() {
               onClick={() => setCurrentPage("comparison")}
               disabled={!selectedProfile}
             >
-              ⚔️ Compare
+              ⇄ Compare
             </button>
           </li>
           <li>
@@ -190,7 +190,7 @@ function App() {
               onClick={() => setCurrentPage("heralds")}
               disabled={!selectedProfile}
             >
-              ⚔️ Heralds
+              ◆ Heralds
             </button>
           </li>
           <li>
@@ -198,7 +198,7 @@ function App() {
               className={`nav-btn ${currentPage === "drops" ? "active" : ""}`}
               onClick={() => setCurrentPage("drops")}
             >
-              🎲 Drop Calculator
+              ∿ Drops
             </button>
           </li>
         </ul>
@@ -207,19 +207,19 @@ function App() {
             className={`nav-btn ${currentPage === "settings" ? "active" : ""}`}
             onClick={() => setCurrentPage("settings")}
           >
-            ⚙️ Settings
+            ⚙ Settings
           </button>
           <button className="nav-btn" onClick={toggleOverlay}>
-            🖥️ Overlay
+            ◳ Overlay
           </button>
           <button className="nav-btn" onClick={toggleTheme}>
-            {theme === "dark" ? "☀️" : "🌙"} Theme
+            {theme === "dark" ? "○" : "●"} Theme
           </button>
           <button className="nav-btn" onClick={handleExport}>
-            💾 Export Data
+            ↓ Export
           </button>
           <button className="nav-btn" onClick={handleImport}>
-            📂 Import Data
+            ↑ Import
           </button>
           {importMsg && <div className="import-msg">{importMsg}</div>}
         </div>

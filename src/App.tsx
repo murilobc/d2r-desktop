@@ -237,7 +237,7 @@ function App() {
         {/* RunTracker stays mounted to preserve session state across tab switches */}
         {selectedProfile && (
           <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
-            <RunTracker profile={selectedProfile} />
+            <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} />
           </div>
         )}
         {currentPage !== "tracker" && renderPage()}

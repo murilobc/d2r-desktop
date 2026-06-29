@@ -24,6 +24,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Determine release type
         id: release-type
@@ -35,14 +38,59 @@ jobs:
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "is_test=true" >> $GITHUB_OUTPUT
             echo "release_name=D2R Tracker $TAG (Test Build)" >> $GITHUB_OUTPUT
-            echo "release_body=⚠️ This is a test build for internal testing. Do not use in production." >> $GITHUB_OUTPUT
           else
             VERSION="${TAG#v}"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "is_test=false" >> $GITHUB_OUTPUT
             echo "release_name=D2R Tracker $TAG" >> $GITHUB_OUTPUT
-            echo "release_body=Download installers below. Windows: .exe/.msi | Linux: .deb (Ubuntu/Debian), .rpm (Fedora), .AppImage (universal)." >> $GITHUB_OUTPUT
           fi
+
+      - name: Generate changelog
+        id: changelog
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Find the previous tag
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "$TAG" | grep "^v" | head -1)
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "Previous tag: $PREV_TAG"
+
+          # Generate changelog from conventional commits
+          FEATURES=$(git log "$PREV_TAG".."$TAG" --pretty=format:"%s" --no-merges | grep "^feat:" | sed 's/^feat: /- ✨ /' || true)
+          FIXES=$(git log "$PREV_TAG".."$TAG" --pretty=format:"%s" --no-merges | grep "^fix:" | sed 's/^fix: /- 🐛 /' || true)
+          STYLES=$(git log "$PREV_TAG".."$TAG" --pretty=format:"%s" --no-merges | grep "^style:" | sed 's/^style: /- 🎨 /' || true)
+          REFACTORS=$(git log "$PREV_TAG".."$TAG" --pretty=format:"%s" --no-merges | grep "^refactor:" | sed 's/^refactor: /- ♻️ /' || true)
+          CHORES=$(git log "$PREV_TAG".."$TAG" --pretty=format:"%s" --no-merges | grep "^chore:" | sed 's/^chore: /- 🔧 /' || true)
+
+          BODY=""
+          if [ -n "$FEATURES" ]; then
+            BODY="${BODY}## ✨ New Features"$'\n'"${FEATURES}"$'\n\n'
+          fi
+          if [ -n "$FIXES" ]; then
+            BODY="${BODY}## 🐛 Bug Fixes"$'\n'"${FIXES}"$'\n\n'
+          fi
+          if [ -n "$STYLES" ]; then
+            BODY="${BODY}## 🎨 UI Improvements"$'\n'"${STYLES}"$'\n\n'
+          fi
+          if [ -n "$REFACTORS" ]; then
+            BODY="${BODY}## ♻️ Refactors"$'\n'"${REFACTORS}"$'\n\n'
+          fi
+          if [ -n "$CHORES" ]; then
+            BODY="${BODY}## 🔧 Maintenance"$'\n'"${CHORES}"$'\n\n'
+          fi
+
+          if [ -z "$BODY" ]; then
+            BODY="Maintenance release with minor improvements."$'\n\n'
+          fi
+
+          BODY="${BODY}---"$'\n'"📥 **Download installers below.**"$'\n'"- Windows: .exe / .msi"$'\n'"- Linux: .deb (Ubuntu/Debian), .rpm (Fedora), .AppImage (universal)"
+
+          # Use delimiter for multiline output
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Update version in package.json
         shell: bash
@@ -91,7 +139,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: ${{ steps.release-type.outputs.release_name }}
-          releaseBody: ${{ steps.release-type.outputs.release_body }}
+          releaseBody: ${{ steps.release-type.outputs.is_test == 'true' && '⚠️ This is a test build for internal testing.' || steps.changelog.outputs.body }}
           releaseDraft: ${{ steps.release-type.outputs.is_test == 'false' }}
           prerelease: ${{ steps.release-type.outputs.is_test == 'true' }}
           includeUpdaterJson: ${{ steps.release-type.outputs.is_test == 'false' }}

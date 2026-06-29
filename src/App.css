@@ -300,6 +300,185 @@ body {
   font-size: 0.8rem;
 }
 
+/* ===== ROUTE EDITOR ===== */
+
+.route-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .route-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.route-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.route-form-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.route-form-card h2::before {
+  content: "🗺️";
+}
+
+.route-area-sequence {
+  margin: 1.25rem 0;
+}
+
+.route-area-sequence h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.sortable-area-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.4rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.sortable-area-item:hover {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.1);
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  user-select: none;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--success);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.area-step-index {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--success);
+  min-width: 1.5rem;
+}
+
+.area-step-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.route-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.route-form-actions .text-muted {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.route-list-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.route-list-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+.route-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.route-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.route-list-item:hover {
+  border-color: var(--success);
+}
+
+.route-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.route-list-item-info strong {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.route-areas-preview {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-list-item-info small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.route-list-item-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
 /* Profile Cards */
 .profiles-grid {
   display: grid;

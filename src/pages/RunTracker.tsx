@@ -15,9 +15,10 @@ import { playSound } from "../utils/audio";
 
 interface Props {
   profile: Profile;
+  isVisible?: boolean;
 }
 
-export default function RunTracker({ profile }: Props) {
+export default function RunTracker({ profile, isVisible = true }: Props) {
   // Session state
   const [sessionActive, setSessionActive] = useState(false);
   const [sessionElapsed, setSessionElapsed] = useState(0);
@@ -91,6 +92,18 @@ export default function RunTracker({ profile }: Props) {
       setAvailableRoutes(routes);
     });
   }, [profile.id]);
+
+  // Reload routes when tab becomes visible (routes may have been created in Route Editor)
+  useEffect(() => {
+    if (isVisible) {
+      getRoutes(profile.id).then((routes) => {
+        setAvailableRoutes(routes);
+      });
+      getCustomAreas(profile.id).then((areas) => {
+        setCustomAreas(areas.map((a) => a.name));
+      });
+    }
+  }, [isVisible, profile.id]);
 
   const allAreas = [...AREAS.filter(a => a !== "Other"), ...customAreas, "Other"];
 
@@ -459,23 +472,27 @@ export default function RunTracker({ profile }: Props) {
           {/* Route Mode */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="route-mode-toggle">Route Mode</label>
-              <label className="toggle-label">
-                <input
-                  id="route-mode-toggle"
-                  type="checkbox"
-                  checked={routeMode}
-                  onChange={(e) => {
-                    setRouteMode(e.target.checked);
-                    if (!e.target.checked) setSelectedRoute(null);
+              <label>Route Mode</label>
+              <div className="route-mode-toggle">
+                <button
+                  type="button"
+                  className={`btn btn-sm ${routeMode ? "btn-primary" : ""}`}
+                  onClick={() => {
+                    if (availableRoutes.length === 0) return;
+                    setRouteMode(!routeMode);
+                    if (routeMode) setSelectedRoute(null);
                   }}
                   disabled={availableRoutes.length === 0}
-                />
-                <span>{routeMode ? "On" : "Off"}</span>
-              </label>
-              {availableRoutes.length === 0 && (
-                <small className="text-muted">Create routes in the Route Editor first</small>
-              )}
+                >
+                  {routeMode ? "🗺️ On" : "Off"}
+                </button>
+                {availableRoutes.length === 0 && (
+                  <small className="text-muted">Create routes in the Route Editor first</small>
+                )}
+                {availableRoutes.length > 0 && !routeMode && (
+                  <small className="text-muted">{availableRoutes.length} route{availableRoutes.length > 1 ? "s" : ""} available</small>
+                )}
+              </div>
             </div>
             {routeMode && (
               <div className="form-group">

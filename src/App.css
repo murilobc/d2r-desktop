@@ -982,25 +982,42 @@ body {
 .stats-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 0.75rem;
+  font-size: 0.85rem;
 }
 
 .runs-table th,
-.runs-table td,
-.stats-table th,
-.stats-table td {
+.runs-table td {
   padding: 0.5rem 0.75rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
 }
 
-.runs-table th,
-.stats-table th {
+.runs-table th {
   color: var(--text-muted);
   font-weight: 500;
   font-size: 0.75rem;
   text-transform: uppercase;
+}
+
+.stats-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-table td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  color: var(--text);
+}
+
+.stats-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
 }
 
 /* History */
@@ -1108,9 +1125,20 @@ body {
   gap: 1.5rem;
 }
 
+.stats-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
 .stats-section h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
 }
 
 /* Recent runs */
@@ -2299,4 +2327,115 @@ body {
   border-radius: 4px;
   color: var(--text);
   font-size: 0.8rem;
+}
+
+
+/* ===== STATS CARD & TOP ITEMS GRID ===== */
+
+.stats-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.stats-card h3 {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.top-items-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 800px) {
+  .top-items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ===== TERROR ZONE DISPLAY ===== */
+
+.terror-zone-display {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.tz-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.tz-icon {
+  font-size: 1.1rem;
+}
+
+.tz-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.tz-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tz-select {
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.85rem;
+  min-width: 180px;
+}
+
+.tz-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.tz-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.tier-s { background: #f59e0b; color: #000; }
+.tier-a { background: #22c55e; color: #000; }
+.tier-b { background: #3b82f6; color: #fff; }
+.tier-c { background: #6b7280; color: #fff; }
+
+.tz-notes {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.tz-elapsed {
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }

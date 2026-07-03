@@ -9,6 +9,9 @@ import Settings from "./pages/Settings";
 import DropCalculator from "./pages/DropCalculator";
 import RouteEditor from "./pages/RouteEditor";
 import HeraldTracker from "./pages/HeraldTracker";
+import ColossalAncients from "./pages/ColossalAncients";
+import DCloneTracker from "./pages/DCloneTracker";
+import XPTracker from "./pages/XPTracker";
 import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
@@ -18,7 +21,7 @@ import UpdateChecker from "./components/UpdateChecker";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "drops" | "settings";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
@@ -114,6 +117,12 @@ function App() {
         return selectedProfile ? <Comparison profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "heralds":
         return selectedProfile ? <HeraldTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "ancients":
+        return selectedProfile ? <ColossalAncients profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "dclone":
+        return selectedProfile ? <DCloneTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "xp":
+        return selectedProfile ? <XPTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "drops":
         return <DropCalculator />;
       case "settings":
@@ -191,6 +200,33 @@ function App() {
               disabled={!selectedProfile}
             >
               ◆ Heralds
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "ancients" ? "active" : ""}`}
+              onClick={() => setCurrentPage("ancients")}
+              disabled={!selectedProfile}
+            >
+              🏛️ Ancients
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "dclone" ? "active" : ""}`}
+              onClick={() => setCurrentPage("dclone")}
+              disabled={!selectedProfile}
+            >
+              😈 DClone
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "xp" ? "active" : ""}`}
+              onClick={() => setCurrentPage("xp")}
+              disabled={!selectedProfile}
+            >
+              📈 XP
             </button>
           </li>
           <li>

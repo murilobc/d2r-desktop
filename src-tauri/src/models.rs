@@ -263,3 +263,105 @@ pub struct TierCount {
     pub count: i64,
     pub successes: i64,
 }
+
+// ===== COLOSSAL ANCIENTS =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ColossalAncientAttempt {
+    pub id: String,
+    pub profile_id: String,
+    pub boss_name: String,
+    pub attempt_number: i64,
+    pub result: String,
+    pub drops: Option<String>,
+    pub duration_secs: i64,
+    pub notes: Option<String>,
+    pub attempted_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateColossalAttemptInput {
+    pub profile_id: String,
+    pub boss_name: String,
+    pub result: String,
+    pub drops: Option<String>,
+    pub duration_secs: i64,
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ColossalAncientStats {
+    pub total_attempts: i64,
+    pub total_successes: i64,
+    pub bosses_defeated: Vec<String>,
+    pub stats_by_boss: Vec<BossStats>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BossStats {
+    pub boss_name: String,
+    pub attempts: i64,
+    pub successes: i64,
+    pub best_time_secs: Option<i64>,
+    pub avg_time_secs: f64,
+}
+
+// ===== DIABLO CLONE TRACKER =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DCloneProgress {
+    pub region: String,
+    pub progress: i64,
+    pub last_updated: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AnniLog {
+    pub id: String,
+    pub profile_id: String,
+    pub stats: String,
+    pub notes: Option<String>,
+    pub obtained_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateAnniLogInput {
+    pub profile_id: String,
+    pub stats: String,
+    pub notes: Option<String>,
+}
+
+// ===== XP TRACKING =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct XpEntry {
+    pub id: String,
+    pub profile_id: String,
+    pub run_id: Option<String>,
+    pub level: i64,
+    pub xp_gained: i64,
+    pub duration_secs: i64,
+    pub area: Option<String>,
+    pub notes: Option<String>,
+    pub recorded_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateXpEntryInput {
+    pub profile_id: String,
+    pub run_id: Option<String>,
+    pub level: i64,
+    pub xp_gained: i64,
+    pub duration_secs: i64,
+    pub area: Option<String>,
+    pub notes: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct XpStats {
+    pub total_xp: i64,
+    pub total_time_secs: i64,
+    pub xp_per_hour: f64,
+    pub entries_count: i64,
+    pub avg_xp_per_session: f64,
+}

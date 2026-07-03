@@ -1434,3 +1434,401 @@ pub fn delete_herald_encounter(state: State<DbState>, id: String) -> Result<(), 
         .map_err(|e| e.to_string())?;
     Ok(())
 }
+
+// ===== COLOSSAL ANCIENTS =====
+
+const COLOSSAL_BOSSES: [&str; 5] = ["Baal", "Diablo", "Mephisto", "Duriel", "Andariel"];
+
+#[tauri::command]
+pub fn create_ancient_attempt(state: State<DbState>, input: CreateColossalAttemptInput) -> Result<ColossalAncientAttempt, String> {
+    // Input validation
+    if !COLOSSAL_BOSSES.contains(&input.boss_name.as_str()) {
+        return Err(format!("Invalid boss name. Must be one of: {}", COLOSSAL_BOSSES.join(", ")));
+    }
+    if input.result != "success" && input.result != "fail" {
+        return Err("Result must be 'success' or 'fail'".to_string());
+    }
+    if input.duration_secs < 0 {
+        return Err("Duration cannot be negative".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+
+    // Calculate attempt number for this boss
+    let attempt_number: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) + 1 FROM colossal_ancients WHERE profile_id = ?1 AND boss_name = ?2",
+            rusqlite::params![input.profile_id, input.boss_name],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO colossal_ancients (id, profile_id, boss_name, attempt_number, result, drops, duration_secs, notes, attempted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+        rusqlite::params![id, input.profile_id, input.boss_name, attempt_number, input.result, input.drops, input.duration_secs, input.notes, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(ColossalAncientAttempt {
+        id,
+        profile_id: input.profile_id,
+        boss_name: input.boss_name,
+        attempt_number,
+        result: input.result,
+        drops: input.drops,
+        duration_secs: input.duration_secs,
+        notes: input.notes,
+        attempted_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_ancient_attempts(state: State<DbState>, profile_id: String) -> Result<Vec<ColossalAncientAttempt>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, boss_name, attempt_number, result, drops, duration_secs, notes, attempted_at FROM colossal_ancients WHERE profile_id = ?1 ORDER BY attempted_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let attempts = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(ColossalAncientAttempt {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                boss_name: row.get(2)?,
+                attempt_number: row.get(3)?,
+                result: row.get(4)?,
+                drops: row.get(5)?,
+                duration_secs: row.get(6)?,
+                notes: row.get(7)?,
+                attempted_at: row.get(8)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(attempts)
+}
+
+#[tauri::command]
+pub fn get_ancient_stats(state: State<DbState>, profile_id: String) -> Result<ColossalAncientStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let total_attempts: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM colossal_ancients WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let total_successes: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM colossal_ancients WHERE profile_id = ?1 AND result = 'success'",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    // Bosses defeated (at least one success)
+    let mut stmt = conn
+        .prepare("SELECT DISTINCT boss_name FROM colossal_ancients WHERE profile_id = ?1 AND result = 'success'")
+        .map_err(|e| e.to_string())?;
+    let bosses_defeated = stmt
+        .query_map(rusqlite::params![profile_id], |row| row.get::<_, String>(0))
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Stats by boss
+    let mut stats_by_boss = Vec::new();
+    for boss in COLOSSAL_BOSSES.iter() {
+        let attempts: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM colossal_ancients WHERE profile_id = ?1 AND boss_name = ?2",
+                rusqlite::params![profile_id, boss],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        let successes: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM colossal_ancients WHERE profile_id = ?1 AND boss_name = ?2 AND result = 'success'",
+                rusqlite::params![profile_id, boss],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        let best_time_secs: Option<i64> = conn
+            .query_row(
+                "SELECT MIN(duration_secs) FROM colossal_ancients WHERE profile_id = ?1 AND boss_name = ?2 AND result = 'success' AND duration_secs > 0",
+                rusqlite::params![profile_id, boss],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        let avg_time_secs: f64 = conn
+            .query_row(
+                "SELECT COALESCE(AVG(duration_secs), 0) FROM colossal_ancients WHERE profile_id = ?1 AND boss_name = ?2 AND duration_secs > 0",
+                rusqlite::params![profile_id, boss],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        stats_by_boss.push(BossStats {
+            boss_name: boss.to_string(),
+            attempts,
+            successes,
+            best_time_secs,
+            avg_time_secs,
+        });
+    }
+
+    Ok(ColossalAncientStats {
+        total_attempts,
+        total_successes,
+        bosses_defeated,
+        stats_by_boss,
+    })
+}
+
+#[tauri::command]
+pub fn delete_ancient_attempt(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM colossal_ancients WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ===== DIABLO CLONE TRACKER =====
+
+#[tauri::command]
+pub fn get_dclone_progress(state: State<DbState>) -> Result<Vec<DCloneProgress>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT region, progress, last_updated FROM dclone_progress ORDER BY region")
+        .map_err(|e| e.to_string())?;
+
+    let progress = stmt
+        .query_map([], |row| {
+            Ok(DCloneProgress {
+                region: row.get(0)?,
+                progress: row.get(1)?,
+                last_updated: row.get(2)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(progress)
+}
+
+#[tauri::command]
+pub fn update_dclone_progress(state: State<DbState>, region: String, progress: i64) -> Result<DCloneProgress, String> {
+    // Input validation
+    let valid_regions = ["Americas", "Europe", "Asia"];
+    if !valid_regions.contains(&region.as_str()) {
+        return Err(format!("Invalid region. Must be one of: {}", valid_regions.join(", ")));
+    }
+    if progress < 1 || progress > 6 {
+        return Err("Progress must be between 1 and 6".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+
+    conn.execute(
+        "INSERT INTO dclone_progress (region, progress, last_updated) VALUES (?1, ?2, ?3) ON CONFLICT(region) DO UPDATE SET progress = ?2, last_updated = ?3",
+        rusqlite::params![region, progress, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(DCloneProgress {
+        region,
+        progress,
+        last_updated: now,
+    })
+}
+
+#[tauri::command]
+pub fn create_anni_log(state: State<DbState>, input: CreateAnniLogInput) -> Result<AnniLog, String> {
+    // Input validation
+    if input.stats.trim().is_empty() {
+        return Err("Stats cannot be empty".to_string());
+    }
+    if input.stats.len() > 500 {
+        return Err("Stats text is too long (max 500 characters)".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+
+    conn.execute(
+        "INSERT INTO anni_log (id, profile_id, stats, notes, obtained_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+        rusqlite::params![id, input.profile_id, input.stats, input.notes, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(AnniLog {
+        id,
+        profile_id: input.profile_id,
+        stats: input.stats,
+        notes: input.notes,
+        obtained_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_anni_logs(state: State<DbState>, profile_id: String) -> Result<Vec<AnniLog>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, stats, notes, obtained_at FROM anni_log WHERE profile_id = ?1 ORDER BY obtained_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let logs = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(AnniLog {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                stats: row.get(2)?,
+                notes: row.get(3)?,
+                obtained_at: row.get(4)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(logs)
+}
+
+#[tauri::command]
+pub fn delete_anni_log(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM anni_log WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ===== XP TRACKING =====
+
+#[tauri::command]
+pub fn create_xp_entry(state: State<DbState>, input: CreateXpEntryInput) -> Result<XpEntry, String> {
+    // Input validation
+    if input.level < 1 || input.level > 99 {
+        return Err("Level must be between 1 and 99".to_string());
+    }
+    if input.xp_gained < 0 {
+        return Err("XP gained cannot be negative".to_string());
+    }
+    if input.duration_secs < 0 {
+        return Err("Duration cannot be negative".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+
+    conn.execute(
+        "INSERT INTO xp_entries (id, profile_id, run_id, level, xp_gained, duration_secs, area, notes, recorded_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+        rusqlite::params![id, input.profile_id, input.run_id, input.level, input.xp_gained, input.duration_secs, input.area, input.notes, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(XpEntry {
+        id,
+        profile_id: input.profile_id,
+        run_id: input.run_id,
+        level: input.level,
+        xp_gained: input.xp_gained,
+        duration_secs: input.duration_secs,
+        area: input.area,
+        notes: input.notes,
+        recorded_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_xp_entries(state: State<DbState>, profile_id: String) -> Result<Vec<XpEntry>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, run_id, level, xp_gained, duration_secs, area, notes, recorded_at FROM xp_entries WHERE profile_id = ?1 ORDER BY recorded_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let entries = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(XpEntry {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                run_id: row.get(2)?,
+                level: row.get(3)?,
+                xp_gained: row.get(4)?,
+                duration_secs: row.get(5)?,
+                area: row.get(6)?,
+                notes: row.get(7)?,
+                recorded_at: row.get(8)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(entries)
+}
+
+#[tauri::command]
+pub fn get_xp_stats(state: State<DbState>, profile_id: String) -> Result<XpStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let total_xp: i64 = conn
+        .query_row(
+            "SELECT COALESCE(SUM(xp_gained), 0) FROM xp_entries WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let total_time_secs: i64 = conn
+        .query_row(
+            "SELECT COALESCE(SUM(duration_secs), 0) FROM xp_entries WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let entries_count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM xp_entries WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let xp_per_hour = if total_time_secs > 0 {
+        (total_xp as f64 / total_time_secs as f64) * 3600.0
+    } else {
+        0.0
+    };
+
+    let avg_xp_per_session = if entries_count > 0 {
+        total_xp as f64 / entries_count as f64
+    } else {
+        0.0
+    };
+
+    Ok(XpStats {
+        total_xp,
+        total_time_secs,
+        xp_per_hour,
+        entries_count,
+        avg_xp_per_session,
+    })
+}
+
+#[tauri::command]
+pub fn delete_xp_entry(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM xp_entries WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}

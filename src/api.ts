@@ -24,6 +24,15 @@ import type {
   HeraldEncounter,
   CreateHeraldEncounterInput,
   HeraldStats,
+  ColossalAncientAttempt,
+  CreateColossalAttemptInput,
+  ColossalAncientStats,
+  DCloneProgress,
+  AnniLog,
+  CreateAnniLogInput,
+  XpEntry,
+  CreateXpEntryInput,
+  XpStats,
 } from "./types";
 
 // Profiles
@@ -136,3 +145,46 @@ export const getHeraldStats = (profileId: string) =>
 
 export const deleteHeraldEncounter = (id: string) =>
   invoke<void>("delete_herald_encounter", { id });
+
+
+// Colossal Ancients
+export const createAncientAttempt = (input: CreateColossalAttemptInput) =>
+  invoke<ColossalAncientAttempt>("create_ancient_attempt", { input });
+
+export const getAncientAttempts = (profileId: string) =>
+  invoke<ColossalAncientAttempt[]>("get_ancient_attempts", { profileId });
+
+export const getAncientStats = (profileId: string) =>
+  invoke<ColossalAncientStats>("get_ancient_stats", { profileId });
+
+export const deleteAncientAttempt = (id: string) =>
+  invoke<void>("delete_ancient_attempt", { id });
+
+// Diablo Clone
+export const getDcloneProgress = () =>
+  invoke<DCloneProgress[]>("get_dclone_progress");
+
+export const updateDcloneProgress = (region: string, progress: number) =>
+  invoke<DCloneProgress>("update_dclone_progress", { region, progress });
+
+export const createAnniLog = (input: CreateAnniLogInput) =>
+  invoke<AnniLog>("create_anni_log", { input });
+
+export const getAnniLogs = (profileId: string) =>
+  invoke<AnniLog[]>("get_anni_logs", { profileId });
+
+export const deleteAnniLog = (id: string) =>
+  invoke<void>("delete_anni_log", { id });
+
+// XP Tracking
+export const createXpEntry = (input: CreateXpEntryInput) =>
+  invoke<XpEntry>("create_xp_entry", { input });
+
+export const getXpEntries = (profileId: string) =>
+  invoke<XpEntry[]>("get_xp_entries", { profileId });
+
+export const getXpStats = (profileId: string) =>
+  invoke<XpStats>("get_xp_stats", { profileId });
+
+export const deleteXpEntry = (id: string) =>
+  invoke<void>("delete_xp_entry", { id });

@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_2.2.5_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_2.2.5_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_2.2.5_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_2.2.5_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_3.0.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_3.0.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_3.0.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_3.0.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -266,6 +266,9 @@ The sidebar is always visible and provides navigation and utilities.
 - ◈ **Statistics** — Analytics and reports
 - ⇄ **Compare** — Area/date range efficiency comparison
 - ◆ **Heralds** — Herald of Terror encounter tracking
+- 🏛️ **Ancients** — Colossal Ancients boss tracking
+- 😈 **DClone** — Diablo Clone progress and Annihilus log
+- 📈 **XP** — Experience rate tracking
 - ∿ **Drops** — Drop rate calculator
 
 **Utilities:**
@@ -422,7 +425,8 @@ d2r-desktop/
 │   │   ├── items.ts           # D2R v3.2 item database (895+ items)
 │   │   ├── item-values.ts     # Item value tier estimation (Worthless/Low/Mid/High/GG)
 │   │   ├── areas.ts           # Area metadata (alvl, TC, drops, tips)
-│   │   └── terror-zones.ts   # Terror Zone definitions and preferences
+│   │   ├── terror-zones.ts   # Terror Zone definitions and preferences
+│   │   └── xp-table.ts       # D2R XP requirements per level (1-99)
 │   ├── components/
 │   │   ├── ItemSearch.tsx     # Searchable combobox
 │   │   ├── MFCalculator.tsx   # Effective MF widget
@@ -444,6 +448,9 @@ d2r-desktop/
 │   │   ├── Statistics.tsx
 │   │   ├── Comparison.tsx     # Area/date range efficiency comparison
 │   │   ├── HeraldTracker.tsx  # Herald of Terror encounter tracking
+│   │   ├── ColossalAncients.tsx # Colossal Ancients boss tracker
+│   │   ├── DCloneTracker.tsx  # Diablo Clone progress & Anni log
+│   │   ├── XPTracker.tsx      # XP rate tracking and estimates
 │   │   ├── DropCalculator.tsx
 │   │   └── Settings.tsx
 │   ├── utils/

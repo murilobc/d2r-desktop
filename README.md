@@ -17,8 +17,6 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 ## User Manual
 
-> Note: The images below are SVG mockups representing the application layout. Actual appearance may vary slightly.
-
 ---
 
 ### Profiles
@@ -27,17 +25,15 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 The Profiles screen is your starting point. Here you manage your characters.
 
-**Functions:**
 - **+ New Profile** — Opens the creation form
 - **Name** — Your character name (e.g. "MFSorc", "HammerPally")
 - **Class** — Select from all 8 D2R classes (Amazon, Necromancer, Barbarian, Sorceress, Paladin, Druid, Assassin, Warlock)
 - **Mode** — Ladder, Non-Ladder, or Single Player
 - **MF %** — Optional Magic Find value (used for effective MF calculator)
-- **Create Profile** — Saves the new profile
 - **Select** — Activates the profile and navigates to Run Tracker
-- **Delete** — Permanently removes the profile and all associated runs/items (asks for confirmation)
+- **Delete** — Permanently removes the profile and all associated data
 
-Each profile has independent run history, items, and statistics.
+Each profile has independent run history, items, statistics, herald encounters, and boss progress.
 
 ---
 
@@ -45,46 +41,38 @@ Each profile has independent run history, items, and statistics.
 
 ![Run Tracker](docs/mockups/run-tracker.svg)
 
-The Run Tracker is the core of the application. It manages your farming sessions.
+The core of the application. Manages your farming sessions with precision timing.
 
-**Functions:**
-- **Area selector** — Choose which area you're farming (remembers your last selection)
-- **▶ Start Session** — Begins a new farming session with timer and first run
-- **Terror Zone display** — Shows the currently active Terror Zone with tier badge; auto-tags runs with "tz" when area matches
-
-**During an active session:**
-- **Session timer** (top, small) — Total time since session started, with recording indicator
-- **Run timer** (center, large) — Current run elapsed time in HH:MM:SS.T format
-- **Run count** — Current session runs + total all-time runs in parentheses
-- **Fastest time** — Best run time in this session
-- **Average time** — Average run duration in this session
-- **Dry streak** — Runs since last item found (resets when you log an item)
-- **Goal progress** — Shows progress toward run count or time goal (if set)
-- **⏭ Next Run** — Finishes the current run (saves duration) and immediately starts the next one
-- **⏸ Pause / ▶ Resume** — Pauses both session and run timers
-- **⏹ End Session** — Finishes the last run and stops the session
-- **Area selector** (during session) — Change area mid-session without losing streak or stats
-- **Quick Tags** — Tag runs with 🔥 GG, 💀 Death, ⚡ Fast, etc. for filtering later
-- **Route Mode** — Toggle route mode + step indicator showing current area during route sessions
-- **+ Item** — Opens the item search to log a drop found during the current run
-- **Item search** — Searchable combobox with the full D2R v3.2 item database (895+ items), filterable by category (Rune, Runeword, Unique, Set, Base, Charm, Jewel, Rare/Magic)
-- **✕** — Remove an item from the current run
-
-**Item Value Tiers:**
-Each logged item automatically displays a color-coded value tier badge based on community pricing (d2jsp, traderie, diablo2.io):
-- **GG** (gold) — Sur-Zod runes, Tyrael's Might, Griffon's Eye, perfect rares (20 pts)
-- **High** (purple) — Gul-Lo runes, Shako, Arachnid Mesh, SoJ (8 pts)
-- **Mid** (blue) — Pul-Ist runes, Vipermagi, Spirit, skillers (3 pts)
-- **Low** (green) — Hel-Lem runes, Stealth, basic usable items (1 pt)
-- **Worthless** (hidden) — El-Dol runes, low-level uniques (0 pts)
-
-**Session start options:**
-- **Area** — Choose farming area (remembers last used, supports custom areas)
-- **Add custom area** — Type a new area name to add to your list
+**Before starting:**
+- **Area selector** — Choose which area you're farming (remembers last selection, supports custom areas)
 - **Players** (Single Player only) — Set /players 1-8
 - **Session Goal** — Set a run count or time target
 - **Route Mode** — Toggle between single-area and route mode (select from saved routes)
-- **MF Calculator** — Shows effective MF with diminishing returns (if MF is set in profile)
+- **MF Calculator** — Shows effective MF with diminishing returns
+- **Terror Zone display** — Shows the currently active Terror Zone; auto-tags runs when area matches
+
+**During an active session:**
+- **Session timer** — Total time since session started, with recording indicator
+- **Run timer** — Current run elapsed time in HH:MM:SS.T format
+- **Run count** — Session runs + total all-time in parentheses
+- **Fastest / Average time** — Best and average run duration this session
+- **Dry streak** — Runs since last item found
+- **Goal progress** — Progress toward run count or time goal (if set)
+- **Next Run (Split)** — Finishes current run and starts the next
+- **Pause / Resume** — Pauses both timers
+- **End Session** — Finishes last run and stops session
+- **Quick Tags** — Tag runs with predefined labels (GG, Death, Fast, etc.) for filtering later
+- **Route step indicator** — Shows current area during route sessions with auto-advance
+- **+ Item** — Opens searchable item combobox (895+ items from D2R v3.2, filterable by category)
+
+**Item Value Tiers** — Each logged item displays a color-coded badge:
+| Tier | Color | Points | Examples |
+|------|-------|--------|----------|
+| GG | Gold | 20 | Sur-Zod runes, Tyrael's Might, Griffon's Eye |
+| High | Purple | 8 | Gul-Lo runes, Shako, Arachnid Mesh, SoJ |
+| Mid | Blue | 3 | Pul-Ist runes, Spirit, Vipermagi, skillers |
+| Low | Green | 1 | Hel-Lem runes, Stealth, basic usable items |
+| Worthless | Gray | 0 | El-Dol runes, low-level uniques |
 
 ---
 
@@ -92,28 +80,23 @@ Each logged item automatically displays a color-coded value tier badge based on 
 
 ![Overlay](docs/mockups/overlay.svg)
 
-A compact, always-on-top window that floats over D2R while you play. Toggle it from the sidebar with the **🖥️ Overlay** button.
+A compact, always-on-top window that floats over D2R while you play. Toggle from the sidebar with the **Overlay** button.
 
-**Functions:**
-- **Session timer** (top left) — Shows session elapsed time with recording dot
-- **Area** (top right) — Current farming area
-- **Run timer** (center, large) — Current run time, identical to main window
-- **Run count** — Session runs + total
-- **⏭** — Next Run (split)
-- **⏸** — Pause / Resume
-- **⏹** — End Session
-- **+** — Add item (opens the same searchable combobox as the main window)
-- **×** — Hide the overlay
+- **Session timer** — Session elapsed time with recording dot
+- **Run timer** — Current run time, identical to main window
+- **Run count** — Session + total
+- **Controls** — Next Run, Pause/Resume, End Session, Add Item
 - **Drag anywhere** — Reposition the overlay on screen
+- **Hide** — Close the overlay without stopping the session
 
-**Requirements:** D2R must be in Windowed or Windowed Fullscreen mode (Fullscreen Exclusive blocks all overlays).
+**Requirements:** D2R must be in Windowed or Windowed Fullscreen mode.
 
-**Linux (Wayland) — Tiling Compositors:**
+**Linux (Wayland) Tiling Compositors:**
 
-On Hyprland, Niri, MangoWC, and similar tiling Wayland compositors, the overlay may not stay on top by default. Add these window rules to your compositor config:
+On Hyprland, Niri, and similar tiling compositors, add window rules for the overlay:
 
-**Hyprland** (`~/.config/hypr/hyprland.conf`):
 ```
+# Hyprland (~/.config/hypr/hyprland.conf)
 windowrulev2 = float, title:^(D2R Overlay)$
 windowrulev2 = pin, title:^(D2R Overlay)$
 windowrulev2 = noborder, title:^(D2R Overlay)$
@@ -121,25 +104,19 @@ windowrulev2 = noshadow, title:^(D2R Overlay)$
 windowrulev2 = nofocus, title:^(D2R Overlay)$
 ```
 
-**Niri** (`~/.config/niri/config.kdl`):
-```
-window-rule {
-    match title="D2R Overlay"
-    open-floating true
-    default-column-display "floating"
-}
-```
+---
 
-**MangoWC / Mango** (`~/.config/mango/config`):
+### Route Editor
 
-MangoWC does not yet support automatic window rules by title. Use the `toggleoverlay` command to pin the overlay window above all others:
+![Route Editor](docs/mockups/route-editor.svg)
 
-```
-# Add a keybinding to toggle overlay mode (keeps window on top of all others)
-bind=SUPER,o,toggleoverlay,
-```
+Define multi-area farming routes and use them in the Run Tracker for auto-advancing through areas.
 
-After opening the D2R Overlay, focus it and press `Super+O` to activate overlay mode. The window will stay on top of all other windows including the game.
+- **Route list** — All routes for the active profile with edit/delete actions
+- **Create route** — Name your route and add areas from the picker (minimum 2 areas)
+- **Area sequence** — Drag-and-drop to reorder areas
+- **Route Mode in Run Tracker** — On split, automatically advances to the next area; counts cycles when route completes
+- **Route Statistics** — Total completed cycles, average cycle time, items per cycle
 
 ---
 
@@ -147,19 +124,17 @@ After opening the D2R Overlay, focus it and press `Super+O` to activate overlay 
 
 ![History](docs/mockups/history.svg)
 
-The History screen shows all completed runs with full details.
+All completed runs with full details.
 
-**Functions:**
-- **Run list** — Completed runs sorted newest first, showing area + run number (e.g. "Mephisto #47"), duration, player count badge, and date/time
-- **Pagination** — Loads 50 runs at a time with "Load More" button for performance
-- **Auto-expand** — Runs that have items found are automatically expanded for quick viewing
+- **Run list** — Sorted newest first, showing area, run number, duration, player count badge, and date
+- **Pagination** — Loads 50 runs at a time with "Load More" for performance
+- **Auto-expand** — Runs with items found are automatically expanded
 - **Click to expand/collapse** — Toggle run details manually
-- **Area: [name] ✎** — Click to change the run's area retroactively
-- **Items list** — Shows all items found in that run with color-coded rarity
-- **+ Add Item** — Add items to a past run (uses the full searchable item database)
-- **✕** — Remove an item from the run
-- **Delete** — Permanently remove a run and its items
-- **Filter by tier** — Dropdown to filter visible items within runs by value tier (All / Worthless / Low / Mid / High / GG)
+- **Edit area** — Change a run's area retroactively
+- **Items list** — All items found in that run with rarity color and value tier badge
+- **+ Add Item** — Add items to a past run
+- **Filter by tier** — Filter visible items by value tier (All / Low / Mid / High / GG)
+- **Delete** — Remove a run and its items permanently
 
 ---
 
@@ -167,42 +142,36 @@ The History screen shows all completed runs with full details.
 
 ![Statistics](docs/mockups/statistics.svg)
 
-The Statistics screen provides analytics and reporting on your farming data.
+Analytics and reporting on your farming data.
 
-**Functions:**
-- **Area filter** — Filter all stats and charts by a specific area, or view all areas combined
-- **Summary cards** — Total Runs, Total Items, Total Time, Average Time, Fastest, Slowest, Items/Run, Items/Hour
-- **Item Value Summary** — Total value points from all items found, with a breakdown showing count per tier (GG, High, Mid, Low)
-- **Top 10 Most Valuable Finds** — Ranked table of highest-tier items found, sorted by point value
-- **Duration per Run chart** — Line chart showing run time over time (efficiency trend)
-- **Items per Run chart** — Bar chart showing drops per run
-- **Rarity Distribution** — Pie chart of items by rarity type
-- **Runs by Area** — Horizontal bar chart showing farming distribution
-- **Top 10 Most Found Items** — Table ranking your most common drops
-- **⚡ TZ Performance** — Comparison table of Terror Zone runs vs normal runs (items/hour, items/run, avg time)
-- **Route Statistics** — Select a route to view total cycles, average cycle time, items per cycle
-- **📊 Detailed Report** — Expandable table with every run listed (date, area, duration, items found)
-- **📄 Export PDF** — Generates a full PDF report with all stats, charts data, and run-by-run details (opens native Save dialog)
+- **Area filter** — Filter all stats by a specific area or view all combined
+- **Summary cards** — Total Runs, Items, Time, Average, Fastest, Slowest, Items/Run, Items/Hour
+- **Item Value Summary** — Total points with tier breakdown
+- **Top 10 Most Valuable** — Highest-tier items ranked by point value
+- **Duration per Run** — Line chart showing run time trends
+- **Items per Run** — Bar chart of drops per run
+- **Rarity Distribution** — Pie chart by rarity type
+- **Runs by Area** — Horizontal bar chart of farming distribution
+- **Top 10 Most Found** — Most common drops table
+- **TZ Performance** — Terror Zone vs normal runs comparison (items/hour, items/run)
+- **Route Statistics** — Cycles, average time, items per cycle for selected routes
+- **Detailed Report** — Expandable table with every run listed
+- **Export PDF** — Full PDF report with stats, charts, and run details
 
 ---
 
-### Drop Calculator
+### Comparison
 
-![Drop Calculator](docs/mockups/drop-calculator.svg)
+![Comparison](docs/mockups/comparison.svg)
 
-The Drop Calculator shows what items can drop in each D2R farming area.
+Compare farming efficiency between two areas or two time periods side-by-side.
 
-**Functions:**
-- **Filter buttons** — All / TC85+ (areas that can drop every item) / Bosses
-- **Area list** — All farming areas with area level and TC badge
-- **Area Level** — Determines which items can drop from monsters
-- **Treasure Class** — Max item tier that the area supports
-- **Monster Types** — What enemies spawn in the area
-- **Notable Drops** — High-value items known to drop here
-- **Tips** — Community farming strategies for the area
-- **TC85+ badge** — Green badge on areas where every item in the game can drop
-
-No profile selection required — accessible anytime from the sidebar.
+- **Area vs Area** — Select two areas to compare metrics
+- **Date Range vs Date Range** — Compare two time periods to track improvement
+- **Metrics** — Items/hour, unique items/hour, avg time per run, fastest, slowest, items/run
+- **Winner highlighting** — Green border on the better-performing subject
+- **Percentage difference badges** — Shows improvement with gold emphasis when >20%
+- **Grouped bar chart** — Visual side-by-side comparison
 
 ---
 
@@ -212,12 +181,61 @@ No profile selection required — accessible anytime from the sidebar.
 
 Track Herald of Terror encounters and Sunder Charm farming progress.
 
-**Functions:**
 - **Stats panel** — Total encounters, success rate, victories, defeats
-- **Tier progression** — Visual T1-T5 badges showing encounters and win rate per tier
+- **Tier progression** — T1-T5 badges showing encounters and win rate per tier
 - **Sunder Charm collection** — Grid of 6 elements (Cold, Fire, Lightning, Physical, Poison, Magic) with found/unfound status
-- **Log encounter** — Form to record tier, area, result (success/fail), optional sunder charm drop, notes
+- **Log encounter** — Form to record tier, area, result, optional sunder charm drop, notes
 - **History table** — All past encounters with date, tier, area, result, drops
+
+---
+
+### Colossal Ancients
+
+Track attempts against the 5 Colossal Ancient bosses and monitor your progression.
+
+- **Boss grid** — Visual status of each boss (Baal, Diablo, Mephisto, Duriel, Andariel) with defeated checkmarks
+- **Per-boss statistics** — Attempts, success rate, best time, average time
+- **Summary stats** — Total attempts, victories, bosses defeated (X/5), overall success rate
+- **Log attempt** — Form with boss selection, result (success/fail), duration, drops, notes
+- **Attempt history** — Table of all attempts with date, boss, attempt number, result, time, drops
+
+---
+
+### Diablo Clone Tracker
+
+Track Diablo Clone progress per region and log Annihilus charms.
+
+- **Progress per region** — Americas, Europe, Asia with 1-6 scale progress bars
+- **Status labels** — Color-coded: Calm, Restless, Agitated, Frenzied, Terrorizing, Diablo Walks!
+- **Manual update** — Click buttons to set current progress from community reports
+- **Notification settings** — Preferred region and notification threshold (notify at progress 5+)
+- **Annihilus collection** — Log obtained charms with stats (e.g., "10/18/9") and notes
+- **History table** — All logged Annihilus charms with date and stats
+
+---
+
+### XP Tracker
+
+Track experience gain rates and estimate time to level up.
+
+- **Stats cards** — Total XP tracked, average XP/hour, total time, sessions logged
+- **Level info** — Current level, XP to next level, estimated time to level up (based on avg rate)
+- **XP Rate Trend chart** — Line chart showing XP/hour over sessions
+- **Log XP session** — Form with character level, XP gained, duration, area, notes
+- **History table** — All XP sessions with date, level, XP gained, duration, XP/hour, area
+
+---
+
+### Drop Calculator
+
+Shows what items can drop in each D2R farming area.
+
+- **Filter buttons** — All / TC85+ (areas that can drop every item) / Bosses
+- **Area list** — All farming areas with area level and TC badge
+- **Area details** — Monster types, notable drops, farming tips
+- **TC85+ badge** — Green badge on areas where every item can drop
+
+No profile selection required — accessible anytime.
 
 ---
 
@@ -225,149 +243,60 @@ Track Herald of Terror encounters and Sunder Charm farming progress.
 
 ![Settings](docs/mockups/settings.svg)
 
-The Settings page lets you configure global hotkeys, sound notifications, OBS integration, and Terror Zone preferences.
+Configure hotkeys, sounds, OBS integration, and Terror Zone preferences.
 
 **Global Hotkeys:**
-- **Next Run (Split)** — Default: F9. Works even when D2R is focused.
+- **Next Run** — Default: F9 (works even when D2R is focused)
 - **Pause / Resume** — Default: F10
 - **End Session** — Default: F11
-- **Click to rebind** — Click a hotkey button, then press your desired key/combo
-- **Reset to Defaults** — Restores F9/F10/F11
+- Click to rebind, Reset to Defaults available
 
 **Sound Notifications:**
-- **Enable/disable toggle** — Master on/off for all sounds
-- **Volume slider** — 0-100%
-- **Test buttons** — Preview each sound type (Item, Milestone, Alert, Goal)
-- **Triggers:** Item found → beep, every 10 runs → milestone, goal reached → celebration
+- Enable/disable toggle, volume slider (0-100%)
+- Triggers: item found, every 10 runs (milestone), goal reached
 
 **OBS Integration:**
-- **Enable/disable toggle** — Write live stats to file for OBS
-- **Output format** — Plain Text or JSON
-- **File path** — Shown when enabled, with copy button
+- Write live stats to file for OBS Studio stream overlays
+- Output format: Plain Text or JSON
+- Updates every 1 second during active sessions
 
 **Terror Zones:**
-- **Sound notification toggle** — Audio alert when a preferred zone becomes active
-- **Preferred zones** — Checkbox grid of all Terror Zones to select favorites
+- Sound notification when a preferred zone becomes active
+- Checkbox grid to select favorite zones
 
 **Theme:**
-- **Dark/Light toggle** — Switch between dark and light modes from the sidebar (○/● Theme button)
+- Dark/Light toggle from the sidebar
 
 ---
 
-### Sidebar
+### Sidebar Navigation
 
-The sidebar is always visible and provides navigation and utilities.
+Always visible, provides navigation and utilities:
 
-**Navigation:**
-- 👤 **Profiles** — Manage characters
-- ▶ **Run Tracker** — Active farming session
-- ↗ **Routes** — Define multi-area farming routes
-- ☰ **History** — Past runs
-- ◈ **Statistics** — Analytics and reports
-- ⇄ **Compare** — Area/date range efficiency comparison
-- ◆ **Heralds** — Herald of Terror encounter tracking
-- 🏛️ **Ancients** — Colossal Ancients boss tracking
-- 😈 **DClone** — Diablo Clone progress and Annihilus log
-- 📈 **XP** — Experience rate tracking
-- ∿ **Drops** — Drop rate calculator
-
-**Utilities:**
-- ⚙ **Settings** — Hotkeys, sound, OBS, Terror Zone configuration
-- ◳ **Overlay** — Toggle the in-game overlay window
-- ○/● **Theme** — Switch between dark and light modes
-- ↓ **Export** — Save all data as JSON backup
-- ↑ **Import** — Load a JSON backup file
-
-**Active profile indicator** — Shows the currently selected profile name and class at the bottom.
-
----
-
-### Route Editor (v2.0.0)
-
-![Route Editor](docs/mockups/route-editor.svg)
-
-Define multi-area farming routes and use them in the Run Tracker for auto-advancing through steps.
-
-**Functions:**
-- **Route list** — Shows all routes for the active profile with edit/delete actions
-- **Create route** — Name your route and add areas from the picker
-- **Area sequence** — Drag-and-drop to reorder areas in the route
-- **Add/Remove areas** — Build your route from all available areas (built-in + custom)
-- **Minimum 2 areas** — Save button disabled until route has at least 2 areas
-
-**Route Mode in Run Tracker:**
-- **Toggle** — Switch between single-area and route mode before starting a session
-- **Route selector** — Choose which route to run
-- **Auto-advance** — On split, automatically moves to the next area in the route
-- **Cycle tracking** — Wraps back to the first area when the route completes, counting cycles
-- **Step indicator** — Shows "Step 2/4: Pindleskin" during the session
-
-**Route Statistics:**
-- Total completed cycles, average cycle time, items per cycle
-
----
-
-### Comparison Mode (v2.0.0)
-
-![Comparison](docs/mockups/comparison.svg)
-
-Compare farming efficiency between two areas or two time periods side-by-side.
-
-**Functions:**
-- **Area vs Area** — Select two areas to compare efficiency metrics
-- **Date Range vs Date Range** — Compare two time periods to track improvement
-- **Metrics** — Items/hour, unique items/hour, average time per run, fastest, slowest, items/run
-- **Winner highlighting** — Green border on the better-performing subject
-- **Percentage difference badges** — Shows how much better/worse one is vs the other
-- **Significance emphasis** — Bold gold color when difference exceeds 20%
-- **Grouped bar chart** — Visual side-by-side comparison (Recharts)
-- **Sample size warning** — Badge when a subject has fewer than 5 completed runs
-
----
-
-### OBS Integration (v2.0.0)
-
-Write live session stats to a text file for OBS Studio stream overlays.
-
-**Setup:**
-1. Go to Settings → OBS Integration → Enable
-2. Choose format: Plain Text or JSON
-3. Copy the file path shown
-4. In OBS: Add "Text (GDI+)" source → Check "Read from file" → Paste the path
-
-**Output content:**
-- Run Count, Session Time, Current Area, Last 3 Items Found
-- Updates every 1 second during active sessions
-- Atomic writes (no partial reads by OBS)
-
----
-
-### Item Value Tiers (v2.0.0)
-
-Color-coded value badges on items based on D2R community trading values.
-
-**Tiers:**
-| Tier | Color | Points | Examples |
-|------|-------|--------|----------|
-| GG | Gold | 20 | Sur-Zod runes, Enigma, Griffon's Eye, Tyrael's Might |
-| High | Purple | 8 | Gul-Lo runes, Shako, HotO, CTA, Stone of Jordan |
-| Mid | Blue | 3 | Pul-Ist runes, Spirit, Vipermagi, Goldwrap |
-| Low | Green | 1 | Hel-Lem runes, Stealth, Peasant Crown |
-| Worthless | Gray | 0 | El-Dol runes, low-level uniques |
-
-**Integration:**
-- **Run Tracker** — Badge shown next to each logged item
-- **History** — Badge on items + filter dropdown to show only valuable finds
-- **Statistics** — "Item Value Summary" with total points and tier breakdown
+- **Profiles** — Manage characters
+- **Run Tracker** — Active farming session
+- **Routes** — Multi-area farming routes
+- **History** — Past runs
+- **Statistics** — Analytics and reports
+- **Compare** — Area/date efficiency comparison
+- **Heralds** — Herald of Terror tracking
+- **Ancients** — Colossal Ancients boss tracker
+- **DClone** — Diablo Clone progress and Annihilus log
+- **XP** — Experience rate tracking
+- **Drops** — Drop calculator
+- **Settings** — Configuration
+- **Overlay** — Toggle in-game overlay
+- **Theme** — Dark/Light switch
+- **Export / Import** — JSON backup and restore
 
 ---
 
 ## Data Safety
 
-- All data is stored locally in SQLite at `%APPDATA%/com.muh.d2r-desktop/`
+- All data stored locally in SQLite (`%APPDATA%/com.muh.d2r-desktop/` on Windows, `~/.local/share/com.muh.d2r-desktop/` on Linux)
 - Updates only replace the application executable — your database is never touched
 - Export/Import allows full portability between machines
-- The auto-updater checks GitHub Releases and installs updates without data loss
+- Auto-updater checks GitHub Releases and installs updates without data loss
 
 ---
 
@@ -423,50 +352,46 @@ d2r-desktop/
 │   ├── types.ts               # TypeScript interfaces and constants
 │   ├── data/
 │   │   ├── items.ts           # D2R v3.2 item database (895+ items)
-│   │   ├── item-values.ts     # Item value tier estimation (Worthless/Low/Mid/High/GG)
+│   │   ├── item-values.ts     # Item value tier estimation
 │   │   ├── areas.ts           # Area metadata (alvl, TC, drops, tips)
-│   │   ├── terror-zones.ts   # Terror Zone definitions and preferences
-│   │   └── xp-table.ts       # D2R XP requirements per level (1-99)
+│   │   ├── terror-zones.ts    # Terror Zone definitions and preferences
+│   │   └── xp-table.ts        # D2R XP requirements per level (1-99)
 │   ├── components/
-│   │   ├── ItemSearch.tsx     # Searchable combobox
-│   │   ├── MFCalculator.tsx   # Effective MF widget
-│   │   ├── TierBadge.tsx      # Item value tier badge
+│   │   ├── ItemSearch.tsx      # Searchable combobox
+│   │   ├── MFCalculator.tsx    # Effective MF widget
+│   │   ├── TierBadge.tsx       # Item value tier badge
 │   │   ├── TerrorZoneDisplay.tsx # Active Terror Zone indicator
-│   │   ├── QuickTags.tsx      # Quick tag buttons for run tagging
-│   │   └── UpdateChecker.tsx  # Auto-update banner
+│   │   ├── QuickTags.tsx       # Quick tag buttons
+│   │   └── UpdateChecker.tsx   # Auto-update banner
 │   ├── hooks/
-│   │   └── useTheme.ts       # Dark/light theme toggle hook
-│   ├── overlay/               # In-game overlay window
-│   │   ├── Overlay.tsx
-│   │   ├── overlay.css
-│   │   └── main.tsx
+│   │   └── useTheme.ts        # Dark/light theme toggle
+│   ├── overlay/                # In-game overlay window
 │   ├── pages/
 │   │   ├── Profiles.tsx
 │   │   ├── RunTracker.tsx
-│   │   ├── RouteEditor.tsx    # Multi-area route management
+│   │   ├── RouteEditor.tsx
 │   │   ├── History.tsx
 │   │   ├── Statistics.tsx
-│   │   ├── Comparison.tsx     # Area/date range efficiency comparison
-│   │   ├── HeraldTracker.tsx  # Herald of Terror encounter tracking
-│   │   ├── ColossalAncients.tsx # Colossal Ancients boss tracker
-│   │   ├── DCloneTracker.tsx  # Diablo Clone progress & Anni log
-│   │   ├── XPTracker.tsx      # XP rate tracking and estimates
+│   │   ├── Comparison.tsx
+│   │   ├── HeraldTracker.tsx
+│   │   ├── ColossalAncients.tsx
+│   │   ├── DCloneTracker.tsx
+│   │   ├── XPTracker.tsx
 │   │   ├── DropCalculator.tsx
 │   │   └── Settings.tsx
-│   ├── utils/
-│   │   ├── audio.ts           # Sound notification system
-│   │   └── comparison.ts      # Comparison helper functions
-│   └── test/                  # Test setup and mocks
-├── src-tauri/                 # Rust backend
+│   └── utils/
+│       ├── audio.ts            # Sound notification system
+│       └── comparison.ts       # Comparison helper functions
+├── src-tauri/                  # Rust backend
 │   └── src/
-│       ├── lib.rs             # App setup & plugin registration
-│       ├── db.rs              # SQLite connection & migrations
-│       ├── models.rs          # Data structs
-│       └── commands.rs        # Tauri commands (CRUD, stats, routes, comparison, OBS)
-├── .github/workflows/         # CI/CD
-│   ├── ci.yml                 # PR checks (tests, tsc, cargo, vite)
-│   └── build.yml             # Release builds (signed, with updater)
-└── docs/mockups/              # SVG mockups for README
+│       ├── lib.rs              # App setup & plugin registration
+│       ├── db.rs               # SQLite connection & migrations
+│       ├── models.rs           # Data structs
+│       └── commands.rs         # Tauri commands
+├── .github/workflows/          # CI/CD
+│   ├── ci.yml                  # PR checks
+│   └── build.yml               # Release builds (signed, with updater)
+└── docs/mockups/               # SVG mockups for README
 ```
 
 ---

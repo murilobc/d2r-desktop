@@ -97,6 +97,18 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add herald_encounters table
     migrate_herald_encounters(conn)?;
 
+    // Migration: add colossal_ancients table
+    migrate_colossal_ancients(conn)?;
+
+    // Migration: add anni_log table
+    migrate_anni_log(conn)?;
+
+    // Migration: add xp_entries table
+    migrate_xp_entries(conn)?;
+
+    // Migration: add dclone_progress table
+    migrate_dclone_progress(conn)?;
+
     Ok(())
 }
 
@@ -214,6 +226,83 @@ fn migrate_herald_encounters(conn: &Connection) -> Result<()> {
             FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
         );
         CREATE INDEX IF NOT EXISTS idx_herald_profile ON herald_encounters(profile_id);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_colossal_ancients(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS colossal_ancients (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            boss_name TEXT NOT NULL,
+            attempt_number INTEGER NOT NULL,
+            result TEXT NOT NULL,
+            drops TEXT,
+            duration_secs INTEGER NOT NULL DEFAULT 0,
+            notes TEXT,
+            attempted_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_colossal_profile ON colossal_ancients(profile_id);
+        CREATE INDEX IF NOT EXISTS idx_colossal_boss ON colossal_ancients(profile_id, boss_name);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_anni_log(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS anni_log (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            stats TEXT NOT NULL,
+            notes TEXT,
+            obtained_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_anni_profile ON anni_log(profile_id);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_xp_entries(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS xp_entries (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            run_id TEXT,
+            level INTEGER NOT NULL,
+            xp_gained INTEGER NOT NULL,
+            duration_secs INTEGER NOT NULL DEFAULT 0,
+            area TEXT,
+            notes TEXT,
+            recorded_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_xp_profile ON xp_entries(profile_id);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_dclone_progress(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS dclone_progress (
+            region TEXT PRIMARY KEY,
+            progress INTEGER NOT NULL DEFAULT 1,
+            last_updated TEXT NOT NULL
+        );
         ",
     )?;
 

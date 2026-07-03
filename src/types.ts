@@ -307,3 +307,99 @@ export interface HeraldTierCount {
   count: number;
   successes: number;
 }
+
+// ===== COLOSSAL ANCIENTS =====
+
+export interface ColossalAncientAttempt {
+  id: string;
+  profile_id: string;
+  boss_name: string;
+  attempt_number: number;
+  result: string;
+  drops: string | null;
+  duration_secs: number;
+  notes: string | null;
+  attempted_at: string;
+}
+
+export interface CreateColossalAttemptInput {
+  profile_id: string;
+  boss_name: string;
+  result: string;
+  drops?: string;
+  duration_secs: number;
+  notes?: string;
+}
+
+export interface ColossalAncientStats {
+  total_attempts: number;
+  total_successes: number;
+  bosses_defeated: string[];
+  stats_by_boss: BossStats[];
+}
+
+export interface BossStats {
+  boss_name: string;
+  attempts: number;
+  successes: number;
+  best_time_secs: number | null;
+  avg_time_secs: number;
+}
+
+export const COLOSSAL_BOSSES = ["Baal", "Diablo", "Mephisto", "Duriel", "Andariel"] as const;
+
+// ===== DIABLO CLONE TRACKER =====
+
+export interface DCloneProgress {
+  region: string;
+  progress: number;
+  last_updated: string;
+}
+
+export interface AnniLog {
+  id: string;
+  profile_id: string;
+  stats: string;
+  notes: string | null;
+  obtained_at: string;
+}
+
+export interface CreateAnniLogInput {
+  profile_id: string;
+  stats: string;
+  notes?: string;
+}
+
+export const DCLONE_REGIONS = ["Americas", "Europe", "Asia"] as const;
+
+// ===== XP TRACKING =====
+
+export interface XpEntry {
+  id: string;
+  profile_id: string;
+  run_id: string | null;
+  level: number;
+  xp_gained: number;
+  duration_secs: number;
+  area: string | null;
+  notes: string | null;
+  recorded_at: string;
+}
+
+export interface CreateXpEntryInput {
+  profile_id: string;
+  run_id?: string;
+  level: number;
+  xp_gained: number;
+  duration_secs: number;
+  area?: string;
+  notes?: string;
+}
+
+export interface XpStats {
+  total_xp: number;
+  total_time_secs: number;
+  xp_per_hour: number;
+  entries_count: number;
+  avg_xp_per_session: number;
+}

@@ -66,6 +66,22 @@ pub fn run() {
             commands::get_herald_encounters,
             commands::get_herald_stats,
             commands::delete_herald_encounter,
+            // Colossal Ancients
+            commands::create_ancient_attempt,
+            commands::get_ancient_attempts,
+            commands::get_ancient_stats,
+            commands::delete_ancient_attempt,
+            // Diablo Clone
+            commands::get_dclone_progress,
+            commands::update_dclone_progress,
+            commands::create_anni_log,
+            commands::get_anni_logs,
+            commands::delete_anni_log,
+            // XP Tracking
+            commands::create_xp_entry,
+            commands::get_xp_entries,
+            commands::get_xp_stats,
+            commands::delete_xp_entry,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

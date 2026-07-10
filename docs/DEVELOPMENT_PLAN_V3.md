@@ -247,11 +247,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 10. Keybind Profiles
+## 10. Keybind Profiles ✅ IMPLEMENTED (PR #81)
 
-**Branch:** `feat/keybind-profiles`
+**Branch:** `feat/v3.2-power-user`
 **Effort:** ~1-2 hours
 **Dependencies:** None (extends existing Settings/hotkey system)
+**Status:** Merged
 
 ### Tasks:
 1. Create `keybind_profiles` table: `id, name, bindings TEXT (JSON), created_at`
@@ -264,18 +265,19 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 8. Add tests
 
 ### Acceptance Criteria:
-- [ ] User can create multiple named keybind configurations
-- [ ] Quick-switch between keybind profiles from Settings
-- [ ] Optional auto-load keybind profile when selecting a character profile
-- [ ] Switching profiles immediately re-registers the global shortcuts
+- [x] User can create multiple named keybind configurations
+- [x] Quick-switch between keybind profiles from Settings
+- [x] Optional auto-load keybind profile when selecting a character profile
+- [x] Switching profiles immediately re-registers the global shortcuts
 
 ---
 
-## 11. Backup Scheduler
+## 11. Backup Scheduler ✅ IMPLEMENTED (PR #81)
 
-**Branch:** `feat/backup-scheduler`
+**Branch:** `feat/v3.2-power-user`
 **Effort:** ~2 hours
 **Dependencies:** None (extends existing export functionality)
+**Status:** Merged
 
 ### Tasks:
 1. Settings page: add "Auto Backup" section with folder picker (Tauri native dialog)
@@ -289,19 +291,20 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] Auto-export JSON backup to configured folder on schedule
-- [ ] Old backups rotated (keeps last N, deletes oldest)
-- [ ] Backup runs silently without interrupting workflow
-- [ ] User can see last backup time and manually trigger a backup
-- [ ] Graceful failure if folder is inaccessible (log warning, don't crash)
+- [x] Auto-export JSON backup to configured folder on schedule
+- [x] Old backups rotated (keeps last N, deletes oldest)
+- [x] Backup runs silently without interrupting workflow
+- [x] User can see last backup time and manually trigger a backup
+- [x] Graceful failure if folder is inaccessible (log warning, don't crash)
 
 ---
 
-## 12. Grimoire Tracking
+## 12. Grimoire Tracking ✅ IMPLEMENTED (PR #81)
 
-**Branch:** `feat/grimoire-tracking`
+**Branch:** `feat/v3.2-power-user`
 **Effort:** ~1 hour
 **Dependencies:** None (extends existing item database)
+**Status:** Merged
 
 ### Tasks:
 1. Audit `src/data/items.ts` — ensure all Warlock Grimoire items are present (cross-reference D2R v3.2 patch notes)
@@ -313,10 +316,10 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 7. Add tests verifying Grimoire items are in DB with correct tiers
 
 ### Acceptance Criteria:
-- [ ] All Warlock Grimoire items present in the item database
-- [ ] Grimoire items have value tiers assigned
-- [ ] Grimoire appears as a filterable subcategory in History and Statistics
-- [ ] Drop Calculator shows Grimoire items for applicable areas
+- [x] All Warlock Grimoire items present in the item database
+- [x] Grimoire items have value tiers assigned
+- [x] Grimoire appears as a filterable subcategory in History and Statistics
+- [x] Drop Calculator shows Grimoire items for applicable areas
 
 ---
 
@@ -453,7 +456,7 @@ Each feature should follow this workflow:
 | v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | ✅ Released |
 | v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | ✅ Released |
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | ✅ Released |
-| v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | 🔲 Planned |
+| v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | ✅ Released |
 | v3.3.0 | Shared/Co-op Tracking | ~5-6h | 🔲 Planned |
 | v4.0.0 | Data Sync (Cloud) + Performance Profiling + Localization | ~9-12h | 🔲 Planned |
 

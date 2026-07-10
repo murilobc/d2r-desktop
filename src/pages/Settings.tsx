@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
-import { getObsFilePath } from "../api";
+import { getObsFilePath, getKeybindProfiles, createKeybindProfile, deleteKeybindProfile, runAutoBackup, cleanupOldBackups } from "../api";
+import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
 import { TERROR_ZONES, loadTZPrefs, saveTZPrefs, type TerrorZonePrefs } from "../data/terror-zones";
+import type { KeybindProfile } from "../types";
 
 // OBS Preferences
 interface ObsPrefs {
@@ -182,8 +184,240 @@ export default function Settings() {
       </div>
 
       <SoundSettings />
+      <KeybindProfilesSettings />
+      <BackupSettings />
       <ObsSettings />
       <TerrorZoneSettings />
+    </div>
+  );
+}
+
+function KeybindProfilesSettings() {
+  const [profiles, setProfiles] = useState<KeybindProfile[]>([]);
+  const [newName, setNewName] = useState("");
+  const [kbStatus, setKbStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    getKeybindProfiles().then((data) => setProfiles(data || [])).catch(console.error);
+  }, []);
+
+  const handleSaveCurrentProfile = async () => {
+    if (!newName.trim()) return;
+    const currentBindings = JSON.stringify(loadHotkeys());
+    try {
+      const profile = await createKeybindProfile({ name: newName.trim(), bindings: currentBindings });
+      setProfiles([profile, ...profiles]);
+      setNewName("");
+      setKbStatus("Profile saved!");
+      setTimeout(() => setKbStatus(null), 3000);
+    } catch (e) {
+      setKbStatus("Error: " + e);
+      setTimeout(() => setKbStatus(null), 3000);
+    }
+  };
+
+  const handleActivate = (profile: KeybindProfile) => {
+    try {
+      const bindings = JSON.parse(profile.bindings);
+      saveHotkeys(bindings);
+      registerHotkeys().then(() => {
+        setKbStatus(`Activated profile: ${profile.name}`);
+        setTimeout(() => setKbStatus(null), 3000);
+      });
+    } catch {
+      setKbStatus("Error: invalid bindings in profile");
+      setTimeout(() => setKbStatus(null), 3000);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteKeybindProfile(id);
+      setProfiles(profiles.filter(p => p.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>Keybind Profiles</h2>
+      <p className="settings-description">
+        Save and quickly switch between different hotkey configurations.
+      </p>
+
+      <div className="hotkey-row">
+        <input
+          type="text"
+          placeholder="Profile name"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          className="hotkey-btn"
+          style={{ flex: 1 }}
+        />
+        <button className="btn btn-sm" onClick={handleSaveCurrentProfile}>
+          Save Current
+        </button>
+      </div>
+
+      {profiles.length > 0 && (
+        <div className="hotkey-list" style={{ marginTop: "0.75rem" }}>
+          {profiles.map((p) => (
+            <div className="hotkey-row" key={p.id}>
+              <span className="hotkey-label">{p.name}</span>
+              <button className="btn btn-sm" onClick={() => handleActivate(p)}>
+                Activate
+              </button>
+              <button className="btn btn-sm" onClick={() => handleDelete(p.id)} style={{ marginLeft: "0.5rem" }}>
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {kbStatus && <div className="settings-status">{kbStatus}</div>}
+
+      <div className="settings-note">
+        <strong>Tip:</strong> Save your current hotkeys under a name, then quickly switch between profiles (e.g., "Default", "Streaming", "One-handed").
+      </div>
+    </div>
+  );
+}
+
+// Backup config localStorage types
+interface BackupConfig {
+  folderPath: string;
+  keepCount: number;
+  schedule: "off" | "session_end" | "daily" | "weekly";
+  lastBackup: string | null;
+}
+
+const BACKUP_CONFIG_KEY = "d2r_backup_config";
+
+export function getBackupConfig(): BackupConfig {
+  const stored = localStorage.getItem(BACKUP_CONFIG_KEY);
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* ignore */ }
+  }
+  return { folderPath: "", keepCount: 10, schedule: "off", lastBackup: null };
+}
+
+export function saveBackupConfig(config: BackupConfig) {
+  localStorage.setItem(BACKUP_CONFIG_KEY, JSON.stringify(config));
+}
+
+function BackupSettings() {
+  const [config, setConfig] = useState<BackupConfig>(getBackupConfig);
+  const [backupStatus, setBackupStatus] = useState<string | null>(null);
+
+  const handleChooseFolder = async () => {
+    try {
+      const selected = await dialogOpen({ directory: true, multiple: false });
+      if (selected) {
+        const updated = { ...config, folderPath: selected as string };
+        setConfig(updated);
+        saveBackupConfig(updated);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleBackupNow = async () => {
+    if (!config.folderPath) {
+      setBackupStatus("Please choose a backup folder first.");
+      setTimeout(() => setBackupStatus(null), 3000);
+      return;
+    }
+    try {
+      const filePath = await runAutoBackup(config.folderPath);
+      await cleanupOldBackups(config.folderPath, config.keepCount);
+      const updated = { ...config, lastBackup: new Date().toISOString() };
+      setConfig(updated);
+      saveBackupConfig(updated);
+      setBackupStatus(`Backup saved: ${filePath.split(/[/\\]/).pop()}`);
+      setTimeout(() => setBackupStatus(null), 5000);
+    } catch (e) {
+      setBackupStatus("Backup failed: " + e);
+      setTimeout(() => setBackupStatus(null), 5000);
+    }
+  };
+
+  const handleKeepCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = Number.parseInt(e.target.value, 10);
+    if (val >= 1 && val <= 100) {
+      const updated = { ...config, keepCount: val };
+      setConfig(updated);
+      saveBackupConfig(updated);
+    }
+  };
+
+  const handleScheduleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const updated = { ...config, schedule: e.target.value as BackupConfig["schedule"] };
+    setConfig(updated);
+    saveBackupConfig(updated);
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>Auto Backup</h2>
+      <p className="settings-description">
+        Automatically back up your data to a folder. Old backups are rotated so only the most recent are kept.
+      </p>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Backup folder</span>
+        <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
+          {config.folderPath || "(not set)"}
+        </span>
+        <button className="btn btn-sm" onClick={handleChooseFolder}>
+          Choose Folder
+        </button>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Keep last</span>
+        <input
+          type="number"
+          min={1}
+          max={100}
+          value={config.keepCount}
+          onChange={handleKeepCountChange}
+          className="hotkey-btn"
+          style={{ width: "4rem" }}
+        />
+        <span className="settings-description">backups</span>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Schedule</span>
+        <select value={config.schedule} onChange={handleScheduleChange} className="hotkey-btn">
+          <option value="off">Off</option>
+          <option value="session_end">Every session end</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+
+      <div className="hotkey-row">
+        <span className="hotkey-label">Last backup</span>
+        <span className="settings-description">
+          {config.lastBackup ? new Date(config.lastBackup).toLocaleString("en-US") : "Never"}
+        </span>
+      </div>
+
+      <div className="hotkey-actions">
+        <button className="btn btn-sm" onClick={handleBackupNow}>
+          Backup Now
+        </button>
+      </div>
+
+      {backupStatus && <div className="settings-status">{backupStatus}</div>}
+
+      <div className="settings-note">
+        <strong>Tip:</strong> Set schedule to "Every session end" for automatic protection. Backups are lightweight JSON files.
+      </div>
     </div>
   );
 }

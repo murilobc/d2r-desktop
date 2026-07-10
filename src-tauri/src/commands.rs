@@ -1832,3 +1832,251 @@ pub fn delete_xp_entry(state: State<DbState>, id: String) -> Result<(), String> 
         .map_err(|e| e.to_string())?;
     Ok(())
 }
+
+// ===== KEYBIND PROFILES =====
+
+#[tauri::command]
+pub fn create_keybind_profile(state: State<DbState>, input: CreateKeybindProfileInput) -> Result<KeybindProfile, String> {
+    if input.name.trim().is_empty() {
+        return Err("Profile name cannot be empty".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Profile name is too long (max 100 characters)".to_string());
+    }
+    // Validate bindings is valid JSON
+    let _: serde_json::Value = serde_json::from_str(&input.bindings)
+        .map_err(|_| "Bindings must be valid JSON".to_string())?;
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+    let id = Uuid::new_v4().to_string();
+
+    conn.execute(
+        "INSERT INTO keybind_profiles (id, name, bindings, created_at) VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![id, input.name, input.bindings, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(KeybindProfile {
+        id,
+        name: input.name,
+        bindings: input.bindings,
+        created_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn get_keybind_profiles(state: State<DbState>) -> Result<Vec<KeybindProfile>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, name, bindings, created_at FROM keybind_profiles ORDER BY created_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let profiles = stmt
+        .query_map([], |row| {
+            Ok(KeybindProfile {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                bindings: row.get(2)?,
+                created_at: row.get(3)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(profiles)
+}
+
+#[tauri::command]
+pub fn update_keybind_profile(state: State<DbState>, id: String, input: UpdateKeybindProfileInput) -> Result<KeybindProfile, String> {
+    if input.name.trim().is_empty() {
+        return Err("Profile name cannot be empty".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Profile name is too long (max 100 characters)".to_string());
+    }
+    let _: serde_json::Value = serde_json::from_str(&input.bindings)
+        .map_err(|_| "Bindings must be valid JSON".to_string())?;
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM keybind_profiles WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Keybind profile not found".to_string());
+    }
+
+    conn.execute(
+        "UPDATE keybind_profiles SET name = ?1, bindings = ?2 WHERE id = ?3",
+        rusqlite::params![input.name, input.bindings, id],
+    ).map_err(|e| e.to_string())?;
+
+    let mut stmt = conn
+        .prepare("SELECT id, name, bindings, created_at FROM keybind_profiles WHERE id = ?1")
+        .map_err(|e| e.to_string())?;
+
+    let profile = stmt
+        .query_row(rusqlite::params![id], |row| {
+            Ok(KeybindProfile {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                bindings: row.get(2)?,
+                created_at: row.get(3)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    Ok(profile)
+}
+
+#[tauri::command]
+pub fn delete_keybind_profile(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM keybind_profiles WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// ===== BACKUP SCHEDULER =====
+
+#[tauri::command]
+pub fn run_auto_backup(state: State<DbState>, folder_path: String) -> Result<String, String> {
+    // Validate folder exists
+    let path = std::path::Path::new(&folder_path);
+    if !path.exists() || !path.is_dir() {
+        return Err("Backup folder does not exist or is not a directory".to_string());
+    }
+
+    // Use the existing export_data logic
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Profiles
+    let mut stmt = conn
+        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at FROM profiles ORDER BY created_at ASC")
+        .map_err(|e| e.to_string())?;
+    let profiles = stmt
+        .query_map([], |row| {
+            Ok(Profile {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                class: row.get(2)?,
+                mode: row.get(3)?,
+                magic_find: row.get(4)?,
+                created_at: row.get(5)?,
+                updated_at: row.get(6)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Runs
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs ORDER BY started_at ASC")
+        .map_err(|e| e.to_string())?;
+    let runs = stmt
+        .query_map([], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+                player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
+                tags: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Items
+    let mut stmt = conn
+        .prepare("SELECT id, run_id, profile_id, name, item_type, rarity, found_at, notes FROM items ORDER BY found_at ASC")
+        .map_err(|e| e.to_string())?;
+    let items = stmt
+        .query_map([], |row| {
+            Ok(Item {
+                id: row.get(0)?,
+                run_id: row.get(1)?,
+                profile_id: row.get(2)?,
+                name: row.get(3)?,
+                item_type: row.get(4)?,
+                rarity: row.get(5)?,
+                found_at: row.get(6)?,
+                notes: row.get(7)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    let export = ExportData {
+        version: "1.0".to_string(),
+        exported_at: Utc::now().to_rfc3339(),
+        profiles,
+        runs,
+        items,
+    };
+
+    let json = serde_json::to_string_pretty(&export).map_err(|e| e.to_string())?;
+
+    let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
+    let filename = format!("d2r_backup_{}.json", timestamp);
+    let file_path = path.join(&filename);
+
+    std::fs::write(&file_path, json).map_err(|e| e.to_string())?;
+
+    Ok(file_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn cleanup_old_backups(folder_path: String, keep_count: i64) -> Result<(), String> {
+    let path = std::path::Path::new(&folder_path);
+    if !path.exists() || !path.is_dir() {
+        return Err("Backup folder does not exist or is not a directory".to_string());
+    }
+
+    if keep_count < 1 {
+        return Err("Keep count must be at least 1".to_string());
+    }
+
+    // List all matching backup files
+    let mut backup_files: Vec<std::path::PathBuf> = std::fs::read_dir(path)
+        .map_err(|e| e.to_string())?
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|p| {
+            if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
+                name.starts_with("d2r_backup_") && name.ends_with(".json")
+            } else {
+                false
+            }
+        })
+        .collect();
+
+    // Sort by filename (which includes timestamp, so alphabetical = chronological)
+    backup_files.sort();
+
+    // Delete oldest files if over keep_count
+    let count = backup_files.len() as i64;
+    if count > keep_count {
+        let to_delete = (count - keep_count) as usize;
+        for file in backup_files.iter().take(to_delete) {
+            let _ = std::fs::remove_file(file);
+        }
+    }
+
+    Ok(())
+}

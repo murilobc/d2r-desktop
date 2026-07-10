@@ -181,6 +181,7 @@ export const ITEM_TYPES = [
   "Charm",
   "Rune",
   "Jewel",
+  "Grimoire",
   "Other",
 ];
 
@@ -402,4 +403,23 @@ export interface XpStats {
   xp_per_hour: number;
   entries_count: number;
   avg_xp_per_session: number;
+}
+
+// ===== KEYBIND PROFILES =====
+
+export interface KeybindProfile {
+  id: string;
+  name: string;
+  bindings: string;
+  created_at: string;
+}
+
+export interface CreateKeybindProfileInput {
+  name: string;
+  bindings: string;
+}
+
+export interface UpdateKeybindProfileInput {
+  name: string;
+  bindings: string;
 }

@@ -150,6 +150,13 @@ const UNIQUE_TIERS: Record<string, TierName> = {
   "Hellrack": "low", "Gut Siphon": "low",
   "Chromatic Ire": "low", "Warpspear": "low", "Skull Collector": "low",
   "Darkforce Spawn": "low", "Boneflame": "low", "Dragonscale": "low",
+  // Grimoire Uniques (Warlock - RotW)
+  "Measured Wrath": "mid", "Ars Tor'Baalos": "gg", "Ars Dul'Mephistos": "gg",
+  "Ars Al'Diabolos": "gg", "Blasphemous Grimoire": "high",
+  "Tome of Dark Pacts": "mid", "Codex of the Void": "mid",
+  "Grimoire of Shadows": "low", "Tome of Eternal Night": "mid",
+  "Darkfire Grimoire": "high", "Necrotic Compendium": "low",
+  "Abyssal Manuscript": "mid", "Grimoire of Bone": "low",
 };
 
 // Set item tiers

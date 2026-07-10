@@ -331,6 +331,28 @@ pub struct CreateAnniLogInput {
     pub notes: Option<String>,
 }
 
+// ===== KEYBIND PROFILES =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct KeybindProfile {
+    pub id: String,
+    pub name: String,
+    pub bindings: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateKeybindProfileInput {
+    pub name: String,
+    pub bindings: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdateKeybindProfileInput {
+    pub name: String,
+    pub bindings: String,
+}
+
 // ===== XP TRACKING =====
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -109,6 +109,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add dclone_progress table
     migrate_dclone_progress(conn)?;
 
+    // Migration: add keybind_profiles table
+    migrate_keybind_profiles(conn)?;
+
     Ok(())
 }
 
@@ -302,6 +305,21 @@ fn migrate_dclone_progress(conn: &Connection) -> Result<()> {
             region TEXT PRIMARY KEY,
             progress INTEGER NOT NULL DEFAULT 1,
             last_updated TEXT NOT NULL
+        );
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_keybind_profiles(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS keybind_profiles (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            bindings TEXT NOT NULL,
+            created_at TEXT NOT NULL
         );
         ",
     )?;

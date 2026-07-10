@@ -82,6 +82,14 @@ pub fn run() {
             commands::get_xp_entries,
             commands::get_xp_stats,
             commands::delete_xp_entry,
+            // Keybind Profiles
+            commands::create_keybind_profile,
+            commands::get_keybind_profiles,
+            commands::update_keybind_profile,
+            commands::delete_keybind_profile,
+            // Backup Scheduler
+            commands::run_auto_backup,
+            commands::cleanup_old_backups,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

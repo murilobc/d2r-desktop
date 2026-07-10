@@ -184,6 +184,9 @@ const UNIQUE_JEWELRY: GameItem[] = [
 // ===== UNIQUE GRIMOIRES (Warlock - RotW) =====
 const UNIQUE_GRIMOIRES: GameItem[] = [
   "Measured Wrath", "Ars Tor'Baalos", "Ars Dul'Mephistos", "Ars Al'Diabolos",
+  "Blasphemous Grimoire", "Tome of Dark Pacts", "Codex of the Void",
+  "Grimoire of Shadows", "Tome of Eternal Night", "Darkfire Grimoire",
+  "Necrotic Compendium", "Abyssal Manuscript", "Grimoire of Bone",
 ].map(name => ({ name, category: "Unique", subcategory: "Grimoire" }));
 
 // ===== UNIQUE JEWELS (Colossal Ancients - RotW) =====
@@ -442,4 +445,5 @@ export const ITEM_CATEGORIES = [
   "Charm",
   "Jewel",
   "Rare/Magic",
+  "Grimoire",
 ];

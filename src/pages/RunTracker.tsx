@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { Profile, Item, Run, Route } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea } from "../api";
-import { getObsPrefs } from "./Settings";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups } from "../api";
+import { getObsPrefs, getBackupConfig, saveBackupConfig } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
@@ -240,6 +240,18 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
     setPaused(false);
     setRunElapsed(0);
     setItems([]);
+
+    // Auto-backup on session end
+    const backupConfig = getBackupConfig();
+    if (backupConfig.schedule === "session_end" && backupConfig.folderPath) {
+      runAutoBackup(backupConfig.folderPath)
+        .then(() => cleanupOldBackups(backupConfig.folderPath, backupConfig.keepCount))
+        .then(() => {
+          const updated = { ...backupConfig, lastBackup: new Date().toISOString() };
+          saveBackupConfig(updated);
+        })
+        .catch(console.warn);
+    }
   };
 
   // Sync state to overlay window (emit on every tick for accurate display)

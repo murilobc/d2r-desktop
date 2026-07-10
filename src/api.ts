@@ -33,6 +33,9 @@ import type {
   XpEntry,
   CreateXpEntryInput,
   XpStats,
+  KeybindProfile,
+  CreateKeybindProfileInput,
+  UpdateKeybindProfileInput,
 } from "./types";
 
 // Profiles
@@ -188,3 +191,23 @@ export const getXpStats = (profileId: string) =>
 
 export const deleteXpEntry = (id: string) =>
   invoke<void>("delete_xp_entry", { id });
+
+// Keybind Profiles
+export const createKeybindProfile = (input: CreateKeybindProfileInput) =>
+  invoke<KeybindProfile>("create_keybind_profile", { input });
+
+export const getKeybindProfiles = () =>
+  invoke<KeybindProfile[]>("get_keybind_profiles");
+
+export const updateKeybindProfile = (id: string, input: UpdateKeybindProfileInput) =>
+  invoke<KeybindProfile>("update_keybind_profile", { id, input });
+
+export const deleteKeybindProfile = (id: string) =>
+  invoke<void>("delete_keybind_profile", { id });
+
+// Backup Scheduler
+export const runAutoBackup = (folderPath: string) =>
+  invoke<string>("run_auto_backup", { folderPath });
+
+export const cleanupOldBackups = (folderPath: string, keepCount: number) =>
+  invoke<void>("cleanup_old_backups", { folderPath, keepCount });

@@ -114,11 +114,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 5. Colossal Ancients Progress Tracker
+## 5. Colossal Ancients Progress Tracker ✅ IMPLEMENTED (PR #74)
 
-**Branch:** `feat/colossal-ancients`
+**Branch:** `feat/v3.0-endgame`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Create `colossal_ancients` table: `id, profile_id, boss_name, attempt_number, result (success/fail), drops TEXT NULL, duration_secs, attempted_at`
@@ -132,18 +133,19 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] User can log attempts against each Colossal Ancient (success/fail + drops)
-- [ ] Visual grid shows which bosses have been defeated
-- [ ] Per-boss statistics: attempts, success rate, best time
-- [ ] Drops from Colossal encounters are tracked separately
+- [x] User can log attempts against each Colossal Ancient (success/fail + drops)
+- [x] Visual grid shows which bosses have been defeated
+- [x] Per-boss statistics: attempts, success rate, best time
+- [x] Drops from Colossal encounters are tracked separately
 
 ---
 
-## 6. Diablo Clone Progress Tracker
+## 6. Diablo Clone Progress Tracker ✅ IMPLEMENTED (PR #74)
 
-**Branch:** `feat/dclone-tracker`
+**Branch:** `feat/v3.0-endgame`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Research diablo2.io DClone API endpoint (or community equivalent for progress data)
@@ -157,19 +159,20 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] DClone progress displayed per region with auto-refresh
-- [ ] User receives notification when progress reaches configured threshold
-- [ ] Annihilus charm log tracks obtained charms
-- [ ] Graceful handling when API is unavailable (cached last known state)
-- [ ] Polling interval is configurable (default: 5 minutes)
+- [x] DClone progress displayed per region with auto-refresh
+- [x] User receives notification when progress reaches configured threshold
+- [x] Annihilus charm log tracks obtained charms
+- [x] Graceful handling when API is unavailable (cached last known state)
+- [x] Polling interval is configurable (default: 5 minutes)
 
 ---
 
-## 7. Experience Rate Tracking
+## 7. Experience Rate Tracking ✅ IMPLEMENTED (PR #74)
 
-**Branch:** `feat/xp-tracking`
+**Branch:** `feat/v3.0-endgame`
 **Effort:** ~3-4 hours
 **Dependencies:** None (integrates with existing Run/Stats system)
+**Status:** Merged
 
 ### Tasks:
 1. Add `xp_gained` column to `runs` table (`BIGINT`, nullable) — user inputs XP manually per session
@@ -184,11 +187,11 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README
 
 ### Acceptance Criteria:
-- [ ] User can optionally input XP gained per session
-- [ ] XP/hour rate calculated and displayed during active session
-- [ ] Time-to-next-level estimate shown based on current rate
-- [ ] XP trends visible in Statistics over multiple sessions
-- [ ] Fully optional — doesn't affect users who don't track XP
+- [x] User can optionally input XP gained per session
+- [x] XP/hour rate calculated and displayed during active session
+- [x] Time-to-next-level estimate shown based on current rate
+- [x] XP trends visible in Statistics over multiple sessions
+- [x] Fully optional — doesn't affect users who don't track XP
 
 ---
 
@@ -446,7 +449,7 @@ Each feature should follow this workflow:
 |---------|----------|---------------|--------|
 | v2.1.0 | Dark/Light Theme Toggle + Run Notes/Quick Tags | ~3-5h | ✅ Released |
 | v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | ✅ Released |
-| v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | 🔲 Planned |
+| v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | ✅ Released |
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | 🔲 Planned |
 | v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | 🔲 Planned |
 | v3.3.0 | Shared/Co-op Tracking | ~5-6h | 🔲 Planned |

@@ -8,6 +8,7 @@ import ItemSearch from "../components/ItemSearch";
 import TierBadge from "../components/TierBadge";
 import type { TierName } from "../data/item-values";
 import { getItemTierName, TIER_NAMES, TIERS } from "../data/item-values";
+import SessionTimeline from "../components/SessionTimeline";
 
 interface Props {
   profile: Profile;
@@ -24,6 +25,7 @@ export default function History({ profile }: Props) {
   const [tierFilter, setTierFilter] = useState<"all" | TierName>("all");
   const [areaTotals, setAreaTotals] = useState<Record<string, number>>({});
   const [tagFilter, setTagFilter] = useState<string>("all");
+  const [timelineSession, setTimelineSession] = useState<{ runs: Run[]; items: Item[] } | null>(null);
 
   const PAGE_SIZE = 50;
 
@@ -69,6 +71,52 @@ export default function History({ profile }: Props) {
     loadRuns();
     loadAreaTotals();
   }, [profile.id]);
+
+  // Group consecutive runs into sessions (gap > 10 min = new session)
+  const SESSION_GAP_MS = 10 * 60 * 1000;
+  const sessions = useMemo(() => {
+    if (runs.length === 0) return [];
+    const sorted = [...runs].sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+    const groups: Run[][] = [[sorted[0]]];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = sorted[i - 1];
+      const curr = sorted[i];
+      const prevEnd = prev.finished_at ? new Date(prev.finished_at).getTime() : new Date(prev.started_at).getTime() + prev.duration_secs * 1000;
+      const currStart = new Date(curr.started_at).getTime();
+      if (currStart - prevEnd > SESSION_GAP_MS) {
+        groups.push([curr]);
+      } else {
+        groups[groups.length - 1].push(curr);
+      }
+    }
+    return groups;
+  }, [runs]);
+
+  // Find which session a run belongs to
+  const getSessionForRun = (runId: string): Run[] | null => {
+    for (const session of sessions) {
+      if (session.some((r) => r.id === runId)) {
+        return session;
+      }
+    }
+    return null;
+  };
+
+  const handleShowTimeline = async (runId: string) => {
+    const session = getSessionForRun(runId);
+    if (!session || session.length < 2) return;
+    // Load all items for runs in this session
+    const allItems: Item[] = [];
+    for (const run of session) {
+      if (runItems[run.id]) {
+        allItems.push(...runItems[run.id]);
+      } else {
+        const items = await getItems(run.id);
+        allItems.push(...items);
+      }
+    }
+    setTimelineSession({ runs: session, items: allItems });
+  };
 
   const toggleExpand = (runId: string) => {
     setExpandedRuns((prev) => {
@@ -223,6 +271,14 @@ export default function History({ profile }: Props) {
                   </span>
                 </div>
                 <div className="history-item-actions">
+                  {getSessionForRun(run.id) && (getSessionForRun(run.id)?.length ?? 0) >= 2 && (
+                    <button
+                      className="btn btn-sm"
+                      onClick={(e) => { e.stopPropagation(); handleShowTimeline(run.id); }}
+                    >
+                      📊 Timeline
+                    </button>
+                  )}
                   <button
                     className="btn btn-sm btn-danger"
                     onClick={(e) => { e.stopPropagation(); handleDeleteRun(run.id); }}
@@ -318,6 +374,27 @@ export default function History({ profile }: Props) {
               {loading ? "Loading..." : `Load More (${runs.length}/${totalRuns})`}
             </button>
           )}
+        </div>
+      )}
+
+      {/* Session Timeline Modal */}
+      {timelineSession && (
+        <div className="timeline-modal-overlay" onClick={() => setTimelineSession(null)}>
+          <div className="timeline-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="timeline-modal-header">
+              <h3>Session Timeline ({timelineSession.runs.length} runs)</h3>
+              <button className="btn btn-sm" onClick={() => setTimelineSession(null)}>✕ Close</button>
+            </div>
+            <SessionTimeline
+              runs={timelineSession.runs}
+              items={timelineSession.items}
+              sessionStartTime={timelineSession.runs[0].started_at}
+              sessionEndTime={
+                timelineSession.runs[timelineSession.runs.length - 1].finished_at ||
+                timelineSession.runs[timelineSession.runs.length - 1].started_at
+              }
+            />
+          </div>
         </div>
       )}
     </div>

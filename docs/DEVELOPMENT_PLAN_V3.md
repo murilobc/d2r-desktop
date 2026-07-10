@@ -195,11 +195,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 8. Session Replay / Timeline
+## 8. Session Replay / Timeline ✅ IMPLEMENTED (PR #79)
 
-**Branch:** `feat/session-timeline`
+**Branch:** `feat/v3.1-timeline-widget`
 **Effort:** ~3-4 hours
 **Dependencies:** None (reads existing run + item data)
+**Status:** Merged
 
 ### Tasks:
 1. Create `src/components/SessionTimeline.tsx` — horizontal scrollable timeline component
@@ -213,19 +214,20 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 9. Update README
 
 ### Acceptance Criteria:
-- [ ] Horizontal timeline visualizes all session events chronologically
-- [ ] Clicking an event shows details (item, area, timestamp)
-- [ ] Timeline can be exported as a PNG image
-- [ ] Works correctly for sessions with 100+ events
-- [ ] Responsive — handles short (5 min) and long (4 hour) sessions
+- [x] Horizontal timeline visualizes all session events chronologically
+- [x] Clicking an event shows details (item, area, timestamp)
+- [x] Timeline can be exported as a PNG image
+- [x] Works correctly for sessions with 100+ events
+- [x] Responsive — handles short (5 min) and long (4 hour) sessions
 
 ---
 
-## 9. Widget Mode
+## 9. Widget Mode ✅ IMPLEMENTED (PR #79)
 
-**Branch:** `feat/widget-mode`
+**Branch:** `feat/v3.1-timeline-widget`
 **Effort:** ~2 hours
 **Dependencies:** None (independent from full overlay)
+**Status:** Merged
 
 ### Tasks:
 1. Create `widget.html` entry point (minimal HTML shell)
@@ -238,10 +240,10 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 8. Add tests for widget stat rendering
 
 ### Acceptance Criteria:
-- [ ] Widget window is ultra-compact (~200x60px), always-on-top, frameless
-- [ ] User can configure which 2-3 stats are displayed
-- [ ] Widget updates in real-time during active sessions
-- [ ] Widget is independent from the full overlay (can use both or either)
+- [x] Widget window is ultra-compact (~200x50px), always-on-top, frameless
+- [x] User can configure which 2-3 stats are displayed
+- [x] Widget updates in real-time during active sessions
+- [x] Widget is independent from the full overlay (can use both or either)
 
 ---
 
@@ -450,7 +452,7 @@ Each feature should follow this workflow:
 | v2.1.0 | Dark/Light Theme Toggle + Run Notes/Quick Tags | ~3-5h | ✅ Released |
 | v2.2.0 | Terror Zone Integration + Herald Tracking | ~7-9h | ✅ Released |
 | v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | ✅ Released |
-| v3.1.0 | Session Timeline + Widget Mode | ~5-6h | 🔲 Planned |
+| v3.1.0 | Session Timeline + Widget Mode | ~5-6h | ✅ Released |
 | v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | 🔲 Planned |
 | v3.3.0 | Shared/Co-op Tracking | ~5-6h | 🔲 Planned |
 | v4.0.0 | Data Sync (Cloud) + Performance Profiling + Localization | ~9-12h | 🔲 Planned |

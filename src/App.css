@@ -2513,3 +2513,153 @@ body {
   color: var(--text-muted, #888);
   margin-top: 2px;
 }
+
+
+/* ===== SESSION TIMELINE ===== */
+
+.session-timeline {
+  padding: 1rem;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-zoom-label {
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--text-muted);
+  min-width: 2rem;
+  text-align: center;
+}
+
+.timeline-scroll-container {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.timeline-content {
+  position: relative;
+  min-width: 100%;
+  padding: 2rem 1rem 1rem;
+}
+
+.timeline-markers {
+  position: relative;
+  height: 20px;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-time-marker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.timeline-bar {
+  position: relative;
+  height: 24px;
+  background: var(--bg-overlay);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.timeline-event {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.timeline-split {
+  width: 2px;
+  height: 100%;
+  top: 0;
+  transform: translateX(-50%);
+  background: #666;
+  opacity: 0.6;
+  border-radius: 1px;
+}
+
+.timeline-split:hover {
+  opacity: 1;
+  background: var(--text);
+}
+
+.timeline-item-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s;
+}
+
+.timeline-item-dot:hover {
+  transform: translate(-50%, -50%) scale(1.4);
+  z-index: 10;
+}
+
+.timeline-tooltip {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+}
+
+.timeline-tooltip strong {
+  color: var(--text);
+}
+
+.timeline-tooltip span {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* Timeline Modal */
+.timeline-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.timeline-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 1000px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.timeline-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.timeline-modal-header h3 {
+  font-size: 1rem;
+}

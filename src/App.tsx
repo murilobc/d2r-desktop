@@ -53,6 +53,20 @@ function App() {
     }
   };
 
+  const toggleWidget = async () => {
+    const widget = await WebviewWindow.getByLabel("widget");
+    if (widget) {
+      const visible = await widget.isVisible();
+      if (visible) {
+        await widget.hide();
+      } else {
+        await widget.show();
+        await widget.setAlwaysOnTop(true);
+        await widget.setFocus();
+      }
+    }
+  };
+
   const handleExport = async () => {
     try {
       const data = await exportData();
@@ -247,6 +261,9 @@ function App() {
           </button>
           <button className="nav-btn" onClick={toggleOverlay}>
             ◳ Overlay
+          </button>
+          <button className="nav-btn" onClick={toggleWidget}>
+            □ Widget
           </button>
           <button className="nav-btn" onClick={toggleTheme}>
             {theme === "dark" ? "○" : "●"} Theme

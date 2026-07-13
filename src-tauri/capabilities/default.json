@@ -4,7 +4,8 @@
   "description": "Capability for all windows",
   "windows": [
     "main",
-    "overlay"
+    "overlay",
+    "widget"
   ],
   "permissions": [
     "core:default",

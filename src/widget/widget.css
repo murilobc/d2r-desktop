@@ -68,6 +68,21 @@ html, body {
   letter-spacing: 2px;
 }
 
+.widget-profile {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--widget-accent);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.widget-total {
+  font-size: 12px;
+  color: var(--widget-muted);
+}
+
 .widget-runs {
   font-size: 18px;
   font-weight: bold;
@@ -83,4 +98,10 @@ html, body {
   font-size: 14px;
   color: var(--widget-time);
   font-weight: bold;
+}
+
+.widget-stat {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--widget-text);
 }

@@ -387,3 +387,49 @@ pub struct XpStats {
     pub entries_count: i64,
     pub avg_xp_per_session: f64,
 }
+
+// ===== CO-OP TRACKING =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CoopServerInfo {
+    pub session_code: String,
+    pub host_ip: String,
+    pub port: u16,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct SessionState {
+    pub session_code: String,
+    pub host_player: String,
+    pub players: Vec<PlayerInfo>,
+    pub run_count: u32,
+    pub elapsed_secs: u64,
+    pub paused: bool,
+    pub items: Vec<CoopItemData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct PlayerInfo {
+    pub name: String,
+    pub profile_id: String,
+    pub status: String,  // "connected" | "disconnected"
+    pub items_found: u32,
+    pub runs_contributed: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CoopItemData {
+    pub id: String,
+    pub name: String,
+    pub item_type: String,
+    pub rarity: String,
+    pub player_name: String,
+    pub found_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CoopItemInput {
+    pub name: String,
+    pub item_type: String,
+    pub rarity: String,
+}

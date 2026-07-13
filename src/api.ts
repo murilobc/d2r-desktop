@@ -36,6 +36,9 @@ import type {
   KeybindProfile,
   CreateKeybindProfileInput,
   UpdateKeybindProfileInput,
+  CoopServerInfo,
+  CoopSessionView,
+  CoopItemInput,
 } from "./types";
 
 // Profiles
@@ -211,3 +214,31 @@ export const runAutoBackup = (folderPath: string) =>
 
 export const cleanupOldBackups = (folderPath: string, keepCount: number) =>
   invoke<void>("cleanup_old_backups", { folderPath, keepCount });
+
+// Co-op Tracking
+export const startCoopServer = (playerName: string) =>
+  invoke<CoopServerInfo>("start_coop_server", { playerName });
+
+export const stopCoopServer = () =>
+  invoke<void>("stop_coop_server");
+
+export const joinCoopSession = (hostIp: string, port: number, sessionCode: string, playerName: string) =>
+  invoke<void>("join_coop_session", { hostIp, port, sessionCode, playerName });
+
+export const leaveCoopSession = () =>
+  invoke<void>("leave_coop_session");
+
+export const coopSplitRun = () =>
+  invoke<void>("coop_split_run");
+
+export const coopPause = () =>
+  invoke<void>("coop_pause");
+
+export const coopEndSession = () =>
+  invoke<void>("coop_end_session");
+
+export const coopLogItem = (item: CoopItemInput, playerName: string) =>
+  invoke<void>("coop_log_item", { item, playerName });
+
+export const getCoopState = () =>
+  invoke<CoopSessionView | null>("get_coop_state");

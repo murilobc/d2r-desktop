@@ -112,6 +112,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add keybind_profiles table
     migrate_keybind_profiles(conn)?;
 
+    // Migration: add coop_player_name column to items
+    migrate_coop_player_name(conn)?;
+
     Ok(())
 }
 
@@ -323,6 +326,19 @@ fn migrate_keybind_profiles(conn: &Connection) -> Result<()> {
         );
         ",
     )?;
+
+    Ok(())
+}
+
+fn migrate_coop_player_name(conn: &Connection) -> Result<()> {
+    let has_col: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('items') WHERE name = 'coop_player_name'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_col {
+        conn.execute_batch("ALTER TABLE items ADD COLUMN coop_player_name TEXT DEFAULT NULL;")?;
+    }
 
     Ok(())
 }

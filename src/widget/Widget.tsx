@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
@@ -10,6 +10,16 @@ interface OverlayState {
   sessionRunCount: number;
   totalRunCount: number;
   area: string;
+  profileName?: string;
+  fastestTime?: number | null;
+}
+
+function getWidgetPrefs(): { stats: string[] } {
+  try {
+    const raw = localStorage.getItem("d2r_widget_prefs");
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { stats: ["sessionRunCount", "sessionTime"] };
 }
 
 export default function Widget() {
@@ -22,6 +32,7 @@ export default function Widget() {
     totalRunCount: 0,
     area: "",
   });
+  const [prefs] = useState(() => getWidgetPrefs());
 
   // Apply theme from localStorage on mount
   useEffect(() => {
@@ -50,19 +61,37 @@ export default function Widget() {
     await getCurrentWindow().startDragging();
   };
 
+  const renderStat = (key: string): string => {
+    switch (key) {
+      case "sessionRunCount": return String(state.sessionRunCount);
+      case "sessionTime": return formatTime(state.sessionElapsed);
+      case "runTimer": return formatTime(state.runElapsed);
+      case "area": return state.area || "—";
+      case "fastestTime": return state.fastestTime != null ? formatTime(state.fastestTime * 10) : "--:--:--";
+      case "averageTime": return "--:--:--"; // No average available in event payload
+      case "totalRuns": return String(state.totalRunCount);
+      default: return "";
+    }
+  };
+
   if (!state.sessionActive) {
     return (
       <div className="widget-container widget-idle" onMouseDown={startDrag}>
-        <span className="widget-logo">D2R</span>
+        <span className="widget-profile">{state.profileName || "D2R"}</span>
+        <span className="widget-separator">•</span>
+        <span className="widget-total">{state.totalRunCount} runs</span>
       </div>
     );
   }
 
   return (
     <div className="widget-container" onMouseDown={startDrag}>
-      <span className="widget-runs">{state.sessionRunCount}</span>
-      <span className="widget-separator">|</span>
-      <span className="widget-time">{formatTime(state.sessionElapsed)}</span>
+      {prefs.stats.map((key, idx) => (
+        <React.Fragment key={key}>
+          {idx > 0 && <span className="widget-separator">|</span>}
+          <span className="widget-stat">{renderStat(key)}</span>
+        </React.Fragment>
+      ))}
     </div>
   );
 }

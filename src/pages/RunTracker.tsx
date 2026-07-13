@@ -275,8 +275,10 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
       sessionRunCount,
       totalRunCount,
       area,
+      profileName: profile.name,
+      fastestTime,
     });
-  }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area]);
+  }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area, profile.name, fastestTime]);
 
   // Listen for overlay actions
   useEffect(() => {

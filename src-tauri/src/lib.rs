@@ -1,4 +1,5 @@
 mod commands;
+mod coop;
 mod db;
 mod models;
 
@@ -27,6 +28,10 @@ pub fn run() {
             ).expect("failed to set database pragmas");
             init_db(&conn).expect("failed to initialize database");
             app.manage(DbState(Mutex::new(conn)));
+            app.manage(coop::CoopState {
+                server: std::sync::Mutex::new(None),
+                client: std::sync::Mutex::new(None),
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -90,6 +95,16 @@ pub fn run() {
             // Backup Scheduler
             commands::run_auto_backup,
             commands::cleanup_old_backups,
+            // Co-op
+            coop::start_coop_server,
+            coop::stop_coop_server,
+            coop::join_coop_session,
+            coop::leave_coop_session,
+            coop::coop_split_run,
+            coop::coop_pause,
+            coop::coop_end_session,
+            coop::coop_log_item,
+            coop::get_coop_state,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -12,6 +12,7 @@ import HeraldTracker from "./pages/HeraldTracker";
 import ColossalAncients from "./pages/ColossalAncients";
 import DCloneTracker from "./pages/DCloneTracker";
 import XPTracker from "./pages/XPTracker";
+import CoopPanel from "./pages/CoopPanel";
 import { registerHotkeys } from "./pages/Settings";
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
@@ -21,7 +22,7 @@ import UpdateChecker from "./components/UpdateChecker";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop";
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
@@ -139,6 +140,8 @@ function App() {
         return selectedProfile ? <XPTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "drops":
         return <DropCalculator />;
+      case "coop":
+        return <CoopPanel />;
       case "settings":
         return <Settings />;
       default:
@@ -249,6 +252,14 @@ function App() {
               onClick={() => setCurrentPage("drops")}
             >
               ∿ Drops
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "coop" ? "active" : ""}`}
+              onClick={() => setCurrentPage("coop")}
+            >
+              ⇌ Co-op
             </button>
           </li>
         </ul>

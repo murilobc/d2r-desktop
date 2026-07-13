@@ -423,3 +423,53 @@ export interface UpdateKeybindProfileInput {
   name: string;
   bindings: string;
 }
+
+// ===== CO-OP TRACKING =====
+
+export interface CoopServerInfo {
+  session_code: string;
+  host_ip: string;
+  port: number;
+}
+
+export interface CoopSessionView {
+  role: "host" | "guest";
+  session_code: string;
+  host_ip: string;
+  port: number;
+  players: CoopPlayer[];
+  items: CoopItem[];
+  run_count: number;
+  elapsed_secs: number;
+  paused: boolean;
+}
+
+export interface CoopPlayer {
+  name: string;
+  profile_id: string;
+  status: "connected" | "disconnected";
+  items_found: number;
+  runs_contributed: number;
+}
+
+export interface CoopItem {
+  id: string;
+  name: string;
+  item_type: string;
+  rarity: string;
+  player_name: string;
+  found_at: string;
+}
+
+export interface CoopCombinedStats {
+  total_runs: number;
+  total_items: number;
+  session_time_secs: number;
+  items_per_hour: number;
+}
+
+export interface CoopItemInput {
+  name: string;
+  item_type: string;
+  rarity: string;
+}

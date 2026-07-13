@@ -159,7 +159,7 @@ function App() {
               className={`nav-btn ${currentPage === "profiles" ? "active" : ""}`}
               onClick={() => setCurrentPage("profiles")}
             >
-              👤 Profiles
+              ◎ Profiles
             </button>
           </li>
           <li>
@@ -222,7 +222,7 @@ function App() {
               onClick={() => setCurrentPage("ancients")}
               disabled={!selectedProfile}
             >
-              🏛️ Ancients
+              ▣ Ancients
             </button>
           </li>
           <li>
@@ -231,7 +231,7 @@ function App() {
               onClick={() => setCurrentPage("dclone")}
               disabled={!selectedProfile}
             >
-              😈 DClone
+              ※ DClone
             </button>
           </li>
           <li>
@@ -240,7 +240,7 @@ function App() {
               onClick={() => setCurrentPage("xp")}
               disabled={!selectedProfile}
             >
-              📈 XP
+              △ XP
             </button>
           </li>
           <li>

@@ -323,11 +323,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 13. Shared/Co-op Tracking
+## 13. Shared/Co-op Tracking ✅ IMPLEMENTED (PR #87)
 
 **Branch:** `feat/coop-tracking`
 **Effort:** ~5-6 hours
 **Dependencies:** None (but benefits from Player Count tracking already implemented)
+**Status:** Merged
 
 ### Tasks:
 1. Design session sharing protocol: generate unique session code (6-char alphanumeric)
@@ -342,11 +343,11 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README with co-op setup guide
 
 ### Acceptance Criteria:
-- [ ] Host can create a session with a shareable code
-- [ ] Guests on the same local network can join and see live stats
-- [ ] Combined stats view shows totals across all players
-- [ ] Per-player item breakdown available
-- [ ] Graceful handling of disconnections (no data loss)
+- [x] Host can create a session with a shareable code
+- [x] Guests on the same local network can join and see live stats
+- [x] Combined stats view shows totals across all players
+- [x] Per-player item breakdown available
+- [x] Graceful handling of disconnections (no data loss)
 
 ---
 
@@ -457,7 +458,7 @@ Each feature should follow this workflow:
 | v3.0.0 | Colossal Ancients + Diablo Clone Tracker + XP Tracking | ~7-10h | ✅ Released |
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | ✅ Released |
 | v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | ✅ Released |
-| v3.3.0 | Shared/Co-op Tracking | ~5-6h | 🔲 Planned |
+| v3.3.0 | Shared/Co-op Tracking | ~5-6h | ✅ Released |
 | v4.0.0 | Data Sync (Cloud) + Performance Profiling + Localization | ~9-12h | 🔲 Planned |
 
 ---

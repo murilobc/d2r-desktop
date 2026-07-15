@@ -351,11 +351,12 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 
 ---
 
-## 14. Data Sync (Cloud)
+## 14. Data Sync (Cloud) ✅ IMPLEMENTED (PR #90)
 
-**Branch:** `feat/cloud-sync`
+**Branch:** `feat/v4.0-cloud-sync-performance-i18n`
 **Effort:** ~4-5 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Design sync format: versioned JSON with timestamps per record for conflict detection
@@ -370,19 +371,20 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README with sync setup guide
 
 ### Acceptance Criteria:
-- [ ] User can sync data to a GitHub Gist (private) or local synced folder
-- [ ] Conflict resolution handles concurrent edits without data loss
-- [ ] Sync status visible in UI (last synced, sync errors)
-- [ ] Credentials stored securely (OS keychain, not localStorage)
-- [ ] Fully optional — app works 100% offline without sync configured
+- [x] User can sync data to a GitHub Gist (private) or local synced folder
+- [x] Conflict resolution handles concurrent edits without data loss
+- [x] Sync status visible in UI (last synced, sync errors)
+- [x] Credentials stored securely (OS keychain, not localStorage)
+- [x] Fully optional — app works 100% offline without sync configured
 
 ---
 
-## 15. Performance Profiling
+## 15. Performance Profiling ✅ IMPLEMENTED (PR #90)
 
-**Branch:** `refactor/performance`
+**Branch:** `feat/v4.0-cloud-sync-performance-i18n`
 **Effort:** ~2-3 hours
 **Dependencies:** None
+**Status:** Merged
 
 ### Tasks:
 1. Implement virtual scrolling in History page for 10k+ runs (use `react-window` or custom virtualization)
@@ -395,18 +397,19 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 8. Document performance characteristics in README
 
 ### Acceptance Criteria:
-- [ ] History page scrolls smoothly with 10,000+ runs (no DOM bloat)
-- [ ] Statistics page loads in < 1 second with 50k+ runs
-- [ ] VACUUM command available for manual DB maintenance
-- [ ] No regressions in functionality after optimizations
+- [x] History page scrolls smoothly with 10,000+ runs (no DOM bloat)
+- [x] Statistics page loads in < 1 second with 50k+ runs
+- [x] VACUUM command available for manual DB maintenance
+- [x] No regressions in functionality after optimizations
 
 ---
 
-## 16. Localization (i18n)
+## 16. Localization (i18n) ✅ IMPLEMENTED (PR #90)
 
-**Branch:** `feat/i18n`
+**Branch:** `feat/v4.0-cloud-sync-performance-i18n`
 **Effort:** ~3-4 hours
 **Dependencies:** None (but should be done after all UI features are stable)
+**Status:** Merged
 
 ### Tasks:
 1. Install `react-i18next` and `i18next` packages
@@ -421,11 +424,11 @@ Task breakdown for each feature. Each feature = one branch + one PR.
 10. Update README with contribution guide for translations
 
 ### Acceptance Criteria:
-- [ ] All UI strings extracted and rendered via i18n system
-- [ ] Language selector in Settings switches the entire UI
-- [ ] PT-BR and ES translations complete and functional
-- [ ] Date and number formatting adapts to locale
-- [ ] Adding a new language requires only a new JSON file (no code changes)
+- [x] All UI strings extracted and rendered via i18n system
+- [x] Language selector in Settings switches the entire UI
+- [x] PT-BR and ES translations complete and functional
+- [x] Date and number formatting adapts to locale
+- [x] Adding a new language requires only a new JSON file (no code changes)
 
 ---
 
@@ -459,7 +462,7 @@ Each feature should follow this workflow:
 | v3.1.0 | Session Timeline + Widget Mode | ~5-6h | ✅ Released |
 | v3.2.0 | Keybind Profiles + Backup Scheduler + Grimoire Tracking | ~4-5h | ✅ Released |
 | v3.3.0 | Shared/Co-op Tracking | ~5-6h | ✅ Released |
-| v4.0.0 | Data Sync (Cloud) + Performance Profiling + Localization | ~9-12h | 🔲 Planned |
+| v4.0.0 | Data Sync (Cloud) + Performance Profiling + Localization | ~9-12h | ✅ Released |
 
 ---
 

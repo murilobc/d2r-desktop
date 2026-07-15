@@ -1,30 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, ExportData } from "./types";
 import Profiles from "./pages/Profiles";
-import RunTracker from "./pages/RunTracker";
-import History from "./pages/History";
-import Statistics from "./pages/Statistics";
-import Comparison from "./pages/Comparison";
-import Settings from "./pages/Settings";
-import DropCalculator from "./pages/DropCalculator";
-import RouteEditor from "./pages/RouteEditor";
-import HeraldTracker from "./pages/HeraldTracker";
-import ColossalAncients from "./pages/ColossalAncients";
-import DCloneTracker from "./pages/DCloneTracker";
-import XPTracker from "./pages/XPTracker";
-import CoopPanel from "./pages/CoopPanel";
-import { registerHotkeys } from "./pages/Settings";
+import { PageSkeleton } from "./components/Skeleton";
+
+const RunTracker = lazy(() => import("./pages/RunTracker"));
+const History = lazy(() => import("./pages/History"));
+const Statistics = lazy(() => import("./pages/Statistics"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Comparison = lazy(() => import("./pages/Comparison"));
+const DropCalculator = lazy(() => import("./pages/DropCalculator"));
+const RouteEditor = lazy(() => import("./pages/RouteEditor"));
+const HeraldTracker = lazy(() => import("./pages/HeraldTracker"));
+const ColossalAncients = lazy(() => import("./pages/ColossalAncients"));
+const DCloneTracker = lazy(() => import("./pages/DCloneTracker"));
+const XPTracker = lazy(() => import("./pages/XPTracker"));
+const CoopPanel = lazy(() => import("./pages/CoopPanel"));
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import UpdateChecker from "./components/UpdateChecker";
+import SyncStatusIndicator from "./components/SyncStatusIndicator";
+import { syncEngine } from "./services/cloud-sync";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
 type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop";
 
 function App() {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState<Page>("profiles");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
@@ -32,7 +38,26 @@ function App() {
 
   // Register global hotkeys on app startup
   useEffect(() => {
-    registerHotkeys().catch(console.warn);
+    import("./pages/Settings").then(({ registerHotkeys }) => {
+      registerHotkeys().catch(console.warn);
+    });
+  }, []);
+
+  // Wire auto-sync on window close
+  useEffect(() => {
+    const appWindow = getCurrentWindow();
+    const unlistenPromise = appWindow.onCloseRequested(async () => {
+      try {
+        await syncEngine.pushOnClose();
+      } catch (err) {
+        console.error("[cloud-sync] Auto-sync on close failed:", err);
+      }
+      // Allow the window to close regardless of sync outcome
+    });
+
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
   }, []);
 
   const handleSelectProfile = (profile: Profile) => {
@@ -162,7 +187,7 @@ function App() {
               className={`nav-btn ${currentPage === "profiles" ? "active" : ""}`}
               onClick={() => setCurrentPage("profiles")}
             >
-              ◎ Profiles
+              ◎ {t('sidebar.profiles')}
             </button>
           </li>
           <li>
@@ -171,7 +196,7 @@ function App() {
               onClick={() => setCurrentPage("tracker")}
               disabled={!selectedProfile}
             >
-              ▶ Run Tracker
+              ▶ {t('sidebar.runTracker')}
             </button>
           </li>
           <li>
@@ -180,7 +205,7 @@ function App() {
               onClick={() => setCurrentPage("routes")}
               disabled={!selectedProfile}
             >
-              ↗ Routes
+              ↗ {t('sidebar.routes')}
             </button>
           </li>
           <li>
@@ -189,7 +214,7 @@ function App() {
               onClick={() => setCurrentPage("history")}
               disabled={!selectedProfile}
             >
-              ☰ History
+              ☰ {t('sidebar.history')}
             </button>
           </li>
           <li>
@@ -198,7 +223,7 @@ function App() {
               onClick={() => setCurrentPage("stats")}
               disabled={!selectedProfile}
             >
-              ◈ Statistics
+              ◈ {t('sidebar.statistics')}
             </button>
           </li>
           <li>
@@ -207,7 +232,7 @@ function App() {
               onClick={() => setCurrentPage("comparison")}
               disabled={!selectedProfile}
             >
-              ⇄ Compare
+              ⇄ {t('sidebar.compare')}
             </button>
           </li>
           <li>
@@ -216,7 +241,7 @@ function App() {
               onClick={() => setCurrentPage("heralds")}
               disabled={!selectedProfile}
             >
-              ◆ Heralds
+              ◆ {t('sidebar.heralds')}
             </button>
           </li>
           <li>
@@ -225,7 +250,7 @@ function App() {
               onClick={() => setCurrentPage("ancients")}
               disabled={!selectedProfile}
             >
-              ▣ Ancients
+              ▣ {t('sidebar.ancients')}
             </button>
           </li>
           <li>
@@ -234,7 +259,7 @@ function App() {
               onClick={() => setCurrentPage("dclone")}
               disabled={!selectedProfile}
             >
-              ※ DClone
+              ※ {t('sidebar.dclone')}
             </button>
           </li>
           <li>
@@ -243,7 +268,7 @@ function App() {
               onClick={() => setCurrentPage("xp")}
               disabled={!selectedProfile}
             >
-              △ XP
+              △ {t('sidebar.xp')}
             </button>
           </li>
           <li>
@@ -251,7 +276,7 @@ function App() {
               className={`nav-btn ${currentPage === "drops" ? "active" : ""}`}
               onClick={() => setCurrentPage("drops")}
             >
-              ∿ Drops
+              ∿ {t('sidebar.drops')}
             </button>
           </li>
           <li>
@@ -259,7 +284,7 @@ function App() {
               className={`nav-btn ${currentPage === "coop" ? "active" : ""}`}
               onClick={() => setCurrentPage("coop")}
             >
-              ⇌ Co-op
+              ⇌ {t('sidebar.coop')}
             </button>
           </li>
         </ul>
@@ -268,43 +293,48 @@ function App() {
             className={`nav-btn ${currentPage === "settings" ? "active" : ""}`}
             onClick={() => setCurrentPage("settings")}
           >
-            ⚙ Settings
+            ⚙ {t('sidebar.settings')}
           </button>
           <button className="nav-btn" onClick={toggleOverlay}>
-            ◳ Overlay
+            ◳ {t('sidebar.overlay')}
           </button>
           <button className="nav-btn" onClick={toggleWidget}>
-            □ Widget
+            □ {t('sidebar.widget')}
           </button>
           <button className="nav-btn" onClick={toggleTheme}>
-            {theme === "dark" ? "○" : "●"} Theme
+            {theme === "dark" ? "○" : "●"} {t('sidebar.theme')}
           </button>
           <button className="nav-btn" onClick={handleExport}>
-            ↓ Export
+            ↓ {t('sidebar.export')}
           </button>
           <button className="nav-btn" onClick={handleImport}>
-            ↑ Import
+            ↑ {t('sidebar.import')}
           </button>
           {importMsg && <div className="import-msg">{importMsg}</div>}
         </div>
         {selectedProfile && (
           <div className="sidebar-footer">
             <div className="current-profile">
-              <small>Active profile:</small>
+              <small>{t('sidebar.activeProfile')}</small>
               <strong>{selectedProfile.name}</strong>
               <span>{selectedProfile.class}</span>
             </div>
           </div>
         )}
+        <div className="sidebar-sync-status">
+          <SyncStatusIndicator syncEngine={syncEngine} />
+        </div>
       </nav>
       <main className="main-content">
-        {/* RunTracker stays mounted to preserve session state across tab switches */}
-        {selectedProfile && (
-          <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
-            <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} />
-          </div>
-        )}
-        {currentPage !== "tracker" && renderPage()}
+        <Suspense fallback={<PageSkeleton />}>
+          {/* RunTracker stays mounted to preserve session state across tab switches */}
+          {selectedProfile && (
+            <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
+              <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} />
+            </div>
+          )}
+          {currentPage !== "tracker" && renderPage()}
+        </Suspense>
       </main>
     </div>
   );

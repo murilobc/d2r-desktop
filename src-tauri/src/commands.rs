@@ -1,9 +1,9 @@
-use crate::db::DbState;
+use crate::db::{get_db_path, DbState};
 use crate::models::*;
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json;
-use tauri::{Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 
 // ===== PROFILES =====
@@ -561,6 +561,197 @@ pub fn get_detailed_runs(state: State<DbState>, profile_id: String, area_filter:
     }
 
     Ok(detailed_runs)
+}
+
+// ===== COMBINED STATS =====
+
+#[tauri::command]
+pub fn get_stats_combined(
+    state: State<DbState>,
+    profile_id: String,
+    area_filter: Option<String>,
+) -> Result<CombinedStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // --- Summary stats ---
+    let total_runs: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM runs WHERE profile_id = ?1 AND status = 'completed'",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let total_items: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM items WHERE profile_id = ?1",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let total_time_secs: i64 = conn
+        .query_row(
+            "SELECT COALESCE(SUM(duration_secs), 0) FROM runs WHERE profile_id = ?1 AND status = 'completed'",
+            rusqlite::params![profile_id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    let avg_run_duration_secs = if total_runs > 0 {
+        total_time_secs as f64 / total_runs as f64
+    } else {
+        0.0
+    };
+
+    let items_per_run = if total_runs > 0 {
+        total_items as f64 / total_runs as f64
+    } else {
+        0.0
+    };
+
+    // Items by rarity
+    let mut stmt = conn
+        .prepare("SELECT rarity, COUNT(*) FROM items WHERE profile_id = ?1 GROUP BY rarity ORDER BY COUNT(*) DESC")
+        .map_err(|e| e.to_string())?;
+    let items_by_rarity = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(RarityCount {
+                rarity: row.get(0)?,
+                count: row.get(1)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    // Runs by area
+    let mut stmt = conn
+        .prepare("SELECT area, COUNT(*) FROM runs WHERE profile_id = ?1 AND status = 'completed' GROUP BY area ORDER BY COUNT(*) DESC")
+        .map_err(|e| e.to_string())?;
+    let runs_by_area = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(AreaCount {
+                area: row.get(0)?,
+                count: row.get(1)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    let summary = Stats {
+        total_runs,
+        total_items,
+        total_time_secs,
+        avg_run_duration_secs,
+        items_per_run,
+        items_by_rarity,
+        runs_by_area,
+    };
+
+    // --- Detailed runs ---
+    let runs: Vec<Run> = if let Some(ref area) = area_filter {
+        let mut stmt = conn
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 AND status = 'completed' AND area = ?2 ORDER BY started_at DESC")
+            .map_err(|e| e.to_string())?;
+        let result = stmt.query_map(rusqlite::params![profile_id, area], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+                player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
+                tags: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+        result
+    } else {
+        let mut stmt = conn
+            .prepare("SELECT id, profile_id, area, duration_secs, started_at, finished_at, status, notes, player_count, route_id, route_step_index, tags FROM runs WHERE profile_id = ?1 AND status = 'completed' ORDER BY started_at DESC")
+            .map_err(|e| e.to_string())?;
+        let result = stmt.query_map(rusqlite::params![profile_id], |row| {
+            Ok(Run {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                area: row.get(2)?,
+                duration_secs: row.get(3)?,
+                started_at: row.get(4)?,
+                finished_at: row.get(5)?,
+                status: row.get(6)?,
+                notes: row.get(7)?,
+                player_count: row.get(8)?,
+                route_id: row.get(9)?,
+                route_step_index: row.get(10)?,
+                tags: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+        result
+    };
+
+    let mut detailed_runs = Vec::new();
+    for run in runs {
+        let mut stmt = conn
+            .prepare("SELECT id, run_id, profile_id, name, item_type, rarity, found_at, notes FROM items WHERE run_id = ?1 ORDER BY found_at ASC")
+            .map_err(|e| e.to_string())?;
+        let items = stmt
+            .query_map(rusqlite::params![run.id], |row| {
+                Ok(Item {
+                    id: row.get(0)?,
+                    run_id: row.get(1)?,
+                    profile_id: row.get(2)?,
+                    name: row.get(3)?,
+                    item_type: row.get(4)?,
+                    rarity: row.get(5)?,
+                    found_at: row.get(6)?,
+                    notes: row.get(7)?,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?;
+
+        detailed_runs.push(DetailedRun { run, items });
+    }
+
+    // --- Routes ---
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, areas, created_at FROM routes WHERE profile_id = ?1 ORDER BY created_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let routes = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            let areas_json: String = row.get(3)?;
+            let areas: Vec<String> = serde_json::from_str(&areas_json).unwrap_or_default();
+            Ok(Route {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                areas,
+                created_at: row.get(4)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(CombinedStats {
+        summary,
+        detailed_runs,
+        routes,
+    })
 }
 
 // ===== EXPORT / IMPORT =====
@@ -2079,4 +2270,29 @@ pub fn cleanup_old_backups(folder_path: String, keep_count: i64) -> Result<(), S
     }
 
     Ok(())
+}
+
+// ===== DATABASE MAINTENANCE =====
+
+#[tauri::command]
+pub fn vacuum_database(state: State<DbState>, app: AppHandle) -> Result<VacuumResult, String> {
+    let db_path = get_db_path(&app);
+
+    let size_before = std::fs::metadata(&db_path)
+        .map(|m| m.len())
+        .unwrap_or(0);
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    conn.execute_batch("VACUUM").map_err(|e| e.to_string())?;
+    drop(conn);
+
+    let size_after = std::fs::metadata(&db_path)
+        .map(|m| m.len())
+        .unwrap_or(0);
+
+    Ok(VacuumResult {
+        size_before_bytes: size_before,
+        size_after_bytes: size_after,
+        success: true,
+    })
 }

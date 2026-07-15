@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import type { CoopSessionView, CoopItemInput } from "../types";
 import { startCoopServer, stopCoopServer, joinCoopSession, leaveCoopSession, coopSplitRun, coopPause, coopEndSession, coopLogItem, getCoopState } from "../api";
 import ItemSearch from "../components/ItemSearch";
 import type { GameItem } from "../data/items";
 
 export default function CoopPanel() {
+  const { t } = useTranslation();
   const [state, setState] = useState<CoopSessionView | null>(null);
   const [playerName, setPlayerName] = useState(() => localStorage.getItem("d2r_coop_player_name") || "");
   const [hostIp, setHostIp] = useState("");
@@ -88,14 +90,14 @@ export default function CoopPanel() {
     return (
       <div className="page">
         <div className="page-header">
-          <h1>Co-op Session</h1>
+          <h1>{t('coop.title')}</h1>
         </div>
 
         {error && <div className="error-banner">{error}</div>}
 
         <div className="coop-setup">
           <div className="form-group">
-            <label htmlFor="coop-player-name">Your Player Name</label>
+            <label htmlFor="coop-player-name">{t('coop.playerName')}</label>
             <input
               id="coop-player-name"
               type="text"
@@ -107,32 +109,32 @@ export default function CoopPanel() {
 
           <div className="coop-actions">
             <div className="coop-host-section">
-              <h3>Host a Session</h3>
+              <h3>{t('coop.host')}</h3>
               <p className="settings-description">Start a server on your machine. Share the code with friends.</p>
               <button className="btn btn-primary" onClick={handleHost} disabled={!playerName.trim()}>
-                ⇌ Host Session
+                ⇌ {t('coop.host')}
               </button>
             </div>
 
             <div className="coop-join-section">
-              <h3>Join a Session</h3>
+              <h3>{t('coop.join')}</h3>
               <p className="settings-description">Connect to a friend's session on the local network.</p>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="coop-host-ip">Host IP</label>
+                  <label htmlFor="coop-host-ip">{t('coop.hostIp')}</label>
                   <input id="coop-host-ip" type="text" value={hostIp} onChange={(e) => setHostIp(e.target.value)} placeholder="192.168.1.x" />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="coop-port">Port</label>
+                  <label htmlFor="coop-port">{t('coop.port')}</label>
                   <input id="coop-port" type="text" value={hostPort} onChange={(e) => setHostPort(e.target.value)} placeholder="9876" style={{ width: "80px" }} />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="coop-code">Session Code</label>
+                  <label htmlFor="coop-code">{t('coop.sessionCode')}</label>
                   <input id="coop-code" type="text" value={sessionCode} onChange={(e) => setSessionCode(e.target.value)} placeholder="ABC123" maxLength={6} style={{ width: "100px", textTransform: "uppercase" }} />
                 </div>
               </div>
               <button className="btn btn-primary" onClick={handleJoin} disabled={!playerName.trim() || !hostIp.trim() || !sessionCode.trim()}>
-                → Join Session
+                → {t('coop.join')}
               </button>
             </div>
           </div>
@@ -153,7 +155,7 @@ export default function CoopPanel() {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Co-op Session</h1>
+        <h1>{t('coop.title')}</h1>
         <span className="badge">{state.role === "host" ? "Hosting" : "Guest"}</span>
       </div>
 
@@ -171,11 +173,11 @@ export default function CoopPanel() {
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-value">{state.run_count}</div>
-          <div className="stat-label">Runs</div>
+          <div className="stat-label">{t('coop.runCount')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{state.items.length}</div>
-          <div className="stat-label">Items</div>
+          <div className="stat-label">{t('coop.items')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{formatTime(state.elapsed_secs)}</div>
@@ -189,7 +191,7 @@ export default function CoopPanel() {
 
       {/* Connected Players */}
       <div className="coop-players">
-        <h3>Players ({state.players.length})</h3>
+        <h3>{t('coop.players')} ({state.players.length})</h3>
         <div className="coop-player-list">
           {state.players.map((p) => (
             <div key={p.profile_id} className={`coop-player-item ${p.status}`}>
@@ -206,29 +208,29 @@ export default function CoopPanel() {
         {state.role === "host" && (
           <>
             <button className="btn btn-split" onClick={() => coopSplitRun()} disabled={state.paused}>
-              ⏭ Next Run
+              ⏭ {t('coop.split')}
             </button>
             <button className={`btn ${state.paused ? "btn-resume" : "btn-pause"}`} onClick={() => coopPause()}>
-              {state.paused ? "▶ Resume" : "⏸ Pause"}
+              {state.paused ? "▶ Resume" : `⏸ ${t('coop.pause')}`}
             </button>
             <button className="btn btn-danger" onClick={() => coopEndSession().then(() => setState(null))}>
-              ⏹ End Session
+              ⏹ {t('coop.endSession')}
             </button>
           </>
         )}
         {state.role === "guest" && (
           <>
             <button className="btn btn-sm" onClick={() => setShowItemSearch(!showItemSearch)}>
-              {showItemSearch ? "Close" : "+ Item"}
+              {showItemSearch ? t('common.close') : `+ ${t('coop.logItem')}`}
             </button>
             <button className="btn btn-danger" onClick={handleStop}>
-              ✕ Leave
+              ✕ {t('coop.leave')}
             </button>
           </>
         )}
         {state.role === "host" && (
           <button className="btn btn-sm" onClick={() => setShowItemSearch(!showItemSearch)}>
-            {showItemSearch ? "Close" : "+ Item"}
+            {showItemSearch ? t('common.close') : `+ ${t('coop.logItem')}`}
           </button>
         )}
       </div>
@@ -242,9 +244,9 @@ export default function CoopPanel() {
       {/* Item Log */}
       <div className="coop-items">
         <div className="run-items-header">
-          <h3>Items ({state.items.length})</h3>
+          <h3>{t('coop.items')} ({state.items.length})</h3>
           <button className="btn btn-sm" onClick={() => setShowPerPlayer(!showPerPlayer)}>
-            {showPerPlayer ? "Combined View" : "Per Player"}
+            {showPerPlayer ? t('coop.items') : t('coop.perPlayer')}
           </button>
         </div>
 

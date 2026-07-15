@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
-import { getObsFilePath, getKeybindProfiles, createKeybindProfile, deleteKeybindProfile, runAutoBackup, cleanupOldBackups } from "../api";
+import { getObsFilePath, getKeybindProfiles, createKeybindProfile, deleteKeybindProfile, runAutoBackup, cleanupOldBackups, vacuumDatabase } from "../api";
 import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
 import { TERROR_ZONES, loadTZPrefs, saveTZPrefs, type TerrorZonePrefs } from "../data/terror-zones";
 import type { KeybindProfile } from "../types";
+import CloudSyncSettings from "../components/CloudSyncSettings";
+import { SUPPORTED_LOCALES, LOCALE_STORAGE_KEY } from "../i18n";
 
 // OBS Preferences
 interface ObsPrefs {
@@ -102,7 +105,41 @@ export async function registerHotkeys() {
   });
 }
 
+const LOCALE_LABELS: Record<string, string> = {
+  'en-US': 'English (US)',
+  'pt-BR': 'Português (Brasil)',
+  'es': 'Español',
+};
+
+function LanguageSettings() {
+  const { i18n, t } = useTranslation();
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const locale = e.target.value;
+    i18n.changeLanguage(locale);
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  };
+
+  return (
+    <div className="settings-section">
+      <h2>{t('settings.language.title')}</h2>
+      <p className="settings-description">{t('settings.language.description')}</p>
+      <div className="hotkey-row">
+        <span className="hotkey-label">{t('settings.language.label')}</span>
+        <select value={i18n.language} onChange={handleChange} className="hotkey-btn">
+          {SUPPORTED_LOCALES.map((locale) => (
+            <option key={locale} value={locale}>
+              {LOCALE_LABELS[locale]}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
 export default function Settings() {
+  const { t } = useTranslation();
   const [hotkeys, setHotkeys] = useState<HotkeyConfig>(loadHotkeys);
   const [recording, setRecording] = useState<keyof HotkeyConfig | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -140,7 +177,7 @@ export default function Settings() {
 
     // Re-register with new config
     registerHotkeys().then(() => {
-      setStatus("Hotkeys updated successfully!");
+      setStatus(t('settings.hotkeys.updated'));
       setTimeout(() => setStatus(null), 3000);
     });
   };
@@ -149,7 +186,7 @@ export default function Settings() {
     setHotkeys(DEFAULT_HOTKEYS);
     saveHotkeys(DEFAULT_HOTKEYS);
     registerHotkeys().then(() => {
-      setStatus("Hotkeys reset to defaults.");
+      setStatus(t('settings.hotkeys.resetDone'));
       setTimeout(() => setStatus(null), 3000);
     });
   };
@@ -157,72 +194,76 @@ export default function Settings() {
   return (
     <div className="page" onKeyDown={handleKeyCapture} tabIndex={0}>
       <div className="page-header">
-        <h1>Settings</h1>
+        <h1>{t('settings.title')}</h1>
       </div>
 
+      <LanguageSettings />
+
       <div className="settings-section">
-        <h2>Global Hotkeys</h2>
+        <h2>{t('settings.hotkeys.title')}</h2>
         <p className="settings-description">
-          These keyboard shortcuts work even when the app is not focused, allowing you to control your session while playing D2R.
+          {t('settings.hotkeys.description')}
         </p>
 
         <div className="hotkey-list">
           <div className="hotkey-row">
-            <span className="hotkey-label">Next Run (Split)</span>
+            <span className="hotkey-label">{t('settings.hotkeys.nextRun')}</span>
             <button
               className={`hotkey-btn ${recording === "nextRun" ? "recording" : ""}`}
               onClick={() => handleRecord("nextRun")}
             >
-              {recording === "nextRun" ? "Press a key..." : hotkeys.nextRun}
+              {recording === "nextRun" ? t('settings.hotkeys.pressKey') : hotkeys.nextRun}
             </button>
           </div>
 
           <div className="hotkey-row">
-            <span className="hotkey-label">Pause / Resume</span>
+            <span className="hotkey-label">{t('settings.hotkeys.pause')}</span>
             <button
               className={`hotkey-btn ${recording === "pause" ? "recording" : ""}`}
               onClick={() => handleRecord("pause")}
             >
-              {recording === "pause" ? "Press a key..." : hotkeys.pause}
+              {recording === "pause" ? t('settings.hotkeys.pressKey') : hotkeys.pause}
             </button>
           </div>
 
           <div className="hotkey-row">
-            <span className="hotkey-label">End Session</span>
+            <span className="hotkey-label">{t('settings.hotkeys.endSession')}</span>
             <button
               className={`hotkey-btn ${recording === "endSession" ? "recording" : ""}`}
               onClick={() => handleRecord("endSession")}
             >
-              {recording === "endSession" ? "Press a key..." : hotkeys.endSession}
+              {recording === "endSession" ? t('settings.hotkeys.pressKey') : hotkeys.endSession}
             </button>
           </div>
         </div>
 
         <div className="hotkey-actions">
           <button className="btn btn-sm" onClick={handleReset}>
-            Reset to Defaults
+            {t('settings.hotkeys.resetDefaults')}
           </button>
         </div>
 
         {status && <div className="settings-status">{status}</div>}
 
         <div className="settings-note">
-          <strong>Tip:</strong> Click a hotkey button, then press the desired key or combination (e.g., F9, Ctrl+Shift+S).
-          Avoid keys used by D2R (F1-F8 are skill hotkeys).
+          <strong>{t('common.tip')}:</strong> {t('settings.hotkeys.tip')}
         </div>
       </div>
 
       <SoundSettings />
       <KeybindProfilesSettings />
       <BackupSettings />
+      <DatabaseMaintenanceSettings />
       <ObsSettings />
       <WidgetSettings />
       <TerrorZoneSettings />
+      <CloudSyncSettings />
     </div>
   );
 }
 
 function KeybindProfilesSettings() {
+  const { t } = useTranslation();
   const [profiles, setProfiles] = useState<KeybindProfile[]>([]);
   const [newName, setNewName] = useState("");
   const [kbStatus, setKbStatus] = useState<string | null>(null);
@@ -238,7 +279,7 @@ function KeybindProfilesSettings() {
       const profile = await createKeybindProfile({ name: newName.trim(), bindings: currentBindings });
       setProfiles([profile, ...profiles]);
       setNewName("");
-      setKbStatus("Profile saved!");
+      setKbStatus(t('settings.keybindProfiles.saved'));
       setTimeout(() => setKbStatus(null), 3000);
     } catch (e) {
       setKbStatus("Error: " + e);
@@ -251,7 +292,7 @@ function KeybindProfilesSettings() {
       const bindings = JSON.parse(profile.bindings);
       saveHotkeys(bindings);
       registerHotkeys().then(() => {
-        setKbStatus(`Activated profile: ${profile.name}`);
+        setKbStatus(t('settings.keybindProfiles.activated', { name: profile.name }));
         setTimeout(() => setKbStatus(null), 3000);
       });
     } catch {
@@ -271,22 +312,22 @@ function KeybindProfilesSettings() {
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>Keybind Profiles</h2>
+      <h2>{t('settings.keybindProfiles.title')}</h2>
       <p className="settings-description">
-        Save and quickly switch between different hotkey configurations.
+        {t('settings.keybindProfiles.description')}
       </p>
 
       <div className="hotkey-row">
         <input
           type="text"
-          placeholder="Profile name"
+          placeholder={t('settings.keybindProfiles.profileName')}
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           className="hotkey-btn"
           style={{ flex: 1 }}
         />
         <button className="btn btn-sm" onClick={handleSaveCurrentProfile}>
-          Save Current
+          {t('settings.keybindProfiles.saveCurrent')}
         </button>
       </div>
 
@@ -296,10 +337,10 @@ function KeybindProfilesSettings() {
             <div className="hotkey-row" key={p.id}>
               <span className="hotkey-label">{p.name}</span>
               <button className="btn btn-sm" onClick={() => handleActivate(p)}>
-                Activate
+                {t('settings.keybindProfiles.activate')}
               </button>
               <button className="btn btn-sm" onClick={() => handleDelete(p.id)} style={{ marginLeft: "0.5rem" }}>
-                Delete
+                {t('settings.keybindProfiles.delete')}
               </button>
             </div>
           ))}
@@ -309,7 +350,62 @@ function KeybindProfilesSettings() {
       {kbStatus && <div className="settings-status">{kbStatus}</div>}
 
       <div className="settings-note">
-        <strong>Tip:</strong> Save your current hotkeys under a name, then quickly switch between profiles (e.g., "Default", "Streaming", "One-handed").
+        <strong>{t('common.tip')}:</strong> {t('settings.keybindProfiles.tip')}
+      </div>
+    </div>
+  );
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function DatabaseMaintenanceSettings() {
+  const { t } = useTranslation();
+  const [isCompacting, setIsCompacting] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleVacuum = async () => {
+    setIsCompacting(true);
+    setResult(null);
+    setError(null);
+    try {
+      const res = await vacuumDatabase();
+      setResult(
+        `Compacted: ${formatBytes(res.size_before_bytes)} → ${formatBytes(res.size_after_bytes)}`
+      );
+      setTimeout(() => setResult(null), 5000);
+    } catch (e) {
+      setError("Compact failed: " + (e instanceof Error ? e.message : String(e)));
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setIsCompacting(false);
+    }
+  };
+
+  return (
+    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+      <h2>{t('settings.database.title')}</h2>
+      <p className="settings-description">
+        {t('settings.database.description')}
+      </p>
+
+      <div className="hotkey-actions">
+        <button className="btn btn-sm" onClick={handleVacuum} disabled={isCompacting}>
+          {isCompacting ? t('settings.database.compacting') : t('settings.database.compact')}
+        </button>
+        {isCompacting && <span className="settings-description" style={{ marginLeft: "0.5rem" }}>⏳</span>}
+      </div>
+
+      {result && <div className="settings-status">{result}</div>}
+      {error && <div className="settings-status" style={{ color: "var(--color-error, #e74c3c)" }}>{error}</div>}
+
+      <div className="settings-note">
+        <strong>{t('common.tip')}:</strong> {t('settings.database.tip')}
       </div>
     </div>
   );
@@ -338,6 +434,7 @@ export function saveBackupConfig(config: BackupConfig) {
 }
 
 function BackupSettings() {
+  const { t } = useTranslation();
   const [config, setConfig] = useState<BackupConfig>(getBackupConfig);
   const [backupStatus, setBackupStatus] = useState<string | null>(null);
 
@@ -356,7 +453,7 @@ function BackupSettings() {
 
   const handleBackupNow = async () => {
     if (!config.folderPath) {
-      setBackupStatus("Please choose a backup folder first.");
+      setBackupStatus(t('settings.backup.chooseFirst'));
       setTimeout(() => setBackupStatus(null), 3000);
       return;
     }
@@ -391,23 +488,23 @@ function BackupSettings() {
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>Auto Backup</h2>
+      <h2>{t('settings.backup.title')}</h2>
       <p className="settings-description">
-        Automatically back up your data to a folder. Old backups are rotated so only the most recent are kept.
+        {t('settings.backup.description')}
       </p>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Backup folder</span>
+        <span className="hotkey-label">{t('settings.backup.folder')}</span>
         <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
-          {config.folderPath || "(not set)"}
+          {config.folderPath || t('settings.backup.notSet')}
         </span>
         <button className="btn btn-sm" onClick={handleChooseFolder}>
-          Choose Folder
+          {t('settings.backup.chooseFolder')}
         </button>
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Keep last</span>
+        <span className="hotkey-label">{t('settings.backup.keepLast')}</span>
         <input
           type="number"
           min={1}
@@ -417,42 +514,43 @@ function BackupSettings() {
           className="hotkey-btn"
           style={{ width: "4rem" }}
         />
-        <span className="settings-description">backups</span>
+        <span className="settings-description">{t('settings.backup.backups')}</span>
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Schedule</span>
+        <span className="hotkey-label">{t('settings.backup.schedule')}</span>
         <select value={config.schedule} onChange={handleScheduleChange} className="hotkey-btn">
-          <option value="off">Off</option>
-          <option value="session_end">Every session end</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
+          <option value="off">{t('settings.backup.scheduleOff')}</option>
+          <option value="session_end">{t('settings.backup.scheduleSessionEnd')}</option>
+          <option value="daily">{t('settings.backup.scheduleDaily')}</option>
+          <option value="weekly">{t('settings.backup.scheduleWeekly')}</option>
         </select>
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Last backup</span>
+        <span className="hotkey-label">{t('settings.backup.lastBackup')}</span>
         <span className="settings-description">
-          {config.lastBackup ? new Date(config.lastBackup).toLocaleString("en-US") : "Never"}
+          {config.lastBackup ? new Date(config.lastBackup).toLocaleString() : t('settings.backup.never')}
         </span>
       </div>
 
       <div className="hotkey-actions">
         <button className="btn btn-sm" onClick={handleBackupNow}>
-          Backup Now
+          {t('settings.backup.backupNow')}
         </button>
       </div>
 
       {backupStatus && <div className="settings-status">{backupStatus}</div>}
 
       <div className="settings-note">
-        <strong>Tip:</strong> Set schedule to "Every session end" for automatic protection. Backups are lightweight JSON files.
+        <strong>{t('common.tip')}:</strong> {t('settings.backup.tip')}
       </div>
     </div>
   );
 }
 
 function SoundSettings() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState(getSoundPrefs);
 
   const toggleEnabled = () => {
@@ -462,27 +560,27 @@ function SoundSettings() {
   };
 
   const changeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const updated = { ...prefs, volume: parseInt(e.target.value) };
+    const updated = { ...prefs, volume: Number.parseInt(e.target.value) };
     setPrefs(updated);
     setSoundPrefs(updated);
   };
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>Sound Notifications</h2>
+      <h2>{t('settings.sound.title')}</h2>
       <p className="settings-description">
-        Audio cues for milestones, item finds, and alerts during farming sessions.
+        {t('settings.sound.description')}
       </p>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Enable sounds</span>
+        <span className="hotkey-label">{t('settings.sound.enable')}</span>
         <button className={`hotkey-btn ${prefs.enabled ? "recording" : ""}`} onClick={toggleEnabled}>
-          {prefs.enabled ? "ON" : "OFF"}
+          {prefs.enabled ? t('settings.sound.on') : t('settings.sound.off')}
         </button>
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Volume</span>
+        <span className="hotkey-label">{t('settings.sound.volume')}</span>
         <input
           type="range"
           min={0}
@@ -495,23 +593,24 @@ function SoundSettings() {
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Test sounds</span>
+        <span className="hotkey-label">{t('settings.sound.test')}</span>
         <div className="sound-test-btns">
-          <button className="btn btn-sm" onClick={() => playSound("item")}>Item</button>
-          <button className="btn btn-sm" onClick={() => playSound("milestone")}>Milestone</button>
-          <button className="btn btn-sm" onClick={() => playSound("alert")}>Alert</button>
-          <button className="btn btn-sm" onClick={() => playSound("goal")}>Goal</button>
+          <button className="btn btn-sm" onClick={() => playSound("item")}>{t('settings.sound.item')}</button>
+          <button className="btn btn-sm" onClick={() => playSound("milestone")}>{t('settings.sound.milestone')}</button>
+          <button className="btn btn-sm" onClick={() => playSound("alert")}>{t('settings.sound.alert')}</button>
+          <button className="btn btn-sm" onClick={() => playSound("goal")}>{t('settings.sound.goal')}</button>
         </div>
       </div>
 
       <div className="settings-note">
-        <strong>Triggers:</strong> Item found → beep, every 10 runs → milestone, run exceeds 2× average → alert, goal reached → celebration.
+        <strong>{t('settings.sound.triggers')}</strong>
       </div>
     </div>
   );
 }
 
 function ObsSettings() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState<ObsPrefs>(getObsPrefs);
   const [filePath, setFilePath] = useState<string>("");
   const [copied, setCopied] = useState(false);
@@ -543,22 +642,22 @@ function ObsSettings() {
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>OBS Integration</h2>
+      <h2>{t('settings.obs.title')}</h2>
       <p className="settings-description">
-        Write live session stats to a text file that OBS can read as a Text (GDI+) source for stream overlays.
+        {t('settings.obs.description')}
       </p>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Enable OBS mode</span>
+        <span className="hotkey-label">{t('settings.obs.enable')}</span>
         <button className={`hotkey-btn ${prefs.enabled ? "recording" : ""}`} onClick={toggleEnabled}>
-          {prefs.enabled ? "ON" : "OFF"}
+          {prefs.enabled ? t('common.on') : t('common.off')}
         </button>
       </div>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Output format</span>
+        <span className="hotkey-label">{t('settings.obs.format')}</span>
         <select value={prefs.format} onChange={changeFormat} className="hotkey-btn">
-          <option value="text">Plain Text</option>
+          <option value="text">{t('settings.obs.plainText')}</option>
           <option value="json">JSON</option>
         </select>
       </div>
@@ -566,7 +665,7 @@ function ObsSettings() {
       {prefs.enabled && filePath && (
         <>
           <div className="hotkey-row">
-            <span className="hotkey-label">File path</span>
+            <span className="hotkey-label">{t('settings.obs.filePath')}</span>
             <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
               {filePath}
             </span>
@@ -574,20 +673,21 @@ function ObsSettings() {
           <div className="hotkey-row">
             <span className="hotkey-label" />
             <button className="btn btn-sm" onClick={copyPath}>
-              {copied ? "Copied!" : "Copy path"}
+              {copied ? t('settings.obs.copied') : t('settings.obs.copyPath')}
             </button>
           </div>
         </>
       )}
 
       <div className="settings-note">
-        <strong>Tip:</strong> In OBS, add a "Text (GDI+)" source and check "Read from file", then paste the path above.
+        <strong>{t('common.tip')}:</strong> {t('settings.obs.tip')}
       </div>
     </div>
   );
 }
 
 function WidgetSettings() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState<WidgetPrefs>(() => getWidgetPrefs());
 
   const handleToggle = (key: string) => {
@@ -609,9 +709,9 @@ function WidgetSettings() {
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>Widget Display</h2>
+      <h2>{t('settings.widget.title')}</h2>
       <p className="settings-description">
-        Choose 2-3 stats to display in the compact widget window.
+        {t('settings.widget.description')}
       </p>
       <div className="widget-stat-options">
         {WIDGET_STAT_OPTIONS.map(opt => (
@@ -627,13 +727,14 @@ function WidgetSettings() {
         ))}
       </div>
       <p className="settings-hint">
-        Selected: {prefs.stats.length}/3 (min 2, max 3)
+        {t('settings.widget.selected', { count: prefs.stats.length })}
       </p>
     </div>
   );
 }
 
 function TerrorZoneSettings() {
+  const { t } = useTranslation();
   const [prefs, setPrefs] = useState<TerrorZonePrefs>(loadTZPrefs);
 
   const toggleZone = (zoneName: string) => {
@@ -655,20 +756,20 @@ function TerrorZoneSettings() {
 
   return (
     <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>Terror Zones</h2>
+      <h2>{t('settings.terrorZones.title')}</h2>
       <p className="settings-description">
-        Configure preferred Terror Zones for notifications. When a preferred zone becomes active, you can receive an audio alert.
+        {t('settings.terrorZones.description')}
       </p>
 
       <div className="hotkey-row">
-        <span className="hotkey-label">Sound notification</span>
+        <span className="hotkey-label">{t('settings.terrorZones.soundNotification')}</span>
         <button className={`hotkey-btn ${prefs.soundNotification ? "recording" : ""}`} onClick={toggleSound}>
-          {prefs.soundNotification ? "ON" : "OFF"}
+          {prefs.soundNotification ? t('common.on') : t('common.off')}
         </button>
       </div>
 
       <div className="tz-prefs-list">
-        <span className="hotkey-label">Preferred zones</span>
+        <span className="hotkey-label">{t('settings.terrorZones.preferredZones')}</span>
         <div className="tz-prefs-grid">
           {TERROR_ZONES.map((tz) => (
             <label key={tz.name} className="tz-pref-item">
@@ -685,7 +786,7 @@ function TerrorZoneSettings() {
       </div>
 
       <div className="settings-note">
-        <strong>Tip:</strong> Select zones you want to farm. When one of these zones becomes the active Terror Zone, you will be notified (if sound is enabled).
+        <strong>{t('common.tip')}:</strong> {t('settings.terrorZones.tip')}
       </div>
     </div>
   );

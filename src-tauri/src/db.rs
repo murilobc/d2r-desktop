@@ -77,6 +77,7 @@ pub fn init_db(conn: &Connection) -> Result<()> {
         "
         CREATE INDEX IF NOT EXISTS idx_runs_profile_status ON runs(profile_id, status);
         CREATE INDEX IF NOT EXISTS idx_runs_profile_area ON runs(profile_id, area);
+        CREATE INDEX IF NOT EXISTS idx_runs_profile_started ON runs(profile_id, started_at DESC);
         CREATE INDEX IF NOT EXISTS idx_items_run ON items(run_id);
         CREATE INDEX IF NOT EXISTS idx_items_profile ON items(profile_id);
         ",

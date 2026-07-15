@@ -1,10 +1,12 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { AREA_DATA, getTC85Areas } from "../data/areas";
 import type { AreaInfo } from "../data/areas";
 import { DROP_TABLES, adjustForMF, adjustForPlayers } from "../data/drop-probabilities";
 import type { MonsterDropTable } from "../data/drop-probabilities";
 
 export default function DropCalculator() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"areas" | "rates">("areas");
   const [selectedArea, setSelectedArea] = useState<AreaInfo | null>(null);
   const [filter, setFilter] = useState<"all" | "tc85" | "boss">("all");
@@ -39,10 +41,10 @@ export default function DropCalculator() {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Drop Calculator</h1>
+        <h1>{t('drops.title')}</h1>
         <div className="dc-tabs">
-          <button className={`btn btn-sm ${tab === "areas" ? "btn-primary" : ""}`} onClick={() => setTab("areas")}>Areas</button>
-          <button className={`btn btn-sm ${tab === "rates" ? "btn-primary" : ""}`} onClick={() => setTab("rates")}>Drop Rates</button>
+          <button className={`btn btn-sm ${tab === "areas" ? "btn-primary" : ""}`} onClick={() => setTab("areas")}>{t('drops.areas')}</button>
+          <button className={`btn btn-sm ${tab === "rates" ? "btn-primary" : ""}`} onClick={() => setTab("rates")}>{t('drops.dropRates')}</button>
         </div>
       </div>
 
@@ -80,12 +82,13 @@ function AreaTab({ filteredAreas, selectedArea, setSelectedArea, filter, setFilt
   filter: string;
   setFilter: (f: "all" | "tc85" | "boss") => void;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="dc-filters">
-        <button className={`btn btn-sm ${filter === "all" ? "btn-primary" : ""}`} onClick={() => setFilter("all")}>All</button>
-        <button className={`btn btn-sm ${filter === "tc85" ? "btn-primary" : ""}`} onClick={() => setFilter("tc85")}>TC85+</button>
-        <button className={`btn btn-sm ${filter === "boss" ? "btn-primary" : ""}`} onClick={() => setFilter("boss")}>Bosses</button>
+        <button className={`btn btn-sm ${filter === "all" ? "btn-primary" : ""}`} onClick={() => setFilter("all")}>{t('drops.all')}</button>
+        <button className={`btn btn-sm ${filter === "tc85" ? "btn-primary" : ""}`} onClick={() => setFilter("tc85")}>{t('drops.tc85')}</button>
+        <button className={`btn btn-sm ${filter === "boss" ? "btn-primary" : ""}`} onClick={() => setFilter("boss")}>{t('drops.boss')}</button>
       </div>
 
       <div className="dc-layout">
@@ -156,7 +159,7 @@ function AreaTab({ filteredAreas, selectedArea, setSelectedArea, filter, setFilt
             </>
           ) : (
             <div className="dc-empty">
-              <p>Select an area to see drop information</p>
+              <p>{t('drops.noSelection')}</p>
               <p className="dc-summary">
                 <strong>{getTC85Areas().length}</strong> areas can drop every item in the game (TC85+)
               </p>
@@ -181,17 +184,18 @@ function DropRatesTab({ filteredMonsters, selectedMonster, setSelectedMonster, m
   setPlayers: (v: number) => void;
   adjustedDrops: Array<{ item: string; rarity: string; baseChance: number; mfAffected: boolean; adjustedChance: number }>;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="dc-rates-config">
         <div className="dc-config-row">
           <div className="dc-config-item">
-            <label>Magic Find:</label>
+            <label>{t('drops.magicFind')}:</label>
             <input type="number" min={0} max={9999} value={mf} onChange={(e) => setMf(Number(e.target.value) || 0)} />
             <span className="dc-config-suffix">%</span>
           </div>
           <div className="dc-config-item">
-            <label>Players:</label>
+            <label>{t('drops.players')}:</label>
             <select value={players} onChange={(e) => setPlayers(Number(e.target.value))}>
               {[1,2,3,4,5,6,7,8].map((n) => (
                 <option key={n} value={n}>{n}</option>
@@ -199,7 +203,7 @@ function DropRatesTab({ filteredMonsters, selectedMonster, setSelectedMonster, m
             </select>
           </div>
           <div className="dc-config-item">
-            <label>Type:</label>
+            <label>{t('drops.monsterFilter')}:</label>
             <select value={monsterFilter} onChange={(e) => setMonsterFilter(e.target.value as "all" | "Boss" | "Super Unique" | "Area")}>
               <option value="all">All</option>
               <option value="Boss">Bosses</option>
@@ -253,13 +257,13 @@ function DropRatesTab({ filteredMonsters, selectedMonster, setSelectedMonster, m
               </div>
 
               <div className="dc-section">
-                <h3>Drop Probabilities (MF: {mf}%, /players {players})</h3>
+                <h3>{t('drops.dropRates')} (MF: {mf}%, /players {players})</h3>
                 <table className="dc-prob-table">
                   <thead>
                     <tr>
                       <th>Item</th>
                       <th>Rarity</th>
-                      <th>Chance</th>
+                      <th>{t('drops.adjustedChance')}</th>
                       <th>Runs to find</th>
                     </tr>
                   </thead>
@@ -282,7 +286,7 @@ function DropRatesTab({ filteredMonsters, selectedMonster, setSelectedMonster, m
             </>
           ) : (
             <div className="dc-empty">
-              <p>Select a monster to see drop probabilities</p>
+              <p>{t('drops.noSelection')}</p>
               <p className="dc-summary">Adjust MF and /players to see how it affects your chances</p>
             </div>
           )}

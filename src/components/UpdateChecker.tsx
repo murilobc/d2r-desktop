@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 
 export default function UpdateChecker() {
+  const { t } = useTranslation();
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updateVersion, setUpdateVersion] = useState("");
   const [updateNotes, setUpdateNotes] = useState("");
@@ -68,16 +70,16 @@ export default function UpdateChecker() {
     <div className="update-banner">
       <div className="update-content">
         <div className="update-info">
-          <strong>Update available: v{updateVersion}</strong>
+          <strong>{t("update.available", { version: updateVersion })}</strong>
           {updateNotes && <span className="update-notes">{updateNotes}</span>}
         </div>
         {!downloading ? (
           <div className="update-actions">
             <button className="btn btn-sm btn-primary" onClick={installUpdate}>
-              Update Now
+              {t("update.updateNow")}
             </button>
             <button className="btn btn-sm" onClick={() => setDismissed(true)}>
-              Later
+              {t("update.later")}
             </button>
           </div>
         ) : (
@@ -89,7 +91,7 @@ export default function UpdateChecker() {
           </div>
         )}
       </div>
-      {error && <div className="update-error">Update failed: {error}</div>}
+      {error && <div className="update-error">{t("update.failed", { error })}</div>}
     </div>
   );
 }

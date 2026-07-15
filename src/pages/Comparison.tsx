@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, ComparisonRequest, ComparisonResult, SubjectMetrics, Stats } from "../types";
 import { getComparison, getStats } from "../api";
 import {
@@ -19,6 +20,7 @@ interface Props {
 type ComparisonType = "area" | "date_range";
 
 export default function Comparison({ profile }: Props) {
+  const { t } = useTranslation();
   const [comparisonType, setComparisonType] = useState<ComparisonType>("area");
   const [areaA, setAreaA] = useState("");
   const [areaB, setAreaB] = useState("");
@@ -109,8 +111,8 @@ export default function Comparison({ profile }: Props) {
   if (stats.total_runs === 0) {
     return (
       <div className="page">
-        <div className="page-header"><h1>⚔️ Comparison Mode</h1></div>
-        <p className="empty-state">Complete some runs to use comparison mode.</p>
+        <div className="page-header"><h1>⚔️ {t('comparison.title')}</h1></div>
+        <p className="empty-state">{t('comparison.noData')}</p>
       </div>
     );
   }
@@ -118,7 +120,7 @@ export default function Comparison({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>⚔️ Comparison Mode</h1>
+        <h1>⚔️ {t('comparison.title')}</h1>
       </div>
 
       {/* Comparison type toggle */}
@@ -127,13 +129,13 @@ export default function Comparison({ profile }: Props) {
           className={`btn ${comparisonType === "area" ? "btn-primary" : ""}`}
           onClick={() => { setComparisonType("area"); setResult(null); }}
         >
-          Area vs Area
+          {t('comparison.area')} vs {t('comparison.area')}
         </button>
         <button
           className={`btn ${comparisonType === "date_range" ? "btn-primary" : ""}`}
           onClick={() => { setComparisonType("date_range"); setResult(null); }}
         >
-          Date Range vs Date Range
+          {t('comparison.dateRange')} vs {t('comparison.dateRange')}
         </button>
       </div>
 
@@ -142,7 +144,7 @@ export default function Comparison({ profile }: Props) {
         {comparisonType === "area" ? (
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="area-a">Area A</label>
+              <label htmlFor="area-a">{t('comparison.subjectA')}</label>
               <select id="area-a" value={areaA} onChange={(e) => setAreaA(e.target.value)}>
                 <option value="">Select area...</option>
                 {availableAreas.map((a) => (
@@ -151,7 +153,7 @@ export default function Comparison({ profile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="area-b">Area B</label>
+              <label htmlFor="area-b">{t('comparison.subjectB')}</label>
               <select id="area-b" value={areaB} onChange={(e) => setAreaB(e.target.value)}>
                 <option value="">Select area...</option>
                 {availableAreas.map((a) => (
@@ -163,19 +165,19 @@ export default function Comparison({ profile }: Props) {
         ) : (
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="start-a">Period A Start</label>
+              <label htmlFor="start-a">{t('comparison.startDate')} A</label>
               <input id="start-a" type="date" value={startA} onChange={(e) => setStartA(e.target.value)} />
             </div>
             <div className="form-group">
-              <label htmlFor="end-a">Period A End</label>
+              <label htmlFor="end-a">{t('comparison.endDate')} A</label>
               <input id="end-a" type="date" value={endA} onChange={(e) => setEndA(e.target.value)} />
             </div>
             <div className="form-group">
-              <label htmlFor="start-b">Period B Start</label>
+              <label htmlFor="start-b">{t('comparison.startDate')} B</label>
               <input id="start-b" type="date" value={startB} onChange={(e) => setStartB(e.target.value)} />
             </div>
             <div className="form-group">
-              <label htmlFor="end-b">Period B End</label>
+              <label htmlFor="end-b">{t('comparison.endDate')} B</label>
               <input id="end-b" type="date" value={endB} onChange={(e) => setEndB(e.target.value)} />
             </div>
           </div>
@@ -186,14 +188,14 @@ export default function Comparison({ profile }: Props) {
           onClick={handleCompare}
           disabled={!canCompare || loading}
         >
-          {loading ? "Comparing..." : "Compare"}
+          {loading ? t('comparison.comparing') : t('comparison.compare')}
         </button>
       </div>
 
       {/* Notices */}
       {identicalSubjects && (
         <div className="comparison-notice">
-          ⚠️ Comparing identical subjects yields no meaningful insight.
+          ⚠️ {t('comparison.warning')}
         </div>
       )}
 
@@ -246,7 +248,7 @@ export default function Comparison({ profile }: Props) {
       {/* Empty state */}
       {!result && !loading && !error && (
         <p className="empty-state">
-          Select two {comparisonType === "area" ? "areas" : "date ranges"} and click Compare to see side-by-side efficiency metrics.
+          {t('comparison.noData')}
         </p>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, DCloneProgress, AnniLog } from "../types";
 import { DCLONE_REGIONS } from "../types";
 import {
@@ -32,6 +33,7 @@ const PROGRESS_COLORS: Record<number, string> = {
 };
 
 export default function DCloneTracker({ profile }: Props) {
+  const { t } = useTranslation();
   const [progress, setProgress] = useState<DCloneProgress[]>([]);
   const [anniLogs, setAnniLogs] = useState<AnniLog[]>([]);
 
@@ -99,13 +101,13 @@ export default function DCloneTracker({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>😈 Diablo Clone Tracker</h1>
+        <h1>😈 {t('dclone.title')}</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
       {/* DClone Progress per Region */}
       <div className="herald-section">
-        <h2>DClone Progress</h2>
+        <h2>{t('dclone.progress')}</h2>
         <p className="settings-description">
           Track Diablo Clone progress per region. Update manually from community reports (diablo2.io, Discord).
         </p>
@@ -156,10 +158,10 @@ export default function DCloneTracker({ profile }: Props) {
 
       {/* Notification Settings */}
       <div className="herald-section">
-        <h2>Notification Settings</h2>
+        <h2>{t('dclone.notify')}</h2>
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="dclone-region">Preferred Region</label>
+            <label htmlFor="dclone-region">{t('dclone.preferredRegion')}</label>
             <select
               id="dclone-region"
               value={preferredRegion}
@@ -187,11 +189,11 @@ export default function DCloneTracker({ profile }: Props) {
 
       {/* Annihilus Log */}
       <div className="herald-section">
-        <h2>Annihilus Collection</h2>
+        <h2>{t('dclone.anniLog')}</h2>
         <form onSubmit={handleAnniSubmit} className="herald-form">
           <div className="form-row">
             <div className="form-group" style={{ flex: 1 }}>
-              <label htmlFor="anni-stats">Stats (e.g., "10/18/9")</label>
+              <label htmlFor="anni-stats">{t('dclone.attributes')}</label>
               <input
                 id="anni-stats"
                 type="text"
@@ -201,7 +203,7 @@ export default function DCloneTracker({ profile }: Props) {
               />
             </div>
             <div className="form-group" style={{ flex: 1 }}>
-              <label htmlFor="anni-notes">Notes</label>
+              <label htmlFor="anni-notes">{t('dclone.notes')}</label>
               <input
                 id="anni-notes"
                 type="text"
@@ -212,12 +214,12 @@ export default function DCloneTracker({ profile }: Props) {
             </div>
           </div>
           <button type="submit" className="btn btn-primary">
-            Log Annihilus
+            {t('dclone.logAnni')}
           </button>
         </form>
 
         {anniLogs.length === 0 ? (
-          <p className="empty-state">No Annihilus charms logged yet.</p>
+          <p className="empty-state">{t('dclone.noAnnis')}</p>
         ) : (
           <table className="stats-table">
             <thead>

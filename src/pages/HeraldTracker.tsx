@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, HeraldEncounter, HeraldStats } from "../types";
 import { AREAS } from "../types";
 import { createHeraldEncounter, getHeraldEncounters, getHeraldStats, deleteHeraldEncounter } from "../api";
@@ -26,6 +27,7 @@ const SUNDER_ELEMENTS: Record<string, string> = {
 };
 
 export default function HeraldTracker({ profile }: Props) {
+  const { t } = useTranslation();
   const [encounters, setEncounters] = useState<HeraldEncounter[]>([]);
   const [stats, setStats] = useState<HeraldStats | null>(null);
 
@@ -76,7 +78,7 @@ export default function HeraldTracker({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>⚔️ Herald Tracker</h1>
+        <h1>⚔️ {t('heralds.title')}</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
@@ -85,19 +87,19 @@ export default function HeraldTracker({ profile }: Props) {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-value">{stats.total_encounters}</div>
-            <div className="stat-label">Total Encounters</div>
+            <div className="stat-label">{t('heralds.totalEncounters')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{successRate}%</div>
-            <div className="stat-label">Success Rate</div>
+            <div className="stat-label">{t('heralds.successRate')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.success_count}</div>
-            <div className="stat-label">Victories</div>
+            <div className="stat-label">{t('heralds.success')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.fail_count}</div>
-            <div className="stat-label">Defeats</div>
+            <div className="stat-label">{t('heralds.fail')}</div>
           </div>
         </div>
       )}
@@ -142,11 +144,11 @@ export default function HeraldTracker({ profile }: Props) {
 
       {/* Log Encounter Form */}
       <div className="herald-section">
-        <h2>Log Encounter</h2>
+        <h2>{t('heralds.logEncounter')}</h2>
         <form onSubmit={handleSubmit} className="herald-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="herald-tier">Tier</label>
+              <label htmlFor="herald-tier">{t('heralds.tier')}</label>
               <select id="herald-tier" value={tier} onChange={(e) => setTier(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map((t) => (
                   <option key={t} value={t}>Tier {t}</option>
@@ -154,7 +156,7 @@ export default function HeraldTracker({ profile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="herald-area">Area</label>
+              <label htmlFor="herald-area">{t('heralds.area')}</label>
               <select id="herald-area" value={area} onChange={(e) => setArea(e.target.value)}>
                 {AREAS.filter((a) => a !== "Other").map((a) => (
                   <option key={a} value={a}>{a}</option>
@@ -164,28 +166,28 @@ export default function HeraldTracker({ profile }: Props) {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="herald-result">Result</label>
+              <label htmlFor="herald-result">{t('heralds.result')}</label>
               <div className="result-toggle">
                 <button
                   type="button"
                   className={`btn btn-sm ${result === "success" ? "btn-primary" : ""}`}
                   onClick={() => setResult("success")}
                 >
-                  ✓ Success
+                  ✓ {t('heralds.success')}
                 </button>
                 <button
                   type="button"
                   className={`btn btn-sm ${result === "fail" ? "btn-danger" : ""}`}
                   onClick={() => setResult("fail")}
                 >
-                  ✕ Fail
+                  ✕ {t('heralds.fail')}
                 </button>
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="herald-sunder">Sunder Charm</label>
+              <label htmlFor="herald-sunder">{t('heralds.sunderCharm')}</label>
               <select id="herald-sunder" value={sunderCharm} onChange={(e) => setSunderCharm(e.target.value)}>
-                <option value="">None</option>
+                <option value="">{t('heralds.none')}</option>
                 {SUNDER_CHARMS.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -194,7 +196,7 @@ export default function HeraldTracker({ profile }: Props) {
           </div>
           <div className="form-row">
             <div className="form-group" style={{ flex: 1 }}>
-              <label htmlFor="herald-notes">Notes</label>
+              <label htmlFor="herald-notes">{t('heralds.notes')}</label>
               <input
                 id="herald-notes"
                 type="text"
@@ -205,16 +207,16 @@ export default function HeraldTracker({ profile }: Props) {
             </div>
           </div>
           <button type="submit" className="btn btn-primary">
-            Log Encounter
+            {t('heralds.submit')}
           </button>
         </form>
       </div>
 
       {/* Encounter History */}
       <div className="herald-section">
-        <h2>Encounter History</h2>
+        <h2>{t('heralds.encounters')}</h2>
         {encounters.length === 0 ? (
-          <p className="empty-state">No herald encounters logged yet.</p>
+          <p className="empty-state">{t('heralds.noEncounters')}</p>
         ) : (
           <table className="stats-table">
             <thead>

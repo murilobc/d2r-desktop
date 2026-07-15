@@ -1,5 +1,15 @@
+import "../i18n";
 import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
+
+// Polyfill ResizeObserver for react-window v2 (uses ResizeObserver internally)
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof globalThis.ResizeObserver;
+}
 
 // Mock Tauri APIs
 vi.mock("@tauri-apps/api/core", () => ({

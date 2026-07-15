@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, Item, Run, Route } from "../types";
 import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups } from "../api";
@@ -19,6 +20,8 @@ interface Props {
 }
 
 export default function RunTracker({ profile, isVisible = true }: Props) {
+  const { t } = useTranslation();
+
   // Session state
   const [sessionActive, setSessionActive] = useState(false);
   const [sessionElapsed, setSessionElapsed] = useState(0);
@@ -412,7 +415,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Run Tracker</h1>
+        <h1>{t('tracker.title')}</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
@@ -421,10 +424,10 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
 
       {!sessionActive ? (
         <div className="start-session-card">
-          <h2>Start Session</h2>
+          <h2>{t('tracker.startSession')}</h2>
           <div className="form-row">
             <div className="form-group">
-              <label>Area</label>
+              <label>{t('tracker.area')}</label>
               <select value={area} onChange={(e) => updateArea(e.target.value)}>
                 {allAreas.map((a) => (
                   <option key={a} value={a}>{a}</option>
@@ -435,7 +438,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
                   type="text"
                   value={newAreaInput}
                   onChange={(e) => setNewAreaInput(e.target.value)}
-                  placeholder="Add custom area..."
+                  placeholder={t('tracker.addCustomArea')}
                   className="add-area-input"
                 />
                 <button
@@ -453,7 +456,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
             </div>
             {profile.mode === "Single Player" && (
               <div className="form-group">
-                <label>Players</label>
+                <label>{t('tracker.players')}</label>
                 <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
                   {[1,2,3,4,5,6,7,8].map((n) => (
                     <option key={n} value={n}>/players {n}</option>
@@ -464,16 +467,16 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Session Goal</label>
+              <label>{t('tracker.sessionGoal')}</label>
               <select value={goalType} onChange={(e) => setGoalType(e.target.value as "none" | "runs" | "time")}>
-                <option value="none">No goal</option>
-                <option value="runs">Run count</option>
-                <option value="time">Time (minutes)</option>
+                <option value="none">{t('tracker.noGoal')}</option>
+                <option value="runs">{t('tracker.runCount')}</option>
+                <option value="time">{t('tracker.timeMinutes')}</option>
               </select>
             </div>
             {goalType !== "none" && (
               <div className="form-group">
-                <label>{goalType === "runs" ? "Target runs" : "Target minutes"}</label>
+                <label>{goalType === "runs" ? t('tracker.targetRuns') : t('tracker.targetMinutes')}</label>
                 <input
                   type="number"
                   min={1}
@@ -486,7 +489,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           {/* Route Mode */}
           <div className="form-row">
             <div className="form-group">
-              <label>Route Mode</label>
+              <label>{t('tracker.routeMode')}</label>
               <div className="route-mode-toggle">
                 <button
                   type="button"
@@ -498,19 +501,19 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
                   }}
                   disabled={availableRoutes.length === 0}
                 >
-                  {routeMode ? "🗺️ On" : "Off"}
+                  {routeMode ? `🗺️ ${t('tracker.routeOn')}` : t('tracker.routeOff')}
                 </button>
                 {availableRoutes.length === 0 && (
-                  <small className="text-muted">Create routes in the Route Editor first</small>
+                  <small className="text-muted">{t('tracker.createRoutesFirst')}</small>
                 )}
                 {availableRoutes.length > 0 && !routeMode && (
-                  <small className="text-muted">{availableRoutes.length} route{availableRoutes.length > 1 ? "s" : ""} available</small>
+                  <small className="text-muted">{t('tracker.routesAvailable', { count: availableRoutes.length })}</small>
                 )}
               </div>
             </div>
             {routeMode && (
               <div className="form-group">
-                <label htmlFor="route-select">Route</label>
+                <label htmlFor="route-select">{t('tracker.route')}</label>
                 <select
                   id="route-select"
                   value={selectedRoute?.id || ""}
@@ -520,7 +523,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
                     if (route) updateArea(route.areas[0]);
                   }}
                 >
-                  <option value="">Select route...</option>
+                  <option value="">{t('tracker.selectRoute')}</option>
                   {availableRoutes.map((r) => (
                     <option key={r.id} value={r.id}>{r.name} ({r.areas.length} areas)</option>
                   ))}
@@ -529,7 +532,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
             )}
           </div>
           <button className="btn btn-primary btn-lg" onClick={startSession}>
-            ▶ Start Session
+            ▶ {t('tracker.startSessionBtn')}
           </button>
           {profile.magic_find && <MFCalculator magicFind={profile.magic_find} />}
         </div>
@@ -539,7 +542,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           <div className="timer-panel">
             <div className="session-timer-row">
               <span className={`recording-dot ${paused ? "paused" : ""}`}>●</span>
-              <span className="session-timer-label">Session time: {formatTimeTenths(sessionElapsed)}</span>
+              <span className="session-timer-label">{t('tracker.sessionTime')} {formatTimeTenths(sessionElapsed)}</span>
             </div>
 
             <div className="run-timer-display">
@@ -547,25 +550,25 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
             </div>
 
             <div className="run-count-display">
-              ───── Run count: <span className="run-count-current">{sessionRunCount}</span>{" "}
+              ───── {t('tracker.runCountLabel')} <span className="run-count-current">{sessionRunCount}</span>{" "}
               <span className="run-count-total">({totalRunCount})</span> ─────
             </div>
 
             <div className="time-stats">
-              <span>Fastest time: {fastestTime !== null ? formatSecs(fastestTime) : "--:--:--.--"}</span>
-              <span>Average time: {averageTime !== null ? formatSecs(averageTime) : "--:--:--.--"}</span>
+              <span>{t('tracker.fastestTime')} {fastestTime !== null ? formatSecs(fastestTime) : "--:--:--.--"}</span>
+              <span>{t('tracker.averageTime')} {averageTime !== null ? formatSecs(averageTime) : "--:--:--.--"}</span>
               {goalType === "runs" && (
                 <span className={sessionRunCount >= goalValue ? "goal-reached" : ""}>
-                  Goal: {sessionRunCount}/{goalValue} runs {sessionRunCount >= goalValue ? "✓" : ""}
+                  {t('tracker.goal')} {t('tracker.goalRuns', { current: sessionRunCount, target: goalValue })} {sessionRunCount >= goalValue ? "✓" : ""}
                 </span>
               )}
               {goalType === "time" && (
                 <span className={Math.floor(sessionElapsed / 600) >= goalValue ? "goal-reached" : ""}>
-                  Goal: {Math.floor(sessionElapsed / 600)}/{goalValue} min {Math.floor(sessionElapsed / 600) >= goalValue ? "✓" : ""}
+                  {t('tracker.goal')} {t('tracker.goalTime', { current: Math.floor(sessionElapsed / 600), target: goalValue })} {Math.floor(sessionElapsed / 600) >= goalValue ? "✓" : ""}
                 </span>
               )}
               {currentStreak > 0 && (
-                <span className="streak-display">Dry streak: {currentStreak} runs</span>
+                <span className="streak-display">{t('tracker.dryStreak', { count: currentStreak })}</span>
               )}
             </div>
           </div>
@@ -573,13 +576,13 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           {/* Controls */}
           <div className="tracker-controls">
             <button className="btn btn-split" onClick={splitRun} disabled={paused}>
-              ⏭ Next Run
+              ⏭ {t('tracker.nextRun')}
             </button>
             <button className={`btn ${paused ? "btn-resume" : "btn-pause"}`} onClick={togglePause}>
-              {paused ? "▶ Resume" : "⏸ Pause"}
+              {paused ? `▶ ${t('tracker.resume')}` : `⏸ ${t('tracker.pause')}`}
             </button>
             <button className="btn btn-danger" onClick={endSession}>
-              ⏹ End Session
+              ⏹ {t('tracker.endSession')}
             </button>
           </div>
 
@@ -587,9 +590,10 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           {routeMode && selectedRoute && (
             <div className="route-step-indicator">
               <span className="route-step-label">
-                Step {currentStepIndex + 1}/{selectedRoute.areas.length}: <strong>{selectedRoute.areas[currentStepIndex]}</strong>
+                {t('tracker.step', { current: currentStepIndex + 1, total: selectedRoute.areas.length })}{" "}
+                <strong>{selectedRoute.areas[currentStepIndex]}</strong>
               </span>
-              <span className="route-cycle-count">Cycle: {cycleCount}</span>
+              <span className="route-cycle-count">{t('tracker.cycle', { count: cycleCount })}</span>
             </div>
           )}
 
@@ -598,7 +602,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
 
           {/* Area display */}
           <div className="current-area-display">
-            <span className="area-label">Area:</span>
+            <span className="area-label">{t('tracker.area')}:</span>
             <select
               value={area}
               onChange={(e) => {
@@ -620,9 +624,9 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
           {/* Items */}
           <div className="run-items">
             <div className="run-items-header">
-              <h3>Items Found ({items.length})</h3>
+              <h3>{t('tracker.itemsFound', { count: items.length })}</h3>
               <button className="btn btn-sm" onClick={() => setShowItemForm(!showItemForm)}>
-                {showItemForm ? "Close" : "+ Item"}
+                {showItemForm ? t('tracker.closeItem') : t('tracker.addItem')}
               </button>
             </div>
 
@@ -630,7 +634,7 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
               <div className="item-form">
                 <ItemSearch
                   onSelect={addItem}
-                  placeholder="Search D2R item..."
+                  placeholder={t('tracker.searchItem')}
                 />
               </div>
             )}

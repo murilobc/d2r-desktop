@@ -1035,6 +1035,59 @@ body {
   gap: 0.5rem;
 }
 
+.history-list.history-virtual-layout {
+  gap: 0;
+}
+
+.history-virtual-container {
+  display: flex;
+  gap: 1rem;
+  height: calc(100vh - 200px);
+  min-height: 400px;
+}
+
+.history-virtual-list {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-detail-panel {
+  width: 400px;
+  max-width: 40%;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+}
+
+.history-detail-panel .history-item-details {
+  border-top: none;
+}
+
+.detail-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-panel-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.history-item-selected {
+  border-color: var(--primary) !important;
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.history-item-skeleton {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
 .history-item {
   background: var(--bg-card);
   border-radius: 8px;
@@ -2662,4 +2715,70 @@ body {
 
 .timeline-modal-header h3 {
   font-size: 1rem;
+}
+
+/* ===== SKELETON LOADING PLACEHOLDERS ===== */
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--border) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-container-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.skeleton-container-table-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-card {
+  border-radius: 8px;
+}
+
+.skeleton-table-row {
+  border-radius: 6px;
+}
+
+.skeleton-chart {
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  border-radius: 4px;
+}
+
+.skeleton-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-page-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }

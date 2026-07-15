@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, Route } from "../types";
 import { AREAS } from "../types";
 import { createRoute, getRoutes, updateRoute, deleteRoute, getCustomAreas } from "../api";
@@ -63,6 +64,7 @@ function SortableAreaItem({ id, area, index, onRemove }: SortableAreaItemProps) 
 }
 
 export default function RouteEditor({ profile }: Props) {
+  const { t } = useTranslation();
   const [routes, setRoutes] = useState<Route[]>([]);
   const [customAreas, setCustomAreas] = useState<string[]>([]);
 
@@ -164,7 +166,7 @@ export default function RouteEditor({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Route Editor</h1>
+        <h1>{t('app.sidebar.routes')}</h1>
         <span className="badge">{profile.name}</span>
       </div>
 
@@ -246,11 +248,11 @@ export default function RouteEditor({ profile }: Props) {
               onClick={handleSave}
               disabled={!canSave || saving}
             >
-              {saving ? "Saving..." : editingRouteId ? "Update Route" : "Save Route"}
+              {saving ? t('common.loading') : editingRouteId ? t('common.save') : t('common.save')}
             </button>
             {editingRouteId && (
               <button type="button" className="btn" onClick={resetForm}>
-                Cancel
+                {t('common.cancel')}
               </button>
             )}
             {!canSave && name.trim() === "" && areas.length >= 2 && (

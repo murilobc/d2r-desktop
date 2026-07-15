@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
@@ -17,6 +18,7 @@ interface OverlayState {
 }
 
 export default function Overlay() {
+  const { t } = useTranslation();
   const [state, setState] = useState<OverlayState>({
     sessionActive: false,
     paused: false,
@@ -44,11 +46,11 @@ export default function Overlay() {
 
   const formatTime = (tenths: number) => {
     const totalSecs = Math.floor(tenths / 10);
-    const t = tenths % 10;
+    const frac = tenths % 10;
     const h = Math.floor(totalSecs / 3600);
     const m = Math.floor((totalSecs % 3600) / 60);
     const s = totalSecs % 60;
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.${t}`;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.${frac}`;
   };
 
   const handleAction = async (action: string) => {
@@ -69,10 +71,10 @@ export default function Overlay() {
     return (
       <div className="overlay-container overlay-idle" onMouseDown={startDrag}>
         <div className="overlay-header">
-          <span className="overlay-title">D2R Tracker</span>
+          <span className="overlay-title">{t("overlay.title")}</span>
           <button className="overlay-close" onClick={() => getCurrentWindow().hide()}>×</button>
         </div>
-        <p className="overlay-msg">Start a session from the main window</p>
+        <p className="overlay-msg">{t("overlay.noSession")}</p>
       </div>
     );
   }
@@ -81,7 +83,7 @@ export default function Overlay() {
     <div className="overlay-container" onMouseDown={startDrag}>
       <div className="overlay-header">
         <span className={`rec-dot ${state.paused ? "paused" : ""}`}>●</span>
-        <span className="overlay-session-label">Session:</span>
+        <span className="overlay-session-label">{t("overlay.sessionTime")}</span>
         <span className="overlay-session-time">{formatTime(state.sessionElapsed)}</span>
         <span className="overlay-area">{state.area}</span>
         <button className="overlay-close" onClick={() => getCurrentWindow().hide()}>×</button>
@@ -90,7 +92,7 @@ export default function Overlay() {
       <div className="overlay-run-timer">{formatTime(state.runElapsed)}</div>
 
       <div className="overlay-stats">
-        Run: {state.sessionRunCount} ({state.totalRunCount})
+        {t("overlay.runCount")} {state.sessionRunCount} ({state.totalRunCount})
       </div>
 
       <div className="overlay-controls">
@@ -112,7 +114,7 @@ export default function Overlay() {
         <div className="overlay-item-search">
           <ItemSearch
             onSelect={handleAddItem}
-            placeholder="Search D2R item..."
+            placeholder={t("tracker.searchItem")}
           />
         </div>
       )}

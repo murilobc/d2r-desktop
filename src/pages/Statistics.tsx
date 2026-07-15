@@ -1,7 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, Stats, DetailedRun, Route, RouteStats } from "../types";
 import { parseTags } from "../types";
-import { getStats, getDetailedRuns, getRoutes, getRouteStats } from "../api";
+import { getStatsCombined, getRouteStats } from "../api";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line,
@@ -21,7 +22,108 @@ const CHART_COLORS = [
   "#ff8c00", "#ff69b4", "#9b59b6", "#3498db", "#2ecc71",
 ];
 
+/** Memoized stat card to avoid re-renders when sibling cards change */
+const StatCard = memo(function StatCard({ value, label }: { readonly value: string | number; readonly label: string }) {
+  return (
+    <div className="stat-card">
+      <div className="stat-value">{value}</div>
+      <div className="stat-label">{label}</div>
+    </div>
+  );
+});
+
+/** Memoized duration line chart */
+const DurationChart = memo(function DurationChart({ data, formatTime }: { readonly data: { run: number; duration: number; items: number }[]; readonly formatTime: (secs: number) => string }) {
+  return (
+    <div className="chart-card">
+      <h3>Duration per Run (Efficiency)</h3>
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
+          <XAxis dataKey="run" stroke="#a0a0a0" fontSize={12} />
+          <YAxis stroke="#a0a0a0" fontSize={12} tickFormatter={(v) => `${Math.floor(v / 60)}m`} />
+          <Tooltip
+            contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }}
+            labelStyle={{ color: "#eaeaea" }}
+            formatter={(value) => [formatTime(Number(value)), "Duration"]}
+            labelFormatter={(label) => `Run #${label}`}
+          />
+          <Line type="monotone" dataKey="duration" stroke="#4ecdc4" strokeWidth={2} dot={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
+
+/** Memoized items-per-run bar chart */
+const ItemsPerRunChart = memo(function ItemsPerRunChart({ data }: { readonly data: { run: number; duration: number; items: number }[] }) {
+  return (
+    <div className="chart-card">
+      <h3>Items per Run</h3>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
+          <XAxis dataKey="run" stroke="#a0a0a0" fontSize={12} />
+          <YAxis stroke="#a0a0a0" fontSize={12} />
+          <Tooltip
+            contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }}
+            labelStyle={{ color: "#eaeaea" }}
+            labelFormatter={(label) => `Run #${label}`}
+          />
+          <Bar dataKey="items" fill="#e94560" radius={[2, 2, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
+
+/** Memoized rarity pie chart */
+const RarityPieChart = memo(function RarityPieChart({ data }: { readonly data: { name: string; value: number }[] }) {
+  return (
+    <div className="chart-card">
+      <h3>Rarity Distribution</h3>
+      <ResponsiveContainer width="100%" height={250}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={90}
+            dataKey="value"
+            label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+            labelLine={false}
+          >
+            {data.map((_, idx) => (
+              <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }} />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
+
+/** Memoized runs-by-area chart */
+const RunsByAreaChart = memo(function RunsByAreaChart({ data }: { readonly data: { area: string; count: number }[] }) {
+  return (
+    <div className="chart-card">
+      <h3>Runs by Area</h3>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data} layout="vertical">
+          <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
+          <XAxis type="number" stroke="#a0a0a0" fontSize={12} />
+          <YAxis type="category" dataKey="area" stroke="#a0a0a0" fontSize={11} width={120} />
+          <Tooltip contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }} />
+          <Bar dataKey="count" fill="#ffd700" radius={[0, 2, 2, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
+
 export default function Statistics({ profile }: Props) {
+  const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
   const [detailedRuns, setDetailedRuns] = useState<DetailedRun[]>([]);
   const [areaFilter, setAreaFilter] = useState<string>("All");
@@ -32,22 +134,22 @@ export default function Statistics({ profile }: Props) {
   const [selectedRouteId, setSelectedRouteId] = useState<string>("");
   const [routeStats, setRouteStats] = useState<RouteStats | null>(null);
 
+  const loadCombinedStats = async (area: string) => {
+    const filter = area === "All" ? undefined : area;
+    const result = await getStatsCombined(profile.id, filter);
+    setStats(result.summary);
+    setDetailedRuns(result.detailed_runs);
+    setRoutes(result.routes);
+  };
+
   useEffect(() => {
-    getStats(profile.id).then(setStats);
-    loadDetailedRuns("All");
-    getRoutes(profile.id).then(setRoutes);
+    loadCombinedStats("All");
   }, [profile.id]);
 
-  const loadDetailedRuns = async (area: string) => {
-    const filter = area === "All" ? undefined : area;
-    const data = await getDetailedRuns(profile.id, filter);
-    setDetailedRuns(data);
-  };
-
-  const handleAreaChange = (area: string) => {
+  const handleAreaChange = useCallback((area: string) => {
     setAreaFilter(area);
-    loadDetailedRuns(area);
-  };
+    loadCombinedStats(area);
+  }, []);
 
   // Computed stats for filtered data
   const filteredStats = useMemo(() => {
@@ -138,14 +240,14 @@ export default function Statistics({ profile }: Props) {
     };
   }, [detailedRuns]);
 
-  const formatTime = (secs: number) => {
+  const formatTime = useCallback((secs: number) => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
     const s = Math.floor(secs % 60);
     if (h > 0) return `${h}h ${m}m ${s}s`;
     if (m > 0) return `${m}m ${s}s`;
     return `${s}s`;
-  };
+  }, []);
 
   const formatTimeFull = (secs: number) => {
     const h = Math.floor(secs / 3600);
@@ -309,7 +411,7 @@ export default function Statistics({ profile }: Props) {
     }
   };
 
-  const handleRouteSelect = async (routeId: string) => {
+  const handleRouteSelect = useCallback(async (routeId: string) => {
     setSelectedRouteId(routeId);
     if (routeId) {
       try {
@@ -321,14 +423,14 @@ export default function Statistics({ profile }: Props) {
     } else {
       setRouteStats(null);
     }
-  };
+  }, []);
 
   if (!stats) return <div className="page"><p>Loading...</p></div>;
 
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Statistics</h1>
+        <h1>{t('statistics.title')}</h1>
         <div className="stats-header-actions">
           <select
             value={areaFilter}
@@ -347,7 +449,7 @@ export default function Statistics({ profile }: Props) {
             {showReport ? "Close Report" : "📊 Detailed Report"}
           </button>
           <button className="btn btn-export" onClick={exportPDF}>
-            📄 Export PDF
+            📄 {t('statistics.exportPdf')}
           </button>
         </div>
       </div>
@@ -356,38 +458,14 @@ export default function Statistics({ profile }: Props) {
         <>
           {/* Summary Cards */}
           <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-value">{filteredStats.totalRuns}</div>
-              <div className="stat-label">Total Runs</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{filteredStats.totalItems}</div>
-              <div className="stat-label">Total Items</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{formatTime(filteredStats.totalTime)}</div>
-              <div className="stat-label">Total Time</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{formatTime(filteredStats.avgTime)}</div>
-              <div className="stat-label">Average Time</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{formatTime(filteredStats.fastestTime)}</div>
-              <div className="stat-label">Fastest</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{filteredStats.itemsPerRun.toFixed(1)}</div>
-              <div className="stat-label">Items/Run</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{filteredStats.itemsPerHour.toFixed(1)}</div>
-              <div className="stat-label">Items/Hour</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{formatTime(filteredStats.slowestTime)}</div>
-              <div className="stat-label">Slowest</div>
-            </div>
+            <StatCard value={filteredStats.totalRuns} label={t('statistics.totalRuns')} />
+            <StatCard value={filteredStats.totalItems} label={t('statistics.totalItems')} />
+            <StatCard value={formatTime(filteredStats.totalTime)} label={t('statistics.totalTime')} />
+            <StatCard value={formatTime(filteredStats.avgTime)} label={t('statistics.avgDuration')} />
+            <StatCard value={formatTime(filteredStats.fastestTime)} label={t('statistics.fastestRun')} />
+            <StatCard value={filteredStats.itemsPerRun.toFixed(1)} label={t('statistics.itemsPerRun')} />
+            <StatCard value={filteredStats.itemsPerHour.toFixed(1)} label={t('statistics.runsPerHour')} />
+            <StatCard value={formatTime(filteredStats.slowestTime)} label="Slowest" />
           </div>
 
           {/* Value Metrics */}
@@ -410,84 +488,22 @@ export default function Statistics({ profile }: Props) {
           <div className="charts-grid">
             {/* Run Duration Over Time */}
             {filteredStats.runTimeline.length > 1 && (
-              <div className="chart-card">
-                <h3>Duration per Run (Efficiency)</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={filteredStats.runTimeline}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
-                    <XAxis dataKey="run" stroke="#a0a0a0" fontSize={12} />
-                    <YAxis stroke="#a0a0a0" fontSize={12} tickFormatter={(v) => `${Math.floor(v / 60)}m`} />
-                    <Tooltip
-                      contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }}
-                      labelStyle={{ color: "#eaeaea" }}
-                      formatter={(value) => [formatTime(Number(value)), "Duration"]}
-                      labelFormatter={(label) => `Run #${label}`}
-                    />
-                    <Line type="monotone" dataKey="duration" stroke="#4ecdc4" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <DurationChart data={filteredStats.runTimeline} formatTime={formatTime} />
             )}
 
             {/* Items per Run Over Time */}
             {filteredStats.runTimeline.length > 1 && (
-              <div className="chart-card">
-                <h3>Items per Run</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={filteredStats.runTimeline}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
-                    <XAxis dataKey="run" stroke="#a0a0a0" fontSize={12} />
-                    <YAxis stroke="#a0a0a0" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }}
-                      labelStyle={{ color: "#eaeaea" }}
-                      labelFormatter={(label) => `Run #${label}`}
-                    />
-                    <Bar dataKey="items" fill="#e94560" radius={[2, 2, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <ItemsPerRunChart data={filteredStats.runTimeline} />
             )}
 
             {/* Rarity Distribution Pie */}
             {filteredStats.rarityData.length > 0 && (
-              <div className="chart-card">
-                <h3>Rarity Distribution</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={filteredStats.rarityData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={90}
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
-                      labelLine={false}
-                    >
-                      {filteredStats.rarityData.map((_, idx) => (
-                        <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <RarityPieChart data={filteredStats.rarityData} />
             )}
 
             {/* Runs by Area Bar Chart */}
             {stats.runs_by_area.length > 0 && areaFilter === "All" && (
-              <div className="chart-card">
-                <h3>Runs by Area</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={stats.runs_by_area} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2a2a4a" />
-                    <XAxis type="number" stroke="#a0a0a0" fontSize={12} />
-                    <YAxis type="category" dataKey="area" stroke="#a0a0a0" fontSize={11} width={120} />
-                    <Tooltip contentStyle={{ background: "#16213e", border: "1px solid #2a2a4a" }} />
-                    <Bar dataKey="count" fill="#ffd700" radius={[0, 2, 2, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <RunsByAreaChart data={stats.runs_by_area} />
             )}
           </div>
 
@@ -594,7 +610,7 @@ export default function Statistics({ profile }: Props) {
       )}
 
       {filteredStats && filteredStats.totalRuns === 0 && (
-        <p className="empty-state">No completed runs {areaFilter !== "All" ? `in ${areaFilter}` : ""}.</p>
+        <p className="empty-state">{t('statistics.noData')}</p>
       )}
 
       {/* TZ Performance Section */}
@@ -605,7 +621,7 @@ export default function Statistics({ profile }: Props) {
       {/* Route Statistics Section */}
       {routes.length > 0 && (
         <div className="stats-section route-stats-section">
-          <h2>Route Statistics</h2>
+          <h2>{t('statistics.routeStats')}</h2>
           <div className="form-group">
             <label htmlFor="route-stats-select">Select Route</label>
             <select
@@ -649,7 +665,7 @@ export default function Statistics({ profile }: Props) {
   );
 }
 
-function TZPerformance({ detailedRuns }: { readonly detailedRuns: DetailedRun[] }) {
+const TZPerformance = memo(function TZPerformance({ detailedRuns }: { readonly detailedRuns: DetailedRun[] }) {
   const tzStats = useMemo(() => {
     const tzRuns = detailedRuns.filter((dr) => {
       const tags = parseTags(dr.run.tags);
@@ -731,4 +747,4 @@ function TZPerformance({ detailedRuns }: { readonly detailedRuns: DetailedRun[] 
       </table>
     </div>
   );
-}
+});

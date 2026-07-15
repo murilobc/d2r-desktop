@@ -119,6 +119,13 @@ pub struct DetailedRun {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CombinedStats {
+    pub summary: Stats,
+    pub detailed_runs: Vec<DetailedRun>,
+    pub routes: Vec<Route>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExportData {
     pub version: String,
     pub exported_at: String,
@@ -432,4 +439,13 @@ pub struct CoopItemInput {
     pub name: String,
     pub item_type: String,
     pub rarity: String,
+}
+
+// ===== DATABASE MAINTENANCE =====
+
+#[derive(Debug, Serialize, Clone)]
+pub struct VacuumResult {
+    pub size_before_bytes: u64,
+    pub size_after_bytes: u64,
+    pub success: bool,
 }

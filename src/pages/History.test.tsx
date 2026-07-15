@@ -78,7 +78,7 @@ describe("History Page", () => {
 
     render(<History profile={mockProfile} />);
     await waitFor(() => {
-      expect(screen.getByText("No completed runs yet.")).toBeInTheDocument();
+      expect(screen.getByText("No runs recorded yet.")).toBeInTheDocument();
     });
   });
 });

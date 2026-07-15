@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, CreateProfileInput, UpdateProfileInput } from "../types";
 import { D2R_CLASSES, GAME_MODES } from "../types";
 import { createProfile, getProfiles, deleteProfile, updateProfile } from "../api";
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function Profiles({ onSelectProfile }: Props) {
+  const { t } = useTranslation();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
@@ -56,7 +58,7 @@ export default function Profiles({ onSelectProfile }: Props) {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Delete this profile and all its data?")) {
+    if (confirm(t('profiles.deleteConfirm'))) {
       await deleteProfile(id);
       loadProfiles();
     }
@@ -65,9 +67,9 @@ export default function Profiles({ onSelectProfile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>Profiles</h1>
+        <h1>{t('profiles.title')}</h1>
         <button className="btn btn-primary" onClick={() => { setShowForm(!showForm); setEditingProfile(null); }}>
-          {showForm ? "Cancel" : "+ New Profile"}
+          {showForm ? t('profiles.cancel') : t('profiles.newProfile')}
         </button>
       </div>
 
@@ -75,7 +77,7 @@ export default function Profiles({ onSelectProfile }: Props) {
         <form className="form-card" onSubmit={handleCreate}>
           <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
-              <label>Name</label>
+              <label>{t('profiles.name')}</label>
               <input
                 type="text"
                 value={form.name}
@@ -85,7 +87,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               />
             </div>
             <div className="form-group">
-              <label>Class</label>
+              <label>{t('profiles.class')}</label>
               <select value={form.class} onChange={(e) => setForm({ ...form, class: e.target.value })}>
                 {D2R_CLASSES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -93,7 +95,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label>Mode</label>
+              <label>{t('profiles.mode')}</label>
               <select value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })}>
                 {GAME_MODES.map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -101,7 +103,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label>MF %</label>
+              <label>{t('profiles.magicFind')}</label>
               <input
                 type="number"
                 min={0}
@@ -112,16 +114,16 @@ export default function Profiles({ onSelectProfile }: Props) {
               />
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">Create Profile</button>
+          <button type="submit" className="btn btn-primary">{t('profiles.create')}</button>
         </form>
       )}
 
       {editingProfile && (
         <form className="form-card" onSubmit={handleSaveEdit}>
-          <h3 style={{ marginBottom: "0.75rem" }}>Edit Profile</h3>
+          <h3 style={{ marginBottom: "0.75rem" }}>{t('profiles.edit')}</h3>
           <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
-              <label>Name</label>
+              <label>{t('profiles.name')}</label>
               <input
                 type="text"
                 value={editingProfile.name}
@@ -130,7 +132,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               />
             </div>
             <div className="form-group">
-              <label>Class</label>
+              <label>{t('profiles.class')}</label>
               <select value={editingProfile.class} onChange={(e) => setEditingProfile({ ...editingProfile, class: e.target.value })}>
                 {D2R_CLASSES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -138,7 +140,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label>Mode</label>
+              <label>{t('profiles.mode')}</label>
               <select value={editingProfile.mode} onChange={(e) => setEditingProfile({ ...editingProfile, mode: e.target.value })}>
                 {GAME_MODES.map((m) => (
                   <option key={m} value={m}>{m}</option>
@@ -146,7 +148,7 @@ export default function Profiles({ onSelectProfile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label>MF %</label>
+              <label>{t('profiles.magicFind')}</label>
               <input
                 type="number"
                 min={0}
@@ -158,8 +160,8 @@ export default function Profiles({ onSelectProfile }: Props) {
             </div>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button type="submit" className="btn btn-primary">Save</button>
-            <button type="button" className="btn" onClick={() => setEditingProfile(null)}>Cancel</button>
+            <button type="submit" className="btn btn-primary">{t('profiles.save')}</button>
+            <button type="button" className="btn" onClick={() => setEditingProfile(null)}>{t('profiles.cancel')}</button>
           </div>
         </form>
       )}
@@ -176,13 +178,13 @@ export default function Profiles({ onSelectProfile }: Props) {
             </div>
             <div className="profile-card-actions">
               <button className="btn btn-sm" onClick={() => onSelectProfile(profile)}>
-                Select
+                {t('profiles.select')}
               </button>
               <button className="btn btn-sm" onClick={() => handleEdit(profile)}>
-                Edit
+                {t('profiles.edit')}
               </button>
               <button className="btn btn-sm btn-danger" onClick={() => handleDelete(profile.id)}>
-                Delete
+                {t('profiles.delete')}
               </button>
             </div>
           </div>

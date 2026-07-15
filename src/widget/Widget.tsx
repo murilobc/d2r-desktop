@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
@@ -23,6 +24,7 @@ function getWidgetPrefs(): { stats: string[] } {
 }
 
 export default function Widget() {
+  const { t } = useTranslation();
   const [state, setState] = useState<OverlayState>({
     sessionActive: false,
     paused: false,
@@ -79,7 +81,7 @@ export default function Widget() {
       <div className="widget-container widget-idle" onMouseDown={startDrag}>
         <span className="widget-profile">{state.profileName || "D2R"}</span>
         <span className="widget-separator">•</span>
-        <span className="widget-total">{state.totalRunCount} runs</span>
+        <span className="widget-total">{state.totalRunCount} {t("widget.runCount")}</span>
       </div>
     );
   }

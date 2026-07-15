@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, XpEntry, XpStats } from "../types";
 import { AREAS } from "../types";
 import { createXpEntry, getXpEntries, getXpStats, deleteXpEntry } from "../api";
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function XPTracker({ profile }: Props) {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState<XpEntry[]>([]);
   const [stats, setStats] = useState<XpStats | null>(null);
 
@@ -91,7 +93,7 @@ export default function XPTracker({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>📈 XP Tracker</h1>
+        <h1>📈 {t('xp.title')}</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
@@ -100,19 +102,19 @@ export default function XPTracker({ profile }: Props) {
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-value">{formatXp(stats.total_xp)}</div>
-            <div className="stat-label">Total XP Tracked</div>
+            <div className="stat-label">{t('xp.totalXp')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{formatXp(Math.round(stats.xp_per_hour))}</div>
-            <div className="stat-label">Avg XP/Hour</div>
+            <div className="stat-label">{t('xp.avgXpPerHour')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{formatDuration(stats.total_time_secs)}</div>
-            <div className="stat-label">Total Time</div>
+            <div className="stat-label">{t('xp.totalTime')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.entries_count}</div>
-            <div className="stat-label">Sessions Logged</div>
+            <div className="stat-label">{t('xp.entries')}</div>
           </div>
         </div>
       )}
@@ -121,17 +123,17 @@ export default function XPTracker({ profile }: Props) {
       <div className="stats-grid" style={{ marginTop: "1rem" }}>
         <div className="stat-card">
           <div className="stat-value">Lv.{level}</div>
-          <div className="stat-label">Current Level</div>
+          <div className="stat-label">{t('xp.level')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">{formatXp(xpToNext)}</div>
-          <div className="stat-label">XP to Next Level</div>
+          <div className="stat-label">{t('xp.xpToNext')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">
             {timeToLevel !== null ? formatDuration(timeToLevel) : "—"}
           </div>
-          <div className="stat-label">Est. Time to Lv.{level + 1}</div>
+          <div className="stat-label">{t('xp.estTime')}</div>
           <div className="stat-sublabel">
             {latestXpPerHour > 0 ? `at ${formatXp(Math.round(latestXpPerHour))}/hr` : "Need data"}
           </div>
@@ -159,11 +161,11 @@ export default function XPTracker({ profile }: Props) {
 
       {/* Log XP Form */}
       <div className="herald-section">
-        <h2>Log XP Session</h2>
+        <h2>{t('xp.logEntry')}</h2>
         <form onSubmit={handleSubmit} className="herald-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="xp-level">Character Level</label>
+              <label htmlFor="xp-level">{t('xp.level')}</label>
               <input
                 id="xp-level"
                 type="number"
@@ -174,7 +176,7 @@ export default function XPTracker({ profile }: Props) {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="xp-gained">XP Gained</label>
+              <label htmlFor="xp-gained">{t('xp.xpGained')}</label>
               <input
                 id="xp-gained"
                 type="number"
@@ -185,7 +187,7 @@ export default function XPTracker({ profile }: Props) {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="xp-duration">Duration (minutes)</label>
+              <label htmlFor="xp-duration">{t('xp.duration')}</label>
               <input
                 id="xp-duration"
                 type="number"
@@ -198,7 +200,7 @@ export default function XPTracker({ profile }: Props) {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="xp-area">Area</label>
+              <label htmlFor="xp-area">{t('xp.area')}</label>
               <select id="xp-area" value={area} onChange={(e) => setArea(e.target.value)}>
                 {AREAS.map((a) => (
                   <option key={a} value={a}>{a}</option>
@@ -206,7 +208,7 @@ export default function XPTracker({ profile }: Props) {
               </select>
             </div>
             <div className="form-group" style={{ flex: 1 }}>
-              <label htmlFor="xp-notes">Notes</label>
+              <label htmlFor="xp-notes">{t('xp.notes')}</label>
               <input
                 id="xp-notes"
                 type="text"
@@ -217,16 +219,16 @@ export default function XPTracker({ profile }: Props) {
             </div>
           </div>
           <button type="submit" className="btn btn-primary">
-            Log XP
+            {t('xp.submit')}
           </button>
         </form>
       </div>
 
       {/* XP History */}
       <div className="herald-section">
-        <h2>XP History</h2>
+        <h2>{t('xp.entries')}</h2>
         {entries.length === 0 ? (
-          <p className="empty-state">No XP sessions logged yet.</p>
+          <p className="empty-state">{t('xp.noEntries')}</p>
         ) : (
           <table className="stats-table">
             <thead>

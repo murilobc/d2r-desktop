@@ -68,12 +68,12 @@ describe("HeraldTracker", () => {
 
   it("renders encounter history section", () => {
     render(<HeraldTracker profile={mockProfile} />);
-    expect(screen.getByText("Encounter History")).toBeInTheDocument();
+    expect(screen.getByText("Encounters")).toBeInTheDocument();
   });
 
   it("shows empty state when no encounters", () => {
     render(<HeraldTracker profile={mockProfile} />);
-    expect(screen.getByText("No herald encounters logged yet.")).toBeInTheDocument();
+    expect(screen.getByText("No encounters logged yet.")).toBeInTheDocument();
   });
 
   it("renders success/fail toggle buttons", () => {

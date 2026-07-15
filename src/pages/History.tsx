@@ -1,4 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
+import { useTranslation } from "react-i18next";
+import { List } from "react-window";
+import { useInfiniteLoader } from "react-window-infinite-loader";
+import type { CSSProperties } from "react";
 import type { Profile, Run, Item } from "../types";
 import { AREAS, parseTags } from "../types";
 import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated, getStats } from "../api";
@@ -14,48 +18,191 @@ interface Props {
   profile: Profile;
 }
 
+const ROW_HEIGHT = 56;
+const OVERSCAN_COUNT = 10;
+const PAGE_SIZE = 100;
+
+interface HistoryRowProps {
+  runs: Run[];
+  runNumbers: Record<string, number>;
+  runItems: Record<string, Item[]>;
+  expandedRuns: Set<string>;
+  sessions: Run[][];
+  onToggleExpand: (runId: string) => void;
+  onDeleteRun: (runId: string) => void;
+  onShowTimeline: (runId: string) => void;
+  onSelectRun: (runId: string) => void;
+  selectedRunId: string | null;
+}
+
+const HistoryRow = memo(function HistoryRow({
+  index,
+  style,
+  ariaAttributes,
+  runs,
+  runNumbers,
+  sessions,
+  onDeleteRun,
+  onShowTimeline,
+  onSelectRun,
+  selectedRunId,
+}: {
+  index: number;
+  style: CSSProperties;
+  ariaAttributes: { "aria-posinset": number; "aria-setsize": number; role: "listitem" };
+} & HistoryRowProps) {
+  const { t } = useTranslation();
+  const run = runs[index];
+  if (!run) {
+    return (
+      <div style={style} {...ariaAttributes} className="history-item history-item-skeleton">
+        <div className="skeleton-shimmer" style={{ width: "100%", height: "40px", borderRadius: "4px" }} />
+      </div>
+    );
+  }
+
+  const formatTime = (secs: number) => {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const getSessionForRun = (runId: string): Run[] | null => {
+    for (const session of sessions) {
+      if (session.some((r) => r.id === runId)) {
+        return session;
+      }
+    }
+    return null;
+  };
+
+  const session = getSessionForRun(run.id);
+  const isSelected = selectedRunId === run.id;
+
+  return (
+    <div style={style} {...ariaAttributes} className={`history-item${isSelected ? " history-item-selected" : ""}`}>
+      <div
+        className="history-item-header"
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelectRun(run.id)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelectRun(run.id); }}
+      >
+        <div className="history-item-info">
+          <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
+          <span className="history-time">{formatTime(run.duration_secs)}</span>
+          {run.player_count && <span className="history-players">/p{run.player_count}</span>}
+          {parseTags(run.tags).length > 0 && (
+            <span className="tag-badges">
+              {parseTags(run.tags).map((tag) => {
+                const predefined = PREDEFINED_TAGS.find((t) => t.value === tag);
+                return <span key={tag} className="tag-badge">{predefined ? predefined.label : tag}</span>;
+              })}
+            </span>
+          )}
+          <span className="history-date">
+            {new Date(run.started_at).toLocaleDateString("en-US")} {new Date(run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+          </span>
+        </div>
+        <div className="history-item-actions">
+          {session && session.length >= 2 && (
+            <button
+              className="btn btn-sm"
+              onClick={(e) => { e.stopPropagation(); onShowTimeline(run.id); }}
+            >
+              📊 {t('history.timeline')}
+            </button>
+          )}
+          <button
+            className="btn btn-sm btn-danger"
+            onClick={(e) => { e.stopPropagation(); onDeleteRun(run.id); }}
+          >
+            {t('common.delete')}
+          </button>
+          <span className="expand-icon">{isSelected ? "▼" : "▶"}</span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function History({ profile }: Props) {
+  const { t } = useTranslation();
   const [runs, setRuns] = useState<Run[]>([]);
-  const [expandedRuns, setExpandedRuns] = useState<Set<string>>(new Set());
   const [runItems, setRunItems] = useState<Record<string, Item[]>>({});
   const [showItemSearch, setShowItemSearch] = useState<string | null>(null);
   const [editingArea, setEditingArea] = useState<string | null>(null);
   const [totalRuns, setTotalRuns] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [tierFilter, setTierFilter] = useState<"all" | TierName>("all");
   const [areaTotals, setAreaTotals] = useState<Record<string, number>>({});
   const [tagFilter, setTagFilter] = useState<string>("all");
   const [timelineSession, setTimelineSession] = useState<{ runs: Run[]; items: Item[] } | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
-  const PAGE_SIZE = 50;
+  const isRowLoaded = useCallback((index: number) => index < runs.length, [runs.length]);
 
-  const loadRuns = async (append = false) => {
-    setLoading(true);
-    const offset = append ? runs.length : 0;
-    const result = await getRunsPaginated(profile.id, offset, PAGE_SIZE);
+  const loadMoreRows = useCallback(async (startIndex: number, stopIndex: number) => {
+    const result = await getRunsPaginated(profile.id, startIndex, stopIndex - startIndex + 1);
     setTotalRuns(result.total);
 
-    const newRuns = append ? [...runs, ...result.runs] : result.runs;
-    setRuns(newRuns);
+    setRuns((prev) => {
+      const newRuns = [...prev];
+      result.runs.forEach((run, i) => {
+        newRuns[startIndex + i] = run;
+      });
+      return newRuns;
+    });
 
-    // Load items only for the new batch and auto-expand those with items
-    const batchRuns = result.runs;
+    // Load items for the batch
     const itemResults = await Promise.all(
-      batchRuns.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
+      result.runs.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
     );
 
-    const newItems = append ? { ...runItems } : {};
-    const toExpand = append ? new Set(expandedRuns) : new Set<string>();
-    for (const { runId, items } of itemResults) {
-      newItems[runId] = items;
-      if (items.length > 0) {
-        toExpand.add(runId);
+    setRunItems((prev) => {
+      const updated = { ...prev };
+      for (const { runId, items } of itemResults) {
+        updated[runId] = items;
       }
-    }
-    setRunItems(newItems);
-    setExpandedRuns(toExpand);
-    setLoading(false);
-  };
+      return updated;
+    });
+  }, [profile.id]);
+
+  const onRowsRendered = useInfiniteLoader({
+    isRowLoaded,
+    loadMoreRows,
+    minimumBatchSize: PAGE_SIZE,
+    rowCount: totalRuns || 1,
+    threshold: 15,
+  });
+
+  // Initial load
+  useEffect(() => {
+    const loadInitial = async () => {
+      const result = await getRunsPaginated(profile.id, 0, PAGE_SIZE);
+      setTotalRuns(result.total);
+      setRuns(result.runs);
+
+      const itemResults = await Promise.all(
+        result.runs.map((run) => getItems(run.id).then((items) => ({ runId: run.id, items })))
+      );
+
+      const newItems: Record<string, Item[]> = {};
+      for (const { runId, items } of itemResults) {
+        newItems[runId] = items;
+      }
+      setRunItems(newItems);
+
+      // Auto-select first run with items
+      const firstWithItems = itemResults.find(({ items }) => items.length > 0);
+      if (firstWithItems) {
+        setSelectedRunId(firstWithItems.runId);
+      }
+    };
+
+    loadInitial();
+    loadAreaTotals();
+  }, [profile.id]);
 
   // Load area totals for correct run numbering
   const loadAreaTotals = async () => {
@@ -67,16 +214,12 @@ export default function History({ profile }: Props) {
     setAreaTotals(totals);
   };
 
-  useEffect(() => {
-    loadRuns();
-    loadAreaTotals();
-  }, [profile.id]);
-
   // Group consecutive runs into sessions (gap > 10 min = new session)
   const SESSION_GAP_MS = 10 * 60 * 1000;
   const sessions = useMemo(() => {
     if (runs.length === 0) return [];
-    const sorted = [...runs].sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+    const sorted = [...runs].filter(Boolean).sort((a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime());
+    if (sorted.length === 0) return [];
     const groups: Run[][] = [[sorted[0]]];
     for (let i = 1; i < sorted.length; i++) {
       const prev = sorted[i - 1];
@@ -92,20 +235,15 @@ export default function History({ profile }: Props) {
     return groups;
   }, [runs]);
 
-  // Find which session a run belongs to
-  const getSessionForRun = (runId: string): Run[] | null => {
-    for (const session of sessions) {
-      if (session.some((r) => r.id === runId)) {
-        return session;
+  const handleShowTimeline = useCallback(async (runId: string) => {
+    let session: Run[] | null = null;
+    for (const s of sessions) {
+      if (s.some((r) => r.id === runId)) {
+        session = s;
+        break;
       }
     }
-    return null;
-  };
-
-  const handleShowTimeline = async (runId: string) => {
-    const session = getSessionForRun(runId);
     if (!session || session.length < 2) return;
-    // Load all items for runs in this session
     const allItems: Item[] = [];
     for (const run of session) {
       if (runItems[run.id]) {
@@ -116,28 +254,24 @@ export default function History({ profile }: Props) {
       }
     }
     setTimelineSession({ runs: session, items: allItems });
-  };
+  }, [sessions, runItems]);
 
-  const toggleExpand = (runId: string) => {
-    setExpandedRuns((prev) => {
-      const next = new Set(prev);
-      if (next.has(runId)) {
-        next.delete(runId);
-      } else {
-        next.add(runId);
-      }
-      return next;
-    });
+  const handleSelectRun = useCallback((runId: string) => {
+    setSelectedRunId((prev) => prev === runId ? null : runId);
     setShowItemSearch(null);
     setEditingArea(null);
-  };
+  }, []);
 
-  const handleDeleteRun = async (id: string) => {
-    if (confirm("Delete this run and its items?")) {
+  const handleDeleteRun = useCallback(async (id: string) => {
+    if (confirm(t('history.deleteConfirm'))) {
       await deleteRun(id);
-      loadRuns();
+      // Reload
+      const result = await getRunsPaginated(profile.id, 0, runs.length);
+      setTotalRuns(result.total);
+      setRuns(result.runs);
+      if (selectedRunId === id) setSelectedRunId(null);
     }
-  };
+  }, [profile.id, runs.length, selectedRunId]);
 
   const handleDeleteItem = async (itemId: string, runId: string) => {
     await deleteItem(itemId);
@@ -160,7 +294,7 @@ export default function History({ profile }: Props) {
   const handleChangeArea = async (runId: string, newArea: string) => {
     await updateRunArea(runId, newArea);
     setRuns((prev) =>
-      prev.map((r) => (r.id === runId ? { ...r, area: newArea } : r))
+      prev.map((r) => (r && r.id === runId ? { ...r, area: newArea } : r))
     );
     setEditingArea(null);
   };
@@ -173,12 +307,11 @@ export default function History({ profile }: Props) {
   };
 
   // Compute run number per area using global totals
-  // Runs are in DESC order (newest first), so the first run of each area = total for that area
-  // and each subsequent run decrements
   const runNumbers = useMemo(() => {
     const numbers: Record<string, number> = {};
     const counters: Record<string, number> = {};
     for (const run of runs) {
+      if (!run) continue;
       if (counters[run.area] === undefined) {
         counters[run.area] = areaTotals[run.area] || 0;
       }
@@ -192,6 +325,7 @@ export default function History({ profile }: Props) {
   const availableTags = useMemo(() => {
     const tagSet = new Set<string>();
     for (const run of runs) {
+      if (!run) continue;
       for (const tag of parseTags(run.tags)) {
         tagSet.add(tag);
       }
@@ -199,23 +333,57 @@ export default function History({ profile }: Props) {
     return Array.from(tagSet).sort();
   }, [runs]);
 
-  // Filter runs by tag
+  // Filter runs by tag - for virtualized list we filter the indices
   const filteredRuns = useMemo(() => {
     if (tagFilter === "all") return runs;
-    return runs.filter((run) => parseTags(run.tags).includes(tagFilter));
+    return runs.filter((run) => run && parseTags(run.tags).includes(tagFilter));
   }, [runs, tagFilter]);
+
+  // Compute filtered run numbers (when tag filter is active, renumber within filtered set)
+  const filteredRunNumbers = useMemo(() => {
+    if (tagFilter === "all") return runNumbers;
+    const numbers: Record<string, number> = {};
+    const counters: Record<string, number> = {};
+    for (const run of filteredRuns) {
+      if (!run) continue;
+      if (counters[run.area] === undefined) {
+        counters[run.area] = areaTotals[run.area] || 0;
+      }
+      numbers[run.id] = counters[run.area];
+      counters[run.area]--;
+    }
+    return numbers;
+  }, [filteredRuns, tagFilter, runNumbers, areaTotals]);
+
+  // The selected run's detail
+  const selectedRun = selectedRunId ? runs.find((r) => r && r.id === selectedRunId) : null;
+
+  const rowProps: HistoryRowProps = useMemo(() => ({
+    runs: filteredRuns,
+    runNumbers: filteredRunNumbers,
+    runItems,
+    expandedRuns: new Set<string>(),
+    sessions,
+    onToggleExpand: handleSelectRun,
+    onDeleteRun: handleDeleteRun,
+    onShowTimeline: handleShowTimeline,
+    onSelectRun: handleSelectRun,
+    selectedRunId,
+  }), [filteredRuns, filteredRunNumbers, runItems, sessions, handleSelectRun, handleDeleteRun, handleShowTimeline, selectedRunId]);
+
+  const listItemCount = tagFilter === "all" ? (totalRuns || filteredRuns.length) : filteredRuns.length;
 
   return (
     <div className="page">
       <div className="page-header">
-        <h1>History</h1>
-        <span className="badge">{profile.name} - {totalRuns} runs</span>
+        <h1>{t('history.title')}</h1>
+        <span className="badge">{profile.name} - {totalRuns} {t('profiles.totalRuns')}</span>
       </div>
 
-      {runs.length === 0 ? (
-        <p className="empty-state">No completed runs yet.</p>
+      {runs.length === 0 && totalRuns === 0 ? (
+        <p className="empty-state">{t('history.noRuns')}</p>
       ) : (
-        <div className="history-list">
+        <div className="history-list history-virtual-layout">
           <div className="tier-filter">
             <label htmlFor="history-tier-filter">Filter by tier:</label>
             <select
@@ -245,59 +413,36 @@ export default function History({ profile }: Props) {
               </select>
             </div>
           </div>
-          {filteredRuns.map((run) => (
-            <div key={run.id} className="history-item">
-              <div
-                className="history-item-header"
-                role="button"
-                tabIndex={0}
-                onClick={() => toggleExpand(run.id)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggleExpand(run.id); }}
-              >
-                <div className="history-item-info">
-                  <span className="history-area">{run.area} <span className="run-number">#{runNumbers[run.id]}</span></span>
-                  <span className="history-time">{formatTime(run.duration_secs)}</span>
-                  {run.player_count && <span className="history-players">/p{run.player_count}</span>}
-                  {parseTags(run.tags).length > 0 && (
-                    <span className="tag-badges">
-                      {parseTags(run.tags).map((tag) => {
-                        const predefined = PREDEFINED_TAGS.find((t) => t.value === tag);
-                        return <span key={tag} className="tag-badge">{predefined ? predefined.label : tag}</span>;
-                      })}
-                    </span>
-                  )}
-                  <span className="history-date">
-                    {new Date(run.started_at).toLocaleDateString("en-US")} {new Date(run.started_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-                <div className="history-item-actions">
-                  {getSessionForRun(run.id) && (getSessionForRun(run.id)?.length ?? 0) >= 2 && (
-                    <button
-                      className="btn btn-sm"
-                      onClick={(e) => { e.stopPropagation(); handleShowTimeline(run.id); }}
-                    >
-                      📊 Timeline
-                    </button>
-                  )}
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteRun(run.id); }}
-                  >
-                    Delete
-                  </button>
-                  <span className="expand-icon">{expandedRuns.has(run.id) ? "▼" : "▶"}</span>
-                </div>
-              </div>
 
-              {expandedRuns.has(run.id) && (
+          <div className="history-virtual-container">
+            <div className="history-virtual-list">
+              <List
+                rowComponent={HistoryRow as unknown as (props: { ariaAttributes: { "aria-posinset": number; "aria-setsize": number; role: "listitem" }; index: number; style: CSSProperties } & HistoryRowProps) => React.ReactElement | null}
+                rowCount={listItemCount}
+                rowHeight={ROW_HEIGHT}
+                rowProps={rowProps}
+                overscanCount={OVERSCAN_COUNT}
+                onRowsRendered={tagFilter === "all" ? onRowsRendered : undefined}
+                style={{ height: "100%", width: "100%" }}
+              />
+            </div>
+
+            {/* Detail panel for selected run */}
+            {selectedRun && (
+              <div className="history-detail-panel">
                 <div className="history-item-details">
+                  <div className="detail-panel-header">
+                    <h3>{selectedRun.area} #{runNumbers[selectedRun.id]} — {formatTime(selectedRun.duration_secs)}</h3>
+                    <button className="btn btn-sm" onClick={() => setSelectedRunId(null)}>✕ Close</button>
+                  </div>
+
                   {/* Area edit */}
                   <div className="history-edit-row">
-                    <span className="edit-label">Area:</span>
-                    {editingArea === run.id ? (
+                    <span className="edit-label">{t('history.area')}:</span>
+                    {editingArea === selectedRun.id ? (
                       <select
-                        value={run.area}
-                        onChange={(e) => handleChangeArea(run.id, e.target.value)}
+                        value={selectedRun.area}
+                        onChange={(e) => handleChangeArea(selectedRun.id, e.target.value)}
                         autoFocus
                         onBlur={() => setEditingArea(null)}
                       >
@@ -310,41 +455,41 @@ export default function History({ profile }: Props) {
                         className="editable-value"
                         role="button"
                         tabIndex={0}
-                        onClick={() => setEditingArea(run.id)}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setEditingArea(run.id); }}
+                        onClick={() => setEditingArea(selectedRun.id)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setEditingArea(selectedRun.id); }}
                         title="Click to change"
                       >
-                        {run.area} ✎
+                        {selectedRun.area} ✎
                       </span>
                     )}
                   </div>
 
-                  {run.notes && <p className="run-notes">Notes: {run.notes}</p>}
+                  {selectedRun.notes && <p className="run-notes">Notes: {selectedRun.notes}</p>}
 
                   {/* Items */}
                   <div className="history-items-section">
                     <div className="run-items-header">
-                      <h4>Items ({runItems[run.id]?.length || 0})</h4>
+                      <h4>{t('history.items')} ({runItems[selectedRun.id]?.length || 0})</h4>
                       <button
                         className="btn btn-sm"
-                        onClick={() => setShowItemSearch(showItemSearch === run.id ? null : run.id)}
+                        onClick={() => setShowItemSearch(showItemSearch === selectedRun.id ? null : selectedRun.id)}
                       >
-                        {showItemSearch === run.id ? "Close" : "+ Add Item"}
+                        {showItemSearch === selectedRun.id ? t('common.close') : "+ Add Item"}
                       </button>
                     </div>
 
-                    {showItemSearch === run.id && (
+                    {showItemSearch === selectedRun.id && (
                       <div className="item-form">
                         <ItemSearch
-                          onSelect={(item) => handleAddItem(item, run.id)}
+                          onSelect={(item) => handleAddItem(item, selectedRun.id)}
                           placeholder="Search D2R item..."
                         />
                       </div>
                     )}
 
-                    {runItems[run.id] && runItems[run.id].length > 0 ? (
+                    {runItems[selectedRun.id] && runItems[selectedRun.id].length > 0 ? (
                       <div className="items-list">
-                        {runItems[run.id]
+                        {runItems[selectedRun.id]
                           .filter((item) => tierFilter === "all" || getItemTierName(item.name, item.rarity) === tierFilter)
                           .map((item) => (
                           <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
@@ -352,7 +497,7 @@ export default function History({ profile }: Props) {
                             <TierBadge itemName={item.name} category={item.rarity} />
                             <span className="item-type">{item.item_type}</span>
                             <span className="item-rarity">{item.rarity}</span>
-                            <button className="btn-icon" onClick={() => handleDeleteItem(item.id, run.id)}>✕</button>
+                            <button className="btn-icon" onClick={() => handleDeleteItem(item.id, selectedRun.id)}>✕</button>
                           </div>
                         ))}
                       </div>
@@ -361,19 +506,9 @@ export default function History({ profile }: Props) {
                     )}
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
-          {runs.length < totalRuns && (
-            <button
-              className="btn btn-primary btn-lg"
-              style={{ width: "100%", marginTop: "1rem" }}
-              onClick={() => loadRuns(true)}
-              disabled={loading}
-            >
-              {loading ? "Loading..." : `Load More (${runs.length}/${totalRuns})`}
-            </button>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

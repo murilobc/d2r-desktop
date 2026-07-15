@@ -10,6 +10,8 @@ import type {
   CreateItemInput,
   Stats,
   DetailedRun,
+  CombinedStats,
+  VacuumResult,
   ExportData,
   ImportResult,
   PaginatedRuns,
@@ -40,6 +42,11 @@ import type {
   CoopSessionView,
   CoopItemInput,
 } from "./types";
+import type {
+  GistPullResult,
+  GistPushResult,
+  GistTestResult,
+} from "./services/cloud-sync.types";
 
 // Profiles
 export const createProfile = (input: CreateProfileInput) =>
@@ -90,6 +97,12 @@ export const getStats = (profileId: string) =>
 export const getDetailedRuns = (profileId: string, areaFilter?: string) =>
   invoke<DetailedRun[]>("get_detailed_runs", { profileId, areaFilter: areaFilter || null });
 
+export const getStatsCombined = (profileId: string, areaFilter?: string) =>
+  invoke<CombinedStats>("get_stats_combined", { profileId, areaFilter: areaFilter || null });
+
+// Database Maintenance
+export const vacuumDatabase = () =>
+  invoke<VacuumResult>("vacuum_database");
 
 // Export / Import
 export const exportData = () => invoke<ExportData>("export_data");
@@ -242,3 +255,31 @@ export const coopLogItem = (item: CoopItemInput, playerName: string) =>
 
 export const getCoopState = () =>
   invoke<CoopSessionView | null>("get_coop_state");
+
+// Cloud Sync
+export const saveSyncToken = (service: string, token: string) =>
+  invoke<void>("save_sync_token", { service, token });
+
+export const getSyncToken = (service: string) =>
+  invoke<string | null>("get_sync_token", { service });
+
+export const deleteSyncToken = (service: string) =>
+  invoke<void>("delete_sync_token", { service });
+
+export const githubGistPull = (gistId: string | null) =>
+  invoke<GistPullResult | null>("github_gist_pull", { gistId });
+
+export const githubGistPush = (gistId: string | null, payload: string) =>
+  invoke<GistPushResult>("github_gist_push", { gistId, payload });
+
+export const githubGistTest = () =>
+  invoke<GistTestResult>("github_gist_test");
+
+export const localFilePull = (folderPath: string) =>
+  invoke<string | null>("local_file_pull", { folderPath });
+
+export const localFilePush = (folderPath: string, payload: string) =>
+  invoke<void>("local_file_push", { folderPath, payload });
+
+export const localFolderValidate = (folderPath: string) =>
+  invoke<boolean>("local_folder_validate", { folderPath });

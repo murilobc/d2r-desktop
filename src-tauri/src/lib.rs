@@ -2,6 +2,7 @@ mod commands;
 mod coop;
 mod db;
 mod models;
+mod sync;
 
 use db::{init_db, DbState};
 use rusqlite::Connection;
@@ -50,6 +51,7 @@ pub fn run() {
             commands::get_all_items,
             commands::delete_item,
             commands::get_stats,
+            commands::get_stats_combined,
             commands::get_detailed_runs,
             commands::export_data,
             commands::import_data,
@@ -95,6 +97,8 @@ pub fn run() {
             // Backup Scheduler
             commands::run_auto_backup,
             commands::cleanup_old_backups,
+            // Database Maintenance
+            commands::vacuum_database,
             // Co-op
             coop::start_coop_server,
             coop::stop_coop_server,
@@ -105,6 +109,16 @@ pub fn run() {
             coop::coop_end_session,
             coop::coop_log_item,
             coop::get_coop_state,
+            // Cloud Sync
+            sync::save_sync_token,
+            sync::get_sync_token,
+            sync::delete_sync_token,
+            sync::github_gist_pull,
+            sync::github_gist_push,
+            sync::github_gist_test,
+            sync::local_file_pull,
+            sync::local_file_push,
+            sync::local_folder_validate,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

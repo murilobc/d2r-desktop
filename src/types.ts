@@ -109,6 +109,18 @@ export interface DetailedRun {
   items: Item[];
 }
 
+export interface CombinedStats {
+  summary: Stats;
+  detailed_runs: DetailedRun[];
+  routes: Route[];
+}
+
+export interface VacuumResult {
+  size_before_bytes: number;
+  size_after_bytes: number;
+  success: boolean;
+}
+
 export interface ExportData {
   version: string;
   exported_at: string;

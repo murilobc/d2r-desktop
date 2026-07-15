@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Profile, ColossalAncientAttempt, ColossalAncientStats } from "../types";
 import { COLOSSAL_BOSSES } from "../types";
 import { createAncientAttempt, getAncientAttempts, getAncientStats, deleteAncientAttempt } from "../api";
@@ -16,6 +17,7 @@ const BOSS_ICONS: Record<string, string> = {
 };
 
 export default function ColossalAncients({ profile }: Props) {
+  const { t } = useTranslation();
   const [attempts, setAttempts] = useState<ColossalAncientAttempt[]>([]);
   const [stats, setStats] = useState<ColossalAncientStats | null>(null);
 
@@ -73,7 +75,7 @@ export default function ColossalAncients({ profile }: Props) {
   return (
     <div className="page">
       <div className="page-header">
-        <h1>🏛️ Colossal Ancients</h1>
+        <h1>🏛️ {t('ancients.title')}</h1>
         <span className="badge">{profile.name} - {profile.class}</span>
       </div>
 
@@ -104,11 +106,11 @@ export default function ColossalAncients({ profile }: Props) {
         <div className="stats-grid" style={{ marginTop: "1rem" }}>
           <div className="stat-card">
             <div className="stat-value">{stats.total_attempts}</div>
-            <div className="stat-label">Total Attempts</div>
+            <div className="stat-label">{t('ancients.totalAttempts')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.total_successes}</div>
-            <div className="stat-label">Total Victories</div>
+            <div className="stat-label">{t('ancients.success')}</div>
           </div>
           <div className="stat-card">
             <div className="stat-value">{stats.bosses_defeated.length}/5</div>
@@ -120,18 +122,18 @@ export default function ColossalAncients({ profile }: Props) {
                 ? `${((stats.total_successes / stats.total_attempts) * 100).toFixed(1)}%`
                 : "0%"}
             </div>
-            <div className="stat-label">Success Rate</div>
+            <div className="stat-label">{t('ancients.successRate')}</div>
           </div>
         </div>
       )}
 
       {/* Log Attempt Form */}
       <div className="herald-section">
-        <h2>Log Attempt</h2>
+        <h2>{t('ancients.logAttempt')}</h2>
         <form onSubmit={handleSubmit} className="herald-form">
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="colossal-boss">Boss</label>
+              <label htmlFor="colossal-boss">{t('ancients.boss')}</label>
               <select id="colossal-boss" value={bossName} onChange={(e) => setBossName(e.target.value)}>
                 {COLOSSAL_BOSSES.map((b) => (
                   <option key={b} value={b}>{BOSS_ICONS[b]} {b}</option>
@@ -139,28 +141,28 @@ export default function ColossalAncients({ profile }: Props) {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="colossal-result">Result</label>
+              <label htmlFor="colossal-result">{t('ancients.result')}</label>
               <div className="result-toggle">
                 <button
                   type="button"
                   className={`btn btn-sm ${result === "success" ? "btn-primary" : ""}`}
                   onClick={() => setResult("success")}
                 >
-                  ✓ Success
+                  ✓ {t('ancients.success')}
                 </button>
                 <button
                   type="button"
                   className={`btn btn-sm ${result === "fail" ? "btn-danger" : ""}`}
                   onClick={() => setResult("fail")}
                 >
-                  ✕ Fail
+                  ✕ {t('ancients.fail')}
                 </button>
               </div>
             </div>
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="colossal-duration-min">Duration</label>
+              <label htmlFor="colossal-duration-min">{t('ancients.duration')}</label>
               <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
                 <input
                   id="colossal-duration-min"
@@ -186,7 +188,7 @@ export default function ColossalAncients({ profile }: Props) {
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="colossal-drops">Drops</label>
+              <label htmlFor="colossal-drops">{t('ancients.drops')}</label>
               <input
                 id="colossal-drops"
                 type="text"
@@ -198,7 +200,7 @@ export default function ColossalAncients({ profile }: Props) {
           </div>
           <div className="form-row">
             <div className="form-group" style={{ flex: 1 }}>
-              <label htmlFor="colossal-notes">Notes</label>
+              <label htmlFor="colossal-notes">{t('ancients.notes')}</label>
               <input
                 id="colossal-notes"
                 type="text"
@@ -209,16 +211,16 @@ export default function ColossalAncients({ profile }: Props) {
             </div>
           </div>
           <button type="submit" className="btn btn-primary">
-            Log Attempt
+            {t('ancients.submit')}
           </button>
         </form>
       </div>
 
       {/* Attempt History */}
       <div className="herald-section">
-        <h2>Attempt History</h2>
+        <h2>{t('ancients.attempts')}</h2>
         {attempts.length === 0 ? (
-          <p className="empty-state">No Colossal Ancient attempts logged yet.</p>
+          <p className="empty-state">{t('ancients.noAttempts')}</p>
         ) : (
           <table className="stats-table">
             <thead>

@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_3.3.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_3.3.0_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_3.3.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_3.3.0_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_4.0.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_4.0.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -136,16 +136,17 @@ Define multi-area farming routes and use them in the Run Tracker for auto-advanc
 
 ![History](docs/mockups/history.svg)
 
-All completed runs with full details.
+All completed runs with full details, using virtual scrolling for smooth performance with 10,000+ runs.
 
+- **Virtual scroll** — Only renders visible rows (react-window), handles datasets of any size smoothly
 - **Run list** — Sorted newest first, showing area, run number, duration, player count badge, and date
-- **Pagination** — Loads 50 runs at a time with "Load More" for performance
-- **Auto-expand** — Runs with items found are automatically expanded
-- **Click to expand/collapse** — Toggle run details manually
+- **Detail panel** — Click a run to show its items, area edit, and actions in a side panel
+- **Infinite scroll** — Automatically fetches more runs as you scroll (no "Load More" button needed)
 - **Edit area** — Change a run's area retroactively
 - **Items list** — All items found in that run with rarity color and value tier badge
 - **+ Add Item** — Add items to a past run
 - **Filter by tier** — Filter visible items by value tier (All / Low / Mid / High / GG)
+- **Filter by tag** — Filter runs by tag
 - **Delete** — Remove a run and its items permanently
 
 ---
@@ -255,7 +256,22 @@ No profile selection required — accessible anytime.
 
 ![Settings](docs/mockups/settings.svg)
 
-Configure hotkeys, sounds, OBS integration, and Terror Zone preferences.
+Configure hotkeys, sounds, OBS integration, cloud sync, and language preferences.
+
+**Language:**
+- Language selector at the top of Settings
+- Supported: English (US), Português (Brasil), Español
+- Instant UI switching — no restart required
+- Dates and numbers adapt to locale formatting
+
+**Cloud Sync:**
+- Sync data across machines via GitHub Gist (private) or local folder (Dropbox/OneDrive/Google Drive)
+- GitHub token stored securely in OS keychain (never in localStorage)
+- Field-level merge with last-write-wins conflict resolution
+- Sync status indicator in sidebar footer with manual sync button
+- Auto-sync on app close (configurable)
+- Test Connection button to verify setup
+- Fully optional — app works 100% offline without sync
 
 **Global Hotkeys:**
 - **Next Run** — Default: F9 (works even when D2R is focused)
@@ -278,6 +294,11 @@ Configure hotkeys, sounds, OBS integration, and Terror Zone preferences.
 
 **Theme:**
 - Dark/Light toggle from the sidebar
+
+**Database Maintenance:**
+- Compact Database button runs SQLite VACUUM to reclaim unused space
+- Shows file size before/after compaction
+- Recommended after deleting many runs or items
 
 ---
 
@@ -316,8 +337,8 @@ Always visible, provides navigation and utilities:
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, TypeScript, Recharts, jsPDF |
-| Backend | Rust, Tauri 2, SQLite (rusqlite) |
+| Frontend | React 19, TypeScript, Recharts, jsPDF, react-i18next, react-window |
+| Backend | Rust, Tauri 2, SQLite (rusqlite), reqwest, keyring |
 | Desktop | Tauri (native webview, no Electron) |
 | Build | Vite, Cargo |
 | CI/CD | GitHub Actions, automated tests |
@@ -374,9 +395,22 @@ d2r-desktop/
 │   │   ├── TierBadge.tsx       # Item value tier badge
 │   │   ├── TerrorZoneDisplay.tsx # Active Terror Zone indicator
 │   │   ├── QuickTags.tsx       # Quick tag buttons
+│   │   ├── Skeleton.tsx        # Loading skeleton placeholders
+│   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
+│   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer
 │   │   └── UpdateChecker.tsx   # Auto-update banner
 │   ├── hooks/
 │   │   └── useTheme.ts        # Dark/light theme toggle
+│   ├── i18n/                   # Internationalization
+│   │   ├── index.ts            # i18next configuration
+│   │   ├── formatters.ts       # Locale-aware date/number formatters
+│   │   └── locales/            # Translation JSON files (en-US, pt-BR, es)
+│   ├── services/               # Business logic services
+│   │   ├── cloud-sync.ts       # Sync engine orchestrator
+│   │   ├── cloud-sync.merge.ts # Field-level merge algorithm
+│   │   ├── cloud-sync.serialization.ts # Payload serialization
+│   │   ├── cloud-sync.validation.ts    # Schema validation
+│   │   └── cloud-sync.types.ts # Sync type definitions
 │   ├── overlay/                # In-game overlay window
 │   ├── pages/
 │   │   ├── Profiles.tsx
@@ -399,7 +433,8 @@ d2r-desktop/
 │       ├── lib.rs              # App setup & plugin registration
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
-│       └── commands.rs         # Tauri commands
+│       ├── commands.rs         # Tauri commands
+│       └── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
 ├── .github/workflows/          # CI/CD
 │   ├── ci.yml                  # PR checks
 │   └── build.yml               # Release builds (signed, with updater)

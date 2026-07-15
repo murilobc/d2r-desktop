@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 import { invoke } from "@tauri-apps/api/core";
 import History from "./History";
-import { mockProfile, mockItems } from "../test/mocks";
+import { mockProfile } from "../test/mocks";
 import type { Run } from "../types";
 
 vi.mock("@tauri-apps/api/core");

@@ -893,7 +893,7 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
         isoTimestampArb,
         fc.string({ minLength: 1, maxLength: 20 }),
         fc.string({ minLength: 1, maxLength: 20 }),
-        (idA, idB, sharedTs, nameA, nameB) => {
+        (idA, idB, _sharedTs, nameA, nameB) => {
           // Ensure IDs are different and names are different
           fc.pre(idA !== idB);
           fc.pre(nameA !== nameB);
@@ -910,11 +910,6 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
             created_at: "2024-01-01T00:00:00.000Z",
             updated_at: "2024-01-01T00:00:00.000Z",
           };
-
-          // Determine which id is lexicographically greater
-          const greaterId = idA >= idB ? idA : idB;
-          const lesserId = idA >= idB ? idB : idA;
-          const greaterName = idA >= idB ? nameA : nameB;
 
           const local: SyncPayload = {
             schema_version: 1,

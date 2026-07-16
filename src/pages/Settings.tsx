@@ -283,7 +283,7 @@ function KeybindProfilesSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.keybindProfiles.title')}</h2>
       <p className="settings-description">
         {t('settings.keybindProfiles.description')}
@@ -360,7 +360,7 @@ function DatabaseMaintenanceSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.database.title')}</h2>
       <p className="settings-description">
         {t('settings.database.description')}
@@ -459,7 +459,7 @@ function BackupSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.backup.title')}</h2>
       <p className="settings-description">
         {t('settings.backup.description')}
@@ -467,7 +467,7 @@ function BackupSettings() {
 
       <div className="hotkey-row">
         <span className="hotkey-label">{t('settings.backup.folder')}</span>
-        <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
+        <span className="folder-path" title={config.folderPath || undefined}>
           {config.folderPath || t('settings.backup.notSet')}
         </span>
         <button className="btn btn-sm" onClick={handleChooseFolder}>
@@ -484,9 +484,9 @@ function BackupSettings() {
           value={config.keepCount}
           onChange={handleKeepCountChange}
           className="hotkey-btn"
-          style={{ width: "4rem" }}
+          style={{ width: "4rem", minWidth: "4rem" }}
         />
-        <span className="settings-description">{t('settings.backup.backups')}</span>
+        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{t('settings.backup.backups')}</span>
       </div>
 
       <div className="hotkey-row">
@@ -501,7 +501,7 @@ function BackupSettings() {
 
       <div className="hotkey-row">
         <span className="hotkey-label">{t('settings.backup.lastBackup')}</span>
-        <span className="settings-description">
+        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
           {config.lastBackup ? new Date(config.lastBackup).toLocaleString() : t('settings.backup.never')}
         </span>
       </div>
@@ -538,7 +538,7 @@ function SoundSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.sound.title')}</h2>
       <p className="settings-description">
         {t('settings.sound.description')}
@@ -613,7 +613,7 @@ function ObsSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.obs.title')}</h2>
       <p className="settings-description">
         {t('settings.obs.description')}
@@ -638,7 +638,7 @@ function ObsSettings() {
         <>
           <div className="hotkey-row">
             <span className="hotkey-label">{t('settings.obs.filePath')}</span>
-            <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
+            <span className="folder-path" title={filePath}>
               {filePath}
             </span>
           </div>
@@ -657,7 +657,6 @@ function ObsSettings() {
     </div>
   );
 }
-
 
 
 function TerrorZoneSettings() {
@@ -682,7 +681,7 @@ function TerrorZoneSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t('settings.terrorZones.title')}</h2>
       <p className="settings-description">
         {t('settings.terrorZones.description')}

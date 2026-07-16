@@ -1615,6 +1615,7 @@ body {
   background: var(--bg-card);
   border-radius: 8px;
   padding: 1.5rem;
+  margin-bottom: 1.5rem;
   border: 1px solid var(--border);
 }
 
@@ -1626,25 +1627,39 @@ body {
 .settings-description {
   color: var(--text-muted);
   font-size: 0.85rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .hotkey-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 }
 
 .hotkey-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-light, rgba(255, 255, 255, 0.05));
+  gap: 0.5rem;
+}
+
+.hotkey-row:last-child {
+  border-bottom: none;
 }
 
 .hotkey-label {
+  width: 180px;
+  flex-shrink: 0;
+  font-weight: 500;
   font-size: 0.9rem;
+}
+
+.hotkey-row-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .hotkey-btn {
@@ -1669,6 +1684,9 @@ body {
   border-color: var(--success);
   color: var(--success);
   animation: pulse 1s infinite;
+  min-width: 60px;
+  width: 60px;
+  text-align: center;
 }
 
 @keyframes pulse {
@@ -1677,7 +1695,8 @@ body {
 }
 
 .hotkey-actions {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
 }
 
 .settings-status {
@@ -1687,16 +1706,81 @@ body {
 }
 
 .settings-note {
-  margin-top: 1.5rem;
-  padding: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
   background: var(--bg-overlay);
   border-radius: 6px;
   font-size: 0.8rem;
   color: var(--text-muted);
+  border-left: 3px solid var(--primary, #6366f1);
 }
 
 .settings-note strong {
   color: var(--text);
+}
+
+/* Toggle buttons (ON/OFF) */
+.hotkey-btn.toggle-btn {
+  min-width: 60px;
+  width: 60px;
+  text-align: center;
+}
+
+/* Folder path display */
+.folder-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Terror Zone preferences grid */
+.tz-prefs-list {
+  padding: 0.75rem 0;
+}
+
+.tz-prefs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tz-pref-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-overlay);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tz-pref-item input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.tz-pref-tier {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* Settings buttons */
+.settings-section .btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
+.settings-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 

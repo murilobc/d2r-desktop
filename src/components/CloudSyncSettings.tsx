@@ -168,7 +168,7 @@ export default function CloudSyncSettings() {
   };
 
   return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
+    <div className="settings-section">
       <h2>{t("cloudSync.title")}</h2>
       <p className="settings-description">
         {t("cloudSync.description")}
@@ -240,7 +240,7 @@ export default function CloudSyncSettings() {
       {config.backend === "local_folder" && (
         <div className="hotkey-row">
           <span className="hotkey-label">{t("cloudSync.syncFolder")}</span>
-          <span className="settings-description" style={{ flex: 1, wordBreak: "break-all" }}>
+          <span className="folder-path" title={config.localFolderPath || undefined}>
             {config.localFolderPath || t("cloudSync.notSet")}
           </span>
           <button className="btn btn-sm" onClick={handleFolderPick}>

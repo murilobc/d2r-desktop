@@ -1,130 +1,121 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
   <!-- Background -->
   <rect width="1100" height="700" fill="#1a1a2e"/>
-  
+
   <!-- Sidebar -->
   <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
-  <rect x="0" y="0" width="220" height="60" fill="#0f3460"/>
-  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
   <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
-  
-  <!-- Nav items -->
-  <text x="20" y="95" fill="#eaeaea" font-size="14" opacity="0.4">👤 Profiles</text>
-  <text x="20" y="135" fill="#eaeaea" font-size="14" opacity="0.4">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">🗺️ Routes</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📜 History</text>
-  <text x="20" y="255" fill="#eaeaea" font-size="14" opacity="0.4">📊 Statistics</text>
-  <text x="20" y="295" fill="#eaeaea" font-size="14" opacity="0.4">⚔️ Compare</text>
-  <text x="20" y="335" fill="#eaeaea" font-size="14" opacity="0.4">🎲 Drop Calculator</text>
-  <!-- Ancients highlighted -->
-  <rect x="0" y="350" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
-  <rect x="0" y="350" width="3" height="40" fill="#e94560"/>
-  <text x="20" y="375" fill="#eaeaea" font-size="14">🏛️ Ancients</text>
-  <text x="20" y="415" fill="#eaeaea" font-size="14" opacity="0.4">😈 DClone</text>
-  <text x="20" y="455" fill="#eaeaea" font-size="14" opacity="0.4">📈 XP Tracker</text>
-  <text x="20" y="495" fill="#eaeaea" font-size="14" opacity="0.4">🤝 Co-op</text>
-  <text x="20" y="535" fill="#eaeaea" font-size="14" opacity="0.4">⚙️ Settings</text>
-  
-  <!-- Data actions -->
-  <line x1="0" y1="580" x2="220" y2="580" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="20" y="610" fill="#eaeaea" font-size="12" opacity="0.8">💾 Export Data</text>
-  <text x="20" y="640" fill="#eaeaea" font-size="12" opacity="0.8">📂 Import Data</text>
-  
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Nav Items -->
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">⇄ Compare</text>
+  <text x="20" y="265" fill="#eaeaea" font-size="13" opacity="0.6">◆ Heralds</text>
+  <rect x="0" y="280" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="280" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="295" fill="#eaeaea" font-size="13">▣ Ancients</text>
+  <text x="20" y="325" fill="#eaeaea" font-size="13" opacity="0.6">※ DClone</text>
+  <text x="20" y="355" fill="#eaeaea" font-size="13" opacity="0.6">△ XP</text>
+  <text x="20" y="385" fill="#eaeaea" font-size="13" opacity="0.6">∿ Drops</text>
+  <text x="20" y="415" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
+
+  <!-- Separator -->
+  <line x1="10" y1="440" x2="210" y2="440" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Bottom Nav -->
+  <text x="20" y="465" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <text x="20" y="495" fill="#eaeaea" font-size="13" opacity="0.6">◳ Overlay</text>
+  <text x="20" y="525" fill="#eaeaea" font-size="13" opacity="0.6">● Theme</text>
+  <text x="20" y="555" fill="#eaeaea" font-size="13" opacity="0.6">↓ Export</text>
+  <text x="20" y="585" fill="#eaeaea" font-size="13" opacity="0.6">↑ Import</text>
+
   <!-- Main content -->
-  <!-- Header -->
-  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">🏛️ Colossal Ancients</text>
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Colossal Ancients</text>
   <rect x="520" y="28" width="160" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
   <text x="535" y="47" fill="#eaeaea" font-size="12">MFSorc - Sorceress</text>
-  
-  <!-- Boss Cards Grid -->
-  <!-- Baal -->
+
+  <!-- Boss Cards -->
   <rect x="250" y="75" width="155" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="290" y="105" fill="#eaeaea" font-size="20">👑</text>
-  <text x="315" y="105" fill="#4ecdc4" font-size="16">✓</text>
-  <text x="280" y="130" fill="#eaeaea" font-size="13" font-weight="bold">Baal</text>
+  <text x="280" y="108" fill="#4ecdc4" font-size="16">✓</text>
+  <text x="300" y="108" fill="#eaeaea" font-size="13" font-weight="bold">Baal</text>
   <text x="270" y="152" fill="#a0a0a0" font-size="10">3/4 wins · Best: 2m 15s</text>
-  
-  <!-- Diablo -->
+
   <rect x="415" y="75" width="155" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="455" y="105" fill="#eaeaea" font-size="20">🔥</text>
-  <text x="480" y="105" fill="#4ecdc4" font-size="16">✓</text>
-  <text x="450" y="130" fill="#eaeaea" font-size="13" font-weight="bold">Diablo</text>
+  <text x="445" y="108" fill="#4ecdc4" font-size="16">✓</text>
+  <text x="465" y="108" fill="#eaeaea" font-size="13" font-weight="bold">Diablo</text>
   <text x="435" y="152" fill="#a0a0a0" font-size="10">5/6 wins · Best: 1m 48s</text>
-  
-  <!-- Mephisto -->
+
   <rect x="580" y="75" width="155" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="620" y="105" fill="#eaeaea" font-size="20">💀</text>
-  <text x="645" y="105" fill="#4ecdc4" font-size="16">✓</text>
-  <text x="612" y="130" fill="#eaeaea" font-size="13" font-weight="bold">Mephisto</text>
+  <text x="610" y="108" fill="#4ecdc4" font-size="16">✓</text>
+  <text x="630" y="108" fill="#eaeaea" font-size="13" font-weight="bold">Mephisto</text>
   <text x="600" y="152" fill="#a0a0a0" font-size="10">8/8 wins · Best: 0m 52s</text>
-  
-  <!-- Duriel -->
+
   <rect x="745" y="75" width="155" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="785" y="105" fill="#eaeaea" font-size="20">🪲</text>
-  <text x="810" y="105" fill="#4ecdc4" font-size="16">✓</text>
-  <text x="785" y="130" fill="#eaeaea" font-size="13" font-weight="bold">Duriel</text>
+  <text x="775" y="108" fill="#4ecdc4" font-size="16">✓</text>
+  <text x="795" y="108" fill="#eaeaea" font-size="13" font-weight="bold">Duriel</text>
   <text x="765" y="152" fill="#a0a0a0" font-size="10">2/3 wins · Best: 3m 10s</text>
-  
-  <!-- Andariel -->
+
   <rect x="910" y="75" width="155" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="950" y="105" fill="#eaeaea" font-size="20">🕷️</text>
-  <text x="975" y="105" fill="#a0a0a0" font-size="16">○</text>
-  <text x="945" y="130" fill="#eaeaea" font-size="13" font-weight="bold">Andariel</text>
+  <text x="940" y="108" fill="#a0a0a0" font-size="16">○</text>
+  <text x="960" y="108" fill="#eaeaea" font-size="13" font-weight="bold">Andariel</text>
   <text x="940" y="152" fill="#a0a0a0" font-size="10">No attempts</text>
-  
-  <!-- Summary Stats Row -->
+
+  <!-- Summary Stats -->
   <rect x="250" y="195" width="200" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="310" y="225" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">21</text>
   <text x="310" y="248" fill="#a0a0a0" font-size="11" text-anchor="middle">Total Attempts</text>
-  
+
   <rect x="465" y="195" width="200" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="565" y="225" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">85.7%</text>
   <text x="565" y="248" fill="#a0a0a0" font-size="11" text-anchor="middle">Success Rate</text>
-  
+
   <rect x="680" y="195" width="200" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="780" y="225" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">4/5</text>
   <text x="780" y="248" fill="#a0a0a0" font-size="11" text-anchor="middle">Bosses Defeated</text>
-  
+
   <rect x="895" y="195" width="165" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="977" y="225" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">18</text>
   <text x="977" y="248" fill="#a0a0a0" font-size="11" text-anchor="middle">Total Successes</text>
-  
+
   <!-- Log Attempt Form -->
   <rect x="250" y="285" width="815" height="180" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="270" y="315" fill="#eaeaea" font-size="15" font-weight="bold">Log Attempt</text>
-  
+
   <text x="270" y="345" fill="#a0a0a0" font-size="11">Boss</text>
   <rect x="270" y="352" width="160" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="280" y="373" fill="#eaeaea" font-size="12">👑 Baal</text>
-  
+  <text x="280" y="373" fill="#eaeaea" font-size="12">Baal</text>
+
   <text x="445" y="345" fill="#a0a0a0" font-size="11">Result</text>
   <rect x="445" y="352" width="75" height="32" rx="4" fill="#e94560"/>
   <text x="455" y="373" fill="white" font-size="12">✓ Success</text>
   <rect x="525" y="352" width="65" height="32" rx="4" fill="none" stroke="#2a2a4a"/>
   <text x="539" y="373" fill="#a0a0a0" font-size="12">✕ Fail</text>
-  
+
   <text x="610" y="345" fill="#a0a0a0" font-size="11">Duration</text>
   <rect x="610" y="352" width="60" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="620" y="373" fill="#666" font-size="12">min</text>
   <rect x="675" y="352" width="60" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="685" y="373" fill="#666" font-size="12">sec</text>
-  
+
   <text x="755" y="345" fill="#a0a0a0" font-size="11">Drops</text>
   <rect x="755" y="352" width="290" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="765" y="373" fill="#666" font-size="12">Notable drops...</text>
-  
+
   <text x="270" y="410" fill="#a0a0a0" font-size="11">Notes</text>
   <rect x="270" y="417" width="500" height="32" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="280" y="438" fill="#666" font-size="12">Optional notes...</text>
-  
+
   <rect x="790" y="417" width="130" height="34" rx="4" fill="#e94560"/>
   <text x="810" y="439" fill="white" font-size="13">Log Attempt</text>
-  
-  <!-- Attempt History Table -->
+
+  <!-- Attempt History -->
   <rect x="250" y="480" width="815" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="270" y="510" fill="#eaeaea" font-size="15" font-weight="bold">Attempt History</text>
-  
-  <!-- Table header -->
+
   <text x="270" y="540" fill="#a0a0a0" font-size="11">Date</text>
   <text x="370" y="540" fill="#a0a0a0" font-size="11">Boss</text>
   <text x="470" y="540" fill="#a0a0a0" font-size="11">#</text>
@@ -133,37 +124,33 @@
   <text x="700" y="540" fill="#a0a0a0" font-size="11">Drops</text>
   <text x="850" y="540" fill="#a0a0a0" font-size="11">Notes</text>
   <line x1="270" y1="548" x2="1040" y2="548" stroke="#2a2a4a" stroke-width="1"/>
-  
-  <!-- Row 1 -->
+
   <text x="270" y="570" fill="#eaeaea" font-size="11">12/15/2024</text>
-  <text x="370" y="570" fill="#eaeaea" font-size="11">🔥 Diablo</text>
+  <text x="370" y="570" fill="#eaeaea" font-size="11">Diablo</text>
   <text x="470" y="570" fill="#eaeaea" font-size="11">#6</text>
   <text x="510" y="570" fill="#4ecdc4" font-size="11">✓ Won</text>
   <text x="600" y="570" fill="#eaeaea" font-size="11">1m 48s</text>
   <text x="700" y="570" fill="#eaeaea" font-size="11">Shako</text>
   <text x="850" y="570" fill="#a0a0a0" font-size="11">New PB!</text>
-  
-  <!-- Row 2 -->
+
   <text x="270" y="595" fill="#eaeaea" font-size="11">12/14/2024</text>
-  <text x="370" y="595" fill="#eaeaea" font-size="11">👑 Baal</text>
+  <text x="370" y="595" fill="#eaeaea" font-size="11">Baal</text>
   <text x="470" y="595" fill="#eaeaea" font-size="11">#4</text>
   <text x="510" y="595" fill="#e94560" font-size="11">✕ Lost</text>
   <text x="600" y="595" fill="#eaeaea" font-size="11">4m 22s</text>
   <text x="700" y="595" fill="#eaeaea" font-size="11">—</text>
   <text x="850" y="595" fill="#a0a0a0" font-size="11">Got one-shot</text>
-  
-  <!-- Row 3 -->
+
   <text x="270" y="620" fill="#eaeaea" font-size="11">12/13/2024</text>
-  <text x="370" y="620" fill="#eaeaea" font-size="11">💀 Mephisto</text>
+  <text x="370" y="620" fill="#eaeaea" font-size="11">Mephisto</text>
   <text x="470" y="620" fill="#eaeaea" font-size="11">#8</text>
   <text x="510" y="620" fill="#4ecdc4" font-size="11">✓ Won</text>
   <text x="600" y="620" fill="#eaeaea" font-size="11">0m 52s</text>
   <text x="700" y="620" fill="#eaeaea" font-size="11">Arachnid Mesh</text>
   <text x="850" y="620" fill="#a0a0a0" font-size="11">—</text>
-  
-  <!-- Row 4 -->
+
   <text x="270" y="645" fill="#eaeaea" font-size="11">12/12/2024</text>
-  <text x="370" y="645" fill="#eaeaea" font-size="11">🪲 Duriel</text>
+  <text x="370" y="645" fill="#eaeaea" font-size="11">Duriel</text>
   <text x="470" y="645" fill="#eaeaea" font-size="11">#3</text>
   <text x="510" y="645" fill="#4ecdc4" font-size="11">✓ Won</text>
   <text x="600" y="645" fill="#eaeaea" font-size="11">3m 10s</text>

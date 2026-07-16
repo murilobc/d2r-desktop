@@ -235,6 +235,8 @@ Track experience gain rates and estimate time to level up.
 
 ### Drop Calculator
 
+![Drop Calculator](docs/mockups/drop-calculator.svg)
+
 Shows what items can drop in each D2R farming area.
 
 - **Filter buttons** — All / TC85+ (areas that can drop every item) / Bosses

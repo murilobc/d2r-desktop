@@ -1,75 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
   <!-- Background -->
   <rect width="1100" height="700" fill="#1a1a2e"/>
-  
+
   <!-- Sidebar -->
   <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
   <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
   <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="20" y="95" fill="#eaeaea" font-size="14">👤 Profiles</text>
-  <rect x="0" y="110" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
-  <rect x="0" y="110" width="3" height="40" fill="#e94560"/>
-  <text x="20" y="135" fill="#eaeaea" font-size="14">🎮 Run Tracker</text>
-  <text x="20" y="175" fill="#eaeaea" font-size="14">🗺️ Routes</text>
-  <text x="20" y="215" fill="#eaeaea" font-size="14">📜 History</text>
-  <text x="20" y="255" fill="#eaeaea" font-size="14">📊 Statistics</text>
-  <text x="20" y="295" fill="#eaeaea" font-size="14">⚔️ Compare</text>
-  <text x="20" y="335" fill="#eaeaea" font-size="14">🎲 Drop Calculator</text>
-  <text x="20" y="375" fill="#eaeaea" font-size="14">⚙️ Settings</text>
-  
-  <!-- Active profile -->
-  <line x1="0" y1="630" x2="220" y2="630" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="20" y="655" fill="#a0a0a0" font-size="10">Active profile:</text>
-  <text x="20" y="672" fill="#eaeaea" font-size="13" font-weight="bold">MFSorc</text>
-  <text x="20" y="690" fill="#a0a0a0" font-size="11">Sorceress</text>
-  
+
+  <!-- Nav Items -->
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <rect x="0" y="100" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="100" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="115" fill="#eaeaea" font-size="13">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">⇄ Compare</text>
+  <text x="20" y="265" fill="#eaeaea" font-size="13" opacity="0.6">◆ Heralds</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="13" opacity="0.6">▣ Ancients</text>
+  <text x="20" y="325" fill="#eaeaea" font-size="13" opacity="0.6">※ DClone</text>
+  <text x="20" y="355" fill="#eaeaea" font-size="13" opacity="0.6">△ XP</text>
+  <text x="20" y="385" fill="#eaeaea" font-size="13" opacity="0.6">∿ Drops</text>
+  <text x="20" y="415" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
+
+  <!-- Separator -->
+  <line x1="10" y1="440" x2="210" y2="440" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Bottom Nav -->
+  <text x="20" y="465" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <text x="20" y="495" fill="#eaeaea" font-size="13" opacity="0.6">◳ Overlay</text>
+  <text x="20" y="525" fill="#eaeaea" font-size="13" opacity="0.6">● Theme</text>
+  <text x="20" y="555" fill="#eaeaea" font-size="13" opacity="0.6">↓ Export</text>
+  <text x="20" y="585" fill="#eaeaea" font-size="13" opacity="0.6">↑ Import</text>
+
   <!-- Main content -->
   <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Run Tracker</text>
   <rect x="880" y="28" width="160" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
   <text x="892" y="47" fill="#eaeaea" font-size="11">MFSorc - Sorceress</text>
-  
+
   <!-- Route mode step indicator -->
   <rect x="250" y="60" width="810" height="28" rx="4" fill="rgba(78,205,196,0.1)" stroke="#4ecdc4" stroke-width="1"/>
-  <text x="270" y="79" fill="#4ecdc4" font-size="12" font-weight="bold">🗺️ Step 2/3: Pindleskin</text>
+  <text x="270" y="79" fill="#4ecdc4" font-size="12" font-weight="bold">Step 2/3: Pindleskin</text>
   <text x="950" y="79" fill="#a0a0a0" font-size="10">Boss Run route</text>
-  
-  <!-- Timer Panel (black bg) -->
+
+  <!-- Timer Panel -->
   <rect x="250" y="95" width="810" height="260" rx="8" fill="#000"/>
-  
-  <!-- Session timer -->
   <circle cx="280" cy="120" r="6" fill="#ff0000"/>
   <text x="295" y="125" fill="#ccc" font-size="14" font-family="monospace">Session time: 01:23:47.3</text>
-  
-  <!-- Run timer (large) -->
   <text x="460" y="200" fill="#ffffff" font-size="52" font-weight="bold" font-family="monospace" text-anchor="middle">00:02:34.7</text>
-  
-  <!-- Run count -->
-  <text x="460" y="250" fill="#aaa" font-size="15" font-family="monospace" text-anchor="middle">───── Run count: <tspan fill="#ff6600" font-size="20" font-weight="bold">23</tspan> <tspan fill="#ff6600">(147)</tspan> ─────</text>
-  
-  <!-- Fastest / Average -->
+  <text x="460" y="250" fill="#aaa" font-size="15" font-family="monospace" text-anchor="middle">Run count: 23 (147)</text>
   <text x="460" y="285" fill="#999" font-size="13" font-family="monospace" text-anchor="middle">Fastest time: 00:01:42.0</text>
   <text x="460" y="310" fill="#999" font-size="13" font-family="monospace" text-anchor="middle">Average time: 00:02:18.0</text>
-  
+
   <!-- Controls -->
   <rect x="320" y="370" width="140" height="38" rx="4" fill="#4ecdc4"/>
-  <text x="347" y="394" fill="#000" font-size="13" font-weight="bold">⏭ Next Run</text>
+  <text x="347" y="394" fill="#000" font-size="13" font-weight="bold">Next Run</text>
   <rect x="480" y="370" width="120" height="38" rx="4" fill="#ffaa00"/>
-  <text x="510" y="394" fill="#000" font-size="13" font-weight="bold">⏸ Pause</text>
+  <text x="510" y="394" fill="#000" font-size="13" font-weight="bold">Pause</text>
   <rect x="620" y="370" width="160" height="38" rx="4" fill="none" stroke="#e94560"/>
-  <text x="645" y="394" fill="#e94560" font-size="13">⏹ End Session</text>
-  
+  <text x="645" y="394" fill="#e94560" font-size="13">End Session</text>
+
   <!-- Area -->
   <text x="260" y="435" fill="#a0a0a0" font-size="12">Area:</text>
   <rect x="295" y="420" width="180" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="305" y="439" fill="#eaeaea" font-size="12">Pindleskin</text>
-  
+
   <!-- Items section -->
   <rect x="250" y="460" width="810" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="270" y="488" fill="#eaeaea" font-size="14" font-weight="bold">Items Found (3)</text>
   <rect x="920" y="472" width="70" height="26" rx="4" fill="none" stroke="#4ecdc4"/>
   <text x="935" y="489" fill="#4ecdc4" font-size="11">+ Item</text>
-  
-  <!-- Item row 1 with tier badge -->
+
   <rect x="270" y="505" width="770" height="34" rx="4" fill="rgba(0,0,0,0.2)"/>
   <text x="280" y="527" fill="#c4a000" font-size="12" font-weight="500">Shako (Harlequin Crest)</text>
   <rect x="460" y="514" width="40" height="18" rx="3" fill="rgba(168,85,247,0.2)" stroke="#a855f7" stroke-width="1"/>
@@ -77,8 +78,7 @@
   <text x="600" y="527" fill="#a0a0a0" font-size="11">Armor</text>
   <text x="700" y="527" fill="#c4a000" font-size="11" font-weight="bold">Unique</text>
   <text x="1010" y="527" fill="#e94560" font-size="13">✕</text>
-  
-  <!-- Item row 2 with tier badge -->
+
   <rect x="270" y="545" width="770" height="34" rx="4" fill="rgba(0,0,0,0.2)"/>
   <text x="280" y="567" fill="#ff8c00" font-size="12" font-weight="500">Ist Rune</text>
   <rect x="345" y="554" width="34" height="18" rx="3" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="1"/>
@@ -86,8 +86,7 @@
   <text x="600" y="567" fill="#a0a0a0" font-size="11">Rune</text>
   <text x="700" y="567" fill="#ff8c00" font-size="11" font-weight="bold">Rune</text>
   <text x="1010" y="567" fill="#e94560" font-size="13">✕</text>
-  
-  <!-- Item row 3 with tier badge -->
+
   <rect x="270" y="585" width="770" height="34" rx="4" fill="rgba(0,0,0,0.2)"/>
   <text x="280" y="607" fill="#00c400" font-size="12" font-weight="500">Tal Rasha's Adjudication</text>
   <rect x="450" y="594" width="34" height="18" rx="3" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="1"/>

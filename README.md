@@ -1,4 +1,4 @@
-# D2R Tracker
+ # D2R Tracker
 
 A desktop application for tracking Magic Find runs in **Diablo II: Resurrected** (v3.2 — Reign of the Warlock). Built with Tauri, React, and Rust with a local SQLite database.
 
@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_4.0.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.0_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_4.0.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.0_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_4.0.1_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.1_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_4.0.1_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.1_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -103,8 +103,6 @@ windowrulev2 = noborder, title:^(D2R Overlay)$
 windowrulev2 = noshadow, title:^(D2R Overlay)$
 windowrulev2 = nofocus, title:^(D2R Overlay)$
 ```
-
-
 
 ---
 

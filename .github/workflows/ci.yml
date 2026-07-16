@@ -7,26 +7,16 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Detect code changes
         id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            code:
-              - 'src/**'
-              - 'src-tauri/**'
-              - 'package.json'
-              - 'package-lock.json'
-              - 'tsconfig.json'
-              - 'vite.config.ts'
-              - 'index.html'
-              - 'overlay.html'
-              - 'public/**'
+        run: |
+          CODE_CHANGED=$(git diff --name-only origin/main...HEAD | grep -qE '^(src/|src-tauri/|package\.json|package-lock\.json|tsconfig\.json|vite\.config\.ts|index\.html|overlay\.html|public/)' && echo "true" || echo "false")
+          echo "code=$CODE_CHANGED" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         if: steps.filter.outputs.code == 'true'

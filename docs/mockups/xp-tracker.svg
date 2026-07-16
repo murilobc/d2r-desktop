@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+  
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <rect x="0" y="0" width="220" height="60" fill="#0f3460"/>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  
+  <!-- Nav items -->
+  <text x="20" y="95" fill="#eaeaea" font-size="14" opacity="0.4">👤 Profiles</text>
+  <text x="20" y="135" fill="#eaeaea" font-size="14" opacity="0.4">🎮 Run Tracker</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="14" opacity="0.4">🗺️ Routes</text>
+  <text x="20" y="215" fill="#eaeaea" font-size="14" opacity="0.4">📜 History</text>
+  <text x="20" y="255" fill="#eaeaea" font-size="14" opacity="0.4">📊 Statistics</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="14" opacity="0.4">⚔️ Compare</text>
+  <text x="20" y="335" fill="#eaeaea" font-size="14" opacity="0.4">🎲 Drop Calculator</text>
+  <text x="20" y="375" fill="#eaeaea" font-size="14" opacity="0.4">🏛️ Ancients</text>
+  <text x="20" y="415" fill="#eaeaea" font-size="14" opacity="0.4">😈 DClone</text>
+  <!-- XP highlighted -->
+  <rect x="0" y="430" width="220" height="40" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="430" width="3" height="40" fill="#e94560"/>
+  <text x="20" y="455" fill="#eaeaea" font-size="14">📈 XP Tracker</text>
+  <text x="20" y="495" fill="#eaeaea" font-size="14" opacity="0.4">🤝 Co-op</text>
+  <text x="20" y="535" fill="#eaeaea" font-size="14" opacity="0.4">⚙️ Settings</text>
+  
+  <!-- Data actions -->
+  <line x1="0" y1="580" x2="220" y2="580" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="610" fill="#eaeaea" font-size="12" opacity="0.8">💾 Export Data</text>
+  <text x="20" y="640" fill="#eaeaea" font-size="12" opacity="0.8">📂 Import Data</text>
+  
+  <!-- Main content -->
+  <!-- Header -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">📈 XP Tracker</text>
+  <rect x="430" y="28" width="160" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="445" y="47" fill="#eaeaea" font-size="12">MFSorc - Sorceress</text>
+  
+  <!-- Stats Cards Row -->
+  <rect x="250" y="75" width="190" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="345" y="105" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">142.5M</text>
+  <text x="345" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Total XP</text>
+  
+  <rect x="455" y="75" width="190" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="550" y="105" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">11.8M/hr</text>
+  <text x="550" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Avg XP/Hour</text>
+  
+  <rect x="660" y="75" width="190" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="755" y="105" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">12h 5m</text>
+  <text x="755" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Total Time</text>
+  
+  <rect x="865" y="75" width="190" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="960" y="105" fill="#eaeaea" font-size="18" font-weight="bold" text-anchor="middle">18</text>
+  <text x="960" y="128" fill="#a0a0a0" font-size="11" text-anchor="middle">Sessions</text>
+  
+  <!-- Level Info Row -->
+  <rect x="250" y="160" width="815" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="188" fill="#eaeaea" font-size="16" font-weight="bold">Level 94 → 95</text>
+  <text x="270" y="212" fill="#a0a0a0" font-size="11">XP needed: 345.2M</text>
+  <!-- XP progress bar -->
+  <rect x="500" y="182" width="400" height="14" rx="7" fill="#1a1a2e"/>
+  <rect x="500" y="182" width="165" height="14" rx="7" fill="#4ecdc4"/>
+  <text x="915" y="194" fill="#eaeaea" font-size="11">41%</text>
+  <!-- Est time -->
+  <text x="500" y="215" fill="#a0a0a0" font-size="11">Est. 12h remaining at 11.8M/hr</text>
+  
+  <!-- XP/Hour Trend Chart -->
+  <rect x="250" y="245" width="815" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="275" fill="#eaeaea" font-size="15" font-weight="bold">XP Rate Trend</text>
+  
+  <!-- Chart area -->
+  <!-- Y-axis labels -->
+  <text x="275" y="305" fill="#a0a0a0" font-size="9">15M</text>
+  <text x="275" y="340" fill="#a0a0a0" font-size="9">12M</text>
+  <text x="275" y="375" fill="#a0a0a0" font-size="9">9M</text>
+  <text x="275" y="410" fill="#a0a0a0" font-size="9">6M</text>
+  <!-- Grid lines -->
+  <line x1="305" y1="300" x2="1040" y2="300" stroke="#2a2a4a" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="305" y1="335" x2="1040" y2="335" stroke="#2a2a4a" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="305" y1="370" x2="1040" y2="370" stroke="#2a2a4a" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <line x1="305" y1="405" x2="1040" y2="405" stroke="#2a2a4a" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <!-- Chart line (XP/Hour over sessions) -->
+  <polyline points="320,380 380,365 440,370 500,345 560,335 620,340 680,320 740,310 800,315 860,305 920,300 980,295" fill="none" stroke="#4ecdc4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- X-axis labels -->
+  <text x="320" y="430" fill="#a0a0a0" font-size="9">1</text>
+  <text x="440" y="430" fill="#a0a0a0" font-size="9">3</text>
+  <text x="560" y="430" fill="#a0a0a0" font-size="9">5</text>
+  <text x="680" y="430" fill="#a0a0a0" font-size="9">7</text>
+  <text x="800" y="430" fill="#a0a0a0" font-size="9">9</text>
+  <text x="920" y="430" fill="#a0a0a0" font-size="9">11</text>
+  <text x="650" y="440" fill="#a0a0a0" font-size="9">Session</text>
+  
+  <!-- Log XP Form -->
+  <rect x="250" y="460" width="815" height="130" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="490" fill="#eaeaea" font-size="15" font-weight="bold">Log XP Entry</text>
+  
+  <text x="270" y="518" fill="#a0a0a0" font-size="11">Level</text>
+  <rect x="270" y="523" width="80" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="542" fill="#eaeaea" font-size="12">94</text>
+  
+  <text x="365" y="518" fill="#a0a0a0" font-size="11">XP Gained</text>
+  <rect x="365" y="523" width="140" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="375" y="542" fill="#666" font-size="12">e.g., 5000000</text>
+  
+  <text x="520" y="518" fill="#a0a0a0" font-size="11">Duration (min)</text>
+  <rect x="520" y="523" width="100" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="530" y="542" fill="#666" font-size="12">e.g., 60</text>
+  
+  <text x="635" y="518" fill="#a0a0a0" font-size="11">Area</text>
+  <rect x="635" y="523" width="180" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="645" y="542" fill="#eaeaea" font-size="12">Chaos Sanctuary</text>
+  
+  <text x="830" y="518" fill="#a0a0a0" font-size="11">Notes</text>
+  <rect x="830" y="523" width="210" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="840" y="542" fill="#666" font-size="12">Optional notes...</text>
+  
+  <rect x="270" y="560" width="110" height="28" rx="4" fill="#e94560"/>
+  <text x="287" y="579" fill="white" font-size="12">Log Entry</text>
+  
+  <!-- XP History Table -->
+  <rect x="250" y="600" width="815" height="90" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="625" fill="#eaeaea" font-size="15" font-weight="bold">XP History</text>
+  
+  <!-- Table header -->
+  <text x="270" y="650" fill="#a0a0a0" font-size="10">Date</text>
+  <text x="360" y="650" fill="#a0a0a0" font-size="10">Level</text>
+  <text x="420" y="650" fill="#a0a0a0" font-size="10">XP Gained</text>
+  <text x="520" y="650" fill="#a0a0a0" font-size="10">Duration</text>
+  <text x="600" y="650" fill="#a0a0a0" font-size="10">XP/Hour</text>
+  <text x="700" y="650" fill="#a0a0a0" font-size="10">Area</text>
+  <text x="850" y="650" fill="#a0a0a0" font-size="10">Notes</text>
+  <line x1="270" y1="656" x2="1040" y2="656" stroke="#2a2a4a" stroke-width="1"/>
+  
+  <!-- Row 1 -->
+  <text x="270" y="675" fill="#eaeaea" font-size="10">12/15/2024</text>
+  <text x="360" y="675" fill="#eaeaea" font-size="10">Lv.94</text>
+  <text x="420" y="675" fill="#eaeaea" font-size="10">14.2M</text>
+  <text x="520" y="675" fill="#eaeaea" font-size="10">1h 12m</text>
+  <text x="600" y="675" fill="#4ecdc4" font-size="10">11.8M/hr</text>
+  <text x="700" y="675" fill="#eaeaea" font-size="10">Chaos Sanctuary</text>
+  <text x="850" y="675" fill="#a0a0a0" font-size="10">Smooth runs</text>
+</svg>

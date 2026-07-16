@@ -192,6 +192,8 @@ Track Herald of Terror encounters and Sunder Charm farming progress.
 
 ### Colossal Ancients
 
+![Colossal Ancients](docs/mockups/colossal-ancients.svg)
+
 Track attempts against the 5 Colossal Ancient bosses and monitor your progression.
 
 - **Boss grid** — Visual status of each boss (Baal, Diablo, Mephisto, Duriel, Andariel) with defeated checkmarks
@@ -203,6 +205,8 @@ Track attempts against the 5 Colossal Ancient bosses and monitor your progressio
 ---
 
 ### Diablo Clone Tracker
+
+![DClone Tracker](docs/mockups/dclone-tracker.svg)
 
 Track Diablo Clone progress per region and log Annihilus charms.
 
@@ -216,6 +220,8 @@ Track Diablo Clone progress per region and log Annihilus charms.
 ---
 
 ### XP Tracker
+
+![XP Tracker](docs/mockups/xp-tracker.svg)
 
 Track experience gain rates and estimate time to level up.
 
@@ -287,6 +293,22 @@ Configure hotkeys, sounds, OBS integration, cloud sync, and language preferences
 - Compact Database button runs SQLite VACUUM to reclaim unused space
 - Shows file size before/after compaction
 - Recommended after deleting many runs or items
+
+---
+
+### Co-op
+
+![Co-op](docs/mockups/coop-panel.svg)
+
+Host or join shared farming sessions over the local network.
+
+- **Host a session** — Generates a unique 6-character code and starts a WebSocket server
+- **Join a session** — Enter host IP or session code to connect
+- **Combined stats** — All players see total run count, items, session time
+- **Per-player breakdown** — Track who found what
+- **Host controls** — Only host can split, pause, and end session
+- **Guest actions** — Guests can log items they find
+- **Graceful disconnections** — Reconnect or continue solo without data loss
 
 ---
 

@@ -128,6 +128,12 @@ export default function SyncStatusIndicator({ syncEngine }: SyncStatusIndicatorP
     ? { ...status, state: status.lastSyncAt ? "synced" : "not_configured", errorMessage: null }
     : status;
 
+  // Don't render anything when sync is not configured — avoids confusing
+  // context-free text at the bottom of the sidebar
+  if (displayStatus.state === "not_configured" && !showError) {
+    return null;
+  }
+
   return (
     <output
       className="sync-status-indicator"

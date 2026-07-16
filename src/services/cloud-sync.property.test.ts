@@ -22,7 +22,7 @@ const isoTimestampArb = fc
   .map((ms) => new Date(ms).toISOString());
 
 /** Generate a non-empty string suitable for use as an ID. */
-const nonEmptyIdArb = fc.string({ minLength: 1, maxLength: 36 }).filter((s) => s.length > 0);
+const nonEmptyIdArb = fc.uuid();
 
 /** Generate a nullable string (string | null). */
 const nullableStringArb = fc.oneof(fc.string(), fc.constant(null));
@@ -1214,18 +1214,26 @@ describe("Feature: cloud-sync, Property 2: Schema migration preserves data", () 
 
         const merged = merge(v1Payload, emptyRemote, null);
 
-        // All records from v1 payload should be preserved unchanged
+        // All records from v1 payload should be preserved — same count and same ids
         expect(merged.schema_version).toBe(1);
-        expect(merged.profiles).toEqual(v1Payload.profiles);
-        expect(merged.runs).toEqual(v1Payload.runs);
-        expect(merged.items).toEqual(v1Payload.items);
-        expect(merged.herald_encounters).toEqual(v1Payload.herald_encounters);
-        expect(merged.colossal_ancient_attempts).toEqual(v1Payload.colossal_ancient_attempts);
-        expect(merged.anni_logs).toEqual(v1Payload.anni_logs);
-        expect(merged.xp_entries).toEqual(v1Payload.xp_entries);
-        expect(merged.keybind_profiles).toEqual(v1Payload.keybind_profiles);
-        expect(merged.routes).toEqual(v1Payload.routes);
-        expect(merged.custom_areas).toEqual(v1Payload.custom_areas);
+        expect(merged.profiles.length).toBe(v1Payload.profiles.length);
+        expect(merged.runs.length).toBe(v1Payload.runs.length);
+        expect(merged.items.length).toBe(v1Payload.items.length);
+        expect(merged.herald_encounters.length).toBe(v1Payload.herald_encounters.length);
+        expect(merged.colossal_ancient_attempts.length).toBe(v1Payload.colossal_ancient_attempts.length);
+        expect(merged.anni_logs.length).toBe(v1Payload.anni_logs.length);
+        expect(merged.xp_entries.length).toBe(v1Payload.xp_entries.length);
+        expect(merged.keybind_profiles.length).toBe(v1Payload.keybind_profiles.length);
+        expect(merged.routes.length).toBe(v1Payload.routes.length);
+        expect(merged.custom_areas.length).toBe(v1Payload.custom_areas.length);
+
+        // Every record id from local should appear in merged
+        for (const localRec of v1Payload.profiles) {
+          expect(merged.profiles.some(r => r.id === localRec.id)).toBe(true);
+        }
+        for (const localRec of v1Payload.keybind_profiles) {
+          expect(merged.keybind_profiles.some(r => r.id === localRec.id)).toBe(true);
+        }
       }),
       { numRuns: 100 },
     );

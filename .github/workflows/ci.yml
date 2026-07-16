@@ -12,7 +12,7 @@ jobs:
 
       - name: Detect code changes
         id: filter
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         with:
           filters: |
             code:
@@ -30,7 +30,7 @@ jobs:
         if: steps.filter.outputs.code == 'true'
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Setup Rust

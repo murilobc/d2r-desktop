@@ -127,6 +127,59 @@ body {
 .sidebar-footer {
   padding: 1rem;
   border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.sync-status-indicator {
+  display: flex;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sync-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.sync-status-text {
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sync-status-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.sync-btn, .sync-dismiss-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  color: var(--text-muted);
+}
+
+.sync-btn:hover, .sync-dismiss-btn:hover {
+  opacity: 1;
+}
+
+.sync-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .current-profile {

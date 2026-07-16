@@ -304,11 +304,14 @@ function App() {
               <strong>{selectedProfile.name}</strong>
               <span>{selectedProfile.class}</span>
             </div>
+            <SyncStatusIndicator syncEngine={syncEngine} />
           </div>
         )}
-        <div className="sidebar-sync-status">
-          <SyncStatusIndicator syncEngine={syncEngine} />
-        </div>
+        {!selectedProfile && (
+          <div className="sidebar-footer">
+            <SyncStatusIndicator syncEngine={syncEngine} />
+          </div>
+        )}
       </nav>
       <main className="main-content">
         <Suspense fallback={<PageSkeleton />}>

@@ -32,15 +32,16 @@ describe("SyncStatusIndicator Component", () => {
       errorMessage: null,
     });
 
-    render(<SyncStatusIndicator syncEngine={engine} />);
+    const { container } = render(<SyncStatusIndicator syncEngine={engine} />);
 
-    expect(screen.getByText(/not configured/i)).toBeInTheDocument();
+    // When not configured, the component renders nothing
+    expect(container.innerHTML).toBe("");
   });
 
-  it("renders sync button", () => {
+  it("renders sync button when configured", () => {
     const engine = createMockSyncEngine({
-      state: "not_configured",
-      lastSyncAt: null,
+      state: "synced",
+      lastSyncAt: "2024-01-15T10:30:00.000Z",
       errorMessage: null,
     });
 

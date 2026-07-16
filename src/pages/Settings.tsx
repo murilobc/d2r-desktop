@@ -30,34 +30,7 @@ function saveObsPrefs(prefs: ObsPrefs) {
   localStorage.setItem(OBS_STORAGE_KEY, JSON.stringify(prefs));
 }
 
-// Widget Preferences
-export interface WidgetPrefs {
-  stats: string[];
-}
 
-const WIDGET_STORAGE_KEY = "d2r_widget_prefs";
-
-export function getWidgetPrefs(): WidgetPrefs {
-  try {
-    const raw = localStorage.getItem(WIDGET_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { stats: ["sessionRunCount", "sessionTime"] };
-}
-
-export function saveWidgetPrefs(prefs: WidgetPrefs) {
-  localStorage.setItem(WIDGET_STORAGE_KEY, JSON.stringify(prefs));
-}
-
-export const WIDGET_STAT_OPTIONS = [
-  { key: "sessionRunCount", label: "Run Count" },
-  { key: "sessionTime", label: "Session Time" },
-  { key: "runTimer", label: "Run Timer" },
-  { key: "area", label: "Area" },
-  { key: "fastestTime", label: "Fastest Time" },
-  { key: "averageTime", label: "Average Time" },
-  { key: "totalRuns", label: "Total Runs" },
-] as const;
 
 const DEFAULT_HOTKEYS = {
   nextRun: "F9",
@@ -255,7 +228,6 @@ export default function Settings() {
       <BackupSettings />
       <DatabaseMaintenanceSettings />
       <ObsSettings />
-      <WidgetSettings />
       <TerrorZoneSettings />
       <CloudSyncSettings />
     </div>
@@ -686,52 +658,7 @@ function ObsSettings() {
   );
 }
 
-function WidgetSettings() {
-  const { t } = useTranslation();
-  const [prefs, setPrefs] = useState<WidgetPrefs>(() => getWidgetPrefs());
 
-  const handleToggle = (key: string) => {
-    const current = prefs.stats;
-    let newStats: string[];
-    if (current.includes(key)) {
-      // Don't allow less than 2 stats
-      if (current.length <= 2) return;
-      newStats = current.filter(s => s !== key);
-    } else {
-      // Don't allow more than 3 stats
-      if (current.length >= 3) return;
-      newStats = [...current, key];
-    }
-    const newPrefs = { stats: newStats };
-    setPrefs(newPrefs);
-    saveWidgetPrefs(newPrefs);
-  };
-
-  return (
-    <div className="settings-section" style={{ marginTop: "1.5rem" }}>
-      <h2>{t('settings.widget.title')}</h2>
-      <p className="settings-description">
-        {t('settings.widget.description')}
-      </p>
-      <div className="widget-stat-options">
-        {WIDGET_STAT_OPTIONS.map(opt => (
-          <label key={opt.key} className="widget-stat-option">
-            <input
-              type="checkbox"
-              checked={prefs.stats.includes(opt.key)}
-              onChange={() => handleToggle(opt.key)}
-              disabled={!prefs.stats.includes(opt.key) && prefs.stats.length >= 3}
-            />
-            <span>{opt.label}</span>
-          </label>
-        ))}
-      </div>
-      <p className="settings-hint">
-        {t('settings.widget.selected', { count: prefs.stats.length })}
-      </p>
-    </div>
-  );
-}
 
 function TerrorZoneSettings() {
   const { t } = useTranslation();

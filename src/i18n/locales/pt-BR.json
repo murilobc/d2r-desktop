@@ -16,7 +16,6 @@
       "coop": "Co-op",
       "settings": "Configurações",
       "overlay": "Overlay",
-      "widget": "Widget",
       "theme": "Tema",
       "export": "Exportar",
       "import": "Importar"
@@ -40,7 +39,6 @@
     "coop": "Co-op",
     "settings": "Configurações",
     "overlay": "Overlay",
-    "widget": "Widget",
     "theme": "Tema",
     "export": "Exportar",
     "import": "Importar",
@@ -127,18 +125,6 @@
       "copyPath": "Copiar caminho",
       "copied": "Copiado!",
       "tip": "No OBS, adicione uma fonte \"Text (GDI+)\" e marque \"Read from file\", depois cole o caminho acima."
-    },
-    "widget": {
-      "title": "Exibição do Widget",
-      "description": "Escolha 2-3 estatísticas para exibir na janela compacta do widget.",
-      "selected": "Selecionadas: {{count}}/3 (mín 2, máx 3)",
-      "statRunCount": "Contagem de Runs",
-      "statSessionTime": "Tempo de Sessão",
-      "statRunTimer": "Cronômetro de Run",
-      "statArea": "Área",
-      "statFastestTime": "Tempo Mais Rápido",
-      "statAverageTime": "Tempo Médio",
-      "statTotalRuns": "Total de Runs"
     },
     "terrorZones": {
       "title": "Terror Zones",
@@ -377,17 +363,6 @@
     "pause": "Pausar",
     "end": "Encerrar",
     "addItem": "Adicionar Item"
-  },
-  "widget": {
-    "title": "Widget",
-    "noSession": "Sem sessão",
-    "runCount": "Runs",
-    "sessionTime": "Sessão",
-    "runTimer": "Cronômetro",
-    "area": "Área",
-    "fastestTime": "Mais Rápido",
-    "averageTime": "Médio",
-    "totalRuns": "Total"
   },
   "sync": {
     "notConfigured": "Não configurado",

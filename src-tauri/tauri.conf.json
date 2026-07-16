@@ -32,21 +32,6 @@
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "visible": false
-      },
-      {
-        "label": "widget",
-        "title": "D2R Widget",
-        "url": "/widget.html",
-        "width": 200,
-        "height": 50,
-        "x": 20,
-        "y": 250,
-        "resizable": false,
-        "decorations": false,
-        "transparent": true,
-        "alwaysOnTop": true,
-        "skipTaskbar": true,
-        "visible": false
       }
     ],
     "security": {

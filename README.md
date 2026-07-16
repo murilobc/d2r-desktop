@@ -104,17 +104,7 @@ windowrulev2 = noshadow, title:^(D2R Overlay)$
 windowrulev2 = nofocus, title:^(D2R Overlay)$
 ```
 
-For the Widget window, add these additional rules:
 
-```
-# Hyprland (~/.config/hypr/hyprland.conf)
-windowrulev2 = float, title:^(D2R Widget)$
-windowrulev2 = pin, title:^(D2R Widget)$
-windowrulev2 = noborder, title:^(D2R Widget)$
-windowrulev2 = noshadow, title:^(D2R Widget)$
-windowrulev2 = nofocus, title:^(D2R Widget)$
-windowrulev2 = size 200 50, title:^(D2R Widget)$
-```
 
 ---
 

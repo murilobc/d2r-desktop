@@ -46,13 +46,15 @@ function App() {
   // Wire auto-sync on window close
   useEffect(() => {
     const appWindow = getCurrentWindow();
-    const unlistenPromise = appWindow.onCloseRequested(async () => {
+    const unlistenPromise = appWindow.onCloseRequested(async (event) => {
+      event.preventDefault();
       try {
         await syncEngine.pushOnClose();
       } catch (err) {
         console.error("[cloud-sync] Auto-sync on close failed:", err);
       }
-      // Allow the window to close regardless of sync outcome
+      // Explicitly destroy the window after sync completes (or fails)
+      await appWindow.destroy();
     });
 
     return () => {

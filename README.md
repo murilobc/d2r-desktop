@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_4.0.4_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.4_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_4.0.4_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.0.4_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_4.1.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.1.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_4.1.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.1.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -314,6 +314,21 @@ Host or join shared farming sessions over the local network.
 
 ---
 
+### Achievements
+
+Track your farming milestones with a per-profile achievement system.
+
+- **Four categories** — Milestone (total runs, items, time), Streak (consecutive days), Per-Class (runs per class), Per-Area (runs per area)
+- **Automatic evaluation** — Achievements unlock automatically when you finish a run
+- **Toast notifications** — Celebratory popup with sound when you earn an achievement
+- **Gallery page** — Browse all achievements with category filter tabs
+- **Progress bars** — See how close you are to unlocking each achievement
+- **Lifetime stats dashboard** — Total hours, runs, items, breakdowns by class/area/rarity
+- **Per-profile** — Each character earns progress independently
+- **i18n** — Achievement names and descriptions in all supported languages
+
+---
+
 ### Sidebar Navigation
 
 Always visible, provides navigation and utilities:
@@ -329,6 +344,7 @@ Always visible, provides navigation and utilities:
 - **DClone** — Diablo Clone progress and Annihilus log
 - **XP** — Experience rate tracking
 - **Drops** — Drop calculator
+- **Achievements** — Per-profile achievement gallery and lifetime stats
 - **Settings** — Configuration
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
@@ -413,6 +429,7 @@ d2r-desktop/
 │   │   └── UpdateChecker.tsx   # Auto-update banner
 │   ├── hooks/
 │   │   └── useTheme.ts        # Dark/light theme toggle
+│   │   └── useAchievementToasts.ts # Achievement unlock toast queue
 │   ├── i18n/                   # Internationalization
 │   │   ├── index.ts            # i18next configuration
 │   │   ├── formatters.ts       # Locale-aware date/number formatters
@@ -436,6 +453,7 @@ d2r-desktop/
 │   │   ├── DCloneTracker.tsx
 │   │   ├── XPTracker.tsx
 │   │   ├── DropCalculator.tsx
+│   │   ├── Achievements.tsx
 │   │   └── Settings.tsx
 │   └── utils/
 │       ├── audio.ts            # Sound notification system
@@ -446,6 +464,7 @@ d2r-desktop/
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
 │       ├── commands.rs         # Tauri commands
+│       ├── achievements.rs    # Achievement system (schema, evaluation, stats)
 │       └── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
 ├── .github/workflows/          # CI/CD
 │   ├── ci.yml                  # PR checks

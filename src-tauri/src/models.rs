@@ -449,3 +449,51 @@ pub struct VacuumResult {
     pub size_after_bytes: u64,
     pub success: bool,
 }
+
+// ===== ACHIEVEMENTS =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AchievementDefinition {
+    pub id: String,
+    pub category: String,
+    pub name_key: String,
+    pub description_key: String,
+    pub icon: String,
+    pub condition_type: String,
+    pub condition_target: Option<String>,
+    pub threshold: i64,
+    pub sort_order: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AchievementUnlock {
+    pub id: String,
+    pub profile_id: String,
+    pub definition_id: String,
+    pub unlocked_at: String,
+    pub definition: AchievementDefinition,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AchievementProgress {
+    pub definition: AchievementDefinition,
+    pub unlocked: bool,
+    pub unlocked_at: Option<String>,
+    pub current_value: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LifetimeStats {
+    pub total_time_hours: f64,
+    pub total_runs: i64,
+    pub total_items: i64,
+    pub runs_by_class: Vec<ClassCount>,
+    pub runs_by_area: Vec<AreaCount>,
+    pub items_by_rarity: Vec<RarityCount>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ClassCount {
+    pub class: String,
+    pub count: i64,
+}

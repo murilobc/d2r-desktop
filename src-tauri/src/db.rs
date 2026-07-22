@@ -116,6 +116,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add coop_player_name column to items
     migrate_coop_player_name(conn)?;
 
+    // Initialize achievements tables and seed definitions
+    crate::achievements::init_achievements(conn)?;
+
     Ok(())
 }
 

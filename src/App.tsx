@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import type { Profile, ExportData } from "./types";
 import Profiles from "./pages/Profiles";
 import { PageSkeleton } from "./components/Skeleton";
+import { useAchievementToasts } from "./hooks/useAchievementToasts";
+import UnlockToast from "./components/UnlockToast";
 
 const RunTracker = lazy(() => import("./pages/RunTracker"));
 const History = lazy(() => import("./pages/History"));
@@ -16,6 +18,7 @@ const ColossalAncients = lazy(() => import("./pages/ColossalAncients"));
 const DCloneTracker = lazy(() => import("./pages/DCloneTracker"));
 const XPTracker = lazy(() => import("./pages/XPTracker"));
 const CoopPanel = lazy(() => import("./pages/CoopPanel"));
+const Achievements = lazy(() => import("./pages/Achievements"));
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
@@ -28,7 +31,7 @@ import { syncEngine } from "./services/cloud-sync";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements";
 
 function App() {
   const { t } = useTranslation();
@@ -36,6 +39,7 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
+  const { currentToast, enqueue: enqueueToast, dismiss: dismissToast } = useAchievementToasts();
 
   // Register global hotkeys on app startup
   useEffect(() => {
@@ -158,6 +162,8 @@ function App() {
         return <DropCalculator />;
       case "coop":
         return <CoopPanel />;
+      case "achievements":
+        return selectedProfile ? <Achievements profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "settings":
         return <Settings />;
       default:
@@ -278,6 +284,15 @@ function App() {
               ⇌ {t('sidebar.coop')}
             </button>
           </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "achievements" ? "active" : ""}`}
+              onClick={() => setCurrentPage("achievements")}
+              disabled={!selectedProfile}
+            >
+              🏆 {t('sidebar.achievements', 'Achievements')}
+            </button>
+          </li>
         </ul>
         <div className="sidebar-data-actions">
           <button
@@ -322,12 +337,15 @@ function App() {
           {/* RunTracker stays mounted to preserve session state across tab switches */}
           {selectedProfile && (
             <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
-              <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} />
+              <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} onAchievementUnlocks={enqueueToast} />
             </div>
           )}
           {currentPage !== "tracker" && renderPage()}
         </Suspense>
       </main>
+      {currentToast && (
+        <UnlockToast toast={currentToast} onDismiss={dismissToast} />
+      )}
     </div>
   );
 }

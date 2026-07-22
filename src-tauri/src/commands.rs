@@ -2296,3 +2296,40 @@ pub fn vacuum_database(state: State<DbState>, app: AppHandle) -> Result<VacuumRe
         success: true,
     })
 }
+
+// ===== ACHIEVEMENTS =====
+
+#[tauri::command]
+pub fn evaluate_achievements(
+    state: State<DbState>,
+    profile_id: String,
+) -> Result<Vec<AchievementUnlock>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    crate::achievements::evaluate_achievements(&conn, &profile_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_achievement_definitions(
+    state: State<DbState>,
+) -> Result<Vec<AchievementDefinition>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    crate::achievements::get_achievement_definitions(&conn).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_achievement_progress(
+    state: State<DbState>,
+    profile_id: String,
+) -> Result<Vec<AchievementProgress>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    crate::achievements::get_achievement_progress(&conn, &profile_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_lifetime_stats(
+    state: State<DbState>,
+    profile_id: String,
+) -> Result<LifetimeStats, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    crate::achievements::get_lifetime_stats(&conn, &profile_id).map_err(|e| e.to_string())
+}

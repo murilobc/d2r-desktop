@@ -1,3 +1,4 @@
+mod achievements;
 mod commands;
 mod coop;
 mod db;
@@ -119,6 +120,11 @@ pub fn run() {
             sync::local_file_pull,
             sync::local_file_push,
             sync::local_folder_validate,
+            // Achievements
+            commands::evaluate_achievements,
+            commands::get_achievement_definitions,
+            commands::get_achievement_progress,
+            commands::get_lifetime_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

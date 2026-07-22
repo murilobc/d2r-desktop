@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import type { Profile, Item, Run, Route } from "../types";
+import type { Profile, Item, Run, Route, AchievementUnlock } from "../types";
 import { AREAS } from "../types";
-import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups } from "../api";
+import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups, evaluateAchievements } from "../api";
 import { getObsPrefs, getBackupConfig, saveBackupConfig } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -17,9 +17,10 @@ import { playSound } from "../utils/audio";
 interface Props {
   profile: Profile;
   isVisible?: boolean;
+  onAchievementUnlocks?: (unlocks: AchievementUnlock[]) => void;
 }
 
-export default function RunTracker({ profile, isVisible = true }: Props) {
+export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks }: Props) {
   const { t } = useTranslation();
 
   // Session state
@@ -188,6 +189,15 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
     const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
     await finishRun(currentRun.id, { duration_secs: durationSecs, tags: runTags.length > 0 ? runTags : undefined });
 
+    // Evaluate achievements after successful run completion
+    if (onAchievementUnlocks) {
+      evaluateAchievements(profile.id)
+        .then((unlocks) => {
+          if (unlocks.length > 0) onAchievementUnlocks(unlocks);
+        })
+        .catch(console.warn);
+    }
+
     const newTimes = [...sessionRunTimes, durationSecs];
     setSessionRunTimes(newTimes);
     setSessionRunCount((prev) => {
@@ -228,6 +238,16 @@ export default function RunTracker({ profile, isVisible = true }: Props) {
     if (currentRun) {
       const durationSecs = Math.floor(runElapsedRef.current / 10); // use ref for current value
       await finishRun(currentRun.id, { duration_secs: durationSecs, tags: runTags.length > 0 ? runTags : undefined });
+
+      // Evaluate achievements after successful run completion
+      if (onAchievementUnlocks) {
+        evaluateAchievements(profile.id)
+          .then((unlocks) => {
+            if (unlocks.length > 0) onAchievementUnlocks(unlocks);
+          })
+          .catch(console.warn);
+      }
+
       if (durationSecs > 0) {
         const newTimes = [...sessionRunTimes, durationSecs];
         setSessionRunTimes(newTimes);

@@ -485,3 +485,47 @@ export interface CoopItemInput {
   item_type: string;
   rarity: string;
 }
+
+// ===== ACHIEVEMENTS =====
+
+export interface AchievementDefinition {
+  id: string;
+  category: "milestone" | "streak" | "per-class" | "per-area";
+  name_key: string;
+  description_key: string;
+  icon: string;
+  condition_type: string;
+  condition_target: string | null;
+  threshold: number;
+  sort_order: number;
+}
+
+export interface AchievementUnlock {
+  id: string;
+  profile_id: string;
+  definition_id: string;
+  unlocked_at: string;
+  definition: AchievementDefinition;
+}
+
+export interface AchievementProgress {
+  definition: AchievementDefinition;
+  unlocked: boolean;
+  unlocked_at: string | null;
+  current_value: number;
+}
+
+export interface LifetimeStats {
+  total_time_hours: number;
+  total_runs: number;
+  total_items: number;
+  runs_by_class: { class: string; count: number }[];
+  runs_by_area: { area: string; count: number }[];
+  items_by_rarity: { rarity: string; count: number }[];
+}
+
+export type AchievementCategory = "milestone" | "streak" | "per-class" | "per-area";
+
+export const ACHIEVEMENT_CATEGORIES: AchievementCategory[] = [
+  "milestone", "streak", "per-class", "per-area"
+];

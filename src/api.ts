@@ -41,6 +41,10 @@ import type {
   CoopServerInfo,
   CoopSessionView,
   CoopItemInput,
+  AchievementUnlock,
+  AchievementDefinition,
+  AchievementProgress,
+  LifetimeStats,
 } from "./types";
 import type {
   GistPullResult,
@@ -283,3 +287,16 @@ export const localFilePush = (folderPath: string, payload: string) =>
 
 export const localFolderValidate = (folderPath: string) =>
   invoke<boolean>("local_folder_validate", { folderPath });
+
+// Achievements
+export const evaluateAchievements = (profileId: string) =>
+  invoke<AchievementUnlock[]>("evaluate_achievements", { profileId });
+
+export const getAchievementDefinitions = () =>
+  invoke<AchievementDefinition[]>("get_achievement_definitions");
+
+export const getAchievementProgress = (profileId: string) =>
+  invoke<AchievementProgress[]>("get_achievement_progress", { profileId });
+
+export const getLifetimeStats = (profileId: string) =>
+  invoke<LifetimeStats>("get_lifetime_stats", { profileId });

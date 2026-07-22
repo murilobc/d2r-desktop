@@ -21,6 +21,7 @@ import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { exit } from "@tauri-apps/plugin-process";
 import UpdateChecker from "./components/UpdateChecker";
 import SyncStatusIndicator from "./components/SyncStatusIndicator";
 import { syncEngine } from "./services/cloud-sync";
@@ -53,8 +54,9 @@ function App() {
       } catch (err) {
         console.error("[cloud-sync] Auto-sync on close failed:", err);
       }
-      // Explicitly destroy the window after sync completes (or fails)
-      await appWindow.destroy();
+      // Exit the entire process (destroy only removes the window,
+      // but the overlay window keeps the process alive)
+      await exit(0);
     });
 
     return () => {

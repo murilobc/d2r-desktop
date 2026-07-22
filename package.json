@@ -1,7 +1,7 @@
 {
   "name": "d2r-desktop",
   "private": true,
-  "version": "0.1.0",
+  "version": "4.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -22,8 +22,8 @@
   <rect x="0" y="370" width="3" height="30" fill="#e94560"/>
   <text x="20" y="388" fill="#eaeaea" font-size="13">∿ Drops</text>
   <text x="20" y="418" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
-  <text x="20" y="448" fill="#eaeaea" font-size="13" opacity="0.6">🏆 Achievements</text>
-  <text x="20" y="478" fill="#eaeaea" font-size="13" opacity="0.6">ᚱ Runes</text>
+  <text x="20" y="448" fill="#eaeaea" font-size="13" opacity="0.6">★ Achievements</text>
+  <text x="20" y="478" fill="#eaeaea" font-size="13" opacity="0.6">◇ Runes</text>
   <text x="20" y="508" fill="#eaeaea" font-size="13" opacity="0.6">✦ Advisor</text>
 
   <!-- Separator -->

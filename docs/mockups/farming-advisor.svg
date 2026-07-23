@@ -20,8 +20,8 @@
   <text x="20" y="355" fill="#eaeaea" font-size="13" opacity="0.6">△ XP</text>
   <text x="20" y="385" fill="#eaeaea" font-size="13" opacity="0.6">∿ Drops</text>
   <text x="20" y="415" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
-  <text x="20" y="445" fill="#eaeaea" font-size="13" opacity="0.6">🏆 Achievements</text>
-  <text x="20" y="475" fill="#eaeaea" font-size="13" opacity="0.6">ᚱ Runes</text>
+  <text x="20" y="445" fill="#eaeaea" font-size="13" opacity="0.6">★ Achievements</text>
+  <text x="20" y="475" fill="#eaeaea" font-size="13" opacity="0.6">◇ Runes</text>
   <rect x="0" y="488" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
   <rect x="0" y="488" width="3" height="30" fill="#e94560"/>
   <text x="20" y="505" fill="#eaeaea" font-size="13">✦ Advisor</text>

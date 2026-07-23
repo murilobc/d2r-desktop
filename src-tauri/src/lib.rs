@@ -5,6 +5,7 @@ mod db;
 mod drop_commands;
 mod models;
 mod probability_engine;
+pub mod screenshot;
 mod sync;
 
 use db::{init_db, DbState};
@@ -36,6 +37,9 @@ pub fn run() {
                 server: std::sync::Mutex::new(None),
                 client: std::sync::Mutex::new(None),
             });
+            app.manage(screenshot::MonitorState(
+                std::sync::Arc::new(std::sync::Mutex::new(None)),
+            ));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -138,6 +142,10 @@ pub fn run() {
             drop_commands::calculate_drop_probability,
             drop_commands::calculate_cumulative_distribution,
             drop_commands::calculate_area_drop_probability,
+            // Screenshot Item Detection
+            screenshot::get_screenshot_settings,
+            screenshot::update_screenshot_settings,
+            screenshot::detect_from_clipboard,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -5,12 +5,13 @@ import type { GameItem } from "../data/items";
 interface Props {
   onSelect: (item: GameItem) => void;
   placeholder?: string;
+  initialQuery?: string;
 }
 
-export default function ItemSearch({ onSelect, placeholder = "Search item..." }: Props) {
-  const [query, setQuery] = useState("");
+export default function ItemSearch({ onSelect, placeholder = "Search item...", initialQuery = "" }: Props) {
+  const [query, setQuery] = useState(initialQuery);
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initialQuery.length > 0);
   const [highlightIndex, setHighlightIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);

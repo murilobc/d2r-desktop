@@ -122,6 +122,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Initialize achievements tables and seed definitions
     crate::achievements::init_achievements(conn)?;
 
+    // Migration: add screenshot_settings table
+    crate::screenshot::settings::create_screenshot_settings_table(conn)?;
+
     Ok(())
 }
 

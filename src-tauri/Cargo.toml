@@ -36,10 +36,19 @@ tokio = { version = "1", features = ["full"] }
 rand = "0.8"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 keyring = "3"
+leptess = { version = "0.14", optional = true }
+arboard = { version = "3", features = ["image-data"] }
+image = "0.25"
+strsim = "0.11"
+sha2 = "0.10"
 
 [dev-dependencies]
 proptest = "1"
 criterion = "0.5"
+
+[features]
+default = []
+ocr = ["leptess"]
 
 [[bench]]
 name = "query_bench"

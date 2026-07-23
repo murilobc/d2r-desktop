@@ -1081,6 +1081,24 @@ body {
   background: rgba(255,255,255,0.02);
 }
 
+/* Sort buttons in table headers */
+.sort-btn {
+  all: unset;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.sort-btn:hover {
+  color: var(--accent);
+}
+
+.sort-active {
+  color: var(--accent);
+}
+
 /* History */
 .history-list {
   display: flex;
@@ -3157,4 +3175,117 @@ body {
 .rune-cell__btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+/* Diminishing Returns Alert */
+.diminishing-returns-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.diminishing-returns-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+}
+
+.diminishing-returns-icon {
+  font-size: 1.1rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.diminishing-returns-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.diminishing-returns-warning {
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.diminishing-returns-suggestion {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ===== BUILD SUGGESTIONS ===== */
+
+.build-suggestions {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.build-suggestions-heading {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+}
+
+.build-suggestions-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.build-suggestions-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.build-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.build-suggestion-area {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.build-suggestion-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  background: rgba(78, 205, 196, 0.15);
+  border: 1px solid var(--success);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.build-suggestion-tz-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.build-suggestion-tz-label {
+  font-weight: 500;
+  font-style: normal;
+  color: var(--text-muted);
 }

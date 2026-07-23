@@ -41,6 +41,7 @@
     "coop": "Co-op",
     "achievements": "Achievements",
     "runes": "Runes",
+    "advisor": "Advisor",
     "settings": "Settings",
     "overlay": "Overlay",
     "theme": "Theme",
@@ -158,6 +159,52 @@
     "progress": "{{current}} / {{target}}",
     "unlocked": "Unlocked",
     "locked": "Locked"
+  },
+  "advisor": {
+    "title": "Farming Advisor",
+    "sidebar": "Advisor",
+    "loading": "Loading advisor data...",
+    "error": "Failed to load advisor data.",
+    "noProfile": "Select a profile to view farming recommendations.",
+    "noRuns": "No runs recorded for this profile yet.",
+    "weeklySummary": {
+      "heading": "Weekly Summary",
+      "totalRuns": "Total Runs",
+      "avgItemsPerHour": "Avg Items/hr",
+      "totalValuePoints": "Total Value Points",
+      "bestArea": "Best Area",
+      "bestAreaAboveAvg": "{{percentage}}% above average",
+      "empty": "Insufficient data for weekly summary."
+    },
+    "areaRankings": {
+      "heading": "Area Rankings",
+      "area": "Area",
+      "itemsPerHour": "Items/hr",
+      "valuePerHour": "Value/hr",
+      "xpPerHour": "XP/hr",
+      "sortByValue": "Sort by Value/hr",
+      "sortByItems": "Sort by Items/hr",
+      "sortByXp": "Sort by XP/hr",
+      "empty": "Not enough data to rank areas (minimum 3 runs per area)."
+    },
+    "terrorZone": {
+      "heading": "Terror Zone",
+      "recommended": "{{zone}} is {{percentage}}% more efficient than your average — recommended!",
+      "tierOnly": "{{zone}} is rated {{tier}}-tier. No personal data yet.",
+      "tier": "Tier: {{tier}}",
+      "noActiveTz": "No active Terror Zone."
+    },
+    "buildSuggestions": {
+      "heading": "Build Suggestions",
+      "noColdImmunes": "No cold immunes",
+      "tzNotes": "TZ Notes",
+      "empty": "No build-specific suggestions available."
+    },
+    "diminishingReturns": {
+      "heading": "Diminishing Returns",
+      "warning": "{{area}} has had {{count}} consecutive dry runs.",
+      "suggestedAlternative": "Consider switching to {{area}}."
+    }
   },
   "settings": {
     "title": "Settings",

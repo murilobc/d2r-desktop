@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import DropCalculator from "./DropCalculator";
+import DropCalculator, { MONSTERS, ITEMS } from "./DropCalculator";
 import { mockProfile } from "../test/mocks";
 import type { DropProbabilityResult } from "../api";
 
@@ -8,6 +8,7 @@ import type { DropProbabilityResult } from "../api";
 vi.mock("../api", () => ({
   calculateDropProbability: vi.fn(),
   calculateCumulativeDistribution: vi.fn(),
+  calculateAreaDropProbability: vi.fn(),
   getAreaRunStats: vi.fn(),
   calculateLuckPercentile: vi.fn(),
 }));
@@ -36,12 +37,14 @@ vi.mock("recharts", () => ({
 import {
   calculateDropProbability,
   calculateCumulativeDistribution,
+  calculateAreaDropProbability,
   getAreaRunStats,
   calculateLuckPercentile,
 } from "../api";
 
 const mockedCalculateDropProbability = vi.mocked(calculateDropProbability);
 const mockedCalculateCumulativeDistribution = vi.mocked(calculateCumulativeDistribution);
+const mockedCalculateAreaDropProbability = vi.mocked(calculateAreaDropProbability);
 const mockedGetAreaRunStats = vi.mocked(getAreaRunStats);
 const mockedCalculateLuckPercentile = vi.mocked(calculateLuckPercentile);
 
@@ -65,6 +68,18 @@ describe("DropCalculator Page", () => {
       { kills: 500, cumulative_probability: 0.38 },
       { kills: 1000, cumulative_probability: 0.61 },
     ]);
+    mockedCalculateAreaDropProbability.mockResolvedValue({
+      probability: 0.002,
+      one_in_x: 500,
+      kills_for_50: 347,
+      kills_for_63: 500,
+      kills_for_90: 1151,
+      kills_for_99: 2302,
+      monster_breakdown: [
+        { monster_id: "diablo", monster_name: "Diablo", probability: 0.001, one_in_x: 1000 },
+        { monster_id: "venom_lord", monster_name: "Venom Lord", probability: 0.0005, one_in_x: 2000 },
+      ],
+    });
     mockedGetAreaRunStats.mockResolvedValue({
       area: "Worldstone Chamber",
       total_runs: 100,
@@ -228,5 +243,41 @@ describe("DropCalculator Page", () => {
         ).toBeInTheDocument();
       });
     });
+  });
+});
+
+// ─── Bug Condition Exploration: Frontend Coverage ─────────────────────────────
+// **Validates: Requirements 1.3, 1.4**
+// These tests assert that the frontend MONSTERS and ITEMS arrays have sufficient
+// coverage to support common D2R farming scenarios. On UNFIXED code, these will
+// FAIL because MONSTERS has only 3 entries and ITEMS has only 7.
+
+describe("Bug Condition - Frontend Data Coverage", () => {
+  it("MONSTERS array should have at least 10 entries for common farming targets", () => {
+    expect(MONSTERS.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it("ITEMS array should have at least 20 entries for common drop targets", () => {
+    expect(ITEMS.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it("MONSTERS should include Diablo as a farming target", () => {
+    const hasDialbo = MONSTERS.some((m) => m.id === "diablo");
+    expect(hasDialbo).toBe(true);
+  });
+
+  it("MONSTERS should include Pindleskin as a farming target", () => {
+    const hasPindleskin = MONSTERS.some((m) => m.id === "pindleskin");
+    expect(hasPindleskin).toBe(true);
+  });
+
+  it("ITEMS should include Jah Rune", () => {
+    const hasJah = ITEMS.some((m) => m.id === "jah_rune");
+    expect(hasJah).toBe(true);
+  });
+
+  it("ITEMS should include Death's Fathom", () => {
+    const hasDeathsFathom = ITEMS.some((m) => m.id === "death's_fathom");
+    expect(hasDeathsFathom).toBe(true);
   });
 });

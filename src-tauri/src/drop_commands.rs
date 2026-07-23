@@ -40,6 +40,34 @@ pub struct DistributionPoint {
     pub cumulative_probability: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AreaDropProbabilityInput {
+    pub area_id: String,
+    pub item_id: String,
+    pub magic_find: u32,
+    pub player_count: u8,
+    pub quest_bonus: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AreaDropProbabilityResult {
+    pub probability: f64,
+    pub one_in_x: f64,
+    pub kills_for_50: u64,
+    pub kills_for_63: u64,
+    pub kills_for_90: u64,
+    pub kills_for_99: u64,
+    pub monster_breakdown: Vec<MonsterBreakdown>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MonsterBreakdown {
+    pub monster_id: String,
+    pub monster_name: String,
+    pub probability: f64,
+    pub one_in_x: f64,
+}
+
 // ─── Tauri Commands ───────────────────────────────────────────────────────────
 
 #[tauri::command]
@@ -183,4 +211,61 @@ pub fn calculate_cumulative_distribution(
     }
 
     Ok(points)
+}
+
+#[tauri::command]
+pub fn calculate_area_drop_probability(
+    input: AreaDropProbabilityInput,
+) -> Result<AreaDropProbabilityResult, String> {
+    // Input validation
+    if input.magic_find > 9999 {
+        return Err("Magic Find must be between 0 and 9999".to_string());
+    }
+    if input.player_count < 1 || input.player_count > 8 {
+        return Err("Player count must be between 1 and 8".to_string());
+    }
+
+    let tc_data = probability_engine::load_tc_data();
+
+    let (aggregate_prob, breakdown) = probability_engine::compute_area_drop_probability(
+        tc_data,
+        &input.area_id,
+        &input.item_id,
+        input.magic_find,
+        input.player_count,
+        input.quest_bonus,
+    )?;
+
+    // Build monster breakdown with names
+    let mut monster_breakdown: Vec<MonsterBreakdown> = Vec::new();
+    for (monster_id, prob) in &breakdown {
+        let monster_name = tc_data
+            .monsters
+            .get(monster_id)
+            .map(|m| m.name.clone())
+            .unwrap_or_else(|| monster_id.clone());
+        let one_in_x = if *prob > 0.0 { 1.0 / prob } else { 0.0 };
+        monster_breakdown.push(MonsterBreakdown {
+            monster_id: monster_id.clone(),
+            monster_name,
+            probability: *prob,
+            one_in_x,
+        });
+    }
+
+    let one_in_x = if aggregate_prob > 0.0 {
+        1.0 / aggregate_prob
+    } else {
+        0.0
+    };
+
+    Ok(AreaDropProbabilityResult {
+        probability: aggregate_prob,
+        one_in_x,
+        kills_for_50: probability_engine::kills_for_threshold(aggregate_prob, 0.5),
+        kills_for_63: probability_engine::kills_for_threshold(aggregate_prob, 0.632),
+        kills_for_90: probability_engine::kills_for_threshold(aggregate_prob, 0.9),
+        kills_for_99: probability_engine::kills_for_threshold(aggregate_prob, 0.99),
+        monster_breakdown,
+    })
 }

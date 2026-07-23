@@ -3,7 +3,12 @@
     "TC87": {
       "items": [
         { "id": "tyrael's_might", "weight": 1, "group": "elite_armor" },
-        { "id": "ber_rune", "weight": 2, "group": "rune" }
+        { "id": "ber_rune", "weight": 2, "group": "rune" },
+        { "id": "crown_of_ages", "weight": 1, "group": "elite_helm" },
+        { "id": "death's_fathom", "weight": 1, "group": "elite_weapon" },
+        { "id": "death's_web", "weight": 1, "group": "elite_weapon" },
+        { "id": "griffon's_eye", "weight": 1, "group": "elite_helm" },
+        { "id": "jah_rune", "weight": 2, "group": "rune" }
       ],
       "sub_tcs": [
         { "tc": "TC84", "weight": 3 }
@@ -12,7 +17,11 @@
     },
     "TC84": {
       "items": [
-        { "id": "harlequin_crest", "weight": 2, "group": "elite_helm" }
+        { "id": "harlequin_crest", "weight": 2, "group": "elite_helm" },
+        { "id": "tal_rasha's_guardianship", "weight": 2, "group": "elite_armor" },
+        { "id": "lo_rune", "weight": 2, "group": "rune" },
+        { "id": "sur_rune", "weight": 2, "group": "rune" },
+        { "id": "griffon's_eye", "weight": 1, "group": "elite_helm" }
       ],
       "sub_tcs": [
         { "tc": "TC81", "weight": 4 }
@@ -21,7 +30,10 @@
     },
     "TC81": {
       "items": [
-        { "id": "shako_base", "weight": 5, "group": "elite_helm" }
+        { "id": "shako_base", "weight": 5, "group": "elite_helm" },
+        { "id": "windforce", "weight": 2, "group": "elite_weapon" },
+        { "id": "ik_armor", "weight": 3, "group": "elite_armor" },
+        { "id": "ohm_rune", "weight": 2, "group": "rune" }
       ],
       "sub_tcs": [
         { "tc": "TC78", "weight": 5 }
@@ -31,7 +43,10 @@
     "TC78": {
       "items": [
         { "id": "oculus", "weight": 4, "group": "elite_weapon" },
-        { "id": "arachnid_mesh", "weight": 3, "group": "elite_belt" }
+        { "id": "arachnid_mesh", "weight": 3, "group": "elite_belt" },
+        { "id": "harlequin_crest", "weight": 2, "group": "elite_helm" },
+        { "id": "stormshield", "weight": 3, "group": "elite_shield" },
+        { "id": "vex_rune", "weight": 2, "group": "rune" }
       ],
       "sub_tcs": [
         { "tc": "TC75", "weight": 6 }
@@ -40,18 +55,194 @@
     },
     "TC75": {
       "items": [
-        { "id": "vampire_gaze", "weight": 5, "group": "elite_helm" }
+        { "id": "vampire_gaze", "weight": 5, "group": "elite_helm" },
+        { "id": "gul_rune", "weight": 2, "group": "rune" }
       ],
-      "sub_tcs": [],
+      "sub_tcs": [
+        { "tc": "TC72", "weight": 5 }
+      ],
       "no_drop_weight": 40
     },
     "TC69": {
       "items": [
-        { "id": "stone_of_jordan", "weight": 3, "group": "unique_ring" }
+        { "id": "stone_of_jordan", "weight": 3, "group": "unique_ring" },
+        { "id": "mal_rune", "weight": 2, "group": "rune" }
       ],
       "sub_tcs": [
         { "tc": "TC75", "weight": 4 }
       ],
+      "no_drop_weight": 60
+    },
+    "TC72": {
+      "items": [
+        { "id": "ist_rune", "weight": 2, "group": "rune" },
+        { "id": "war_traveler", "weight": 3, "group": "elite_boots" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC66", "weight": 5 }
+      ],
+      "no_drop_weight": 45
+    },
+    "TC66": {
+      "items": [
+        { "id": "um_rune", "weight": 3, "group": "rune" },
+        { "id": "goldwrap", "weight": 4, "group": "exceptional_belt" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC63", "weight": 5 }
+      ],
+      "no_drop_weight": 50
+    },
+    "TC63": {
+      "items": [
+        { "id": "pul_rune", "weight": 3, "group": "rune" },
+        { "id": "chance_guards", "weight": 5, "group": "normal_gloves" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC60", "weight": 5 }
+      ],
+      "no_drop_weight": 55
+    },
+    "TC60": {
+      "items": [
+        { "id": "key_of_terror", "weight": 3, "group": "key" },
+        { "id": "key_of_hate", "weight": 3, "group": "key" },
+        { "id": "key_of_destruction", "weight": 3, "group": "key" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC57", "weight": 5 }
+      ],
+      "no_drop_weight": 55
+    },
+    "TC57": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC54", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC54": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC51", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC51": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC48", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC48": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC45", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC45": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC42", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC42": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC39", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC39": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC36", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC36": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC33", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC33": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC30", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC30": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC27", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC27": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC24", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC24": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC21", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC21": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC18", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC18": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC15", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC15": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC12", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC12": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC9", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC9": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC6", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC6": {
+      "items": [],
+      "sub_tcs": [
+        { "tc": "TC3", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC3": {
+      "items": [],
+      "sub_tcs": [],
       "no_drop_weight": 60
     }
   },
@@ -82,6 +273,123 @@
       "base_tc": "TC69",
       "drop_rolls": 6,
       "quest_bonus_eligible": true
+    },
+    "duriel": {
+      "name": "Duriel",
+      "monster_type": "Boss",
+      "area": "Tal Rasha's Tomb",
+      "act": 2,
+      "base_tc": "TC69",
+      "drop_rolls": 5,
+      "quest_bonus_eligible": true
+    },
+    "diablo": {
+      "name": "Diablo",
+      "monster_type": "Boss",
+      "area": "Chaos Sanctuary",
+      "act": 4,
+      "base_tc": "TC84",
+      "drop_rolls": 7,
+      "quest_bonus_eligible": true
+    },
+    "pindleskin": {
+      "name": "Pindleskin",
+      "monster_type": "SuperUnique",
+      "area": "Nihlathak's Temple",
+      "act": 5,
+      "base_tc": "TC87",
+      "drop_rolls": 4,
+      "quest_bonus_eligible": false
+    },
+    "nihlathak": {
+      "name": "Nihlathak",
+      "monster_type": "SuperUnique",
+      "area": "Halls of Vaught",
+      "act": 5,
+      "base_tc": "TC87",
+      "drop_rolls": 4,
+      "quest_bonus_eligible": false
+    },
+    "eldritch": {
+      "name": "Eldritch",
+      "monster_type": "SuperUnique",
+      "area": "Frigid Highlands",
+      "act": 5,
+      "base_tc": "TC84",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "shenk": {
+      "name": "Shenk",
+      "monster_type": "SuperUnique",
+      "area": "Frigid Highlands",
+      "act": 5,
+      "base_tc": "TC84",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "thresh_socket": {
+      "name": "Thresh Socket",
+      "monster_type": "SuperUnique",
+      "area": "Arreat Plateau",
+      "act": 5,
+      "base_tc": "TC84",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "bonesaw": {
+      "name": "Bonesaw",
+      "monster_type": "SuperUnique",
+      "area": "Glacial Trail",
+      "act": 5,
+      "base_tc": "TC84",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "snapchip": {
+      "name": "Snapchip",
+      "monster_type": "SuperUnique",
+      "area": "Frozen River",
+      "act": 5,
+      "base_tc": "TC78",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "frozenstein": {
+      "name": "Frozenstein",
+      "monster_type": "SuperUnique",
+      "area": "Frozen River",
+      "act": 5,
+      "base_tc": "TC78",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "council_members": {
+      "name": "Council Members",
+      "monster_type": "Champion",
+      "area": "Travincal",
+      "act": 3,
+      "base_tc": "TC78",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
+    },
+    "countess": {
+      "name": "Countess",
+      "monster_type": "SuperUnique",
+      "area": "Forgotten Tower",
+      "act": 1,
+      "base_tc": "TC66",
+      "drop_rolls": 5,
+      "quest_bonus_eligible": false
+    },
+    "summoner": {
+      "name": "Summoner",
+      "monster_type": "SuperUnique",
+      "area": "Arcane Sanctuary",
+      "act": 2,
+      "base_tc": "TC66",
+      "drop_rolls": 3,
+      "quest_bonus_eligible": false
     }
   },
   "items": {
@@ -132,6 +440,150 @@
       "rarity": "Normal",
       "base_type": "Shako",
       "qlvl": 43
+    },
+    "jah_rune": {
+      "name": "Jah Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 73
+    },
+    "lo_rune": {
+      "name": "Lo Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 69
+    },
+    "sur_rune": {
+      "name": "Sur Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 67
+    },
+    "ohm_rune": {
+      "name": "Ohm Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 65
+    },
+    "vex_rune": {
+      "name": "Vex Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 63
+    },
+    "gul_rune": {
+      "name": "Gul Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 61
+    },
+    "ist_rune": {
+      "name": "Ist Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 59
+    },
+    "mal_rune": {
+      "name": "Mal Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 57
+    },
+    "um_rune": {
+      "name": "Um Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 53
+    },
+    "pul_rune": {
+      "name": "Pul Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 51
+    },
+    "griffon's_eye": {
+      "name": "Griffon's Eye",
+      "rarity": "Unique",
+      "base_type": "Diadem",
+      "qlvl": 84
+    },
+    "death's_fathom": {
+      "name": "Death's Fathom",
+      "rarity": "Unique",
+      "base_type": "Dimensional Shard",
+      "qlvl": 85
+    },
+    "death's_web": {
+      "name": "Death's Web",
+      "rarity": "Unique",
+      "base_type": "Unearthed Wand",
+      "qlvl": 85
+    },
+    "crown_of_ages": {
+      "name": "Crown of Ages",
+      "rarity": "Unique",
+      "base_type": "Corona",
+      "qlvl": 86
+    },
+    "windforce": {
+      "name": "Windforce",
+      "rarity": "Unique",
+      "base_type": "Hydra Bow",
+      "qlvl": 77
+    },
+    "stormshield": {
+      "name": "Stormshield",
+      "rarity": "Unique",
+      "base_type": "Monarch",
+      "qlvl": 73
+    },
+    "war_traveler": {
+      "name": "War Traveler",
+      "rarity": "Unique",
+      "base_type": "Battle Boots",
+      "qlvl": 48
+    },
+    "chance_guards": {
+      "name": "Chance Guards",
+      "rarity": "Unique",
+      "base_type": "Chain Gloves",
+      "qlvl": 15
+    },
+    "goldwrap": {
+      "name": "Goldwrap",
+      "rarity": "Unique",
+      "base_type": "Heavy Belt",
+      "qlvl": 36
+    },
+    "tal_rasha's_guardianship": {
+      "name": "Tal Rasha's Guardianship",
+      "rarity": "Set",
+      "base_type": "Lacquered Plate",
+      "qlvl": 84
+    },
+    "ik_armor": {
+      "name": "Immortal King's Soul Cage",
+      "rarity": "Set",
+      "base_type": "Sacred Armor",
+      "qlvl": 76
+    },
+    "key_of_terror": {
+      "name": "Key of Terror",
+      "rarity": "Key",
+      "base_type": "Key",
+      "qlvl": 1
+    },
+    "key_of_hate": {
+      "name": "Key of Hate",
+      "rarity": "Key",
+      "base_type": "Key",
+      "qlvl": 1
+    },
+    "key_of_destruction": {
+      "name": "Key of Destruction",
+      "rarity": "Key",
+      "base_type": "Key",
+      "qlvl": 1
     }
   },
   "terror_zone_scaling": {
@@ -157,5 +609,15 @@
     "3": { "tc": "TC84", "drop_rolls": 5 },
     "4": { "tc": "TC87", "drop_rolls": 6 },
     "5": { "tc": "TC87", "drop_rolls": 8 }
+  },
+  "areas": {
+    "chaos_sanctuary": { "monsters": [{"id": "diablo", "weight": 1}], "champion_packs": 3, "unique_packs": 2 },
+    "worldstone_chamber": { "monsters": [{"id": "baal", "weight": 1}], "champion_packs": 0, "unique_packs": 0 },
+    "durance_of_hate": { "monsters": [{"id": "mephisto", "weight": 1}], "champion_packs": 2, "unique_packs": 1 },
+    "nihlathaks_temple": { "monsters": [{"id": "pindleskin", "weight": 1}], "champion_packs": 1, "unique_packs": 0 },
+    "frigid_highlands": { "monsters": [{"id": "eldritch", "weight": 1}, {"id": "shenk", "weight": 1}], "champion_packs": 2, "unique_packs": 1 },
+    "travincal": { "monsters": [{"id": "council_members", "weight": 3}], "champion_packs": 0, "unique_packs": 0 },
+    "ancient_tunnels": { "monsters": [], "champion_packs": 3, "unique_packs": 2 },
+    "cows": { "monsters": [], "champion_packs": 4, "unique_packs": 2 }
   }
 }

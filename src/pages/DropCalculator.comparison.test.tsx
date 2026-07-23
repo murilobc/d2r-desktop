@@ -123,7 +123,7 @@ describe("ComparisonTab", () => {
       });
     });
 
-    expect(mockedGetAreaRunStats).toHaveBeenCalledWith("profile-1", "Worldstone Chamber");
+    expect(mockedGetAreaRunStats).toHaveBeenCalledWith("profile-1", "worldstone_chamber");
   });
 
   it("shows 'no run data' message when areaStats.total_runs is 0", async () => {

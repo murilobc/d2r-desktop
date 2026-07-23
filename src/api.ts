@@ -378,6 +378,31 @@ export interface LuckPercentileResult {
   deviation_sigma: number;
 }
 
+export interface AreaDropProbabilityInput {
+  area_id: string;
+  item_id: string;
+  magic_find: number;
+  player_count: number;
+  quest_bonus: boolean;
+}
+
+export interface AreaDropProbabilityResult {
+  probability: number;
+  one_in_x: number;
+  kills_for_50: number;
+  kills_for_63: number;
+  kills_for_90: number;
+  kills_for_99: number;
+  monster_breakdown: MonsterBreakdown[];
+}
+
+export interface MonsterBreakdown {
+  monster_id: string;
+  monster_name: string;
+  probability: number;
+  one_in_x: number;
+}
+
 // ─── Drop Probability Engine API Functions ────────────────────────────────────
 
 export const calculateDropProbability = (input: DropProbabilityInput) =>
@@ -385,6 +410,9 @@ export const calculateDropProbability = (input: DropProbabilityInput) =>
 
 export const calculateCumulativeDistribution = (probability: number, maxKills: number, step: number) =>
   invoke<DistributionPoint[]>("calculate_cumulative_distribution", { input: { probability, max_kills: maxKills, step } });
+
+export const calculateAreaDropProbability = (input: AreaDropProbabilityInput) =>
+  invoke<AreaDropProbabilityResult>("calculate_area_drop_probability", { input });
 
 export const getAreaRunStats = (profileId: string, area: string) =>
   invoke<AreaRunStats>("get_area_run_stats", { profileId, area });

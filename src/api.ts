@@ -322,3 +322,72 @@ export const addRunewordTarget = (profileId: string, runewordName: string) =>
 
 export const removeRunewordTarget = (id: string) =>
   invoke<void>("remove_runeword_target", { id });
+
+// ─── Drop Probability Engine Types ────────────────────────────────────────────
+
+export interface DropProbabilityInput {
+  monster_id: string;
+  item_id: string;
+  magic_find: number;
+  player_count: number;
+  quest_bonus: boolean;
+  terror_zone: boolean;
+  herald_tier: number | null;
+}
+
+export interface DropProbabilityResult {
+  probability: number;
+  one_in_x: number;
+  kills_for_50: number;
+  kills_for_63: number;
+  kills_for_90: number;
+  kills_for_99: number;
+  effective_mf: number;
+  mf_applied: boolean;
+}
+
+export interface CumulativeDistInput {
+  probability: number;
+  max_kills: number;
+  step: number;
+}
+
+export interface DistributionPoint {
+  kills: number;
+  cumulative_probability: number;
+}
+
+export interface AreaRunStats {
+  area: string;
+  total_runs: number;
+  avg_duration_secs: number;
+  total_items_found: number;
+  item_counts: { item_name: string; count: number }[];
+}
+
+export interface LuckPercentileInput {
+  actual_drops: number;
+  total_kills: number;
+  per_kill_probability: number;
+}
+
+export interface LuckPercentileResult {
+  percentile: number;
+  expected_drops: number;
+  deviation: number;
+  deviation_sigma: number;
+}
+
+// ─── Drop Probability Engine API Functions ────────────────────────────────────
+
+export const calculateDropProbability = (input: DropProbabilityInput) =>
+  invoke<DropProbabilityResult>("calculate_drop_probability", { input });
+
+export const calculateCumulativeDistribution = (probability: number, maxKills: number, step: number) =>
+  invoke<DistributionPoint[]>("calculate_cumulative_distribution", { input: { probability, max_kills: maxKills, step } });
+
+export const getAreaRunStats = (profileId: string, area: string) =>
+  invoke<AreaRunStats>("get_area_run_stats", { profileId, area });
+
+export const calculateLuckPercentile = (actualDrops: number, totalKills: number, perKillProbability: number) =>
+  invoke<LuckPercentileResult>("calculate_luck_percentile", { input: { actual_drops: actualDrops, total_kills: totalKills, per_kill_probability: perKillProbability } });

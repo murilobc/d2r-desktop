@@ -2,7 +2,9 @@ mod achievements;
 mod commands;
 mod coop;
 mod db;
+mod drop_commands;
 mod models;
+mod probability_engine;
 mod sync;
 
 use db::{init_db, DbState};
@@ -132,6 +134,9 @@ pub fn run() {
             commands::get_runeword_targets,
             commands::add_runeword_target,
             commands::remove_runeword_target,
+            // Drop Probability Engine
+            drop_commands::calculate_drop_probability,
+            drop_commands::calculate_cumulative_distribution,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,0 +1,161 @@
+{
+  "treasure_classes": {
+    "TC87": {
+      "items": [
+        { "id": "tyrael's_might", "weight": 1, "group": "elite_armor" },
+        { "id": "ber_rune", "weight": 2, "group": "rune" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC84", "weight": 3 }
+      ],
+      "no_drop_weight": 100
+    },
+    "TC84": {
+      "items": [
+        { "id": "harlequin_crest", "weight": 2, "group": "elite_helm" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC81", "weight": 4 }
+      ],
+      "no_drop_weight": 80
+    },
+    "TC81": {
+      "items": [
+        { "id": "shako_base", "weight": 5, "group": "elite_helm" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC78", "weight": 5 }
+      ],
+      "no_drop_weight": 60
+    },
+    "TC78": {
+      "items": [
+        { "id": "oculus", "weight": 4, "group": "elite_weapon" },
+        { "id": "arachnid_mesh", "weight": 3, "group": "elite_belt" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC75", "weight": 6 }
+      ],
+      "no_drop_weight": 50
+    },
+    "TC75": {
+      "items": [
+        { "id": "vampire_gaze", "weight": 5, "group": "elite_helm" }
+      ],
+      "sub_tcs": [],
+      "no_drop_weight": 40
+    },
+    "TC69": {
+      "items": [
+        { "id": "stone_of_jordan", "weight": 3, "group": "unique_ring" }
+      ],
+      "sub_tcs": [
+        { "tc": "TC75", "weight": 4 }
+      ],
+      "no_drop_weight": 60
+    }
+  },
+  "monsters": {
+    "mephisto": {
+      "name": "Mephisto",
+      "monster_type": "Boss",
+      "area": "Durance of Hate Level 3",
+      "act": 3,
+      "base_tc": "TC78",
+      "drop_rolls": 7,
+      "quest_bonus_eligible": true
+    },
+    "baal": {
+      "name": "Baal",
+      "monster_type": "Boss",
+      "area": "Worldstone Chamber",
+      "act": 5,
+      "base_tc": "TC87",
+      "drop_rolls": 7,
+      "quest_bonus_eligible": false
+    },
+    "andariel": {
+      "name": "Andariel",
+      "monster_type": "Boss",
+      "area": "Catacombs Level 4",
+      "act": 1,
+      "base_tc": "TC69",
+      "drop_rolls": 6,
+      "quest_bonus_eligible": true
+    }
+  },
+  "items": {
+    "tyrael's_might": {
+      "name": "Tyrael's Might",
+      "rarity": "Unique",
+      "base_type": "Sacred Armor",
+      "qlvl": 87
+    },
+    "harlequin_crest": {
+      "name": "Harlequin Crest (Shako)",
+      "rarity": "Unique",
+      "base_type": "Shako",
+      "qlvl": 69
+    },
+    "ber_rune": {
+      "name": "Ber Rune",
+      "rarity": "Rune",
+      "base_type": "Rune",
+      "qlvl": 63
+    },
+    "stone_of_jordan": {
+      "name": "Stone of Jordan",
+      "rarity": "Unique",
+      "base_type": "Ring",
+      "qlvl": 39
+    },
+    "oculus": {
+      "name": "The Oculus",
+      "rarity": "Unique",
+      "base_type": "Swirling Crystal",
+      "qlvl": 42
+    },
+    "arachnid_mesh": {
+      "name": "Arachnid Mesh",
+      "rarity": "Unique",
+      "base_type": "Spiderweb Sash",
+      "qlvl": 87
+    },
+    "vampire_gaze": {
+      "name": "Vampire Gaze",
+      "rarity": "Unique",
+      "base_type": "Grim Helm",
+      "qlvl": 41
+    },
+    "shako_base": {
+      "name": "Shako",
+      "rarity": "Normal",
+      "base_type": "Shako",
+      "qlvl": 43
+    }
+  },
+  "terror_zone_scaling": {
+    "ancient_tunnels": {
+      "base_alvl": 85,
+      "tz_alvl": 96,
+      "tz_tc": "TC87"
+    },
+    "chaos_sanctuary": {
+      "base_alvl": 85,
+      "tz_alvl": 96,
+      "tz_tc": "TC87"
+    },
+    "cows": {
+      "base_alvl": 81,
+      "tz_alvl": 96,
+      "tz_tc": "TC87"
+    }
+  },
+  "herald_tiers": {
+    "1": { "tc": "TC78", "drop_rolls": 3 },
+    "2": { "tc": "TC81", "drop_rolls": 4 },
+    "3": { "tc": "TC84", "drop_rolls": 5 },
+    "4": { "tc": "TC87", "drop_rolls": 6 },
+    "5": { "tc": "TC87", "drop_rolls": 8 }
+  }
+}

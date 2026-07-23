@@ -161,7 +161,7 @@ function App() {
       case "xp":
         return selectedProfile ? <XPTracker profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "drops":
-        return <DropCalculator />;
+        return <DropCalculator profile={selectedProfile} />;
       case "coop":
         return <CoopPanel />;
       case "achievements":

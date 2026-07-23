@@ -567,3 +567,111 @@ export interface DetectionResult {
   is_auto_suggested: boolean;
   detected_at: string;
 }
+
+// ===== CUSTOMIZABLE OVERLAY PROFILES =====
+
+export type WidgetType =
+  | "timer"           // Session elapsed time
+  | "run_timer"       // Current run elapsed
+  | "run_count"       // Session + total run count
+  | "items_found"     // Session item count
+  | "last_item"       // Most recent item name
+  | "dry_streak"      // Runs since last item
+  | "goal_progress"   // Runs toward session goal
+  | "xp_per_hour"     // XP/hour rate
+  | "route_step";     // Current step in active route
+
+export type WidgetSize = "small" | "medium" | "large";
+
+export interface WidgetPlacement {
+  id: string;          // Unique instance ID (UUID)
+  type: WidgetType;
+  x: number;           // Pixels from left edge
+  y: number;           // Pixels from top edge
+  size: WidgetSize;
+  opacity: number;     // 0.1 to 1.0
+}
+
+export interface OverlayProfileLayout {
+  widgets: WidgetPlacement[];
+  background_color: string;
+  background_opacity: number;
+  width: number;
+  height: number;
+}
+
+export interface OverlayProfile {
+  id: string;
+  name: string;
+  layout: OverlayProfileLayout;
+  is_active: boolean;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateOverlayProfileInput {
+  name: string;
+  layout: OverlayProfileLayout;
+}
+
+export interface UpdateOverlayProfileInput {
+  name?: string;
+  layout?: OverlayProfileLayout;
+}
+
+export const WIDGET_TYPES: WidgetType[] = [
+  "timer",
+  "run_timer",
+  "run_count",
+  "items_found",
+  "last_item",
+  "dry_streak",
+  "goal_progress",
+  "xp_per_hour",
+  "route_step",
+] as const;
+
+export const WIDGET_SIZE_SCALES: Record<WidgetSize, number> = {
+  small: 0.75,
+  medium: 1.0,
+  large: 1.5,
+};
+
+// ===== QUICK-START TEMPLATES =====
+
+export interface Template {
+  id: string;
+  profile_id: string;
+  name: string;
+  area: string;
+  player_count: number;
+  route_id: string | null;
+  session_goal_type: string; // "none" | "runs" | "time"
+  session_goal_value: number | null;
+  tags: string | null;       // JSON array string
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTemplateInput {
+  profile_id: string;
+  name: string;
+  area: string;
+  player_count: number;
+  route_id?: string;
+  session_goal_type: string;
+  session_goal_value?: number;
+  tags?: string[];
+}
+
+export interface UpdateTemplateInput {
+  name: string;
+  area: string;
+  player_count: number;
+  route_id?: string;
+  session_goal_type: string;
+  session_goal_value?: number;
+  tags?: string[];
+}

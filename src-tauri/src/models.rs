@@ -132,6 +132,7 @@ pub struct ExportData {
     pub profiles: Vec<Profile>,
     pub runs: Vec<Run>,
     pub items: Vec<Item>,
+    pub templates: Option<Vec<Template>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -187,6 +188,47 @@ pub struct RouteStats {
     pub avg_cycle_time_secs: f64,
     pub total_items: i64,
     pub items_per_cycle: f64,
+}
+
+// ===== QUICK-START TEMPLATES =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Template {
+    pub id: String,
+    pub profile_id: String,
+    pub name: String,
+    pub area: String,
+    pub player_count: i64,
+    pub route_id: Option<String>,
+    pub session_goal_type: String,    // "none" | "runs" | "time"
+    pub session_goal_value: Option<i64>,
+    pub tags: Option<String>,         // JSON array string, e.g. '["mf","tz"]'
+    pub last_used_at: Option<String>, // ISO 8601 timestamp
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateTemplateInput {
+    pub profile_id: String,
+    pub name: String,
+    pub area: String,
+    pub player_count: i64,
+    pub route_id: Option<String>,
+    pub session_goal_type: String,
+    pub session_goal_value: Option<i64>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdateTemplateInput {
+    pub name: String,
+    pub area: String,
+    pub player_count: i64,
+    pub route_id: Option<String>,
+    pub session_goal_type: String,
+    pub session_goal_value: Option<i64>,
+    pub tags: Option<Vec<String>>,
 }
 
 // ===== COMPARISON MODE =====
@@ -513,4 +555,48 @@ pub struct RunewordTarget {
     pub profile_id: String,
     pub runeword_name: String,
     pub created_at: String,
+}
+
+// ===== OVERLAY PROFILES =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OverlayProfile {
+    pub id: String,
+    pub name: String,
+    pub layout: OverlayProfileLayout,
+    pub is_active: bool,
+    pub is_default: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OverlayProfileLayout {
+    pub widgets: Vec<WidgetPlacement>,
+    pub background_color: String,
+    pub background_opacity: f64,
+    pub width: u32,
+    pub height: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct WidgetPlacement {
+    pub id: String,
+    pub widget_type: String,
+    pub x: f64,
+    pub y: f64,
+    pub size: String,
+    pub opacity: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateOverlayProfileInput {
+    pub name: String,
+    pub layout: OverlayProfileLayout,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UpdateOverlayProfileInput {
+    pub name: Option<String>,
+    pub layout: Option<OverlayProfileLayout>,
 }

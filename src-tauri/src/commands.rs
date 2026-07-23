@@ -1,4 +1,7 @@
-use crate::db::{get_db_path, DbState};
+use crate::db::{
+    db_create_template, db_delete_template, db_get_templates, db_touch_template,
+    db_update_template, get_db_path, DbState,
+};
 use crate::models::*;
 use chrono::Utc;
 use serde::Deserialize;
@@ -826,12 +829,38 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| e.to_string())?;
 
+    // Templates
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, area, player_count, route_id, session_goal_type, session_goal_value, tags, last_used_at, created_at, updated_at FROM templates ORDER BY created_at ASC")
+        .map_err(|e| e.to_string())?;
+    let templates = stmt
+        .query_map([], |row| {
+            Ok(Template {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                area: row.get(3)?,
+                player_count: row.get(4)?,
+                route_id: row.get(5)?,
+                session_goal_type: row.get(6)?,
+                session_goal_value: row.get(7)?,
+                tags: row.get(8)?,
+                last_used_at: row.get(9)?,
+                created_at: row.get(10)?,
+                updated_at: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
     Ok(ExportData {
         version: "1.0".to_string(),
         exported_at: Utc::now().to_rfc3339(),
         profiles,
         runs,
         items,
+        templates: Some(templates),
     })
 }
 
@@ -931,6 +960,42 @@ pub fn import_data(state: State<DbState>, data: ExportData) -> Result<ImportResu
             rusqlite::params![item.id, item.run_id, item.profile_id, item.name, item.item_type, item.rarity, item.found_at, item.notes],
         ).map_err(|e| e.to_string())?;
         items_imported += 1;
+    }
+
+    // Import templates (backward-compatible: skip if field is None)
+    if let Some(ref templates) = data.templates {
+        for template in templates {
+            let exists: bool = conn
+                .query_row(
+                    "SELECT COUNT(*) > 0 FROM templates WHERE id = ?1",
+                    rusqlite::params![template.id],
+                    |row| row.get(0),
+                )
+                .map_err(|e| e.to_string())?;
+
+            if exists {
+                skipped += 1;
+                continue;
+            }
+
+            conn.execute(
+                "INSERT INTO templates (id, profile_id, name, area, player_count, route_id, session_goal_type, session_goal_value, tags, last_used_at, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                rusqlite::params![
+                    template.id,
+                    template.profile_id,
+                    template.name,
+                    template.area,
+                    template.player_count,
+                    template.route_id,
+                    template.session_goal_type,
+                    template.session_goal_value,
+                    template.tags,
+                    template.last_used_at,
+                    template.created_at,
+                    template.updated_at,
+                ],
+            ).map_err(|e| e.to_string())?;
+        }
     }
 
     Ok(ImportResult {
@@ -2219,6 +2284,7 @@ pub fn run_auto_backup(state: State<DbState>, folder_path: String) -> Result<Str
         profiles,
         runs,
         items,
+        templates: None,
     };
 
     let json = serde_json::to_string_pretty(&export).map_err(|e| e.to_string())?;
@@ -2507,6 +2573,48 @@ pub fn remove_runeword_target(state: State<DbState>, id: String) -> Result<(), S
     ).map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+// ===== QUICK-START TEMPLATES =====
+
+#[tauri::command]
+pub fn create_template(
+    state: State<DbState>,
+    input: CreateTemplateInput,
+) -> Result<Template, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db_create_template(&conn, input)
+}
+
+#[tauri::command]
+pub fn get_templates(
+    state: State<DbState>,
+    profile_id: String,
+) -> Result<Vec<Template>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db_get_templates(&conn, &profile_id)
+}
+
+#[tauri::command]
+pub fn update_template(
+    state: State<DbState>,
+    id: String,
+    input: UpdateTemplateInput,
+) -> Result<Template, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db_update_template(&conn, &id, input)
+}
+
+#[tauri::command]
+pub fn delete_template(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db_delete_template(&conn, &id)
+}
+
+#[tauri::command]
+pub fn touch_template(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    db_touch_template(&conn, &id)
 }
 
 #[cfg(test)]

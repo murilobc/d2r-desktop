@@ -4,6 +4,7 @@ mod coop;
 mod db;
 mod drop_commands;
 mod models;
+mod overlay_commands;
 mod probability_engine;
 pub mod screenshot;
 mod sync;
@@ -32,6 +33,7 @@ pub fn run() {
                  PRAGMA secure_delete = ON;"
             ).expect("failed to set database pragmas");
             init_db(&conn).expect("failed to initialize database");
+            overlay_commands::init_default_profiles(&conn).expect("failed to initialize default overlay profiles");
             app.manage(DbState(Mutex::new(conn)));
             app.manage(coop::CoopState {
                 server: std::sync::Mutex::new(None),
@@ -138,6 +140,12 @@ pub fn run() {
             commands::get_runeword_targets,
             commands::add_runeword_target,
             commands::remove_runeword_target,
+            // Quick-Start Templates
+            commands::create_template,
+            commands::get_templates,
+            commands::update_template,
+            commands::delete_template,
+            commands::touch_template,
             // Drop Probability Engine
             drop_commands::calculate_drop_probability,
             drop_commands::calculate_cumulative_distribution,
@@ -146,6 +154,14 @@ pub fn run() {
             screenshot::get_screenshot_settings,
             screenshot::update_screenshot_settings,
             screenshot::detect_from_clipboard,
+            // Overlay Profiles
+            overlay_commands::get_overlay_profiles,
+            overlay_commands::get_active_overlay_profile,
+            overlay_commands::create_overlay_profile,
+            overlay_commands::update_overlay_profile,
+            overlay_commands::delete_overlay_profile,
+            overlay_commands::set_active_overlay_profile,
+            overlay_commands::init_default_overlay_profiles,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

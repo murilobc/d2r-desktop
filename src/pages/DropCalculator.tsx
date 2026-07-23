@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AREA_DATA, getTC85Areas } from "../data/areas";
 import type { AreaInfo } from "../data/areas";
-import { calculateDropProbability, calculateCumulativeDistribution, getAreaRunStats, calculateLuckPercentile } from "../api";
-import type { DropProbabilityResult, DistributionPoint, AreaRunStats, LuckPercentileResult } from "../api";
+import { calculateDropProbability, calculateCumulativeDistribution, calculateAreaDropProbability, getAreaRunStats, calculateLuckPercentile } from "../api";
+import type { DropProbabilityResult, DistributionPoint, AreaRunStats, LuckPercentileResult, AreaDropProbabilityResult } from "../api";
 import type { Profile } from "../types";
 import { formatNumber } from "../i18n/formatters";
+import ItemSearchSelect from "../components/ItemSearchSelect";
 import {
   LineChart, Line, AreaChart, Area, ReferenceLine,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -56,20 +57,66 @@ export default function DropCalculator({ profile }: DropCalculatorProps) {
 }
 
 // ===== Monster/Item Data for Dropdowns =====
-const MONSTERS = [
-  { id: "mephisto", name: "Mephisto", act: 3 },
-  { id: "baal", name: "Baal", act: 5 },
+export const MONSTERS = [
+  // Act 1
   { id: "andariel", name: "Andariel", act: 1 },
+  { id: "countess", name: "Countess", act: 1 },
+  // Act 2
+  { id: "duriel", name: "Duriel", act: 2 },
+  { id: "summoner", name: "Summoner", act: 2 },
+  // Act 3
+  { id: "mephisto", name: "Mephisto", act: 3 },
+  { id: "council_members", name: "Council Members", act: 3 },
+  // Act 4
+  { id: "diablo", name: "Diablo", act: 4 },
+  // Act 5
+  { id: "baal", name: "Baal", act: 5 },
+  { id: "pindleskin", name: "Pindleskin", act: 5 },
+  { id: "nihlathak", name: "Nihlathak", act: 5 },
+  { id: "eldritch", name: "Eldritch", act: 5 },
+  { id: "shenk", name: "Shenk", act: 5 },
+  { id: "thresh_socket", name: "Thresh Socket", act: 5 },
+  { id: "bonesaw", name: "Bonesaw", act: 5 },
+  { id: "snapchip", name: "Snapchip", act: 5 },
+  { id: "frozenstein", name: "Frozenstein", act: 5 },
 ] as const;
 
-const ITEMS = [
+export const ITEMS = [
+  // Unique Items (sorted by qlvl descending for prominence)
   { id: "tyrael's_might", name: "Tyrael's Might", rarity: "Unique" },
-  { id: "harlequin_crest", name: "Shako", rarity: "Unique" },
-  { id: "ber_rune", name: "Ber Rune", rarity: "Rune" },
-  { id: "stone_of_jordan", name: "Stone of Jordan", rarity: "Unique" },
-  { id: "oculus", name: "The Oculus", rarity: "Unique" },
+  { id: "crown_of_ages", name: "Crown of Ages", rarity: "Unique" },
+  { id: "death's_fathom", name: "Death's Fathom", rarity: "Unique" },
+  { id: "death's_web", name: "Death's Web", rarity: "Unique" },
   { id: "arachnid_mesh", name: "Arachnid Mesh", rarity: "Unique" },
+  { id: "griffon's_eye", name: "Griffon's Eye", rarity: "Unique" },
+  { id: "windforce", name: "Windforce", rarity: "Unique" },
+  { id: "stormshield", name: "Stormshield", rarity: "Unique" },
+  { id: "harlequin_crest", name: "Shako", rarity: "Unique" },
+  { id: "war_traveler", name: "War Traveler", rarity: "Unique" },
+  { id: "oculus", name: "The Oculus", rarity: "Unique" },
   { id: "vampire_gaze", name: "Vampire Gaze", rarity: "Unique" },
+  { id: "stone_of_jordan", name: "Stone of Jordan", rarity: "Unique" },
+  { id: "goldwrap", name: "Goldwrap", rarity: "Unique" },
+  { id: "chance_guards", name: "Chance Guards", rarity: "Unique" },
+  // Set Items
+  { id: "tal_rasha's_guardianship", name: "Tal Rasha's Guardianship", rarity: "Set" },
+  { id: "ik_armor", name: "Immortal King's Soul Cage", rarity: "Set" },
+  // Runes (descending rarity)
+  { id: "jah_rune", name: "Jah Rune", rarity: "Rune" },
+  { id: "ber_rune", name: "Ber Rune", rarity: "Rune" },
+  { id: "sur_rune", name: "Sur Rune", rarity: "Rune" },
+  { id: "lo_rune", name: "Lo Rune", rarity: "Rune" },
+  { id: "ohm_rune", name: "Ohm Rune", rarity: "Rune" },
+  { id: "vex_rune", name: "Vex Rune", rarity: "Rune" },
+  { id: "gul_rune", name: "Gul Rune", rarity: "Rune" },
+  { id: "ist_rune", name: "Ist Rune", rarity: "Rune" },
+  { id: "mal_rune", name: "Mal Rune", rarity: "Rune" },
+  { id: "um_rune", name: "Um Rune", rarity: "Rune" },
+  { id: "pul_rune", name: "Pul Rune", rarity: "Rune" },
+  // Keys
+  { id: "key_of_terror", name: "Key of Terror", rarity: "Key" },
+  { id: "key_of_hate", name: "Key of Hate", rarity: "Key" },
+  { id: "key_of_destruction", name: "Key of Destruction", rarity: "Key" },
 ] as const;
 
 // ===== RUN ESTIMATE SECTION =====
@@ -131,8 +178,49 @@ function RunEstimate({
   );
 }
 
+// ===== AREA-BASED CALCULATION DATA =====
+export const CALC_AREAS = [
+  { id: "chaos_sanctuary", name: "Chaos Sanctuary" },
+  { id: "worldstone_chamber", name: "Worldstone Chamber" },
+  { id: "durance_of_hate", name: "Durance of Hate" },
+  { id: "nihlathaks_temple", name: "Nihlathak's Temple" },
+  { id: "frigid_highlands", name: "Frigid Highlands" },
+  { id: "travincal", name: "Travincal" },
+  { id: "ancient_tunnels", name: "Ancient Tunnels" },
+  { id: "cows", name: "Secret Cow Level" },
+] as const;
+
 // ===== PROBABILITY TAB =====
 function ProbabilityTab({ profileId }: { readonly profileId: string | null }) {
+  const [mode, setMode] = useState<"monster" | "area">("monster");
+
+  return (
+    <div className="dc-probability">
+      <div className="dc-mode-toggle" role="group" aria-label="Calculation mode">
+        <button
+          className={`btn btn-sm ${mode === "monster" ? "btn-primary" : ""}`}
+          onClick={() => setMode("monster")}
+          aria-pressed={mode === "monster"}
+        >
+          Monster
+        </button>
+        <button
+          className={`btn btn-sm ${mode === "area" ? "btn-primary" : ""}`}
+          onClick={() => setMode("area")}
+          aria-pressed={mode === "area"}
+        >
+          Area
+        </button>
+      </div>
+
+      {mode === "monster" && <MonsterProbabilityMode profileId={profileId} />}
+      {mode === "area" && <AreaProbabilityMode />}
+    </div>
+  );
+}
+
+// ===== MONSTER PROBABILITY MODE (existing behavior) =====
+function MonsterProbabilityMode({ profileId }: { readonly profileId: string | null }) {
   const { t } = useTranslation();
   const [monsterId, setMonsterId] = useState("baal");
   const [itemId, setItemId] = useState("harlequin_crest");
@@ -172,7 +260,7 @@ function ProbabilityTab({ profileId }: { readonly profileId: string | null }) {
   }, [monsterId, itemId, magicFind, playerCount, questBonus, terrorZone, heraldTier, t]);
 
   return (
-    <div className="dc-probability">
+    <>
       <div className="dc-config-panel">
         <div className="dc-config-row">
           <div className="dc-config-item">
@@ -191,18 +279,13 @@ function ProbabilityTab({ profileId }: { readonly profileId: string | null }) {
           </div>
 
           <div className="dc-config-item">
-            <label htmlFor="dc-item-select">{t("drops.item")}</label>
-            <select
-              id="dc-item-select"
-              value={itemId}
-              onChange={(e) => setItemId(e.target.value)}
-            >
-              {ITEMS.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name} ({item.rarity})
-                </option>
-              ))}
-            </select>
+            <label>{t("drops.item")}</label>
+            <ItemSearchSelect
+              items={ITEMS}
+              selectedId={itemId}
+              onSelect={setItemId}
+              label="Search items"
+            />
           </div>
         </div>
 
@@ -340,7 +423,193 @@ function ProbabilityTab({ profileId }: { readonly profileId: string | null }) {
       {result && result.probability > 0 && (
         <RunEstimate result={result} monsterId={monsterId} profileId={profileId} />
       )}
-    </div>
+    </>
+  );
+}
+
+// ===== AREA PROBABILITY MODE =====
+function AreaProbabilityMode() {
+  const { t } = useTranslation();
+  const [areaId, setAreaId] = useState<string>(CALC_AREAS[0].id);
+  const [itemId, setItemId] = useState("harlequin_crest");
+  const [magicFind, setMagicFind] = useState(300);
+  const [playerCount, setPlayerCount] = useState(1);
+  const [questBonus, setQuestBonus] = useState(false);
+  const [result, setResult] = useState<AreaDropProbabilityResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [mfError, setMfError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (magicFind < 0 || magicFind > 9999) {
+      setMfError(t("drops.mfError"));
+      return;
+    }
+    setMfError(null);
+
+    calculateAreaDropProbability({
+      area_id: areaId,
+      item_id: itemId,
+      magic_find: magicFind,
+      player_count: playerCount,
+      quest_bonus: questBonus,
+    })
+      .then((r) => {
+        setResult(r);
+        setError(null);
+      })
+      .catch((e) => {
+        setError(String(e));
+        setResult(null);
+      });
+  }, [areaId, itemId, magicFind, playerCount, questBonus, t]);
+
+  return (
+    <>
+      <div className="dc-config-panel">
+        <div className="dc-config-row">
+          <div className="dc-config-item">
+            <label htmlFor="dc-area-select">Area</label>
+            <select
+              id="dc-area-select"
+              value={areaId}
+              onChange={(e) => setAreaId(e.target.value)}
+            >
+              {CALC_AREAS.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="dc-config-item">
+            <label>{t("drops.item")}</label>
+            <ItemSearchSelect
+              items={ITEMS}
+              selectedId={itemId}
+              onSelect={setItemId}
+              label="Search items"
+            />
+          </div>
+        </div>
+
+        <div className="dc-config-row">
+          <div className="dc-config-item">
+            <label htmlFor="dc-area-mf-input">{t("drops.magicFind")}</label>
+            <input
+              id="dc-area-mf-input"
+              type="number"
+              min={0}
+              max={9999}
+              value={magicFind}
+              onChange={(e) => setMagicFind(Number(e.target.value))}
+              aria-invalid={mfError ? "true" : undefined}
+              aria-describedby={mfError ? "dc-area-mf-error" : undefined}
+            />
+          </div>
+
+          <div className="dc-config-item">
+            <label htmlFor="dc-area-player-select">{t("drops.playerCount")}</label>
+            <select
+              id="dc-area-player-select"
+              value={playerCount}
+              onChange={(e) => setPlayerCount(Number(e.target.value))}
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="dc-config-item">
+            <label htmlFor="dc-area-quest-toggle">{t("drops.questBonus")}</label>
+            <input
+              id="dc-area-quest-toggle"
+              type="checkbox"
+              checked={questBonus}
+              onChange={(e) => setQuestBonus(e.target.checked)}
+            />
+          </div>
+        </div>
+      </div>
+
+      {mfError && (
+        <div className="dc-error" id="dc-area-mf-error" role="alert">
+          {mfError}
+        </div>
+      )}
+      {error && (
+        <div className="dc-error" role="alert">
+          {error}
+        </div>
+      )}
+
+      {result && result.probability === 0 && (
+        <div className="dc-error">{t("drops.itemCannotDrop")}</div>
+      )}
+
+      {result && result.probability > 0 && (
+        <>
+          <div className="dc-result">
+            <div className="dc-result-main">
+              <span className="dc-result-label">Per-Run Drop Chance</span>
+              <span className="dc-result-value">
+                {t("drops.oneInX", {
+                  value: formatNumber(result.one_in_x, {
+                    maximumFractionDigits: 1,
+                  }),
+                })}
+              </span>
+            </div>
+            <div className="dc-result-details">
+              <div>
+                50%: {formatNumber(result.kills_for_50)} runs
+              </div>
+              <div>
+                63%: {formatNumber(result.kills_for_63)} runs
+              </div>
+              <div>
+                90%: {formatNumber(result.kills_for_90)} runs
+              </div>
+              <div>
+                99%: {formatNumber(result.kills_for_99)} runs
+              </div>
+            </div>
+          </div>
+
+          {result.monster_breakdown.length > 0 && (
+            <div className="dc-breakdown">
+              <h3>Per-Monster Breakdown</h3>
+              <table className="dc-breakdown-table" aria-label="Per-monster drop probability breakdown">
+                <thead>
+                  <tr>
+                    <th scope="col">Monster</th>
+                    <th scope="col">Probability</th>
+                    <th scope="col">1-in-X</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.monster_breakdown.map((mb) => (
+                    <tr key={mb.monster_id}>
+                      <td>{mb.monster_name}</td>
+                      <td>{(mb.probability * 100).toFixed(4)}%</td>
+                      <td>{formatNumber(mb.one_in_x, { maximumFractionDigits: 1 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <DistributionChart
+            probability={result.probability}
+            killThresholds={result}
+          />
+        </>
+      )}
+    </>
   );
 }
 
@@ -400,10 +669,23 @@ function DistributionChart({ probability, killThresholds }: {
 }
 
 // ===== Monster-to-Area mapping for historical data lookup =====
-const MONSTER_AREA_MAP: Record<string, string> = {
-  mephisto: "Durance of Hate Level 3",
-  baal: "Worldstone Chamber",
-  andariel: "Catacombs Level 4",
+export const MONSTER_AREA_MAP: Record<string, string> = {
+  mephisto: "durance_of_hate",
+  baal: "worldstone_chamber",
+  andariel: "catacombs_level_4",
+  duriel: "tal_rashas_tomb",
+  diablo: "chaos_sanctuary",
+  pindleskin: "nihlathaks_temple",
+  nihlathak: "halls_of_vaught",
+  eldritch: "frigid_highlands",
+  shenk: "frigid_highlands",
+  thresh_socket: "arreat_plateau",
+  bonesaw: "glacial_trail",
+  snapchip: "frozen_river",
+  frozenstein: "frozen_river",
+  council_members: "travincal",
+  countess: "forgotten_tower",
+  summoner: "arcane_sanctuary",
 };
 
 // ===== COMPARISON TAB =====

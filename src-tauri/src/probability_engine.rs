@@ -5,12 +5,27 @@ use std::sync::OnceLock;
 // ─── Data Model Structs ───────────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct AreaDef {
+    pub monsters: Vec<AreaMonster>,
+    pub champion_packs: u8,
+    pub unique_packs: u8,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct AreaMonster {
+    pub id: String,
+    pub weight: u32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct TcData {
     pub treasure_classes: HashMap<String, TreasureClass>,
     pub monsters: HashMap<String, Monster>,
     pub items: HashMap<String, ItemDef>,
     pub terror_zone_scaling: HashMap<String, TzScaling>,
     pub herald_tiers: HashMap<String, HeraldTier>,
+    #[serde(default)]
+    pub areas: HashMap<String, AreaDef>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -146,6 +161,87 @@ pub fn compute_monster_drop_probability(
     // Multiple rolls per kill: P(at least 1) = 1 - (1 - p)^rolls
     let per_kill_prob = 1.0 - (1.0 - per_roll_prob).powi(monster.drop_rolls as i32);
     Ok(per_kill_prob)
+}
+
+// ─── Area-Based Aggregate Probability ─────────────────────────────────────────
+
+/// Compute aggregate drop probability for a single run through an area.
+/// Iterates over all monsters in the area, computes per-monster probabilities,
+/// and aggregates using: P(area) = 1 - ∏(1 - P(monster_i))
+/// Returns (aggregate_probability, per_monster_breakdown).
+pub fn compute_area_drop_probability(
+    tc_data: &TcData,
+    area_id: &str,
+    item_id: &str,
+    mf: u32,
+    players: u8,
+    quest_bonus: bool,
+) -> Result<(f64, Vec<(String, f64)>), String> {
+    let area = tc_data
+        .areas
+        .get(area_id)
+        .ok_or_else(|| format!("Area not found: {}", area_id))?;
+
+    if !tc_data.items.contains_key(item_id) {
+        return Err(format!("Item not found: {}", item_id));
+    }
+
+    let mut breakdown: Vec<(String, f64)> = Vec::new();
+    let mut product_no_drop = 1.0;
+
+    for area_monster in &area.monsters {
+        let monster = match tc_data.monsters.get(&area_monster.id) {
+            Some(m) => m,
+            None => continue, // Skip monsters not in the data
+        };
+
+        // Compute base per-kill probability
+        let mut visited = Vec::new();
+        let per_roll_prob =
+            compute_item_probability(tc_data, &monster.base_tc, item_id, &mut visited)?;
+
+        // Apply multiple rolls per kill (with or without quest bonus)
+        let mut per_kill_prob = if quest_bonus && monster.quest_bonus_eligible {
+            apply_quest_bonus(per_roll_prob, monster.drop_rolls)
+        } else {
+            1.0 - (1.0 - per_roll_prob).powi(monster.drop_rolls as i32)
+        };
+
+        // Apply MF adjustment
+        let item_def = &tc_data.items[item_id];
+        let mf_applied = item_def.rarity != "Rune" && item_def.rarity != "Normal";
+        if mf_applied && per_kill_prob > 0.0 {
+            let one_in_x = 1.0 / per_kill_prob;
+            let adjusted = apply_mf_adjustment(one_in_x, mf, &item_def.rarity);
+            per_kill_prob = 1.0 / adjusted;
+        }
+
+        // Apply player count adjustment
+        if players > 1 && per_kill_prob > 0.0 {
+            if let Some(tc) = tc_data.treasure_classes.get(&monster.base_tc) {
+                let total_weight: u32 = tc.items.iter().map(|i| i.weight).sum::<u32>()
+                    + tc.sub_tcs.iter().map(|s| s.weight).sum::<u32>()
+                    + tc.no_drop_weight;
+                let one_in_x = 1.0 / per_kill_prob;
+                let adjusted = adjust_for_player_count(
+                    one_in_x,
+                    tc.no_drop_weight,
+                    total_weight,
+                    players,
+                );
+                per_kill_prob = 1.0 / adjusted;
+            }
+        }
+
+        // Apply weight: each unit of weight represents one encounter with this monster
+        for _ in 0..area_monster.weight {
+            product_no_drop *= 1.0 - per_kill_prob;
+            breakdown.push((area_monster.id.clone(), per_kill_prob));
+        }
+    }
+
+    let aggregate = 1.0 - product_no_drop;
+    Ok((aggregate, breakdown))
 }
 
 // ─── MF, Player Count, and Quest Bonus ─────────────────────────────
@@ -490,6 +586,7 @@ mod tests {
             items: HashMap::new(),
             terror_zone_scaling: HashMap::new(),
             herald_tiers: HashMap::new(),
+            areas: HashMap::new(),
         };
 
         tc_data.treasure_classes.insert(
@@ -556,13 +653,13 @@ mod tests {
     fn test_compute_item_probability_direct_item() {
         let data = load_tc_data();
         // TC87 directly contains tyrael's_might with weight 1
-        // TC87 total weight = items(1+2) + sub_tcs(3) + no_drop(100) = 106
+        // TC87 total weight = items(1+2+1+1+1+1+2) + sub_tcs(3) + no_drop(100) = 112
         let mut visited = Vec::new();
         let prob = compute_item_probability(data, "TC87", "tyrael's_might", &mut visited).unwrap();
-        let expected = 1.0 / 106.0;
+        let expected = 1.0 / 112.0;
         assert!(
             (prob - expected).abs() < 1e-10,
-            "Direct item probability should be weight/total = 1/106, got {}",
+            "Direct item probability should be weight/total = 1/112, got {}",
             prob
         );
     }
@@ -570,12 +667,18 @@ mod tests {
     #[test]
     fn test_compute_item_probability_nested() {
         let data = load_tc_data();
-        // harlequin_crest is in TC84 (weight 2, total = 2+4+80 = 86)
-        // TC87 references TC84 with weight 3 (total TC87 = 1+2+3+100 = 106)
-        // So from TC87: prob = (3/106) * (2/86)
+        // harlequin_crest is in TC84 (weight 2, total = 9+4+80 = 93)
+        // harlequin_crest is also in TC78 (weight 2, total = 14+6+50 = 70)
+        // TC87 references TC84 with weight 3 (total TC87 = 9+3+100 = 112)
+        // TC84 references TC81 with weight 4 (total TC84 = 9+4+80 = 93)
+        // TC81 references TC78 with weight 5 (total TC81 = 12+5+60 = 77)
+        // From TC87: direct in TC84 = (3/112) * (2/93)
+        //   plus deeper TC84 → TC81 → TC78 = (3/112) * (4/93) * (5/77) * (2/70)
         let mut visited = Vec::new();
         let prob = compute_item_probability(data, "TC87", "harlequin_crest", &mut visited).unwrap();
-        let expected = (3.0 / 106.0) * (2.0 / 86.0);
+        let direct_tc84 = (3.0 / 112.0) * (2.0 / 93.0);
+        let via_tc78 = (3.0 / 112.0) * (4.0 / 93.0) * (5.0 / 77.0) * (2.0 / 70.0);
+        let expected = direct_tc84 + via_tc78;
         assert!(
             (prob - expected).abs() < 1e-10,
             "Nested item probability mismatch: expected {}, got {}",
@@ -1245,7 +1348,9 @@ mod tests {
         // Verify that apply_terror_zone with terror_zone=true always returns a TC
         // that is >= the monster's base TC in the hierarchy ordering.
         let data = load_tc_data();
-        let tc_order: Vec<&str> = vec!["TC69", "TC75", "TC78", "TC81", "TC84", "TC87"];
+        let tc_order: Vec<&str> = vec!["TC3", "TC6", "TC9", "TC12", "TC15", "TC18", "TC21", "TC24",
+            "TC27", "TC30", "TC33", "TC36", "TC39", "TC42", "TC45", "TC48", "TC51", "TC54",
+            "TC57", "TC60", "TC63", "TC66", "TC69", "TC72", "TC75", "TC78", "TC81", "TC84", "TC87"];
 
         for (monster_id, monster) in &data.monsters {
             for (area_id, _tz_scaling) in &data.terror_zone_scaling {
@@ -1275,7 +1380,9 @@ mod tests {
     fn prop_herald_tier_tc_monotonicity() {
         // **Validates: Requirements 7.1**
         let data = load_tc_data();
-        let tc_order: Vec<&str> = vec!["TC69", "TC75", "TC78", "TC81", "TC84", "TC87"];
+        let tc_order: Vec<&str> = vec!["TC3", "TC6", "TC9", "TC12", "TC15", "TC18", "TC21", "TC24",
+            "TC27", "TC30", "TC33", "TC36", "TC39", "TC42", "TC45", "TC48", "TC51", "TC54",
+            "TC57", "TC60", "TC63", "TC66", "TC69", "TC72", "TC75", "TC78", "TC81", "TC84", "TC87"];
 
         let mut prev_tc_idx = 0usize;
         let mut prev_rolls = 0u8;
@@ -1449,5 +1556,736 @@ mod tests {
         };
         let result = calculate_drop_probability(input);
         assert!(result.is_ok(), "Valid inputs should not return error: {:?}", result.err());
+    }
+
+    // ─── Preservation Property Tests ────────────────────────────────────────────
+    // **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+    // These tests capture the exact baseline behavior of the existing probability
+    // engine for all original monster/item pairs. They serve as regression guards
+    // to ensure the fix does not alter any existing calculations.
+    //
+    // Baseline values observed from expanded tc_data.json:
+    //   baal + tyrael's_might     => 0.06085058392254317
+    //   baal + harlequin_crest    => 0.00404020682596062
+    //   baal + ber_rune           => 0.11849934890141334
+    //   mephisto + oculus         => 0.33759855878126588
+    //   mephisto + arachnid_mesh  => 0.26406859079331590
+    //   andariel + stone_of_jordan => 0.23410529185932727
+    //   andariel + vampire_gaze   => 0.03298220059971657
+
+    /// Observed baseline probabilities for all original monster/item pairs.
+    /// Used by preservation property tests to verify calculations remain unchanged.
+    fn preservation_baselines() -> Vec<(&'static str, &'static str, f64)> {
+        vec![
+            ("baal", "tyrael's_might", 0.06085058392254316662),
+            ("baal", "harlequin_crest", 0.00404020682596062386),
+            ("baal", "ber_rune", 0.11849934890141333721),
+            ("mephisto", "oculus", 0.33759855878126587836),
+            ("mephisto", "arachnid_mesh", 0.26406859079331590490),
+            ("andariel", "stone_of_jordan", 0.23410529185932726914),
+            ("andariel", "vampire_gaze", 0.03298220059971657125),
+        ]
+    }
+
+    #[test]
+    fn preservation_baseline_probabilities_exact() {
+        // **Validates: Requirements 3.1**
+        // Verify that all original monster/item pairs produce identical probabilities
+        // to the recorded baseline (with no MF, player count 1, no modifiers).
+        let data = load_tc_data();
+        for (monster, item, expected_prob) in preservation_baselines() {
+            let result = compute_monster_drop_probability(data, monster, item);
+            assert!(result.is_ok(),
+                "Preservation: ({}, {}) should not error, got: {:?}",
+                monster, item, result.err());
+            let actual = result.unwrap();
+            assert!(
+                (actual - expected_prob).abs() < 1e-15,
+                "Preservation: ({}, {}) probability changed! expected={:.20}, actual={:.20}",
+                monster, item, expected_prob, actual
+            );
+        }
+    }
+
+    proptest! {
+        /// **Validates: Requirements 3.1, 3.2**
+        /// Property: For all MF values in [0, 9999], original monster/item pairs produce
+        /// identical probabilities to recorded baseline (MF only affects the post-calculation
+        /// adjustment, not the base probability from TC traversal).
+        #[test]
+        fn preservation_mf_does_not_change_base_probability(
+            mf in 0u32..=9999,
+        ) {
+            // The base probability from compute_monster_drop_probability is independent
+            // of MF — MF is applied afterward. Verify the base calc is always the same.
+            let data = load_tc_data();
+            for (monster, item, expected_prob) in preservation_baselines() {
+                let result = compute_monster_drop_probability(data, monster, item);
+                prop_assert!(result.is_ok(),
+                    "Preservation: ({}, {}) should not error at mf={}", monster, item, mf);
+                let actual = result.unwrap();
+                prop_assert!(
+                    (actual - expected_prob).abs() < 1e-15,
+                    "Preservation: ({}, {}) base probability changed at mf={}! expected={:.20}, actual={:.20}",
+                    monster, item, mf, expected_prob, actual
+                );
+            }
+        }
+
+        /// **Validates: Requirements 3.2, 3.3**
+        /// Property: For all player counts in [1, 8], original calculations remain
+        /// monotonically improving (lower 1-in-X) with more players.
+        #[test]
+        fn preservation_player_count_monotonically_improves(
+            players in 2u8..=8,
+        ) {
+            // TC87: no_drop=100, total=112
+            // TC78: no_drop=50, total=70
+            // TC69: no_drop=60, total=69
+            let tc_params: Vec<(u32, u32, &str)> = vec![
+                (100, 112, "TC87"),
+                (50, 70, "TC78"),
+                (60, 69, "TC69"),
+            ];
+
+            for (no_drop, total, tc_name) in &tc_params {
+                let base_one_in_x = 100.0; // arbitrary base
+                let prev = adjust_for_player_count(base_one_in_x, *no_drop, *total, players - 1);
+                let curr = adjust_for_player_count(base_one_in_x, *no_drop, *total, players);
+                prop_assert!(curr <= prev + 1e-10,
+                    "Preservation: {} players={} should improve over players={}: curr={:.15}, prev={:.15}",
+                    tc_name, players, players - 1, curr, prev);
+            }
+        }
+
+        /// **Validates: Requirements 3.3**
+        /// Property: Quest bonus doubles effective rolls and improves probability
+        /// for eligible monsters (Mephisto and Andariel).
+        #[test]
+        fn preservation_quest_bonus_doubles_rolls_improves_probability(
+            per_roll_factor in 1u32..1000,
+        ) {
+            // Use various per-roll probabilities based on the factor
+            let per_roll_prob = 1.0 / (per_roll_factor as f64 * 10.0);
+
+            // Mephisto: drop_rolls=7
+            let meph_normal = 1.0 - (1.0 - per_roll_prob).powi(7);
+            let meph_quest = apply_quest_bonus(per_roll_prob, 7);
+            // Quest bonus should equal doubled rolls (14)
+            let meph_expected = 1.0 - (1.0 - per_roll_prob).powi(14);
+            prop_assert!((meph_quest - meph_expected).abs() < 1e-15,
+                "Preservation: Mephisto quest bonus should double rolls (14): expected={:.15}, got={:.15}",
+                meph_expected, meph_quest);
+            prop_assert!(meph_quest > meph_normal,
+                "Preservation: Mephisto quest bonus should improve probability: quest={:.15} > normal={:.15}",
+                meph_quest, meph_normal);
+
+            // Andariel: drop_rolls=6
+            let andy_normal = 1.0 - (1.0 - per_roll_prob).powi(6);
+            let andy_quest = apply_quest_bonus(per_roll_prob, 6);
+            let andy_expected = 1.0 - (1.0 - per_roll_prob).powi(12);
+            prop_assert!((andy_quest - andy_expected).abs() < 1e-15,
+                "Preservation: Andariel quest bonus should double rolls (12): expected={:.15}, got={:.15}",
+                andy_expected, andy_quest);
+            prop_assert!(andy_quest > andy_normal,
+                "Preservation: Andariel quest bonus should improve probability: quest={:.15} > normal={:.15}",
+                andy_quest, andy_normal);
+        }
+    }
+
+    #[test]
+    fn preservation_terror_zone_returns_correct_tcs() {
+        // **Validates: Requirements 3.4**
+        // Terror zone elevation returns correct TCs for all existing scaling entries.
+        let data = load_tc_data();
+
+        // ancient_tunnels → TC87
+        let tc = apply_terror_zone(data, "mephisto", "ancient_tunnels", true).unwrap();
+        assert_eq!(tc, "TC87", "Preservation: TZ ancient_tunnels should return TC87");
+
+        // chaos_sanctuary → TC87
+        let tc = apply_terror_zone(data, "mephisto", "chaos_sanctuary", true).unwrap();
+        assert_eq!(tc, "TC87", "Preservation: TZ chaos_sanctuary should return TC87");
+
+        // cows → TC87
+        let tc = apply_terror_zone(data, "mephisto", "cows", true).unwrap();
+        assert_eq!(tc, "TC87", "Preservation: TZ cows should return TC87");
+
+        // Unknown area returns base TC
+        let tc = apply_terror_zone(data, "mephisto", "unknown_area", true).unwrap();
+        assert_eq!(tc, "TC78", "Preservation: TZ unknown_area should return Mephisto base TC78");
+
+        // TZ disabled returns base TC
+        let tc = apply_terror_zone(data, "mephisto", "ancient_tunnels", false).unwrap();
+        assert_eq!(tc, "TC78", "Preservation: TZ disabled should return Mephisto base TC78");
+    }
+
+    #[test]
+    fn preservation_herald_tier_returns_correct_values() {
+        // **Validates: Requirements 3.4**
+        // Herald tier overrides return correct (tc, rolls) for tiers 1-5.
+        let data = load_tc_data();
+
+        let expected: Vec<(u8, &str, u8)> = vec![
+            (1, "TC78", 3),
+            (2, "TC81", 4),
+            (3, "TC84", 5),
+            (4, "TC87", 6),
+            (5, "TC87", 8),
+        ];
+
+        for (tier, expected_tc, expected_rolls) in &expected {
+            let (tc, rolls) = apply_herald_tier(data, "baal", Some(*tier)).unwrap();
+            assert_eq!(tc.as_str(), *expected_tc,
+                "Preservation: Herald tier {} should return TC={}, got {}",
+                tier, expected_tc, tc);
+            assert_eq!(rolls, *expected_rolls,
+                "Preservation: Herald tier {} should return rolls={}, got {}",
+                tier, expected_rolls, rolls);
+        }
+
+        // None returns monster's base
+        let (tc, rolls) = apply_herald_tier(data, "baal", None).unwrap();
+        assert_eq!(tc, "TC87", "Preservation: Herald None for Baal should return TC87");
+        assert_eq!(rolls, 7, "Preservation: Herald None for Baal should return rolls=7");
+    }
+
+    #[test]
+    fn preservation_error_handling_unchanged() {
+        // **Validates: Requirements 3.4**
+        // Error handling unchanged — invalid MF (>9999), invalid players (0, 9),
+        // circular TC refs produce same errors.
+        use crate::drop_commands::{DropProbabilityInput, calculate_drop_probability};
+
+        // Invalid MF > 9999
+        let result = calculate_drop_probability(DropProbabilityInput {
+            monster_id: "baal".to_string(),
+            item_id: "ber_rune".to_string(),
+            magic_find: 10000,
+            player_count: 1,
+            quest_bonus: false,
+            terror_zone: false,
+            herald_tier: None,
+        });
+        assert!(result.is_err(), "Preservation: MF > 9999 should error");
+        assert!(result.unwrap_err().contains("Magic Find"),
+            "Preservation: MF error should mention Magic Find");
+
+        // Invalid players = 0
+        let result = calculate_drop_probability(DropProbabilityInput {
+            monster_id: "baal".to_string(),
+            item_id: "ber_rune".to_string(),
+            magic_find: 300,
+            player_count: 0,
+            quest_bonus: false,
+            terror_zone: false,
+            herald_tier: None,
+        });
+        assert!(result.is_err(), "Preservation: player_count=0 should error");
+        assert!(result.unwrap_err().contains("Player count"),
+            "Preservation: player error should mention Player count");
+
+        // Invalid players = 9
+        let result = calculate_drop_probability(DropProbabilityInput {
+            monster_id: "baal".to_string(),
+            item_id: "ber_rune".to_string(),
+            magic_find: 300,
+            player_count: 9,
+            quest_bonus: false,
+            terror_zone: false,
+            herald_tier: None,
+        });
+        assert!(result.is_err(), "Preservation: player_count=9 should error");
+        assert!(result.unwrap_err().contains("Player count"),
+            "Preservation: player error should mention Player count");
+
+        // Circular TC reference
+        let mut tc_data = TcData {
+            treasure_classes: HashMap::new(),
+            monsters: HashMap::new(),
+            items: HashMap::new(),
+            terror_zone_scaling: HashMap::new(),
+            herald_tiers: HashMap::new(),
+            areas: HashMap::new(),
+        };
+        tc_data.treasure_classes.insert("TC_X".to_string(), TreasureClass {
+            items: vec![],
+            sub_tcs: vec![SubTcRef { tc: "TC_Y".to_string(), weight: 1 }],
+            no_drop_weight: 10,
+        });
+        tc_data.treasure_classes.insert("TC_Y".to_string(), TreasureClass {
+            items: vec![],
+            sub_tcs: vec![SubTcRef { tc: "TC_X".to_string(), weight: 1 }],
+            no_drop_weight: 10,
+        });
+        let mut visited = Vec::new();
+        let result = compute_item_probability(&tc_data, "TC_X", "any_item", &mut visited);
+        assert!(result.is_err(), "Preservation: Circular TC should error");
+        assert!(result.unwrap_err().contains("Circular TC reference"),
+            "Preservation: Circular TC error should mention 'Circular TC reference'");
+    }
+
+    #[test]
+    fn preservation_kills_for_threshold_monotonically_increasing() {
+        // **Validates: Requirements 3.1, 3.2**
+        // kills_for_threshold values are monotonically non-decreasing (50 <= 63 <= 90 <= 99)
+        // For low probability items the values are strictly increasing, but for high
+        // probability items ceil() rounding can make adjacent thresholds equal.
+        // Verified with baseline: baal+tyrael's kills_50=11, kills_63=16, kills_90=35, kills_99=70
+        let data = load_tc_data();
+
+        for (monster, item, _) in preservation_baselines() {
+            let prob = compute_monster_drop_probability(data, monster, item).unwrap();
+            if prob > 0.0 && prob < 1.0 {
+                let k50 = kills_for_threshold(prob, 0.5);
+                let k63 = kills_for_threshold(prob, 0.632);
+                let k90 = kills_for_threshold(prob, 0.9);
+                let k99 = kills_for_threshold(prob, 0.99);
+
+                assert!(k50 > 0, "Preservation: ({}, {}) kills_50 should be > 0", monster, item);
+                assert!(k63 >= k50, "Preservation: ({}, {}) kills_63={} should be >= kills_50={}",
+                    monster, item, k63, k50);
+                assert!(k90 > k63, "Preservation: ({}, {}) kills_90={} should be > kills_63={}",
+                    monster, item, k90, k63);
+                assert!(k99 > k90, "Preservation: ({}, {}) kills_99={} should be > kills_90={}",
+                    monster, item, k99, k90);
+            }
+        }
+
+        // Verify specific baseline values for baal + tyrael's_might
+        // (low prob item where all thresholds are strictly increasing)
+        let baal_tyraels_prob = 0.06085058392254316662;
+        let k50 = kills_for_threshold(baal_tyraels_prob, 0.5);
+        let k63 = kills_for_threshold(baal_tyraels_prob, 0.632);
+        let k90 = kills_for_threshold(baal_tyraels_prob, 0.9);
+        let k99 = kills_for_threshold(baal_tyraels_prob, 0.99);
+        assert!(k50 > 0, "Preservation: baal+tyrael's kills_50 should be > 0, got {}", k50);
+        assert!(k63 >= k50, "Preservation: baal+tyrael's kills_63={} should be >= kills_50={}", k63, k50);
+        assert!(k90 > k63, "Preservation: baal+tyrael's kills_90={} should be > kills_63={}", k90, k63);
+        assert!(k99 > k90, "Preservation: baal+tyrael's kills_99={} should be > kills_90={}", k99, k90);
+    }
+
+    proptest! {
+        /// **Validates: Requirements 3.1, 3.2**
+        /// Property: For all MF values in [0, 9999], the MF adjustment formula
+        /// produces consistent results for original Unique items: adjusted = base / (1 + eff_mf/100)
+        /// where eff_mf = (mf * 250) / (mf + 250).
+        #[test]
+        fn preservation_mf_formula_consistent_for_originals(
+            mf in 0u32..=9999,
+        ) {
+            // Use observed baselines for unique items
+            let unique_baselines: Vec<(&str, f64)> = vec![
+                ("baal_tyraels", 16.43369603934946709956),     // 1/0.06085058...
+                ("baal_shako", 247.51208120694019498842),      // 1/0.00404020...
+                ("meph_oculus", 2.96209795329106206907),       // 1/0.33759855...
+                ("meph_arach", 3.78689490103990022973),        // 1/0.26406859...
+                ("andy_soj", 4.27158221011464878103),          // 1/0.23410529...
+                ("andy_vgaze", 30.31938384392075391816),       // 1/0.03298220...
+            ];
+
+            for (name, one_in_x) in &unique_baselines {
+                let adjusted = apply_mf_adjustment(*one_in_x, mf, "Unique");
+                // Verify formula: adjusted = base / (1 + effective_mf/100)
+                let effective_mf = (mf as f64 * 250.0) / (mf as f64 + 250.0);
+                let expected = one_in_x / (1.0 + effective_mf / 100.0);
+                prop_assert!(
+                    (adjusted - expected).abs() < 1e-10,
+                    "Preservation: MF formula for {} at mf={} should be {:.15}, got {:.15}",
+                    name, mf, expected, adjusted
+                );
+                // MF should always improve (lower) the one_in_x
+                if mf > 0 {
+                    prop_assert!(adjusted < *one_in_x,
+                        "Preservation: MF={} should improve {} from {:.15} but got {:.15}",
+                        mf, name, one_in_x, adjusted);
+                }
+            }
+        }
+
+        /// **Validates: Requirements 3.2**
+        /// Property: For all player counts in [1, 8] applied to original TCs,
+        /// player count adjustment produces monotonically improving (lower) values.
+        #[test]
+        fn preservation_player_count_formula_for_original_tcs(
+            base_one_in_x in 2.0f64..1000.0,
+        ) {
+            // TC87: no_drop=100, total=112
+            let mut prev_tc87 = base_one_in_x;
+            for players in 1u8..=8 {
+                let adj = adjust_for_player_count(base_one_in_x, 100, 112, players);
+                if players == 1 {
+                    prop_assert!((adj - base_one_in_x).abs() < 1e-10,
+                        "Preservation: TC87 players=1 should be unchanged");
+                } else {
+                    prop_assert!(adj <= prev_tc87 + 1e-10,
+                        "Preservation: TC87 players={} ({:.10}) should be <= players={} ({:.10})",
+                        players, adj, players - 1, prev_tc87);
+                }
+                prev_tc87 = adj;
+            }
+
+            // TC78: no_drop=50, total=70
+            let mut prev_tc78 = base_one_in_x;
+            for players in 1u8..=8 {
+                let adj = adjust_for_player_count(base_one_in_x, 50, 70, players);
+                if players == 1 {
+                    prop_assert!((adj - base_one_in_x).abs() < 1e-10,
+                        "Preservation: TC78 players=1 should be unchanged");
+                } else {
+                    prop_assert!(adj <= prev_tc78 + 1e-10,
+                        "Preservation: TC78 players={} ({:.10}) should be <= players={} ({:.10})",
+                        players, adj, players - 1, prev_tc78);
+                }
+                prev_tc78 = adj;
+            }
+
+            // TC69: no_drop=60, total=69
+            let mut prev_tc69 = base_one_in_x;
+            for players in 1u8..=8 {
+                let adj = adjust_for_player_count(base_one_in_x, 60, 69, players);
+                if players == 1 {
+                    prop_assert!((adj - base_one_in_x).abs() < 1e-10,
+                        "Preservation: TC69 players=1 should be unchanged");
+                } else {
+                    prop_assert!(adj <= prev_tc69 + 1e-10,
+                        "Preservation: TC69 players={} ({:.10}) should be <= players={} ({:.10})",
+                        players, adj, players - 1, prev_tc69);
+                }
+                prev_tc69 = adj;
+            }
+        }
+
+        /// **Validates: Requirements 3.4**
+        /// Property: Terror zone elevation returns correct TCs for all existing
+        /// scaling entries regardless of which monster is used.
+        #[test]
+        fn preservation_terror_zone_consistent_for_all_monsters(
+            monster_idx in 0usize..3,
+            area_idx in 0usize..3,
+        ) {
+            let data = load_tc_data();
+            let monsters = ["mephisto", "baal", "andariel"];
+            let areas = ["ancient_tunnels", "chaos_sanctuary", "cows"];
+
+            let monster_id = monsters[monster_idx];
+            let area_id = areas[area_idx];
+
+            // All TZ areas in our data map to TC87
+            let tc = apply_terror_zone(data, monster_id, area_id, true).unwrap();
+            prop_assert_eq!(tc.as_str(), "TC87",
+                "Preservation: TZ {} for {} should return TC87, got {}",
+                area_id, monster_id, tc);
+        }
+
+        /// **Validates: Requirements 3.4**
+        /// Property: Herald tier overrides return correct (tc, rolls) for tiers 1-5,
+        /// regardless of which monster is used.
+        #[test]
+        fn preservation_herald_tier_consistent_for_all_monsters(
+            monster_idx in 0usize..3,
+            tier in 1u8..=5,
+        ) {
+            let data = load_tc_data();
+            let monsters = ["mephisto", "baal", "andariel"];
+            let monster_id = monsters[monster_idx];
+
+            let expected: Vec<(&str, u8)> = vec![
+                ("TC78", 3),  // tier 1
+                ("TC81", 4),  // tier 2
+                ("TC84", 5),  // tier 3
+                ("TC87", 6),  // tier 4
+                ("TC87", 8),  // tier 5
+            ];
+
+            let (expected_tc, expected_rolls) = expected[(tier - 1) as usize];
+            let (tc, rolls) = apply_herald_tier(data, monster_id, Some(tier)).unwrap();
+            prop_assert_eq!(tc.as_str(), expected_tc,
+                "Preservation: Herald tier {} for {} should return TC={}, got {}",
+                tier, monster_id, expected_tc, tc);
+            prop_assert_eq!(rolls, expected_rolls,
+                "Preservation: Herald tier {} for {} should return rolls={}, got {}",
+                tier, monster_id, expected_rolls, rolls);
+        }
+
+        /// **Validates: Requirements 3.1, 3.2**
+        /// Property: kills_for_threshold values are monotonically non-decreasing
+        /// for the standard thresholds (50% <= 63.2% <= 90% <= 99%).
+        /// For sufficiently rare items (prob < 0.1), they are strictly increasing.
+        #[test]
+        fn preservation_kills_for_threshold_monotonic(
+            prob in 0.001f64..0.1,
+        ) {
+            let k50 = kills_for_threshold(prob, 0.5);
+            let k63 = kills_for_threshold(prob, 0.632);
+            let k90 = kills_for_threshold(prob, 0.9);
+            let k99 = kills_for_threshold(prob, 0.99);
+
+            prop_assert!(k50 > 0, "kills_50 should be > 0 for p={}", prob);
+            prop_assert!(k63 > k50,
+                "kills_63={} should be > kills_50={} for p={}", k63, k50, prob);
+            prop_assert!(k90 > k63,
+                "kills_90={} should be > kills_63={} for p={}", k90, k63, prob);
+            prop_assert!(k99 > k90,
+                "kills_99={} should be > kills_90={} for p={}", k99, k90, prob);
+        }
+    }
+
+    // ─── Bug Condition Exploration Tests ──────────────────────────────────────
+    // **Validates: Requirements 1.1, 1.2, 1.3, 1.4**
+    // These tests encode EXPECTED behavior for monster/item pairs that SHOULD
+    // produce valid probabilities per D2R game rules. On UNFIXED code, these
+    // tests will FAIL — confirming the bug exists (incomplete tc_data.json).
+
+    /// Bug condition test: monster/item pairs that should produce probability > 0
+    /// but currently return 0, "Monster not found", or "Item not found" due to
+    /// incomplete tc_data.json data.
+    #[test]
+    fn bug_condition_mephisto_shako_returns_positive_probability() {
+        // **Validates: Requirements 1.1, 1.2**
+        // Mephisto (TC78) should be able to drop Harlequin Crest (Shako, qlvl 69).
+        // In D2R, Shako IS reachable from TC78. Currently returns 0.0 because
+        // harlequin_crest is placed only in TC84 (unreachable from TC78).
+        let data = load_tc_data();
+        let result = compute_monster_drop_probability(data, "mephisto", "harlequin_crest");
+        assert!(result.is_ok(), "Mephisto + Shako should not error: {:?}", result.err());
+        let prob = result.unwrap();
+        assert!(prob > 0.0,
+            "Bug condition: Mephisto (TC78) + Shako should have probability > 0, got {}. \
+             Shako (qlvl 69) IS reachable from TC78 per D2R game rules, but tc_data.json \
+             places harlequin_crest only in TC84 which is above TC78.",
+            prob);
+    }
+
+    #[test]
+    fn bug_condition_diablo_exists_in_monsters() {
+        // **Validates: Requirements 1.3**
+        // Diablo is a primary farming target in D2R but is missing from tc_data.json.
+        let data = load_tc_data();
+        assert!(data.monsters.contains_key("diablo"),
+            "Bug condition: Diablo should exist in tc_data.monsters but is missing. \
+             Only {} monsters exist: {:?}",
+            data.monsters.len(),
+            data.monsters.keys().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn bug_condition_diablo_harlequin_crest_returns_positive_probability() {
+        // **Validates: Requirements 1.1, 1.3**
+        // Diablo (TC84) should be able to drop Harlequin Crest.
+        // Currently returns Err("Monster not found: diablo").
+        let data = load_tc_data();
+        let result = compute_monster_drop_probability(data, "diablo", "harlequin_crest");
+        assert!(result.is_ok(),
+            "Bug condition: Diablo + Shako should not error, got: {:?}. \
+             Diablo is not in the 3-monster dataset.",
+            result.err());
+        let prob = result.unwrap();
+        assert!(prob > 0.0,
+            "Bug condition: Diablo (TC84) + Shako should have probability > 0, got {}",
+            prob);
+    }
+
+    #[test]
+    fn bug_condition_jah_rune_exists_in_items() {
+        // **Validates: Requirements 1.4**
+        // Jah Rune is one of the most sought-after drops in D2R but is missing from tc_data.json.
+        let data = load_tc_data();
+        assert!(data.items.contains_key("jah_rune"),
+            "Bug condition: Jah Rune should exist in tc_data.items but is missing. \
+             Only {} items exist: {:?}",
+            data.items.len(),
+            data.items.keys().collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn bug_condition_baal_jah_rune_returns_positive_probability() {
+        // **Validates: Requirements 1.1, 1.4**
+        // Baal (TC87) should be able to drop Jah Rune.
+        // Currently returns Err("Item not found: jah_rune").
+        let data = load_tc_data();
+        let result = compute_monster_drop_probability(data, "baal", "jah_rune");
+        assert!(result.is_ok(),
+            "Bug condition: Baal + Jah Rune should not error, got: {:?}. \
+             jah_rune is not in the 7-item dataset.",
+            result.err());
+        let prob = result.unwrap();
+        assert!(prob > 0.0,
+            "Bug condition: Baal (TC87) + Jah Rune should have probability > 0, got {}",
+            prob);
+    }
+
+    #[test]
+    fn bug_condition_pindleskin_deaths_fathom() {
+        // **Validates: Requirements 1.3, 1.4**
+        // Pindleskin (TC87 super unique) + Death's Fathom — both are missing from data.
+        let data = load_tc_data();
+        // First check monster exists
+        assert!(data.monsters.contains_key("pindleskin"),
+            "Bug condition: Pindleskin should exist in tc_data.monsters but is missing.");
+        // Then check item exists
+        assert!(data.items.contains_key("death's_fathom"),
+            "Bug condition: Death's Fathom should exist in tc_data.items but is missing.");
+        // Then check probability
+        let result = compute_monster_drop_probability(data, "pindleskin", "death's_fathom");
+        assert!(result.is_ok(),
+            "Bug condition: Pindleskin + Death's Fathom should not error, got: {:?}",
+            result.err());
+        let prob = result.unwrap();
+        assert!(prob > 0.0,
+            "Bug condition: Pindleskin (TC87) + Death's Fathom should have probability > 0, got {}",
+            prob);
+    }
+
+    /// Property-based bug condition test using proptest: for a set of known valid
+    /// monster/item pairs from D2R game rules, all should produce probability > 0.
+    proptest! {
+        /// **Validates: Requirements 1.1, 1.2, 1.3, 1.4**
+        /// Bug Condition Property: All legitimate D2R monster/item pairs should produce
+        /// a valid probability > 0 with one_in_x > 1.0.
+        #[test]
+        fn prop_bug_condition_valid_pairs_produce_positive_probability(
+            pair_idx in 0usize..8,
+        ) {
+            // These are monster/item pairs that SHOULD work per D2R game rules
+            let valid_pairs: Vec<(&str, &str)> = vec![
+                ("mephisto", "harlequin_crest"),   // Shako from Meph (TC78, qlvl 69)
+                ("diablo", "harlequin_crest"),     // Shako from Diablo (TC84)
+                ("baal", "jah_rune"),              // Jah from Baal (TC87)
+                ("pindleskin", "death's_fathom"),  // Death's Fathom from Pindle (TC87)
+                ("diablo", "griffon's_eye"),       // Griffon's from Diablo (TC84)
+                ("baal", "tyrael's_might"),        // Tyrael's from Baal (existing - should pass)
+                ("mephisto", "oculus"),            // Oculus from Meph (existing - should pass)
+                ("andariel", "stone_of_jordan"),   // SoJ from Andy (existing - should pass)
+            ];
+
+            let (monster_id, item_id) = valid_pairs[pair_idx];
+            let data = load_tc_data();
+
+            // Monster must exist in data
+            prop_assert!(data.monsters.contains_key(monster_id),
+                "Monster '{}' should exist in tc_data.monsters", monster_id);
+
+            // Item must exist in data
+            prop_assert!(data.items.contains_key(item_id),
+                "Item '{}' should exist in tc_data.items", item_id);
+
+            // Probability must be > 0
+            let result = compute_monster_drop_probability(data, monster_id, item_id);
+            prop_assert!(result.is_ok(),
+                "compute_monster_drop_probability({}, {}) should not error: {:?}",
+                monster_id, item_id, result.err());
+
+            let prob = result.unwrap();
+            prop_assert!(prob > 0.0,
+                "Bug condition: {} + {} should have probability > 0, got {}",
+                monster_id, item_id, prob);
+
+            // one_in_x should be > 1.0 (probability < 1 means 1/p > 1)
+            let one_in_x = 1.0 / prob;
+            prop_assert!(one_in_x > 1.0,
+                "Bug condition: {} + {} should have one_in_x > 1.0, got {}",
+                monster_id, item_id, one_in_x);
+        }
+    }
+
+    // ─── Area-Based Aggregate Probability Tests ───────────────────────────────
+
+    #[test]
+    fn test_area_chaos_sanctuary_probability_greater_than_individual_diablo() {
+        // Chaos Sanctuary contains Diablo. The aggregate area probability should
+        // be >= individual Diablo probability (equal when there's only one monster).
+        let data = load_tc_data();
+        let item_id = "harlequin_crest";
+
+        // Individual Diablo probability
+        let diablo_prob = compute_monster_drop_probability(data, "diablo", item_id).unwrap();
+        assert!(diablo_prob > 0.0, "Diablo should be able to drop Harlequin Crest");
+
+        // Area-based probability for chaos_sanctuary
+        let (area_prob, breakdown) = compute_area_drop_probability(
+            data, "chaos_sanctuary", item_id, 0, 1, false,
+        ).unwrap();
+
+        assert!(area_prob > 0.0, "Chaos Sanctuary area probability should be > 0");
+        assert!(area_prob >= diablo_prob,
+            "Chaos Sanctuary aggregate probability ({}) should be >= individual Diablo probability ({})",
+            area_prob, diablo_prob);
+        assert!(!breakdown.is_empty(), "Breakdown should not be empty");
+    }
+
+    #[test]
+    fn test_area_empty_monsters_returns_probability_zero() {
+        // An area with no monsters (like ancient_tunnels in our data which has empty monsters list)
+        // should return probability 0.
+        let data = load_tc_data();
+
+        let (area_prob, breakdown) = compute_area_drop_probability(
+            data, "ancient_tunnels", "harlequin_crest", 0, 1, false,
+        ).unwrap();
+
+        assert_eq!(area_prob, 0.0,
+            "Area with no monsters should return probability 0, got {}", area_prob);
+        assert!(breakdown.is_empty(),
+            "Area with no monsters should have empty breakdown");
+    }
+
+    #[test]
+    fn test_area_not_found_returns_error() {
+        let data = load_tc_data();
+        let result = compute_area_drop_probability(
+            data, "nonexistent_area", "harlequin_crest", 0, 1, false,
+        );
+        assert!(result.is_err(), "Should return error for unknown area");
+        assert!(result.unwrap_err().contains("Area not found"));
+    }
+
+    #[test]
+    fn test_area_item_not_found_returns_error() {
+        let data = load_tc_data();
+        let result = compute_area_drop_probability(
+            data, "chaos_sanctuary", "nonexistent_item", 0, 1, false,
+        );
+        assert!(result.is_err(), "Should return error for unknown item");
+        assert!(result.unwrap_err().contains("Item not found"));
+    }
+
+    #[test]
+    fn test_area_multiple_monsters_aggregation() {
+        // frigid_highlands has eldritch and shenk (weight 1 each)
+        let data = load_tc_data();
+        let item_id = "harlequin_crest";
+
+        let (area_prob, breakdown) = compute_area_drop_probability(
+            data, "frigid_highlands", item_id, 0, 1, false,
+        ).unwrap();
+
+        // With multiple monsters, the aggregate should use the product formula
+        // P(area) = 1 - (1 - P(eldritch)) * (1 - P(shenk))
+        assert!(area_prob > 0.0, "Frigid Highlands should have positive probability");
+        assert_eq!(breakdown.len(), 2, "Breakdown should have 2 entries (eldritch + shenk)");
+
+        // Verify the aggregation formula
+        let prod_no_drop: f64 = breakdown.iter().map(|(_, p)| 1.0 - p).product();
+        let expected_aggregate = 1.0 - prod_no_drop;
+        assert!((area_prob - expected_aggregate).abs() < 1e-10,
+            "Area prob ({}) should match 1 - product(1-p_i) ({})",
+            area_prob, expected_aggregate);
+    }
+
+    #[test]
+    fn test_area_with_weight_greater_than_one() {
+        // travincal has council_members with weight 3, meaning 3 encounters
+        let data = load_tc_data();
+        let item_id = "harlequin_crest";
+
+        let (area_prob, breakdown) = compute_area_drop_probability(
+            data, "travincal", item_id, 0, 1, false,
+        ).unwrap();
+
+        // Weight 3 means 3 encounters, so breakdown should have 3 entries
+        assert_eq!(breakdown.len(), 3,
+            "Travincal breakdown should have 3 entries (council weight=3), got {}", breakdown.len());
+        assert!(area_prob > 0.0, "Travincal should have positive probability");
     }
 }

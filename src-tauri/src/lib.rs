@@ -137,6 +137,7 @@ pub fn run() {
             // Drop Probability Engine
             drop_commands::calculate_drop_probability,
             drop_commands::calculate_cumulative_distribution,
+            drop_commands::calculate_area_drop_probability,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

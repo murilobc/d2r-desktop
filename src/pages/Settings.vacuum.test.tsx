@@ -13,6 +13,7 @@ describe("Database Maintenance - VACUUM Settings UI", () => {
     mockInvoke.mockImplementation(async (cmd) => {
       if (cmd === "get_keybind_profiles") return [];
       if (cmd === "get_obs_file_path") return "/mock/path/obs.txt";
+      if (cmd === "get_screenshot_settings") return { monitoring_enabled: false, auto_detection_enabled: true, confidence_threshold: 80 };
       return undefined;
     });
   });
@@ -33,6 +34,7 @@ describe("Database Maintenance - VACUUM Settings UI", () => {
       if (cmd === "vacuum_database") return slowVacuum;
       if (cmd === "get_keybind_profiles") return [];
       if (cmd === "get_obs_file_path") return "/mock/path/obs.txt";
+      if (cmd === "get_screenshot_settings") return { monitoring_enabled: false, auto_detection_enabled: true, confidence_threshold: 80 };
       return undefined;
     });
 
@@ -73,6 +75,7 @@ describe("Database Maintenance - VACUUM Settings UI", () => {
       }
       if (cmd === "get_keybind_profiles") return [];
       if (cmd === "get_obs_file_path") return "/mock/path/obs.txt";
+      if (cmd === "get_screenshot_settings") return { monitoring_enabled: false, auto_detection_enabled: true, confidence_threshold: 80 };
       return undefined;
     });
 
@@ -93,6 +96,7 @@ describe("Database Maintenance - VACUUM Settings UI", () => {
       }
       if (cmd === "get_keybind_profiles") return [];
       if (cmd === "get_obs_file_path") return "/mock/path/obs.txt";
+      if (cmd === "get_screenshot_settings") return { monitoring_enabled: false, auto_detection_enabled: true, confidence_threshold: 80 };
       return undefined;
     });
 

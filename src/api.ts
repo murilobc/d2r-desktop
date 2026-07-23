@@ -47,6 +47,7 @@ import type {
   LifetimeStats,
   RuneCount,
   RunewordTarget,
+  ScreenshotSettings,
 } from "./types";
 import type {
   GistPullResult,
@@ -419,3 +420,13 @@ export const getAreaRunStats = (profileId: string, area: string) =>
 
 export const calculateLuckPercentile = (actualDrops: number, totalKills: number, perKillProbability: number) =>
   invoke<LuckPercentileResult>("calculate_luck_percentile", { input: { actual_drops: actualDrops, total_kills: totalKills, per_kill_probability: perKillProbability } });
+
+// Screenshot Item Detection
+export const getScreenshotSettings = () =>
+  invoke<ScreenshotSettings>("get_screenshot_settings");
+
+export const updateScreenshotSettings = (settings: ScreenshotSettings) =>
+  invoke<ScreenshotSettings>("update_screenshot_settings", { settings });
+
+export const detectFromClipboard = () =>
+  invoke<void>("detect_from_clipboard");

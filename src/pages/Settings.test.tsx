@@ -13,6 +13,7 @@ describe("ObsSettings Component", () => {
     mockInvoke.mockImplementation(async (cmd) => {
       if (cmd === "get_obs_file_path") return "/home/user/.local/share/d2r-desktop/obs_stats.txt";
       if (cmd === "get_keybind_profiles") return [];
+      if (cmd === "get_screenshot_settings") return { monitoring_enabled: false, auto_detection_enabled: true, confidence_threshold: 80 };
       return undefined;
     });
   });

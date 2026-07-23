@@ -1,10 +1,15 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import type { Profile, ExportData } from "./types";
+import type { MatchCandidate } from "./types";
+import type { GameItem } from "./data/items";
 import Profiles from "./pages/Profiles";
 import { PageSkeleton } from "./components/Skeleton";
 import { useAchievementToasts } from "./hooks/useAchievementToasts";
+import { useScreenshotDetection } from "./hooks/useScreenshotDetection";
 import UnlockToast from "./components/UnlockToast";
+import ConfirmationDialog from "./components/ConfirmationDialog";
+import ItemSearch from "./components/ItemSearch";
 
 const RunTracker = lazy(() => import("./pages/RunTracker"));
 const History = lazy(() => import("./pages/History"));
@@ -42,6 +47,38 @@ function App() {
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
   const { currentToast, enqueue: enqueueToast, dismiss: dismissToast } = useAchievementToasts();
+
+  // Screenshot detection hook
+  const { detection, dismiss: dismissDetection, confirm: confirmDetection, triggerManual } = useScreenshotDetection(
+    selectedProfile?.id ?? null
+  );
+
+  // State for the "Change" flow: opens ItemSearch pre-filled with raw OCR text
+  const [screenshotSearchText, setScreenshotSearchText] = useState<string | null>(null);
+
+  // Handle "Change" action from ConfirmationDialog
+  const handleDetectionChange = useCallback((rawText: string) => {
+    dismissDetection();
+    setScreenshotSearchText(rawText);
+  }, [dismissDetection]);
+
+  // Handle item selection from the fallback ItemSearch
+  const handleScreenshotItemSelect = useCallback((item: GameItem) => {
+    if (!selectedProfile) return;
+    // Log the manually-selected item through the same pipeline
+    confirmDetection({
+      item_name: item.name,
+      category: item.category,
+      subcategory: item.subcategory ?? item.category,
+      confidence: 100,
+    } as MatchCandidate);
+    setScreenshotSearchText(null);
+  }, [selectedProfile, confirmDetection]);
+
+  // Dismiss the fallback search
+  const handleScreenshotSearchDismiss = useCallback(() => {
+    setScreenshotSearchText(null);
+  }, []);
 
   // Register global hotkeys on app startup
   useEffect(() => {
@@ -328,6 +365,11 @@ function App() {
           <button className="nav-btn" onClick={toggleOverlay}>
             ◳ {t('sidebar.overlay')}
           </button>
+          {selectedProfile && (
+            <button className="nav-btn" onClick={triggerManual}>
+              ◫ Detect Screenshot
+            </button>
+          )}
 
           <button className="nav-btn" onClick={toggleTheme}>
             {theme === "dark" ? "○" : "●"} {t('sidebar.theme')}
@@ -369,6 +411,32 @@ function App() {
       </main>
       {currentToast && (
         <UnlockToast toast={currentToast} onDismiss={dismissToast} />
+      )}
+      {detection && selectedProfile && (
+        <ConfirmationDialog
+          result={detection}
+          onConfirm={confirmDetection}
+          onDismiss={dismissDetection}
+          onChange={handleDetectionChange}
+        />
+      )}
+      {screenshotSearchText !== null && (
+        <div className="screenshot-search-popup">
+          <div className="screenshot-search-header">
+            <span>Manual Item Search</span>
+            <button
+              className="btn btn-sm"
+              onClick={handleScreenshotSearchDismiss}
+            >
+              ✕
+            </button>
+          </div>
+          <ItemSearch
+            onSelect={handleScreenshotItemSelect}
+            initialQuery={screenshotSearchText}
+            placeholder="Search for the detected item..."
+          />
+        </div>
       )}
     </div>
   );

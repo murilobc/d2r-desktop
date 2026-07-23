@@ -4192,3 +4192,161 @@ body {
   color: var(--text-muted);
 }
 
+
+/* ===== CONFIRMATION DIALOG (Screenshot Detection) ===== */
+
+.confirmation-dialog {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 320px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  z-index: 900;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.confirmation-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.confirmation-dialog-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.confirmation-dialog-auto-badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(78, 205, 196, 0.15);
+  color: var(--success);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.confirmation-dialog-body {
+  margin-bottom: 0.75rem;
+}
+
+.confirmation-dialog-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.confirmation-dialog-item-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.confirmation-dialog-item-category {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.confirmation-dialog-item-confidence {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+.confirmation-dialog-candidates {
+  margin-top: 0.75rem;
+}
+
+.confirmation-dialog-candidates-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.confirmation-dialog-select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.confirmation-dialog-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.confirmation-dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.confirmation-dialog-btn {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
+.confirmation-dialog-btn-change {
+  background: var(--bg-dark);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.confirmation-dialog-btn-change:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.confirmation-dialog-btn-dismiss {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.confirmation-dialog-btn-dismiss:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ===== SCREENSHOT SEARCH POPUP (fallback for low-confidence / Change action) ===== */
+
+.screenshot-search-popup {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  z-index: 900;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.screenshot-search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.screenshot-search-header .btn {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+}

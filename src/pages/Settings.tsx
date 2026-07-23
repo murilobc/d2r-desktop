@@ -8,6 +8,7 @@ import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
 import { TERROR_ZONES, loadTZPrefs, saveTZPrefs, type TerrorZonePrefs } from "../data/terror-zones";
 import type { KeybindProfile } from "../types";
 import CloudSyncSettings from "../components/CloudSyncSettings";
+import ScreenshotSettingsPanel from "../components/ScreenshotSettings";
 import { SUPPORTED_LOCALES, LOCALE_STORAGE_KEY } from "../i18n";
 
 // OBS Preferences
@@ -230,6 +231,7 @@ export default function Settings() {
       <ObsSettings />
       <TerrorZoneSettings />
       <CloudSyncSettings />
+      <ScreenshotSettingsPanel />
     </div>
   );
 }

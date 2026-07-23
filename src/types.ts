@@ -544,3 +544,26 @@ export interface RunewordTarget {
   runeword_name: string;
   created_at: string;
 }
+
+// ===== SCREENSHOT ITEM DETECTION =====
+
+export interface ScreenshotSettings {
+  monitoring_enabled: boolean;
+  auto_detection_enabled: boolean;
+  confidence_threshold: number;
+}
+
+export interface MatchCandidate {
+  item_name: string;
+  category: string;
+  subcategory: string;
+  confidence: number;
+}
+
+export interface DetectionResult {
+  top_match: MatchCandidate | null;
+  candidates: MatchCandidate[];
+  raw_text: string;
+  is_auto_suggested: boolean;
+  detected_at: string;
+}

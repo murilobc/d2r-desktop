@@ -2246,6 +2246,49 @@ body {
   gap: 1rem;
 }
 
+.dc-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dc-breakdown {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.dc-breakdown h3 {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.dc-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.dc-breakdown-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.dc-breakdown-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: monospace;
+}
+
+.dc-breakdown-table tr:last-child td {
+  border-bottom: none;
+}
+
 .dc-config-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -3311,16 +3354,19 @@ body {
 
 .rune-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
 }
 
 .rune-cell {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
-  padding: 0.5rem 0.25rem;
+  justify-content: center;
+  width: 50px;
+  height: 40px;
+  padding: 0.2rem 0.15rem;
   background: var(--bg-dark);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -3335,22 +3381,81 @@ body {
   opacity: 0.35;
 }
 
+.rune-cell--high {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.rune-cell--editing {
+  border: 2px solid var(--accent);
+}
+
 .rune-cell__name {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   color: var(--gold);
+  line-height: 1;
 }
 
 .rune-cell__count {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text);
+  cursor: pointer;
+  line-height: 1.2;
 }
 
-.rune-cell__controls {
+.rune-cell__count--success {
+  color: var(--success);
+}
+
+.rune-cell__count--unique {
+  color: var(--unique);
+}
+
+.rune-cell__input {
+  max-width: 3ch;
+  width: 3ch;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--bg-dark);
+  border: none;
+  color: var(--text);
+  outline: none;
+  padding: 0;
+  line-height: 1.2;
+}
+
+.rune-cell__controls-overlay {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 0.2rem;
-  margin-top: 0.15rem;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 300ms ease, visibility 300ms ease;
+  pointer-events: none;
+}
+
+.rune-cell__controls-overlay--visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 150ms ease, visibility 150ms ease;
+}
+
+/* Reposition overlay below when near top edge */
+.rune-cell__controls-overlay--below {
+  bottom: auto;
+  top: 100%;
 }
 
 .rune-cell__btn {
@@ -3391,9 +3496,40 @@ body {
 }
 
 .runeword-planner-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  display: grid;
+  grid-template-areas:
+    "inventory eligibility"
+    "progress progress"
+    "cube cube";
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .runeword-planner-grid {
+    grid-template-areas:
+      "inventory"
+      "eligibility"
+      "progress"
+      "cube";
+    grid-template-columns: 1fr;
+  }
+}
+
+.runeword-planner-grid > .rune-grid-container {
+  grid-area: inventory;
+}
+
+.runeword-planner-grid > .eligibility-list {
+  grid-area: eligibility;
+}
+
+.runeword-planner-grid > .progress-view {
+  grid-area: progress;
+}
+
+.runeword-planner-grid > .cube-calculator {
+  grid-area: cube;
 }
 
 /* ===== ELIGIBILITY LIST ===== */

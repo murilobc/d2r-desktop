@@ -39,15 +39,13 @@ export default function WeeklySummaryCard({ summary }: Props) {
         {summary.bestArea && (
           <div className="weekly-summary-metric">
             <span className="metric-label">{t("advisor.weeklySummary.bestArea")}</span>
-            <span className="metric-value">
-              {summary.bestArea}{" "}
-              <span className="metric-subtext">
-                {t("advisor.weeklySummary.bestAreaAboveAvg", {
-                  percentage: formatNumber(summary.bestAreaPercentageAboveAvg, {
-                    maximumFractionDigits: 1,
-                  }),
-                })}
-              </span>
+            <span className="metric-value">{summary.bestArea}</span>
+            <span className="metric-subtext">
+              {t("advisor.weeklySummary.bestAreaAboveAvg", {
+                percentage: formatNumber(summary.bestAreaPercentageAboveAvg, {
+                  maximumFractionDigits: 1,
+                }),
+              })}
             </span>
           </div>
         )}

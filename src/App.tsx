@@ -305,7 +305,7 @@ function App() {
               onClick={() => setCurrentPage("runes")}
               disabled={!selectedProfile}
             >
-              ᚱ {t('sidebar.runes', 'Runes')}
+              ◇ {t('sidebar.runes', 'Runes')}
             </button>
           </li>
           <li>

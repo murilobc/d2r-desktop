@@ -83,23 +83,25 @@ function RunewordPlanner({ profile }: Props) {
   };
 
   return (
-    <div className="runeword-planner">
-      <h1>{t('runewordPlanner.title', 'Runeword Planner')}</h1>
+    <div className="page">
+      <div className="page-header">
+        <h1>{t('runewordPlanner.title', 'Runeword Planner')}</h1>
+      </div>
       <div className="runeword-planner-grid">
-        <section className="runeword-section">
+        <section>
           <RuneGrid
             inventory={inventory}
             onIncrement={handleIncrement}
             onDecrement={handleDecrement}
           />
         </section>
-        <section className="runeword-section">
+        <section>
           <EligibilityList
             inventory={inventory}
             recipes={RUNEWORD_RECIPES}
           />
         </section>
-        <section className="runeword-section">
+        <section>
           <ProgressView
             inventory={inventory}
             targets={targets}
@@ -108,7 +110,7 @@ function RunewordPlanner({ profile }: Props) {
             onRemoveTarget={handleRemoveTarget}
           />
         </section>
-        <section className="runeword-section">
+        <section>
           <CubeCalculator
             inventory={inventory}
             targetRune={cubeTarget}

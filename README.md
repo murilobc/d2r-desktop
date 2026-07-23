@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_4.1.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.1.0_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_4.1.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_4.1.0_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.0.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.0.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.0.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.0.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -233,18 +233,93 @@ Track experience gain rates and estimate time to level up.
 
 ---
 
-### Drop Calculator
+### Drop Calculator & Probability Engine
 
 ![Drop Calculator](docs/mockups/drop-calculator.svg)
 
-Shows what items can drop in each D2R farming area.
+Full probability calculator integrated with your farming data. Three tabs: Areas, Probability, and Comparison.
 
+**Areas tab:**
 - **Filter buttons** — All / TC85+ (areas that can drop every item) / Bosses
 - **Area list** — All farming areas with area level and TC badge
 - **Area details** — Monster types, notable drops, farming tips
 - **TC85+ badge** — Green badge on areas where every item can drop
 
-No profile selection required — accessible anytime.
+**Probability tab:**
+- **Monster selector** — Choose which monster you're farming (all bosses and super uniques)
+- **Item selector** — Target item to calculate drop odds for
+- **Parameters** — Magic Find %, player count, quest bonus, Terror Zone, Herald tier
+- **Drop chance** — Shows exact probability as "1 in X" with confidence thresholds (50%, 63%, 90%, 99%)
+- **Effective MF** — Displays actual MF after diminishing returns are applied
+- **Run estimate** — Based on your average run time, shows how long you'd need to farm for a given confidence level
+- **Expected vs actual** — Compares your real drop history against statistical expectation
+- **Distribution chart** — CDF curve showing probability of at least one drop vs number of kills
+
+**Comparison tab:**
+- Compare drop rates side-by-side for different monsters or parameter combinations
+
+No profile selection required for Areas tab — Probability and Comparison work best with an active profile.
+
+---
+
+### Runeword Planner & Rune Inventory
+
+![Runeword Planner](docs/mockups/runeword-planner.svg)
+
+Track runes in your stash and plan runeword crafting. Auto-increments when runes are logged as drops.
+
+- **Rune grid** — All 33 runes with per-rune count; color-coded by tier (low/mid/high)
+- **Increment/Decrement** — Click to manually adjust counts
+- **Available Runewords** — Lists all runewords you can currently make with your rune stock
+- **Progress Toward targets** — Select target runewords and track completion percentage with missing runes highlighted
+- **Cube Upgrade Calculator** — Shows how many lower runes you'd need to cube up to a target rune (full upgrade path)
+- **Auto-sync with drops** — When you log a rune as a found item, your inventory updates automatically
+- **RotW runewords** — Includes all 5 Reign of the Warlock runewords (Authority, Coven, Void, Vigilance, Ritual)
+
+---
+
+### Farming Advisor
+
+![Farming Advisor](docs/mockups/farming-advisor.svg)
+
+Personalized farming recommendations based on your actual performance data.
+
+- **Weekly Summary** — Runs, items/hour, value/hour, total time, best area, and top drop for the week
+- **Terror Zone Recommendation** — When a TZ becomes active, shows whether it's historically good for you with percentage comparison
+- **Diminishing Returns Alert** — Detects when you're overfarming an area (too many runs without drops) and suggests alternatives
+- **Area Rankings** — Personal efficiency ranking of all areas you've farmed, sorted by composite score (items/hr, value/hr, XP/hr)
+- **Build Suggestions** — Class-specific recommendations based on your character and area performance data
+
+---
+
+### Achievements
+
+Track your farming milestones with a per-profile achievement system.
+
+- **Four categories** — Milestone (total runs, items, time), Streak (consecutive days), Per-Class (runs per class), Per-Area (runs per area)
+- **Automatic evaluation** — Achievements unlock automatically when you finish a run
+- **Toast notifications** — Celebratory popup with sound when you earn an achievement
+- **Gallery page** — Browse all achievements with category filter tabs
+- **Progress bars** — See how close you are to unlocking each achievement
+- **Lifetime stats dashboard** — Total hours, runs, items, breakdowns by class/area/rarity
+- **Per-profile** — Each character earns progress independently
+- **i18n** — Achievement names and descriptions in all supported languages
+
+---
+
+### Co-op
+
+![Co-op](docs/mockups/coop-panel.svg)
+
+Host or join shared farming sessions over the local network.
+
+- **Host a session** — Generates a unique 6-character code and starts a WebSocket server
+- **Join a session** — Enter host IP or session code to connect
+- **Combined stats** — All players see total run count, items, session time
+- **Per-player breakdown** — Track who found what
+- **Host controls** — Only host can split, pause, and end session
+- **Guest actions** — Guests can log items they find
+- **Graceful disconnections** — Reconnect or continue solo without data loss
 
 ---
 
@@ -298,37 +373,6 @@ Configure hotkeys, sounds, OBS integration, cloud sync, and language preferences
 
 ---
 
-### Co-op
-
-![Co-op](docs/mockups/coop-panel.svg)
-
-Host or join shared farming sessions over the local network.
-
-- **Host a session** — Generates a unique 6-character code and starts a WebSocket server
-- **Join a session** — Enter host IP or session code to connect
-- **Combined stats** — All players see total run count, items, session time
-- **Per-player breakdown** — Track who found what
-- **Host controls** — Only host can split, pause, and end session
-- **Guest actions** — Guests can log items they find
-- **Graceful disconnections** — Reconnect or continue solo without data loss
-
----
-
-### Achievements
-
-Track your farming milestones with a per-profile achievement system.
-
-- **Four categories** — Milestone (total runs, items, time), Streak (consecutive days), Per-Class (runs per class), Per-Area (runs per area)
-- **Automatic evaluation** — Achievements unlock automatically when you finish a run
-- **Toast notifications** — Celebratory popup with sound when you earn an achievement
-- **Gallery page** — Browse all achievements with category filter tabs
-- **Progress bars** — See how close you are to unlocking each achievement
-- **Lifetime stats dashboard** — Total hours, runs, items, breakdowns by class/area/rarity
-- **Per-profile** — Each character earns progress independently
-- **i18n** — Achievement names and descriptions in all supported languages
-
----
-
 ### Sidebar Navigation
 
 Always visible, provides navigation and utilities:
@@ -343,8 +387,11 @@ Always visible, provides navigation and utilities:
 - **Ancients** — Colossal Ancients boss tracker
 - **DClone** — Diablo Clone progress and Annihilus log
 - **XP** — Experience rate tracking
-- **Drops** — Drop calculator
+- **Drops** — Drop calculator and probability engine
+- **Co-op** — Shared farming sessions
 - **Achievements** — Per-profile achievement gallery and lifetime stats
+- **Runes** — Runeword planner and rune inventory
+- **Advisor** — Personalized farming recommendations
 - **Settings** — Configuration
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
@@ -415,6 +462,7 @@ d2r-desktop/
 │   │   ├── items.ts           # D2R v3.2 item database (895+ items)
 │   │   ├── item-values.ts     # Item value tier estimation
 │   │   ├── areas.ts           # Area metadata (alvl, TC, drops, tips)
+│   │   ├── runewords.ts       # Runeword recipes and rune data
 │   │   ├── terror-zones.ts    # Terror Zone definitions and preferences
 │   │   └── xp-table.ts        # D2R XP requirements per level (1-99)
 │   ├── components/
@@ -423,12 +471,26 @@ d2r-desktop/
 │   │   ├── TierBadge.tsx       # Item value tier badge
 │   │   ├── TerrorZoneDisplay.tsx # Active Terror Zone indicator
 │   │   ├── QuickTags.tsx       # Quick tag buttons
+│   │   ├── RuneGrid.tsx        # Rune inventory grid
+│   │   ├── EligibilityList.tsx # Available runewords list
+│   │   ├── ProgressView.tsx    # Runeword progress tracker
+│   │   ├── CubeCalculator.tsx  # Rune cube upgrade calculator
+│   │   ├── AreaRankingTable.tsx # Advisor area rankings
+│   │   ├── WeeklySummaryCard.tsx # Advisor weekly digest
+│   │   ├── DiminishingReturnsAlert.tsx # Overfarming detector
+│   │   ├── TerrorZoneRecommendation.tsx # TZ personalized advice
+│   │   ├── BuildSuggestions.tsx # Class-specific suggestions
 │   │   ├── Skeleton.tsx        # Loading skeleton placeholders
 │   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
 │   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer
+│   │   ├── UnlockToast.tsx     # Achievement unlock notification
 │   │   └── UpdateChecker.tsx   # Auto-update banner
+│   ├── advisor/                # Farming advisor engine
+│   │   └── advisor-engine.ts   # Rule-based recommendation logic
+│   ├── lib/
+│   │   └── eligibility-engine.ts # Runeword eligibility calculations
 │   ├── hooks/
-│   │   └── useTheme.ts        # Dark/light theme toggle
+│   │   ├── useTheme.ts        # Dark/light theme toggle
 │   │   └── useAchievementToasts.ts # Achievement unlock toast queue
 │   ├── i18n/                   # Internationalization
 │   │   ├── index.ts            # i18next configuration
@@ -453,6 +515,8 @@ d2r-desktop/
 │   │   ├── DCloneTracker.tsx
 │   │   ├── XPTracker.tsx
 │   │   ├── DropCalculator.tsx
+│   │   ├── RunewordPlanner.tsx
+│   │   ├── Advisor.tsx
 │   │   ├── Achievements.tsx
 │   │   └── Settings.tsx
 │   └── utils/
@@ -464,8 +528,12 @@ d2r-desktop/
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
 │       ├── commands.rs         # Tauri commands
+│       ├── drop_commands.rs    # Drop probability Tauri commands
+│       ├── probability_engine.rs # TC-based drop probability engine
 │       ├── achievements.rs    # Achievement system (schema, evaluation, stats)
 │       └── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
+│   └── data/
+│       └── tc_data.json        # Treasure class data for probability calculations
 ├── .github/workflows/          # CI/CD
 │   ├── ci.yml                  # PR checks
 │   └── build.yml               # Release builds (signed, with updater)

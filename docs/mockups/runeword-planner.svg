@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Nav Items -->
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">⇄ Compare</text>
+  <text x="20" y="265" fill="#eaeaea" font-size="13" opacity="0.6">◆ Heralds</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="13" opacity="0.6">▣ Ancients</text>
+  <text x="20" y="325" fill="#eaeaea" font-size="13" opacity="0.6">※ DClone</text>
+  <text x="20" y="355" fill="#eaeaea" font-size="13" opacity="0.6">△ XP</text>
+  <text x="20" y="385" fill="#eaeaea" font-size="13" opacity="0.6">∿ Drops</text>
+  <text x="20" y="415" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
+  <text x="20" y="445" fill="#eaeaea" font-size="13" opacity="0.6">🏆 Achievements</text>
+  <rect x="0" y="458" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="458" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="475" fill="#eaeaea" font-size="13">ᚱ Runes</text>
+  <text x="20" y="505" fill="#eaeaea" font-size="13" opacity="0.6">✦ Advisor</text>
+
+  <!-- Separator -->
+  <line x1="10" y1="525" x2="210" y2="525" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="550" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <text x="20" y="580" fill="#eaeaea" font-size="13" opacity="0.6">◳ Overlay</text>
+  <text x="20" y="610" fill="#eaeaea" font-size="13" opacity="0.6">● Theme</text>
+  <text x="20" y="640" fill="#eaeaea" font-size="13" opacity="0.6">↓ Export</text>
+  <text x="20" y="670" fill="#eaeaea" font-size="13" opacity="0.6">↑ Import</text>
+
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Runeword Planner</text>
+
+  <!-- Rune Grid Section -->
+  <text x="250" y="85" fill="#a0a0a0" font-size="13" font-weight="500">Rune Inventory</text>
+  <rect x="250" y="95" width="380" height="200" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+
+  <!-- Rune cells - Row 1 -->
+  <rect x="260" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="275" y="123" fill="#a0a0a0" font-size="9">El</text>
+  <text x="280" y="138" fill="#eaeaea" font-size="12" font-weight="bold">2</text>
+
+  <rect x="315" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="329" y="123" fill="#a0a0a0" font-size="9">Eld</text>
+  <text x="335" y="138" fill="#eaeaea" font-size="12" font-weight="bold">3</text>
+
+  <rect x="370" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="384" y="123" fill="#a0a0a0" font-size="9">Tir</text>
+  <text x="390" y="138" fill="#eaeaea" font-size="12" font-weight="bold">5</text>
+
+  <rect x="425" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="438" y="123" fill="#a0a0a0" font-size="9">Nef</text>
+  <text x="445" y="138" fill="#eaeaea" font-size="12" font-weight="bold">1</text>
+
+  <rect x="480" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="493" y="123" fill="#a0a0a0" font-size="9">Eth</text>
+  <text x="500" y="138" fill="#eaeaea" font-size="12" font-weight="bold">4</text>
+
+  <rect x="535" y="105" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="550" y="123" fill="#a0a0a0" font-size="9">Ith</text>
+  <text x="555" y="138" fill="#eaeaea" font-size="12" font-weight="bold">2</text>
+
+  <!-- Rune cells - Row 2 (mid runes) -->
+  <rect x="260" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="273" y="168" fill="#a0a0a0" font-size="9">Lum</text>
+  <text x="280" y="183" fill="#eaeaea" font-size="12" font-weight="bold">1</text>
+
+  <rect x="315" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="330" y="168" fill="#a0a0a0" font-size="9">Ko</text>
+  <text x="335" y="183" fill="#eaeaea" font-size="12" font-weight="bold">0</text>
+
+  <rect x="370" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="383" y="168" fill="#a0a0a0" font-size="9">Fal</text>
+  <text x="390" y="183" fill="#eaeaea" font-size="12" font-weight="bold">2</text>
+
+  <rect x="425" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="435" y="168" fill="#a0a0a0" font-size="9">Lem</text>
+  <text x="445" y="183" fill="#eaeaea" font-size="12" font-weight="bold">1</text>
+
+  <rect x="480" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="493" y="168" fill="#a0a0a0" font-size="9">Pul</text>
+  <text x="500" y="183" fill="#4ecdc4" font-size="12" font-weight="bold">1</text>
+
+  <rect x="535" y="150" width="50" height="40" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="549" y="168" fill="#a0a0a0" font-size="9">Um</text>
+  <text x="555" y="183" fill="#4ecdc4" font-size="12" font-weight="bold">2</text>
+
+  <!-- Rune cells - Row 3 (high runes) -->
+  <rect x="260" y="195" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="274" y="213" fill="#a0a0a0" font-size="9">Ist</text>
+  <text x="280" y="228" fill="#e94560" font-size="12" font-weight="bold">1</text>
+
+  <rect x="315" y="195" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="327" y="213" fill="#a0a0a0" font-size="9">Gul</text>
+  <text x="335" y="228" fill="#e94560" font-size="12" font-weight="bold">0</text>
+
+  <rect x="370" y="195" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="382" y="213" fill="#a0a0a0" font-size="9">Vex</text>
+  <text x="390" y="228" fill="#e94560" font-size="12" font-weight="bold">1</text>
+
+  <rect x="425" y="195" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="440" y="213" fill="#a0a0a0" font-size="9">Lo</text>
+  <text x="445" y="228" fill="#e94560" font-size="12" font-weight="bold">0</text>
+
+  <rect x="480" y="195" width="50" height="40" rx="4" fill="rgba(233,69,96,0.1)" stroke="rgba(233,69,96,0.4)"/>
+  <text x="492" y="213" fill="#a0a0a0" font-size="9">Ber</text>
+  <text x="500" y="228" fill="#c4a000" font-size="12" font-weight="bold">1</text>
+
+  <rect x="535" y="195" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="547" y="213" fill="#a0a0a0" font-size="9">Jah</text>
+  <text x="555" y="228" fill="#e94560" font-size="12" font-weight="bold">0</text>
+
+  <!-- Row 4 -->
+  <rect x="260" y="240" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="270" y="258" fill="#a0a0a0" font-size="9">Cham</text>
+  <text x="280" y="273" fill="#e94560" font-size="12" font-weight="bold">0</text>
+
+  <rect x="315" y="240" width="50" height="40" rx="4" fill="#0f3460" stroke="rgba(233,69,96,0.4)"/>
+  <text x="327" y="258" fill="#a0a0a0" font-size="9">Zod</text>
+  <text x="335" y="273" fill="#e94560" font-size="12" font-weight="bold">0</text>
+
+  <!-- Eligibility List -->
+  <text x="650" y="85" fill="#a0a0a0" font-size="13" font-weight="500">Available Runewords</text>
+  <rect x="650" y="95" width="420" height="200" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+
+  <rect x="660" y="105" width="400" height="36" rx="4" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="675" y="125" fill="#4ecdc4" font-size="12" font-weight="500">Spirit</text>
+  <text x="675" y="137" fill="#a0a0a0" font-size="9">Tal + Thul + Ort + Amn · Sword/Shield</text>
+  <rect x="1000" y="112" width="50" height="20" rx="3" fill="rgba(78,205,196,0.2)"/>
+  <text x="1010" y="126" fill="#4ecdc4" font-size="9">Ready</text>
+
+  <rect x="660" y="147" width="400" height="36" rx="4" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="675" y="167" fill="#4ecdc4" font-size="12" font-weight="500">Enigma</text>
+  <text x="675" y="179" fill="#a0a0a0" font-size="9">Jah + Ith + Ber · Body Armor</text>
+  <rect x="1000" y="154" width="50" height="20" rx="3" fill="rgba(233,69,96,0.2)"/>
+  <text x="1006" y="168" fill="#e94560" font-size="9">1 / 3</text>
+
+  <rect x="660" y="189" width="400" height="36" rx="4" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="675" y="209" fill="#4ecdc4" font-size="12" font-weight="500">Infinity</text>
+  <text x="675" y="221" fill="#a0a0a0" font-size="9">Ber + Mal + Ber + Ist · Polearm</text>
+  <rect x="1000" y="196" width="50" height="20" rx="3" fill="rgba(233,69,96,0.2)"/>
+  <text x="1006" y="210" fill="#e94560" font-size="9">2 / 4</text>
+
+  <rect x="660" y="231" width="400" height="36" rx="4" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="675" y="251" fill="#4ecdc4" font-size="12" font-weight="500">Heart of the Oak</text>
+  <text x="675" y="263" fill="#a0a0a0" font-size="9">Ko + Vex + Pul + Thul · Staves/Maces</text>
+  <rect x="1000" y="238" width="50" height="20" rx="3" fill="rgba(233,69,96,0.2)"/>
+  <text x="1006" y="252" fill="#e94560" font-size="9">2 / 4</text>
+
+  <!-- Progress Toward Section -->
+  <text x="250" y="320" fill="#a0a0a0" font-size="13" font-weight="500">Targets — Progress</text>
+  <rect x="250" y="330" width="520" height="160" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+
+  <!-- Enigma Progress -->
+  <text x="270" y="355" fill="#eaeaea" font-size="12" font-weight="500">Enigma</text>
+  <text x="270" y="372" fill="#a0a0a0" font-size="10">Missing: Jah × 1</text>
+  <rect x="270" y="380" width="480" height="8" rx="4" fill="#0f3460"/>
+  <rect x="270" y="380" width="320" height="8" rx="4" fill="#e94560"/>
+  <text x="700" y="388" fill="#a0a0a0" font-size="9">67%</text>
+
+  <!-- Infinity Progress -->
+  <text x="270" y="415" fill="#eaeaea" font-size="12" font-weight="500">Infinity</text>
+  <text x="270" y="432" fill="#a0a0a0" font-size="10">Missing: Ber × 1, Mal × 1</text>
+  <rect x="270" y="440" width="480" height="8" rx="4" fill="#0f3460"/>
+  <rect x="270" y="440" width="240" height="8" rx="4" fill="#e94560"/>
+  <text x="700" y="448" fill="#a0a0a0" font-size="9">50%</text>
+
+  <!-- HOTO Progress -->
+  <text x="270" y="475" fill="#eaeaea" font-size="12" font-weight="500">Heart of the Oak</text>
+  <text x="270" y="492" fill="#a0a0a0" font-size="10">Missing: Ko × 1, Vex × 1</text>
+  <rect x="270" y="500" width="480" height="8" rx="4" fill="#0f3460"/>
+  <rect x="270" y="500" width="240" height="8" rx="4" fill="#e94560"/>
+  <text x="700" y="508" fill="#a0a0a0" font-size="9">50%</text>
+
+  <!-- Cube Calculator Section -->
+  <text x="250" y="530" fill="#a0a0a0" font-size="13" font-weight="500">Cube Upgrade Calculator</text>
+  <rect x="250" y="540" width="520" height="140" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+
+  <text x="270" y="565" fill="#eaeaea" font-size="11">Target Rune:</text>
+  <rect x="360" y="550" width="120" height="24" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="375" y="566" fill="#e94560" font-size="11" font-weight="bold">Jah</text>
+
+  <text x="270" y="600" fill="#a0a0a0" font-size="11">From Ber (1 needed):</text>
+  <text x="420" y="600" fill="#eaeaea" font-size="11">2× Ber + Flawless Sapphire</text>
+
+  <text x="270" y="625" fill="#a0a0a0" font-size="11">From Ist (lowest available):</text>
+  <text x="420" y="625" fill="#eaeaea" font-size="11">32× Ist → 16× Gul → 8× Vex → 4× Ohm → 2× Lo → 1× Sur → Ber → Jah</text>
+
+  <text x="270" y="655" fill="#e94560" font-size="11" font-weight="500">You need: 32 Ist runes (have 1)</text>
+
+  <!-- Active profile footer -->
+  <rect x="0" y="680" width="220" height="20" fill="rgba(0,0,0,0.3)"/>
+  <text x="20" y="694" fill="#a0a0a0" font-size="9">▸ MFSorc · Sorceress</text>
+</svg>

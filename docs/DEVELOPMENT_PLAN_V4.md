@@ -1,6 +1,6 @@
-# D2R Tracker — Development Plan v5.0+
+# D2R Tracker — Development Plan v5.1+
 
-Continuation of the roadmap. All features from v1.0–v4.0 are implemented and released.
+Continuation of the roadmap. All features from v1.0–v5.0 are implemented and released.
 This document covers the next wave of features based on community research, competitive analysis, and D2R v3.2 Season 14 meta.
 
 **Last updated:** July 2026
@@ -20,13 +20,13 @@ The app already covers core farming tracking comprehensively. The next phase foc
 
 ## Feature Roadmap
 
-### Phase 1: v5.0 — Intelligence Layer (Est. ~20h)
+### Phase 1: v5.0 — Intelligence Layer ✅ RELEASED
 
 Features that make the app *smarter* than just a stopwatch.
 
 ---
 
-#### 1. Advanced Drop Calculator with Probability Engine
+#### 1. Advanced Drop Calculator with Probability Engine ✅
 
 Transform the existing qualitative drop calculator into a real probability engine (like Silospen, but integrated with your farming data).
 
@@ -44,7 +44,7 @@ Transform the existing qualitative drop calculator into a real probability engin
 
 ---
 
-#### 2. Runeword Planner & Rune Inventory
+#### 2. Runeword Planner & Rune Inventory ✅
 
 Track runes in your stash and show which runewords you can make or are close to completing.
 
@@ -61,7 +61,7 @@ Track runes in your stash and show which runewords you can make or are close to 
 
 ---
 
-#### 3. Farming Efficiency Advisor
+#### 3. Farming Efficiency Advisor ✅
 
 AI-free rule-based system that suggests what you should farm next based on your data.
 
@@ -77,7 +77,7 @@ AI-free rule-based system that suggests what you should farm next based on your 
 
 ---
 
-#### 4. Session Achievements & Milestones
+#### 4. Session Achievements & Milestones ✅ (Released in v4.1.0)
 
 Gamification layer that makes farming more rewarding.
 
@@ -316,14 +316,15 @@ These are smaller improvements that can be sprinkled into any release:
 
 ## Competitive Differentiation (Updated July 2026)
 
-| Feature | D2R Tracker (v4.0) | oskros MF_counter | diablo2.io | Silospen | maxroll.gg | d2r-arcane-tracker |
+| Feature | D2R Tracker (v5.0) | oskros MF_counter | diablo2.io | Silospen | maxroll.gg | d2r-arcane-tracker |
 |---------|-------------------|-------------------|------------|----------|------------|-------------------|
 | Run timer + splits | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Item logging (searchable) | ✅ | ✅ (manual) | ❌ | ❌ | ❌ | ✅ (auto-OCR) |
 | Global hotkeys | ✅ | ✅ | N/A | N/A | N/A | ❌ |
 | In-game overlay | ✅ | ✅ | N/A | N/A | N/A | ❌ |
-| Probability calculator | 🔲 (qualitative) | ❌ | ❌ | ✅ (exact) | ✅ (basic) | ❌ |
-| Runeword planner | 🔲 Planned | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Probability calculator | ✅ (exact + integrated) | ❌ | ❌ | ✅ (exact) | ✅ (basic) | ❌ |
+| Runeword planner | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Farming advisor | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Auto item detection | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ✅ (Vision LLM) |
 | Route tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Terror Zone tracking | ✅ | ❌ | ✅ (web) | ❌ | ✅ (web) | ❌ |
@@ -335,24 +336,28 @@ These are smaller improvements that can be sprinkled into any release:
 | Offline-first | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
 | Trade values | 🔲 Planned | ❌ | ✅ (live) | ❌ | ✅ (guide) | ❌ |
 | Multi-language | ✅ (3) | ❌ | ✅ | ❌ | ✅ | ❌ |
-| Achievements | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Achievements | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-**Key differentiators for v5.0+:**
+**Key differentiators (v5.0 shipped):**
 - Only desktop tool with integrated probability engine + personal farming data
 - Only tool combining runeword planning with rune drop tracking
 - Only tool offering farming efficiency advisor based on personal data
+- Achievement system with gamification for farming motivation
+
+**Next differentiators (v5.1+):**
 - Auto item detection without requiring external LLM API keys
+- DClone and Terror Zone live API integration
 
 ---
 
 ## Version Planning
 
-| Version | Theme | Features | Effort (est.) |
-|---------|-------|----------|---------------|
-| v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ~20h |
-| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates + Custom Overlay | ~12h |
-| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | ~12h |
-| v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System + Mobile Companion | ~15h |
+| Version | Theme | Features | Status |
+|---------|-------|----------|--------|
+| v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ✅ Released |
+| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates + Custom Overlay | 🔲 Next |
+| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Planned |
+| v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System + Mobile Companion | 🔲 Planned |
 
 ---
 
@@ -360,23 +365,23 @@ These are smaller improvements that can be sprinkled into any release:
 
 Based on: community demand, competitive gap, implementation feasibility, and engagement impact.
 
-| Priority | Feature | Justification |
-|----------|---------|---------------|
-| 🥇 1 | Runeword Planner & Rune Inventory | Most requested by power users, fills competitive gap vs d2runewizard |
-| 🥇 2 | Advanced Drop Calculator | Differentiates from all competitors, makes data actionable |
-| 🥈 3 | Session Achievements | Low effort, high engagement lift, gamification works |
-| 🥈 4 | Quick-Start Templates | Biggest QoL win for daily users, very low effort |
-| 🥈 5 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
-| 🥉 6 | Terror Zone API Integration | Same as DClone — easy external data pull |
-| 🥉 7 | Farming Efficiency Advisor | Unique feature nobody else has, but complex |
-| 🥉 8 | Trade Value Estimation | Nice-to-have, static data update with each release |
-| 🥉 9 | Screenshot OCR | High impact but high complexity, do as v5.1 |
-| 🥉 10 | Customizable Overlay | Streamers love this, moderate effort |
-| ⬜ 11 | Leaderboards & Export | Community-facing, moderate effort |
-| ⬜ 12 | Data Visualization Overhaul | Polish, not new capability |
-| ⬜ 13 | Linux Packaging | Infrastructure, serves Linux gaming niche |
-| ⬜ 14 | Plugin System | Long-term investment, defer until community demands it |
-| ⬜ 15 | Mobile Companion | Nice-to-have, low priority |
+| Priority | Feature | Status |
+|----------|---------|--------|
+| ✅ | Runeword Planner & Rune Inventory | Shipped v5.0.0 |
+| ✅ | Advanced Drop Calculator with Probability Engine | Shipped v5.0.0 |
+| ✅ | Session Achievements | Shipped v4.1.0 |
+| ✅ | Farming Efficiency Advisor | Shipped v5.0.0 |
+| 🥇 1 | Quick-Start Templates | Biggest QoL win for daily users, very low effort |
+| 🥇 2 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
+| 🥈 3 | Terror Zone API Integration | Same as DClone — easy external data pull |
+| 🥈 4 | Trade Value Estimation | Nice-to-have, static data update with each release |
+| 🥈 5 | Screenshot OCR | High impact but high complexity, do as v5.1 |
+| 🥉 6 | Customizable Overlay | Streamers love this, moderate effort |
+| 🥉 7 | Leaderboards & Export | Community-facing, moderate effort |
+| ⬜ 8 | Data Visualization Overhaul | Polish, not new capability |
+| ⬜ 9 | Linux Packaging | Infrastructure, serves Linux gaming niche |
+| ⬜ 10 | Plugin System | Long-term investment, defer until community demands it |
+| ⬜ 11 | Mobile Companion | Nice-to-have, low priority |
 
 ---
 
@@ -420,5 +425,5 @@ Before adding major features:
 ---
 
 *Document created: July 2026*
-*Covers: v5.0.0 through v6.0.0*
+*Covers: v5.1.0 through v6.0.0 (v5.0.0 released July 2026)*
 *Previous plans: DEVELOPMENT_PLAN.md (v1.0–v2.0), DEVELOPMENT_PLAN_V3.md (v2.1–v4.0)*

@@ -64,6 +64,23 @@ function RunewordPlanner({ profile }: Props) {
     }
   };
 
+  const handleSetCount = async (runeName: string, value: number) => {
+    try {
+      const currentCount = inventory[runeName] ?? 0;
+      const delta = value - currentCount;
+      if (delta !== 0) {
+        await updateRuneCount(profile.id, runeName, delta);
+        await loadInventory();
+      }
+    } catch (err) {
+      console.error("Failed to set rune count:", err);
+    }
+  };
+
+  const handleReset = async (runeName: string) => {
+    await handleSetCount(runeName, 0);
+  };
+
   const handleAddTarget = async (runewordName: string) => {
     try {
       await addRunewordTarget(profile.id, runewordName);
@@ -93,6 +110,8 @@ function RunewordPlanner({ profile }: Props) {
             inventory={inventory}
             onIncrement={handleIncrement}
             onDecrement={handleDecrement}
+            onSetCount={handleSetCount}
+            onReset={handleReset}
           />
         </section>
         <section>

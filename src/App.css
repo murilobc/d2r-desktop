@@ -3082,3 +3082,79 @@ body {
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* Rune Grid */
+.rune-grid-container {
+  padding: 1rem;
+}
+
+.rune-grid-title {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.rune-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+
+.rune-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: opacity 0.2s;
+}
+
+.rune-cell--zero {
+  opacity: 0.4;
+}
+
+.rune-cell__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.rune-cell__count {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rune-cell__controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.rune-cell__btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-dark);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.rune-cell__btn:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.rune-cell__btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

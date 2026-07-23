@@ -45,6 +45,8 @@ import type {
   AchievementDefinition,
   AchievementProgress,
   LifetimeStats,
+  RuneCount,
+  RunewordTarget,
 } from "./types";
 import type {
   GistPullResult,
@@ -300,3 +302,23 @@ export const getAchievementProgress = (profileId: string) =>
 
 export const getLifetimeStats = (profileId: string) =>
   invoke<LifetimeStats>("get_lifetime_stats", { profileId });
+
+// Rune Inventory
+export const getRuneInventory = (profileId: string) =>
+  invoke<RuneCount[]>("get_rune_inventory", { profileId });
+
+export const updateRuneCount = (profileId: string, runeName: string, delta: number) =>
+  invoke<RuneCount>("update_rune_count", { profileId, runeName, delta });
+
+export const setRuneCount = (profileId: string, runeName: string, count: number) =>
+  invoke<RuneCount>("set_rune_count", { profileId, runeName, count });
+
+// Runeword Targets
+export const getRunewordTargets = (profileId: string) =>
+  invoke<RunewordTarget[]>("get_runeword_targets", { profileId });
+
+export const addRunewordTarget = (profileId: string, runewordName: string) =>
+  invoke<RunewordTarget>("add_runeword_target", { profileId, runewordName });
+
+export const removeRunewordTarget = (id: string) =>
+  invoke<void>("remove_runeword_target", { id });

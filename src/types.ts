@@ -529,3 +529,18 @@ export type AchievementCategory = "milestone" | "streak" | "per-class" | "per-ar
 export const ACHIEVEMENT_CATEGORIES: AchievementCategory[] = [
   "milestone", "streak", "per-class", "per-area"
 ];
+
+// ===== RUNEWORD PLANNER =====
+
+export interface RuneCount {
+  profile_id: string;
+  rune_name: string;
+  count: number;
+}
+
+export interface RunewordTarget {
+  id: string;
+  profile_id: string;
+  runeword_name: string;
+  created_at: string;
+}

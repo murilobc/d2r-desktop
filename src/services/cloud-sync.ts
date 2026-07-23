@@ -259,7 +259,9 @@ export class SyncEngine {
       mergedPayload.xp_entries.length +
       mergedPayload.keybind_profiles.length +
       mergedPayload.routes.length +
-      mergedPayload.custom_areas.length;
+      mergedPayload.custom_areas.length +
+      mergedPayload.rune_inventory.length +
+      mergedPayload.runeword_targets.length;
 
     return { success: true, recordsMerged, conflicts: 0 };
   }

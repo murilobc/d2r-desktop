@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import type { Profile, Run, Item } from "../types";
 import { AREAS, parseTags } from "../types";
 import { getItems, deleteRun, deleteItem, createItem, updateRunArea, getRunsPaginated, getStats } from "../api";
+import { syncRuneOnCreate, syncRuneOnDelete } from "../lib/rune-sync";
 import { PREDEFINED_TAGS } from "../components/QuickTags";
 import type { GameItem } from "../data/items";
 import ItemSearch from "../components/ItemSearch";
@@ -274,7 +275,13 @@ export default function History({ profile }: Props) {
   }, [profile.id, runs.length, selectedRunId]);
 
   const handleDeleteItem = async (itemId: string, runId: string) => {
+    // Look up item details before deletion for rune auto-sync
+    const itemList = runItems[runId] || [];
+    const item = itemList.find((i) => i.id === itemId);
     await deleteItem(itemId);
+    if (item) {
+      syncRuneOnDelete(profile.id, item.name, item.item_type, item.rarity).catch(console.warn);
+    }
     const items = await getItems(runId);
     setRunItems((prev) => ({ ...prev, [runId]: items }));
   };
@@ -287,6 +294,8 @@ export default function History({ profile }: Props) {
       item_type: gameItem.subcategory,
       rarity: gameItem.category,
     });
+    // Auto-sync rune inventory when a rune is logged
+    syncRuneOnCreate(profile.id, gameItem.name, gameItem.subcategory, gameItem.category).catch(console.warn);
     const items = await getItems(runId);
     setRunItems((prev) => ({ ...prev, [runId]: items }));
   };

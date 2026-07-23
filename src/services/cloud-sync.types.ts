@@ -150,6 +150,18 @@ export interface CustomAreaData {
   created_at: string;
 }
 
+export interface RuneInventoryData {
+  profile_id: string;
+  rune_name: string;
+  count: number;
+}
+
+export interface RunewordTargetData {
+  profile_id: string;
+  runeword_name: string;
+  created_at: string;
+}
+
 // ===== RUST COMMAND RESULT TYPES =====
 
 export interface GistPullResult {
@@ -181,4 +193,6 @@ export interface SyncPayload {
   keybind_profiles: SyncRecord<KeybindProfileData>[];
   routes: SyncRecord<RouteData>[];
   custom_areas: SyncRecord<CustomAreaData>[];
+  rune_inventory: SyncRecord<RuneInventoryData>[];
+  runeword_targets: SyncRecord<RunewordTargetData>[];
 }

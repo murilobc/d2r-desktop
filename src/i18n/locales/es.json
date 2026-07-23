@@ -41,6 +41,7 @@
     "coop": "Co-op",
     "achievements": "Logros",
     "runes": "Runas",
+    "advisor": "Asesor",
     "settings": "Configuración",
     "overlay": "Overlay",
     "theme": "Tema",
@@ -158,6 +159,52 @@
     "progress": "{{current}} / {{target}}",
     "unlocked": "Desbloqueado",
     "locked": "Bloqueado"
+  },
+  "advisor": {
+    "title": "Asesor de Farmeo",
+    "sidebar": "Asesor",
+    "loading": "Cargando datos del asesor...",
+    "error": "Error al cargar datos del asesor.",
+    "noProfile": "Selecciona un perfil para ver recomendaciones de farmeo.",
+    "noRuns": "No hay runs registradas para este perfil aún.",
+    "weeklySummary": {
+      "heading": "Resumen Semanal",
+      "totalRuns": "Total de Runs",
+      "avgItemsPerHour": "Promedio Objetos/hr",
+      "totalValuePoints": "Puntos de Valor Totales",
+      "bestArea": "Mejor Área",
+      "bestAreaAboveAvg": "{{percentage}}% por encima del promedio",
+      "empty": "Datos insuficientes para el resumen semanal."
+    },
+    "areaRankings": {
+      "heading": "Ranking de Áreas",
+      "area": "Área",
+      "itemsPerHour": "Objetos/hr",
+      "valuePerHour": "Valor/hr",
+      "xpPerHour": "XP/hr",
+      "sortByValue": "Ordenar por Valor/hr",
+      "sortByItems": "Ordenar por Objetos/hr",
+      "sortByXp": "Ordenar por XP/hr",
+      "empty": "Datos insuficientes para clasificar áreas (mínimo 3 runs por área)."
+    },
+    "terrorZone": {
+      "heading": "Terror Zone",
+      "recommended": "{{zone}} es {{percentage}}% más eficiente que tu promedio — ¡recomendado!",
+      "tierOnly": "{{zone}} tiene clasificación {{tier}}. Sin datos personales aún.",
+      "tier": "Tier: {{tier}}",
+      "noActiveTz": "No hay Terror Zone activa."
+    },
+    "buildSuggestions": {
+      "heading": "Sugerencias de Build",
+      "noColdImmunes": "Sin inmunes al frío",
+      "tzNotes": "Notas de TZ",
+      "empty": "No hay sugerencias específicas de build disponibles."
+    },
+    "diminishingReturns": {
+      "heading": "Rendimientos Decrecientes",
+      "warning": "{{area}} ha tenido {{count}} runs secas consecutivas.",
+      "suggestedAlternative": "Considera cambiar a {{area}}."
+    }
   },
   "settings": {
     "title": "Configuración",

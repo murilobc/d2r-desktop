@@ -41,6 +41,7 @@
     "coop": "Co-op",
     "achievements": "Conquistas",
     "runes": "Runas",
+    "advisor": "Consultor",
     "settings": "Configurações",
     "overlay": "Overlay",
     "theme": "Tema",
@@ -158,6 +159,52 @@
     "progress": "{{current}} / {{target}}",
     "unlocked": "Desbloqueada",
     "locked": "Bloqueada"
+  },
+  "advisor": {
+    "title": "Consultor de Farm",
+    "sidebar": "Consultor",
+    "loading": "Carregando dados do consultor...",
+    "error": "Falha ao carregar dados do consultor.",
+    "noProfile": "Selecione um perfil para ver recomendações de farm.",
+    "noRuns": "Nenhuma run registrada para este perfil ainda.",
+    "weeklySummary": {
+      "heading": "Resumo Semanal",
+      "totalRuns": "Total de Runs",
+      "avgItemsPerHour": "Média de Itens/hr",
+      "totalValuePoints": "Pontos de Valor Totais",
+      "bestArea": "Melhor Área",
+      "bestAreaAboveAvg": "{{percentage}}% acima da média",
+      "empty": "Dados insuficientes para o resumo semanal."
+    },
+    "areaRankings": {
+      "heading": "Ranking de Áreas",
+      "area": "Área",
+      "itemsPerHour": "Itens/hr",
+      "valuePerHour": "Valor/hr",
+      "xpPerHour": "XP/hr",
+      "sortByValue": "Ordenar por Valor/hr",
+      "sortByItems": "Ordenar por Itens/hr",
+      "sortByXp": "Ordenar por XP/hr",
+      "empty": "Dados insuficientes para classificar áreas (mínimo 3 runs por área)."
+    },
+    "terrorZone": {
+      "heading": "Terror Zone",
+      "recommended": "{{zone}} é {{percentage}}% mais eficiente que sua média — recomendado!",
+      "tierOnly": "{{zone}} tem classificação {{tier}}. Sem dados pessoais ainda.",
+      "tier": "Tier: {{tier}}",
+      "noActiveTz": "Nenhuma Terror Zone ativa."
+    },
+    "buildSuggestions": {
+      "heading": "Sugestões de Build",
+      "noColdImmunes": "Sem imunes a frio",
+      "tzNotes": "Notas de TZ",
+      "empty": "Nenhuma sugestão específica de build disponível."
+    },
+    "diminishingReturns": {
+      "heading": "Retornos Decrescentes",
+      "warning": "{{area}} teve {{count}} runs secas consecutivas.",
+      "suggestedAlternative": "Considere mudar para {{area}}."
+    }
   },
   "settings": {
     "title": "Configurações",

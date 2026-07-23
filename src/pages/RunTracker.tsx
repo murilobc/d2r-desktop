@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Profile, Item, Run, Route, AchievementUnlock } from "../types";
 import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups, evaluateAchievements } from "../api";
+import { syncRuneOnCreate, syncRuneOnDelete } from "../lib/rune-sync";
 import { getObsPrefs, getBackupConfig, saveBackupConfig } from "./Settings";
 import type { GameItem } from "../data/items";
 import { emit, listen } from "@tauri-apps/api/event";
@@ -339,13 +340,20 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
       rarity: gameItem.category,
       notes: undefined,
     });
+    // Auto-sync rune inventory when a rune is logged
+    syncRuneOnCreate(profile.id, gameItem.name, gameItem.subcategory, gameItem.category).catch(console.warn);
     playSound("item");
     loadItems(currentRun.id);
     setCurrentStreak(0);
   };
 
   const removeItem = async (id: string) => {
+    // Look up item details before deletion for rune auto-sync
+    const item = items.find((i) => i.id === id);
     await deleteItem(id);
+    if (item) {
+      syncRuneOnDelete(profile.id, item.name, item.item_type, item.rarity).catch(console.warn);
+    }
     if (currentRun) loadItems(currentRun.id);
   };
 

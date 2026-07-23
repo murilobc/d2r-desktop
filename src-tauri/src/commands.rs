@@ -2333,3 +2333,427 @@ pub fn get_lifetime_stats(
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     crate::achievements::get_lifetime_stats(&conn, &profile_id).map_err(|e| e.to_string())
 }
+
+// ===== RUNE INVENTORY =====
+
+const VALID_RUNES: [&str; 33] = [
+    "El", "Eld", "Tir", "Nef", "Eth", "Ith", "Tal", "Ral", "Ort", "Thul",
+    "Amn", "Sol", "Shael", "Dol", "Hel", "Io", "Lum", "Ko", "Fal", "Lem",
+    "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber",
+    "Jah", "Cham", "Zod",
+];
+
+fn validate_rune_name(rune_name: &str) -> Result<(), String> {
+    if !VALID_RUNES.contains(&rune_name) {
+        return Err(format!("Invalid rune name: {}", rune_name));
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_rune_inventory(state: State<DbState>, profile_id: String) -> Result<Vec<RuneCount>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT profile_id, rune_name, count FROM rune_inventory WHERE profile_id = ?1 ORDER BY rune_name ASC")
+        .map_err(|e| e.to_string())?;
+
+    let runes = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(RuneCount {
+                profile_id: row.get(0)?,
+                rune_name: row.get(1)?,
+                count: row.get(2)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(runes)
+}
+
+#[tauri::command]
+pub fn update_rune_count(state: State<DbState>, profile_id: String, rune_name: String, delta: i32) -> Result<RuneCount, String> {
+    validate_rune_name(&rune_name)?;
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO rune_inventory (profile_id, rune_name, count) VALUES (?1, ?2, MAX(0, ?3))
+         ON CONFLICT(profile_id, rune_name) DO UPDATE SET count = MAX(0, count + ?4)",
+        rusqlite::params![profile_id, rune_name, delta, delta],
+    ).map_err(|e| e.to_string())?;
+
+    let count: i32 = conn
+        .query_row(
+            "SELECT count FROM rune_inventory WHERE profile_id = ?1 AND rune_name = ?2",
+            rusqlite::params![profile_id, rune_name],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    Ok(RuneCount {
+        profile_id,
+        rune_name,
+        count,
+    })
+}
+
+#[tauri::command]
+pub fn set_rune_count(state: State<DbState>, profile_id: String, rune_name: String, count: i32) -> Result<RuneCount, String> {
+    validate_rune_name(&rune_name)?;
+
+    if count < 0 {
+        return Err("Count cannot be negative".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO rune_inventory (profile_id, rune_name, count) VALUES (?1, ?2, ?3)
+         ON CONFLICT(profile_id, rune_name) DO UPDATE SET count = ?4",
+        rusqlite::params![profile_id, rune_name, count, count],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(RuneCount {
+        profile_id,
+        rune_name,
+        count,
+    })
+}
+
+// ===== RUNEWORD TARGETS =====
+
+const VALID_RUNEWORDS: &[&str] = &[
+    "Ancient's Pledge", "Beast", "Black", "Bone", "Bramble", "Brand",
+    "Breath of the Dying", "Call to Arms", "Chains of Honor", "Chaos",
+    "Crescent Moon", "Death", "Delirium", "Destruction", "Doom", "Dragon",
+    "Dream", "Duress", "Edge", "Enigma", "Enlightenment", "Eternity",
+    "Exile", "Faith", "Famine", "Fortitude", "Fury", "Gloom", "Grief",
+    "Hand of Justice", "Harmony", "Heart of the Oak", "Holy Thunder", "Honor",
+    "Ice", "Infinity", "Insight", "King's Grace", "Kingslayer", "Last Wish",
+    "Lawbringer", "Leaf", "Lionheart", "Lore", "Malice", "Melody", "Memory",
+    "Myth", "Nadir", "Oath", "Obedience", "Passion", "Peace", "Phoenix",
+    "Plague", "Pride", "Principle", "Prudence", "Radiance", "Rain", "Rhyme",
+    "Rift", "Sanctuary", "Silence", "Smoke", "Spirit", "Splendor", "Stealth",
+    "Steel", "Stone", "Strength", "Treachery", "Venom", "Voice of Reason",
+    "Wealth", "White", "Wind", "Wrath", "Zephyr",
+    // Ladder Runewords (Patch 2.4+)
+    "Bulwark", "Cure", "Ground", "Hearth", "Hustle", "Metamorphosis", "Mist",
+    "Mosaic", "Obsession", "Pattern", "Temper", "Unbending Will", "Wisdom",
+    "Flickering Flame",
+    // Reign of the Warlock (v3.0)
+    "Authority", "Coven", "Void", "Vigilance", "Ritual",
+];
+
+fn validate_runeword_name(runeword_name: &str) -> Result<(), String> {
+    if !VALID_RUNEWORDS.contains(&runeword_name) {
+        return Err(format!("Unknown runeword: {}", runeword_name));
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_runeword_targets(state: State<DbState>, profile_id: String) -> Result<Vec<RunewordTarget>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, runeword_name, created_at FROM runeword_targets WHERE profile_id = ?1 ORDER BY created_at DESC")
+        .map_err(|e| e.to_string())?;
+
+    let targets = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(RunewordTarget {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                runeword_name: row.get(2)?,
+                created_at: row.get(3)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(targets)
+}
+
+#[tauri::command]
+pub fn add_runeword_target(state: State<DbState>, profile_id: String, runeword_name: String) -> Result<RunewordTarget, String> {
+    validate_runeword_name(&runeword_name)?;
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+
+    conn.execute(
+        "INSERT INTO runeword_targets (id, profile_id, runeword_name, created_at) VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![id, profile_id, runeword_name, now],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(RunewordTarget {
+        id,
+        profile_id,
+        runeword_name,
+        created_at: now,
+    })
+}
+
+#[tauri::command]
+pub fn remove_runeword_target(state: State<DbState>, id: String) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "DELETE FROM runeword_targets WHERE id = ?1",
+        rusqlite::params![id],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rusqlite::Connection;
+
+    /// Creates an in-memory SQLite database with the rune_inventory table.
+    fn setup_test_db() -> Connection {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("PRAGMA foreign_keys = ON;").unwrap();
+        conn.execute_batch(
+            "
+            CREATE TABLE profiles (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                class TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE rune_inventory (
+                profile_id TEXT NOT NULL,
+                rune_name TEXT NOT NULL,
+                count INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (profile_id, rune_name),
+                FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_rune_inventory_profile ON rune_inventory(profile_id);
+            ",
+        )
+        .unwrap();
+
+        // Insert a test profile
+        conn.execute(
+            "INSERT INTO profiles (id, name, class, created_at) VALUES (?1, ?2, ?3, ?4)",
+            rusqlite::params!["test-profile", "TestChar", "Sorceress", "2024-01-01T00:00:00Z"],
+        )
+        .unwrap();
+
+        conn
+    }
+
+    /// Helper: performs the same upsert logic as update_rune_count command.
+    fn do_update_rune_count(conn: &Connection, profile_id: &str, rune_name: &str, delta: i32) -> Result<RuneCount, String> {
+        validate_rune_name(rune_name)?;
+
+        conn.execute(
+            "INSERT INTO rune_inventory (profile_id, rune_name, count) VALUES (?1, ?2, MAX(0, ?3))
+             ON CONFLICT(profile_id, rune_name) DO UPDATE SET count = MAX(0, count + ?4)",
+            rusqlite::params![profile_id, rune_name, delta, delta],
+        ).map_err(|e| e.to_string())?;
+
+        let count: i32 = conn
+            .query_row(
+                "SELECT count FROM rune_inventory WHERE profile_id = ?1 AND rune_name = ?2",
+                rusqlite::params![profile_id, rune_name],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        Ok(RuneCount {
+            profile_id: profile_id.to_string(),
+            rune_name: rune_name.to_string(),
+            count,
+        })
+    }
+
+    /// Helper: performs the same logic as set_rune_count command.
+    fn do_set_rune_count(conn: &Connection, profile_id: &str, rune_name: &str, count: i32) -> Result<RuneCount, String> {
+        validate_rune_name(rune_name)?;
+
+        if count < 0 {
+            return Err("Count cannot be negative".to_string());
+        }
+
+        conn.execute(
+            "INSERT INTO rune_inventory (profile_id, rune_name, count) VALUES (?1, ?2, ?3)
+             ON CONFLICT(profile_id, rune_name) DO UPDATE SET count = ?4",
+            rusqlite::params![profile_id, rune_name, count, count],
+        ).map_err(|e| e.to_string())?;
+
+        Ok(RuneCount {
+            profile_id: profile_id.to_string(),
+            rune_name: rune_name.to_string(),
+            count,
+        })
+    }
+
+    // =========================================================================
+    // Test: Increment/decrement clamping at zero
+    // Validates: Requirements 1.3, 1.4, 1.5
+    // =========================================================================
+
+    #[test]
+    fn test_increment_increases_count() {
+        let conn = setup_test_db();
+        let result = do_update_rune_count(&conn, "test-profile", "El", 1).unwrap();
+        assert_eq!(result.count, 1);
+
+        let result = do_update_rune_count(&conn, "test-profile", "El", 1).unwrap();
+        assert_eq!(result.count, 2);
+    }
+
+    #[test]
+    fn test_decrement_decreases_count() {
+        let conn = setup_test_db();
+        // Set initial count to 3
+        do_update_rune_count(&conn, "test-profile", "Ber", 3).unwrap();
+
+        let result = do_update_rune_count(&conn, "test-profile", "Ber", -1).unwrap();
+        assert_eq!(result.count, 2);
+    }
+
+    #[test]
+    fn test_decrement_clamps_at_zero() {
+        let conn = setup_test_db();
+        // Start with count 1
+        do_update_rune_count(&conn, "test-profile", "Jah", 1).unwrap();
+
+        // Decrement by 5 — should clamp to 0, not go negative
+        let result = do_update_rune_count(&conn, "test-profile", "Jah", -5).unwrap();
+        assert_eq!(result.count, 0);
+    }
+
+    #[test]
+    fn test_decrement_from_zero_stays_at_zero() {
+        let conn = setup_test_db();
+        // First insert with negative delta — should clamp to 0
+        let result = do_update_rune_count(&conn, "test-profile", "Zod", -1).unwrap();
+        assert_eq!(result.count, 0);
+    }
+
+    // =========================================================================
+    // Test: Invalid rune name rejection
+    // Validates: Requirements 1.3, 1.4, 1.5
+    // =========================================================================
+
+    #[test]
+    fn test_update_rune_count_rejects_invalid_rune_name() {
+        let conn = setup_test_db();
+        let result = do_update_rune_count(&conn, "test-profile", "InvalidRune", 1);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Invalid rune name: InvalidRune");
+    }
+
+    #[test]
+    fn test_set_rune_count_rejects_invalid_rune_name() {
+        let conn = setup_test_db();
+        let result = do_set_rune_count(&conn, "test-profile", "FakeRune", 5);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Invalid rune name: FakeRune");
+    }
+
+    #[test]
+    fn test_set_rune_count_rejects_negative_count() {
+        let conn = setup_test_db();
+        let result = do_set_rune_count(&conn, "test-profile", "El", -1);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Count cannot be negative");
+    }
+
+    #[test]
+    fn test_validate_rune_name_accepts_all_valid_runes() {
+        for rune in &VALID_RUNES {
+            assert!(validate_rune_name(rune).is_ok(), "Should accept valid rune: {}", rune);
+        }
+    }
+
+    #[test]
+    fn test_validate_rune_name_rejects_empty_string() {
+        let result = validate_rune_name("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_rune_name_is_case_sensitive() {
+        // "el" lowercase should be rejected — only "El" is valid
+        let result = validate_rune_name("el");
+        assert!(result.is_err());
+    }
+
+    // =========================================================================
+    // Test: Upsert behavior (first insert vs update)
+    // Validates: Requirements 1.3, 1.4, 1.5
+    // =========================================================================
+
+    #[test]
+    fn test_update_rune_count_inserts_on_first_call() {
+        let conn = setup_test_db();
+
+        // First call should insert a new row
+        let result = do_update_rune_count(&conn, "test-profile", "Lo", 2).unwrap();
+        assert_eq!(result.count, 2);
+        assert_eq!(result.rune_name, "Lo");
+        assert_eq!(result.profile_id, "test-profile");
+
+        // Verify row exists in DB
+        let count: i32 = conn
+            .query_row(
+                "SELECT count FROM rune_inventory WHERE profile_id = ?1 AND rune_name = ?2",
+                rusqlite::params!["test-profile", "Lo"],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(count, 2);
+    }
+
+    #[test]
+    fn test_update_rune_count_updates_on_subsequent_calls() {
+        let conn = setup_test_db();
+
+        // First call — inserts
+        do_update_rune_count(&conn, "test-profile", "Sur", 1).unwrap();
+
+        // Second call — updates existing row
+        let result = do_update_rune_count(&conn, "test-profile", "Sur", 2).unwrap();
+        assert_eq!(result.count, 3);
+
+        // Third call — updates again
+        let result = do_update_rune_count(&conn, "test-profile", "Sur", -1).unwrap();
+        assert_eq!(result.count, 2);
+    }
+
+    #[test]
+    fn test_set_rune_count_inserts_on_first_call() {
+        let conn = setup_test_db();
+
+        let result = do_set_rune_count(&conn, "test-profile", "Ohm", 5).unwrap();
+        assert_eq!(result.count, 5);
+    }
+
+    #[test]
+    fn test_set_rune_count_overwrites_on_subsequent_call() {
+        let conn = setup_test_db();
+
+        // First set
+        do_set_rune_count(&conn, "test-profile", "Vex", 10).unwrap();
+
+        // Overwrite with new value
+        let result = do_set_rune_count(&conn, "test-profile", "Vex", 3).unwrap();
+        assert_eq!(result.count, 3);
+    }
+
+    #[test]
+    fn test_set_rune_count_allows_zero() {
+        let conn = setup_test_db();
+        let result = do_set_rune_count(&conn, "test-profile", "Ist", 0).unwrap();
+        assert_eq!(result.count, 0);
+    }
+}

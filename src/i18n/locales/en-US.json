@@ -15,6 +15,7 @@
       "drops": "Drops",
       "coop": "Co-op",
       "achievements": "Achievements",
+      "runes": "Runes",
       "settings": "Settings",
       "overlay": "Overlay",
       "theme": "Theme",
@@ -39,6 +40,7 @@
     "drops": "Drops",
     "coop": "Co-op",
     "achievements": "Achievements",
+    "runes": "Runes",
     "settings": "Settings",
     "overlay": "Overlay",
     "theme": "Theme",
@@ -528,6 +530,51 @@
     "updateNow": "Update Now",
     "later": "Later",
     "failed": "Update failed: {{error}}"
+  },
+  "runewordPlanner": {
+    "title": "Runeword Planner",
+    "eligibility": {
+      "title": "Craftable Runewords",
+      "searchPlaceholder": "Search runewords...",
+      "searchLabel": "Search runewords by name",
+      "noResults": "No runewords match your search.",
+      "noCraftable": "No runewords available yet. Collect more runes!",
+      "craftable": "Craftable",
+      "sockets": "sockets"
+    },
+    "cubeCalculator": {
+      "title": "Cube Calculator",
+      "targetRune": "Target Rune",
+      "selectRune": "Select a rune...",
+      "noUpgradesNeeded": "No upgrades needed — you already own {{rune}}.",
+      "upgradePathLabel": "Upgrade path breakdown",
+      "rune": "Rune",
+      "needed": "Needed",
+      "have": "Have",
+      "remaining": "Remaining",
+      "totalBaseRunes": "Total base runes (El-equivalent): {{count}}",
+      "noPath": "No upgrade path available for this rune.",
+      "prompt": "Select a target rune to calculate the upgrade path."
+    }
+  },
+  "runeGrid": {
+    "title": "Rune Inventory",
+    "increment": "Increment {{rune}}",
+    "decrement": "Decrement {{rune}}"
+  },
+  "runes": {
+    "progress": {
+      "title": "Progress Tracking",
+      "addTarget": "Add Target",
+      "selectRuneword": "Select a runeword to track",
+      "selectPlaceholder": "-- Select runeword --",
+      "addButton": "Add selected runeword as target",
+      "add": "Add",
+      "noTargets": "No target runewords selected. Add one above to track your progress.",
+      "targetList": "Target runewords",
+      "removeTarget": "Remove {{name}} from targets",
+      "completion": "{{name}} completion: {{percent}}%"
+    }
   },
   "common": {
     "loading": "Loading...",

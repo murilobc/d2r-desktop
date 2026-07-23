@@ -125,6 +125,13 @@ pub fn run() {
             commands::get_achievement_definitions,
             commands::get_achievement_progress,
             commands::get_lifetime_stats,
+            // Rune Inventory & Runeword Planner
+            commands::get_rune_inventory,
+            commands::update_rune_count,
+            commands::set_rune_count,
+            commands::get_runeword_targets,
+            commands::add_runeword_target,
+            commands::remove_runeword_target,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

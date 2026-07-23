@@ -116,6 +116,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add coop_player_name column to items
     migrate_coop_player_name(conn)?;
 
+    // Migration: add rune_inventory and runeword_targets tables
+    migrate_rune_planner(conn)?;
+
     // Initialize achievements tables and seed definitions
     crate::achievements::init_achievements(conn)?;
 
@@ -343,6 +346,32 @@ fn migrate_coop_player_name(conn: &Connection) -> Result<()> {
     if !has_col {
         conn.execute_batch("ALTER TABLE items ADD COLUMN coop_player_name TEXT DEFAULT NULL;")?;
     }
+
+    Ok(())
+}
+
+fn migrate_rune_planner(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS rune_inventory (
+            profile_id TEXT NOT NULL,
+            rune_name TEXT NOT NULL,
+            count INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (profile_id, rune_name),
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_rune_inventory_profile ON rune_inventory(profile_id);
+
+        CREATE TABLE IF NOT EXISTS runeword_targets (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            runeword_name TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_runeword_targets_profile ON runeword_targets(profile_id);
+        ",
+    )?;
 
     Ok(())
 }

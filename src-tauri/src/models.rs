@@ -497,3 +497,20 @@ pub struct ClassCount {
     pub class: String,
     pub count: i64,
 }
+
+// ===== RUNE INVENTORY =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RuneCount {
+    pub profile_id: String,
+    pub rune_name: String,
+    pub count: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RunewordTarget {
+    pub id: String,
+    pub profile_id: String,
+    pub runeword_name: String,
+    pub created_at: String,
+}

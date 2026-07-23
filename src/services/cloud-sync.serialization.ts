@@ -18,6 +18,8 @@ import type {
   KeybindProfileData,
   RouteData,
   CustomAreaData,
+  RuneInventoryData,
+  RunewordTargetData,
 } from "./cloud-sync.types";
 
 import {
@@ -31,6 +33,8 @@ import {
   getKeybindProfiles,
   getRoutes,
   getCustomAreas,
+  getRuneInventory,
+  getRunewordTargets,
 } from "../api";
 
 // ===== SERIALIZATION =====
@@ -94,8 +98,10 @@ async function collectProfileEntities(
   allXpEntries: SyncRecord<XpEntryData>[],
   allRoutes: SyncRecord<RouteData>[],
   allCustomAreas: SyncRecord<CustomAreaData>[],
+  allRuneInventory: SyncRecord<RuneInventoryData>[],
+  allRunewordTargets: SyncRecord<RunewordTargetData>[],
 ): Promise<void> {
-  const [runs, items, heralds, ancients, annis, xpEntries, routes, customAreas] =
+  const [runs, items, heralds, ancients, annis, xpEntries, routes, customAreas, runeInventory, runewordTargets] =
     await Promise.all([
       getRuns(profileId),
       getAllItems(profileId),
@@ -105,6 +111,8 @@ async function collectProfileEntities(
       getXpEntries(profileId),
       getRoutes(profileId),
       getCustomAreas(profileId),
+      getRuneInventory(profileId),
+      getRunewordTargets(profileId),
     ]);
 
   for (const run of runs) {
@@ -131,6 +139,12 @@ async function collectProfileEntities(
   for (const area of customAreas) {
     allCustomAreas.push(wrapCustomArea(area));
   }
+  for (const rune of runeInventory) {
+    allRuneInventory.push(wrapRuneInventory(rune));
+  }
+  for (const target of runewordTargets) {
+    allRunewordTargets.push(wrapRunewordTarget(target));
+  }
 }
 
 /**
@@ -150,6 +164,8 @@ export async function buildPayloadFromDb(): Promise<SyncPayload> {
   const allXpEntries: SyncRecord<XpEntryData>[] = [];
   const allRoutes: SyncRecord<RouteData>[] = [];
   const allCustomAreas: SyncRecord<CustomAreaData>[] = [];
+  const allRuneInventory: SyncRecord<RuneInventoryData>[] = [];
+  const allRunewordTargets: SyncRecord<RunewordTargetData>[] = [];
 
   for (const profile of profiles) {
     await collectProfileEntities(
@@ -162,6 +178,8 @@ export async function buildPayloadFromDb(): Promise<SyncPayload> {
       allXpEntries,
       allRoutes,
       allCustomAreas,
+      allRuneInventory,
+      allRunewordTargets,
     );
   }
 
@@ -180,6 +198,8 @@ export async function buildPayloadFromDb(): Promise<SyncPayload> {
     keybind_profiles: keybindProfiles.map(wrapKeybindProfile),
     routes: allRoutes,
     custom_areas: allCustomAreas,
+    rune_inventory: allRuneInventory,
+    runeword_targets: allRunewordTargets,
   };
 }
 
@@ -196,6 +216,8 @@ import type {
   KeybindProfile,
   Route,
   CustomArea,
+  RuneCount,
+  RunewordTarget,
 } from "../types";
 
 function wrapProfile(p: Profile): SyncRecord<ProfileData> {
@@ -355,6 +377,32 @@ function wrapCustomArea(c: CustomArea): SyncRecord<CustomAreaData> {
       profile_id: c.profile_id,
       name: c.name,
       created_at: c.created_at,
+    },
+  };
+}
+
+function wrapRuneInventory(r: RuneCount): SyncRecord<RuneInventoryData> {
+  return {
+    id: `${r.profile_id}:${r.rune_name}`,
+    updated_at: new Date().toISOString(),
+    deleted_at: null,
+    data: {
+      profile_id: r.profile_id,
+      rune_name: r.rune_name,
+      count: r.count,
+    },
+  };
+}
+
+function wrapRunewordTarget(t: RunewordTarget): SyncRecord<RunewordTargetData> {
+  return {
+    id: t.id,
+    updated_at: t.created_at,
+    deleted_at: null,
+    data: {
+      profile_id: t.profile_id,
+      runeword_name: t.runeword_name,
+      created_at: t.created_at,
     },
   };
 }

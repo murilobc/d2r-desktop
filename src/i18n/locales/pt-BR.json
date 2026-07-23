@@ -15,6 +15,7 @@
       "drops": "Drops",
       "coop": "Co-op",
       "achievements": "Conquistas",
+      "runes": "Runas",
       "settings": "Configurações",
       "overlay": "Overlay",
       "theme": "Tema",
@@ -39,6 +40,7 @@
     "drops": "Drops",
     "coop": "Co-op",
     "achievements": "Conquistas",
+    "runes": "Runas",
     "settings": "Configurações",
     "overlay": "Overlay",
     "theme": "Tema",
@@ -528,6 +530,51 @@
     "updateNow": "Atualizar Agora",
     "later": "Depois",
     "failed": "Atualização falhou: {{error}}"
+  },
+  "runewordPlanner": {
+    "title": "Planejador de Runewords",
+    "eligibility": {
+      "title": "Runewords Fabricáveis",
+      "searchPlaceholder": "Buscar runewords...",
+      "searchLabel": "Buscar runewords por nome",
+      "noResults": "Nenhuma runeword corresponde à sua busca.",
+      "noCraftable": "Nenhuma runeword disponível ainda. Colete mais runas!",
+      "craftable": "Fabricável",
+      "sockets": "soquetes"
+    },
+    "cubeCalculator": {
+      "title": "Calculadora do Cubo",
+      "targetRune": "Runa Alvo",
+      "selectRune": "Selecione uma runa...",
+      "noUpgradesNeeded": "Nenhum upgrade necessário — você já possui {{rune}}.",
+      "upgradePathLabel": "Detalhamento do caminho de upgrade",
+      "rune": "Runa",
+      "needed": "Necessário",
+      "have": "Possui",
+      "remaining": "Restante",
+      "totalBaseRunes": "Total de runas base (equivalente a El): {{count}}",
+      "noPath": "Nenhum caminho de upgrade disponível para esta runa.",
+      "prompt": "Selecione uma runa alvo para calcular o caminho de upgrade."
+    }
+  },
+  "runeGrid": {
+    "title": "Inventário de Runas",
+    "increment": "Incrementar {{rune}}",
+    "decrement": "Decrementar {{rune}}"
+  },
+  "runes": {
+    "progress": {
+      "title": "Acompanhamento de Progresso",
+      "addTarget": "Adicionar Alvo",
+      "selectRuneword": "Selecione uma runeword para rastrear",
+      "selectPlaceholder": "-- Selecione runeword --",
+      "addButton": "Adicionar runeword selecionada como alvo",
+      "add": "Adicionar",
+      "noTargets": "Nenhuma runeword alvo selecionada. Adicione uma acima para acompanhar seu progresso.",
+      "targetList": "Runewords alvo",
+      "removeTarget": "Remover {{name}} dos alvos",
+      "completion": "{{name}} conclusão: {{percent}}%"
+    }
   },
   "common": {
     "loading": "Carregando...",

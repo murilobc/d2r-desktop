@@ -21,6 +21,8 @@ const COLLECTION_KEYS: ReadonlyArray<keyof Omit<SyncPayload, "schema_version" | 
   "keybind_profiles",
   "routes",
   "custom_areas",
+  "rune_inventory",
+  "runeword_targets",
 ];
 
 /**
@@ -55,6 +57,8 @@ export function merge(
     keybind_profiles: [],
     routes: [],
     custom_areas: [],
+    rune_inventory: [],
+    runeword_targets: [],
   };
 
   for (const key of COLLECTION_KEYS) {

@@ -22,6 +22,8 @@ const KNOWN_COLLECTIONS = [
   "keybind_profiles",
   "routes",
   "custom_areas",
+  "rune_inventory",
+  "runeword_targets",
 ] as const;
 
 /**

@@ -9,7 +9,7 @@ import { describe, it, expect } from "vitest";
 import * as fc from "fast-check";
 import { serializePayload, deserializePayload } from "./cloud-sync.serialization";
 import { validatePayload, validateToken } from "./cloud-sync.validation";
-import type { SyncPayload, SyncRecord } from "./cloud-sync.types";
+import type { SyncPayload, SyncRecord, RuneInventoryData } from "./cloud-sync.types";
 
 // ===== GENERATORS =====
 
@@ -141,6 +141,20 @@ const customAreaDataArb = fc.record({
   created_at: isoTimestampArb,
 });
 
+/** Generate RuneInventoryData */
+const runeInventoryDataArb = fc.record({
+  profile_id: nonEmptyIdArb,
+  rune_name: fc.constantFrom("El", "Eld", "Tir", "Nef", "Eth", "Ith", "Tal", "Ral", "Ort", "Thul", "Amn", "Sol", "Shael", "Dol", "Hel", "Io", "Lum", "Ko", "Fal", "Lem", "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber", "Jah", "Cham", "Zod"),
+  count: fc.integer({ min: 0, max: 99 }),
+});
+
+/** Generate RunewordTargetData */
+const runewordTargetDataArb = fc.record({
+  profile_id: nonEmptyIdArb,
+  runeword_name: fc.string({ minLength: 1 }),
+  created_at: isoTimestampArb,
+});
+
 /** Generate a full valid SyncPayload with variable numbers of entities. */
 const syncPayloadArb: fc.Arbitrary<SyncPayload> = fc.record({
   schema_version: fc.integer({ min: 1, max: 100 }),
@@ -155,6 +169,8 @@ const syncPayloadArb: fc.Arbitrary<SyncPayload> = fc.record({
   keybind_profiles: fc.array(syncRecordArb(keybindProfileDataArb), { minLength: 0, maxLength: 3 }),
   routes: fc.array(syncRecordArb(routeDataArb), { minLength: 0, maxLength: 3 }),
   custom_areas: fc.array(syncRecordArb(customAreaDataArb), { minLength: 0, maxLength: 3 }),
+  rune_inventory: fc.array(syncRecordArb(runeInventoryDataArb), { minLength: 0, maxLength: 3 }),
+  runeword_targets: fc.array(syncRecordArb(runewordTargetDataArb), { minLength: 0, maxLength: 3 }),
 });
 
 // ===== HELPER FUNCTIONS =====
@@ -558,6 +574,8 @@ describe("Feature: cloud-sync, Property 5: Conflict detection correctness", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -573,6 +591,8 @@ describe("Feature: cloud-sync, Property 5: Conflict detection correctness", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -641,6 +661,8 @@ describe("Feature: cloud-sync, Property 6: Field-level merge for non-conflicting
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -656,6 +678,8 @@ describe("Feature: cloud-sync, Property 6: Field-level merge for non-conflicting
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -712,6 +736,8 @@ describe("Feature: cloud-sync, Property 7: One-sided records preserved", () => {
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -727,6 +753,8 @@ describe("Feature: cloud-sync, Property 7: One-sided records preserved", () => {
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -760,6 +788,8 @@ describe("Feature: cloud-sync, Property 7: One-sided records preserved", () => {
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -775,6 +805,8 @@ describe("Feature: cloud-sync, Property 7: One-sided records preserved", () => {
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -841,6 +873,8 @@ describe("Feature: cloud-sync, Property 8: Last-write-wins for same-field confli
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -861,6 +895,8 @@ describe("Feature: cloud-sync, Property 8: Last-write-wins for same-field confli
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -929,6 +965,8 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -949,6 +987,8 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -1006,6 +1046,8 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -1026,6 +1068,8 @@ describe("Feature: cloud-sync, Property 9: Identical timestamp tiebreaker", () =
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -1083,6 +1127,8 @@ describe("Feature: cloud-sync, Property 10: Deletion vs modification conflict re
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -1103,6 +1149,8 @@ describe("Feature: cloud-sync, Property 10: Deletion vs modification conflict re
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -1145,6 +1193,8 @@ describe("Feature: cloud-sync, Property 10: Deletion vs modification conflict re
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const remote: SyncPayload = {
@@ -1165,6 +1215,8 @@ describe("Feature: cloud-sync, Property 10: Deletion vs modification conflict re
             keybind_profiles: [],
             routes: [],
             custom_areas: [],
+            rune_inventory: [],
+            runeword_targets: [],
           };
 
           const merged = merge(local, remote, lastSyncTs);
@@ -1210,6 +1262,8 @@ describe("Feature: cloud-sync, Property 2: Schema migration preserves data", () 
           keybind_profiles: [],
           routes: [],
           custom_areas: [],
+          rune_inventory: [],
+          runeword_targets: [],
         };
 
         const merged = merge(v1Payload, emptyRemote, null);
@@ -1235,6 +1289,128 @@ describe("Feature: cloud-sync, Property 2: Schema migration preserves data", () 
           expect(merged.keybind_profiles.some(r => r.id === localRec.id)).toBe(true);
         }
       }),
+      { numRuns: 100 },
+    );
+  });
+});
+
+describe("Feature: runeword-planner, Property 9: Sync serialization round-trip", () => {
+  /**
+   * Property 9: Sync serialization round-trip
+   *
+   * For any valid rune inventory data set, serializing it into the sync payload
+   * format and deserializing it back SHALL produce an identical data set with
+   * all per-profile rune counts preserved.
+   *
+   * **Validates: Requirements 9.4**
+   */
+
+  it("serialize then deserialize rune inventory data produces identical records", () => {
+    fc.assert(
+      fc.property(
+        fc.array(syncRecordArb(runeInventoryDataArb), { minLength: 1, maxLength: 10 }),
+        (runeRecords) => {
+          // Build a minimal SyncPayload containing only rune inventory data
+          const payload: SyncPayload = {
+            schema_version: 1,
+            timestamp: new Date().toISOString(),
+            profiles: [],
+            runs: [],
+            items: [],
+            herald_encounters: [],
+            colossal_ancient_attempts: [],
+            anni_logs: [],
+            xp_entries: [],
+            keybind_profiles: [],
+            routes: [],
+            custom_areas: [],
+            rune_inventory: runeRecords,
+            runeword_targets: [],
+          };
+
+          // Serialize to JSON
+          const json = serializePayload(payload);
+
+          // Deserialize back
+          const deserialized = deserializePayload(json);
+
+          // The rune_inventory array should be identical
+          expect(deserialized.rune_inventory.length).toBe(runeRecords.length);
+
+          // Deep equality check for each record
+          for (let i = 0; i < runeRecords.length; i++) {
+            const original = runeRecords[i];
+            const restored = deserialized.rune_inventory.find((r) => r.id === original.id);
+            expect(restored).toBeDefined();
+            expect(restored!.data.profile_id).toBe(original.data.profile_id);
+            expect(restored!.data.rune_name).toBe(original.data.rune_name);
+            expect(restored!.data.count).toBe(original.data.count);
+            expect(restored!.updated_at).toBe(original.updated_at);
+            expect(restored!.deleted_at).toBe(original.deleted_at);
+          }
+
+          // Overall deep equality
+          expect(deserialized.rune_inventory).toEqual(runeRecords);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+
+  it("rune inventory data preserves all valid rune names through serialization", () => {
+    fc.assert(
+      fc.property(
+        fc.array(
+          fc.record({
+            profile_id: nonEmptyIdArb,
+            rune_name: fc.constantFrom(
+              "El", "Eld", "Tir", "Nef", "Eth", "Ith", "Tal", "Ral", "Ort", "Thul",
+              "Amn", "Sol", "Shael", "Dol", "Hel", "Io", "Lum", "Ko", "Fal", "Lem",
+              "Pul", "Um", "Mal", "Ist", "Gul", "Vex", "Ohm", "Lo", "Sur", "Ber",
+              "Jah", "Cham", "Zod",
+            ),
+            count: fc.integer({ min: 0, max: 99 }),
+          }),
+          { minLength: 1, maxLength: 33 },
+        ),
+        (inventoryDataSet) => {
+          // Wrap each item into a SyncRecord
+          const records: SyncRecord<RuneInventoryData>[] = inventoryDataSet.map((data) => ({
+            id: `${data.profile_id}:${data.rune_name}`,
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            data,
+          }));
+
+          const payload: SyncPayload = {
+            schema_version: 1,
+            timestamp: new Date().toISOString(),
+            profiles: [],
+            runs: [],
+            items: [],
+            herald_encounters: [],
+            colossal_ancient_attempts: [],
+            anni_logs: [],
+            xp_entries: [],
+            keybind_profiles: [],
+            routes: [],
+            custom_areas: [],
+            rune_inventory: records,
+            runeword_targets: [],
+          };
+
+          const json = serializePayload(payload);
+          const deserialized = deserializePayload(json);
+
+          // Every rune inventory entry should survive the round trip exactly
+          expect(deserialized.rune_inventory.length).toBe(records.length);
+          for (const original of records) {
+            const restored = deserialized.rune_inventory.find((r) => r.id === original.id);
+            expect(restored).toBeDefined();
+            expect(restored!.data).toEqual(original.data);
+          }
+        },
+      ),
       { numRuns: 100 },
     );
   });

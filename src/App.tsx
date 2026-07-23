@@ -19,6 +19,7 @@ const DCloneTracker = lazy(() => import("./pages/DCloneTracker"));
 const XPTracker = lazy(() => import("./pages/XPTracker"));
 const CoopPanel = lazy(() => import("./pages/CoopPanel"));
 const Achievements = lazy(() => import("./pages/Achievements"));
+const RunewordPlanner = lazy(() => import("./pages/RunewordPlanner"));
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
@@ -31,7 +32,7 @@ import { syncEngine } from "./services/cloud-sync";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements" | "runes";
 
 function App() {
   const { t } = useTranslation();
@@ -164,6 +165,8 @@ function App() {
         return <CoopPanel />;
       case "achievements":
         return selectedProfile ? <Achievements profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "runes":
+        return selectedProfile ? <RunewordPlanner profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "settings":
         return <Settings />;
       default:
@@ -291,6 +294,15 @@ function App() {
               disabled={!selectedProfile}
             >
               🏆 {t('sidebar.achievements', 'Achievements')}
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "runes" ? "active" : ""}`}
+              onClick={() => setCurrentPage("runes")}
+              disabled={!selectedProfile}
+            >
+              ᚱ {t('sidebar.runes', 'Runes')}
             </button>
           </li>
         </ul>

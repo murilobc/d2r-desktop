@@ -45,89 +45,126 @@
   <rect x="725" y="28" width="95" height="28" rx="4" fill="none" stroke="#2a2a4a"/>
   <text x="738" y="47" fill="#eaeaea" font-size="11">Comparison</text>
 
-  <!-- Configuration Panel -->
-  <rect x="250" y="70" width="820" height="120" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <!-- Mode Toggle (Monster / Area) -->
+  <rect x="250" y="64" width="75" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="264" y="80" fill="#eaeaea" font-size="10">Monster</text>
+  <rect x="325" y="64" width="55" height="24" rx="4" fill="#e94560"/>
+  <text x="339" y="80" fill="white" font-size="10">Area</text>
 
-  <!-- Row 1: Monster & Item -->
-  <text x="270" y="95" fill="#a0a0a0" font-size="10">Monster</text>
-  <rect x="270" y="100" width="200" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="283" y="118" fill="#eaeaea" font-size="11">Mephisto (Act 3)</text>
+  <!-- Configuration Panel (Area mode) -->
+  <rect x="250" y="98" width="820" height="85" rx="8" fill="#16213e" stroke="#2a2a4a"/>
 
-  <text x="490" y="95" fill="#a0a0a0" font-size="10">Target Item</text>
-  <rect x="490" y="100" width="200" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="503" y="118" fill="#c4a000" font-size="11">Harlequin Crest (Unique)</text>
+  <!-- Row 1: Area & Item -->
+  <text x="270" y="118" fill="#a0a0a0" font-size="10">Area</text>
+  <rect x="270" y="122" width="200" height="26" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="283" y="139" fill="#eaeaea" font-size="10">The Pit (Level 1)</text>
 
-  <text x="710" y="95" fill="#a0a0a0" font-size="10">Magic Find %</text>
-  <rect x="710" y="100" width="80" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="738" y="118" fill="#4ecdc4" font-size="11" font-weight="bold">300</text>
+  <text x="490" y="118" fill="#a0a0a0" font-size="10">Target Item</text>
+  <rect x="490" y="122" width="200" height="26" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="503" y="139" fill="#c4a000" font-size="10">Harlequin Crest (Unique)</text>
 
-  <text x="810" y="95" fill="#a0a0a0" font-size="10">Players</text>
-  <rect x="810" y="100" width="60" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="835" y="118" fill="#eaeaea" font-size="11">3</text>
+  <text x="710" y="118" fill="#a0a0a0" font-size="10">Magic Find %</text>
+  <rect x="710" y="122" width="80" height="26" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="738" y="139" fill="#4ecdc4" font-size="10" font-weight="bold">350</text>
 
-  <!-- Row 2: Checkboxes -->
-  <rect x="270" y="140" width="14" height="14" rx="2" fill="#0f3460" stroke="#4ecdc4"/>
-  <text x="265" y="150" fill="#4ecdc4" font-size="10">✓</text>
-  <text x="290" y="152" fill="#eaeaea" font-size="10">Quest Bonus</text>
+  <text x="810" y="118" fill="#a0a0a0" font-size="10">Players</text>
+  <rect x="810" y="122" width="60" height="26" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="835" y="139" fill="#eaeaea" font-size="10">3</text>
 
-  <rect x="400" y="140" width="14" height="14" rx="2" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="420" y="152" fill="#eaeaea" font-size="10">Terror Zone</text>
-
-  <text x="530" y="152" fill="#a0a0a0" font-size="10">Herald Tier:</text>
-  <rect x="600" y="138" width="80" height="22" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
-  <text x="620" y="153" fill="#eaeaea" font-size="10">None</text>
+  <!-- Row 2: Quest bonus -->
+  <rect x="270" y="158" width="14" height="14" rx="2" fill="#0f3460" stroke="#4ecdc4"/>
+  <text x="265" y="168" fill="#4ecdc4" font-size="10">✓</text>
+  <text x="290" y="170" fill="#eaeaea" font-size="10">Quest Bonus</text>
 
   <!-- Results Section -->
-  <rect x="250" y="205" width="400" height="140" rx="8" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.3)"/>
-  <text x="270" y="232" fill="#a0a0a0" font-size="11">Drop Chance</text>
-  <text x="270" y="268" fill="#4ecdc4" font-size="28" font-weight="bold">1 in 1,032</text>
+  <rect x="250" y="195" width="400" height="115" rx="8" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="270" y="218" fill="#a0a0a0" font-size="10">Per-Run Drop Chance</text>
+  <text x="270" y="250" fill="#4ecdc4" font-size="26" font-weight="bold">1 in 412</text>
 
-  <text x="270" y="300" fill="#a0a0a0" font-size="10">Kills needed for confidence:</text>
-  <text x="270" y="318" fill="#eaeaea" font-size="11">50%: <tspan fill="#4ecdc4">715</tspan>   63%: <tspan fill="#4ecdc4">1,032</tspan>   90%: <tspan fill="#4ecdc4">2,377</tspan>   99%: <tspan fill="#4ecdc4">4,750</tspan></text>
+  <text x="270" y="275" fill="#a0a0a0" font-size="10">Runs needed for confidence:</text>
+  <text x="270" y="293" fill="#eaeaea" font-size="10">50%: <tspan fill="#4ecdc4">286</tspan>   63%: <tspan fill="#4ecdc4">412</tspan>   90%: <tspan fill="#4ecdc4">948</tspan>   99%: <tspan fill="#4ecdc4">1,898</tspan></text>
 
-  <text x="270" y="338" fill="#a0a0a0" font-size="10">Effective MF: 198.7% (diminishing returns applied)</text>
+  <!-- Per-Monster Breakdown Table -->
+  <rect x="670" y="195" width="400" height="115" rx="8" fill="rgba(233,69,96,0.05)" stroke="rgba(233,69,96,0.2)"/>
+  <text x="690" y="218" fill="#a0a0a0" font-size="10">Per-Monster Breakdown</text>
 
-  <!-- Run Estimate Section -->
-  <rect x="670" y="205" width="400" height="140" rx="8" fill="rgba(233,69,96,0.08)" stroke="rgba(233,69,96,0.3)"/>
-  <text x="690" y="232" fill="#a0a0a0" font-size="11">Based On Your Farming Data</text>
-  <text x="690" y="262" fill="#eaeaea" font-size="11">Avg run time (Mephisto): <tspan fill="#4ecdc4" font-weight="bold">1:15</tspan></text>
-  <text x="690" y="285" fill="#eaeaea" font-size="11">Runs for 50% chance: <tspan fill="#e94560" font-weight="bold">~715</tspan></text>
-  <text x="690" y="308" fill="#eaeaea" font-size="11">Estimated time: <tspan fill="#e94560" font-weight="bold">~14h 53m</tspan></text>
-  <text x="690" y="331" fill="#a0a0a0" font-size="10">Actual drops (312 runs): 0 found · Expected: ~0.3</text>
+  <!-- Table header -->
+  <text x="690" y="240" fill="#a0a0a0" font-size="9" font-weight="500">Monster</text>
+  <text x="860" y="240" fill="#a0a0a0" font-size="9" font-weight="500">Probability</text>
+  <text x="960" y="240" fill="#a0a0a0" font-size="9" font-weight="500">1-in-X</text>
+  <line x1="690" y1="244" x2="1050" y2="244" stroke="#2a2a4a" stroke-width="0.5"/>
+
+  <!-- Table rows -->
+  <text x="690" y="260" fill="#eaeaea" font-size="9">Pit Lord</text>
+  <text x="860" y="260" fill="#eaeaea" font-size="9">0.0892%</text>
+  <text x="960" y="260" fill="#4ecdc4" font-size="9">1,121</text>
+
+  <text x="690" y="276" fill="#eaeaea" font-size="9">Dark Lancer (Champion)</text>
+  <text x="860" y="276" fill="#eaeaea" font-size="9">0.0634%</text>
+  <text x="960" y="276" fill="#4ecdc4" font-size="9">1,577</text>
+
+  <text x="690" y="292" fill="#eaeaea" font-size="9">Devilkin (Unique)</text>
+  <text x="860" y="292" fill="#eaeaea" font-size="9">0.1245%</text>
+  <text x="960" y="292" fill="#4ecdc4" font-size="9">803</text>
+
+  <text x="690" y="308" fill="#a0a0a0" font-size="9" font-style="italic">Combined per-run</text>
+  <text x="860" y="308" fill="#4ecdc4" font-size="9" font-weight="bold">0.2429%</text>
+  <text x="960" y="308" fill="#4ecdc4" font-size="9" font-weight="bold">412</text>
 
   <!-- Distribution Chart -->
-  <text x="250" y="370" fill="#a0a0a0" font-size="13" font-weight="500">Probability Distribution</text>
-  <rect x="250" y="380" width="820" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="250" y="335" fill="#a0a0a0" font-size="12" font-weight="500">Probability Distribution</text>
+  <rect x="250" y="345" width="820" height="195" rx="8" fill="#16213e" stroke="#2a2a4a"/>
 
   <!-- Chart axes -->
-  <line x1="300" y1="410" x2="300" y2="555" stroke="#2a2a4a" stroke-width="1"/>
-  <line x1="300" y1="555" x2="1040" y2="555" stroke="#2a2a4a" stroke-width="1"/>
+  <line x1="300" y1="370" x2="300" y2="515" stroke="#2a2a4a" stroke-width="1"/>
+  <line x1="300" y1="515" x2="1040" y2="515" stroke="#2a2a4a" stroke-width="1"/>
 
   <!-- Y axis labels -->
-  <text x="270" y="420" fill="#a0a0a0" font-size="9">100%</text>
-  <text x="275" y="460" fill="#a0a0a0" font-size="9">75%</text>
-  <text x="275" y="500" fill="#a0a0a0" font-size="9">50%</text>
-  <text x="275" y="540" fill="#a0a0a0" font-size="9">25%</text>
+  <text x="270" y="378" fill="#a0a0a0" font-size="9">100%</text>
+  <text x="275" y="415" fill="#a0a0a0" font-size="9">75%</text>
+  <text x="275" y="453" fill="#a0a0a0" font-size="9">50%</text>
+  <text x="275" y="490" fill="#a0a0a0" font-size="9">25%</text>
 
   <!-- X axis labels -->
-  <text x="300" y="570" fill="#a0a0a0" font-size="9">0</text>
-  <text x="470" y="570" fill="#a0a0a0" font-size="9">1000</text>
-  <text x="640" y="570" fill="#a0a0a0" font-size="9">2000</text>
-  <text x="810" y="570" fill="#a0a0a0" font-size="9">3000</text>
-  <text x="980" y="570" fill="#a0a0a0" font-size="9">4000</text>
-  <text x="620" y="585" fill="#a0a0a0" font-size="9">Kills</text>
+  <text x="300" y="528" fill="#a0a0a0" font-size="9">0</text>
+  <text x="480" y="528" fill="#a0a0a0" font-size="9">500</text>
+  <text x="660" y="528" fill="#a0a0a0" font-size="9">1000</text>
+  <text x="840" y="528" fill="#a0a0a0" font-size="9">1500</text>
+  <text x="1000" y="528" fill="#a0a0a0" font-size="9">2000</text>
+  <text x="620" y="538" fill="#a0a0a0" font-size="9">Runs</text>
 
-  <!-- CDF curve (probability reaches ~100% asymptotically) -->
-  <path d="M300,555 C400,530 500,480 600,450 C700,430 800,418 900,413 C950,411 1000,410 1040,410" fill="none" stroke="#4ecdc4" stroke-width="2"/>
+  <!-- CDF curve -->
+  <path d="M300,515 C380,490 460,440 560,410 C660,385 760,375 860,372 C920,370 980,369 1040,368" fill="none" stroke="#4ecdc4" stroke-width="2"/>
 
   <!-- 50% line -->
-  <line x1="300" y1="500" x2="1040" y2="500" stroke="#e94560" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
-  <text x="1045" y="503" fill="#e94560" font-size="8">50%</text>
+  <line x1="300" y1="453" x2="1040" y2="453" stroke="#e94560" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+  <text x="1045" y="456" fill="#e94560" font-size="8">50%</text>
 
-  <!-- Marker at 715 kills -->
-  <circle cx="420" cy="500" r="4" fill="#e94560"/>
-  <line x1="420" y1="500" x2="420" y2="555" stroke="#e94560" stroke-width="1" stroke-dasharray="2,2"/>
-  <text x="405" y="565" fill="#e94560" font-size="8">715</text>
+  <!-- Marker at 286 runs -->
+  <circle cx="408" cy="453" r="4" fill="#e94560"/>
+  <line x1="408" y1="453" x2="408" y2="515" stroke="#e94560" stroke-width="1" stroke-dasharray="2,2"/>
+  <text x="395" y="525" fill="#e94560" font-size="8">286</text>
+
+  <!-- Run Estimate Section -->
+  <rect x="250" y="555" width="820" height="120" rx="8" fill="rgba(233,69,96,0.05)" stroke="rgba(233,69,96,0.2)"/>
+  <text x="270" y="578" fill="#a0a0a0" font-size="11">Based On Your Farming Data</text>
+  <text x="270" y="603" fill="#eaeaea" font-size="11">Avg run time (The Pit): <tspan fill="#4ecdc4" font-weight="bold">1:42</tspan></text>
+  <text x="270" y="626" fill="#eaeaea" font-size="11">Runs for 50% chance: <tspan fill="#e94560" font-weight="bold">~286</tspan></text>
+  <text x="270" y="649" fill="#eaeaea" font-size="11">Estimated time: <tspan fill="#e94560" font-weight="bold">~8h 6m</tspan></text>
+
+  <!-- Luck Gauge -->
+  <text x="600" y="578" fill="#a0a0a0" font-size="11">Luck Gauge</text>
+  <rect x="600" y="588" width="300" height="12" rx="6" fill="#0f3460"/>
+  <rect x="600" y="588" width="180" height="12" rx="6" fill="linear-gradient(90deg, #e94560, #4ecdc4)"/>
+  <!-- Gradient approximation -->
+  <rect x="600" y="588" width="90" height="12" rx="6" fill="#e94560"/>
+  <rect x="690" y="588" width="90" height="12" fill="#c4a000"/>
+  <circle cx="750" cy="594" r="6" fill="white" stroke="#2a2a4a"/>
+  <text x="600" y="618" fill="#a0a0a0" font-size="9">Unlucky</text>
+  <text x="730" y="618" fill="#a0a0a0" font-size="9">Average</text>
+  <text x="870" y="618" fill="#a0a0a0" font-size="9">Lucky</text>
+  <text x="600" y="645" fill="#eaeaea" font-size="10">You're in the 42nd percentile — slightly below average luck.</text>
+  <text x="600" y="662" fill="#a0a0a0" font-size="9">Found 1 in 180 runs · Expected 1 in 412 · Result: within normal range</text>
 
   <!-- Active profile footer -->
   <rect x="0" y="680" width="220" height="20" fill="rgba(0,0,0,0.3)"/>

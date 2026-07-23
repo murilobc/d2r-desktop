@@ -296,7 +296,7 @@ function App() {
               onClick={() => setCurrentPage("achievements")}
               disabled={!selectedProfile}
             >
-              🏆 {t('sidebar.achievements', 'Achievements')}
+              ★ {t('sidebar.achievements', 'Achievements')}
             </button>
           </li>
           <li>

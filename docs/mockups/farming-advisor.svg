@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Nav Items -->
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">⇄ Compare</text>
+  <text x="20" y="265" fill="#eaeaea" font-size="13" opacity="0.6">◆ Heralds</text>
+  <text x="20" y="295" fill="#eaeaea" font-size="13" opacity="0.6">▣ Ancients</text>
+  <text x="20" y="325" fill="#eaeaea" font-size="13" opacity="0.6">※ DClone</text>
+  <text x="20" y="355" fill="#eaeaea" font-size="13" opacity="0.6">△ XP</text>
+  <text x="20" y="385" fill="#eaeaea" font-size="13" opacity="0.6">∿ Drops</text>
+  <text x="20" y="415" fill="#eaeaea" font-size="13" opacity="0.6">⇌ Co-op</text>
+  <text x="20" y="445" fill="#eaeaea" font-size="13" opacity="0.6">🏆 Achievements</text>
+  <text x="20" y="475" fill="#eaeaea" font-size="13" opacity="0.6">ᚱ Runes</text>
+  <rect x="0" y="488" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="488" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="505" fill="#eaeaea" font-size="13">✦ Advisor</text>
+
+  <!-- Separator -->
+  <line x1="10" y1="525" x2="210" y2="525" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="550" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <text x="20" y="580" fill="#eaeaea" font-size="13" opacity="0.6">◳ Overlay</text>
+  <text x="20" y="610" fill="#eaeaea" font-size="13" opacity="0.6">● Theme</text>
+  <text x="20" y="640" fill="#eaeaea" font-size="13" opacity="0.6">↓ Export</text>
+  <text x="20" y="670" fill="#eaeaea" font-size="13" opacity="0.6">↑ Import</text>
+
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Farming Advisor</text>
+
+  <!-- Weekly Summary Card -->
+  <rect x="250" y="70" width="820" height="100" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="95" fill="#4ecdc4" font-size="14" font-weight="bold">Weekly Summary</text>
+  <text x="270" y="115" fill="#a0a0a0" font-size="11">July 17 – July 23, 2026</text>
+
+  <text x="270" y="148" fill="#eaeaea" font-size="11">Runs: <tspan fill="#4ecdc4" font-weight="bold">340</tspan></text>
+  <text x="400" y="148" fill="#eaeaea" font-size="11">Items/Hour: <tspan fill="#4ecdc4" font-weight="bold">12.3</tspan></text>
+  <text x="560" y="148" fill="#eaeaea" font-size="11">Value/Hour: <tspan fill="#c4a000" font-weight="bold">14.2 pts</tspan></text>
+  <text x="730" y="148" fill="#eaeaea" font-size="11">Total Time: <tspan fill="#4ecdc4" font-weight="bold">18h 42m</tspan></text>
+
+  <text x="270" y="163" fill="#a0a0a0" font-size="10">Best area: Pit (+18% vs your avg) · Top drop: Ber Rune</text>
+
+  <!-- Terror Zone Recommendation -->
+  <rect x="250" y="180" width="820" height="70" rx="8" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.3)"/>
+  <text x="270" y="205" fill="#4ecdc4" font-size="13" font-weight="bold">🌐 Terror Zone Active: Ancient Tunnels</text>
+  <text x="270" y="225" fill="#eaeaea" font-size="11">This zone is <tspan fill="#4ecdc4" font-weight="bold">+32%</tspan> above your average items/hour. Recommended!</text>
+  <text x="270" y="242" fill="#a0a0a0" font-size="10">Your history: 85 runs · 14.7 items/hr · 3.2 value/hr in this zone</text>
+
+  <!-- Diminishing Returns Alert -->
+  <rect x="250" y="260" width="820" height="55" rx="8" fill="rgba(233,69,96,0.08)" stroke="rgba(233,69,96,0.3)"/>
+  <text x="270" y="283" fill="#e94560" font-size="12" font-weight="bold">⚠ Diminishing Returns Detected</text>
+  <text x="270" y="303" fill="#a0a0a0" font-size="11">Mephisto: 45 runs without a Mid+ drop (your avg is 1 per 12 runs). Consider switching to Chaos Sanctuary.</text>
+
+  <!-- Area Rankings Table -->
+  <text x="250" y="340" fill="#a0a0a0" font-size="13" font-weight="500">Your Best Areas — Personal Rankings</text>
+  <rect x="250" y="350" width="820" height="200" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+
+  <!-- Table Header -->
+  <rect x="250" y="350" width="820" height="30" rx="8" fill="rgba(0,0,0,0.3)"/>
+  <text x="270" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">#</text>
+  <text x="300" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Area</text>
+  <text x="500" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Runs</text>
+  <text x="570" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Items/Hour</text>
+  <text x="670" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Value/Hour</text>
+  <text x="770" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">XP/Hour</text>
+  <text x="870" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Avg Run</text>
+  <text x="970" y="370" fill="#a0a0a0" font-size="10" font-weight="bold">Score</text>
+
+  <!-- Row 1 -->
+  <text x="270" y="400" fill="#c4a000" font-size="11" font-weight="bold">1</text>
+  <text x="300" y="400" fill="#eaeaea" font-size="11">Pit</text>
+  <text x="500" y="400" fill="#eaeaea" font-size="11">245</text>
+  <text x="570" y="400" fill="#4ecdc4" font-size="11" font-weight="bold">14.7</text>
+  <text x="670" y="400" fill="#c4a000" font-size="11" font-weight="bold">18.3</text>
+  <text x="770" y="400" fill="#eaeaea" font-size="11">2.1M</text>
+  <text x="870" y="400" fill="#eaeaea" font-size="11">1:42</text>
+  <text x="970" y="400" fill="#4ecdc4" font-size="11" font-weight="bold">94</text>
+
+  <!-- Row 2 -->
+  <text x="270" y="425" fill="#c0c0c0" font-size="11" font-weight="bold">2</text>
+  <text x="300" y="425" fill="#eaeaea" font-size="11">Ancient Tunnels</text>
+  <text x="500" y="425" fill="#eaeaea" font-size="11">189</text>
+  <text x="570" y="425" fill="#4ecdc4" font-size="11">13.2</text>
+  <text x="670" y="425" fill="#eaeaea" font-size="11">15.1</text>
+  <text x="770" y="425" fill="#eaeaea" font-size="11">1.8M</text>
+  <text x="870" y="425" fill="#eaeaea" font-size="11">1:55</text>
+  <text x="970" y="425" fill="#eaeaea" font-size="11">87</text>
+
+  <!-- Row 3 -->
+  <text x="270" y="450" fill="#cd7f32" font-size="11" font-weight="bold">3</text>
+  <text x="300" y="450" fill="#eaeaea" font-size="11">Chaos Sanctuary</text>
+  <text x="500" y="450" fill="#eaeaea" font-size="11">156</text>
+  <text x="570" y="450" fill="#eaeaea" font-size="11">11.8</text>
+  <text x="670" y="450" fill="#eaeaea" font-size="11">14.5</text>
+  <text x="770" y="450" fill="#eaeaea" font-size="11">3.4M</text>
+  <text x="870" y="450" fill="#eaeaea" font-size="11">2:38</text>
+  <text x="970" y="450" fill="#eaeaea" font-size="11">82</text>
+
+  <!-- Row 4 -->
+  <text x="270" y="475" fill="#eaeaea" font-size="11">4</text>
+  <text x="300" y="475" fill="#eaeaea" font-size="11">Mephisto</text>
+  <text x="500" y="475" fill="#eaeaea" font-size="11">312</text>
+  <text x="570" y="475" fill="#eaeaea" font-size="11">10.5</text>
+  <text x="670" y="475" fill="#eaeaea" font-size="11">12.8</text>
+  <text x="770" y="475" fill="#eaeaea" font-size="11">—</text>
+  <text x="870" y="475" fill="#eaeaea" font-size="11">1:15</text>
+  <text x="970" y="475" fill="#eaeaea" font-size="11">76</text>
+
+  <!-- Row 5 -->
+  <text x="270" y="500" fill="#eaeaea" font-size="11">5</text>
+  <text x="300" y="500" fill="#eaeaea" font-size="11">Travincal</text>
+  <text x="500" y="500" fill="#eaeaea" font-size="11">98</text>
+  <text x="570" y="500" fill="#eaeaea" font-size="11">9.2</text>
+  <text x="670" y="500" fill="#eaeaea" font-size="11">22.1</text>
+  <text x="770" y="500" fill="#eaeaea" font-size="11">1.2M</text>
+  <text x="870" y="500" fill="#eaeaea" font-size="11">0:52</text>
+  <text x="970" y="500" fill="#eaeaea" font-size="11">74</text>
+
+  <!-- Build Suggestions Section -->
+  <text x="250" y="580" fill="#a0a0a0" font-size="13" font-weight="500">Build Suggestions — Sorceress</text>
+  <rect x="250" y="590" width="820" height="90" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+
+  <rect x="270" y="605" width="380" height="60" rx="6" fill="rgba(0,0,0,0.2)"/>
+  <text x="285" y="625" fill="#eaeaea" font-size="11" font-weight="500">Try Blizzard in Ancient Tunnels</text>
+  <text x="285" y="642" fill="#a0a0a0" font-size="10">No cold immunes · High item density · TC85</text>
+  <text x="285" y="657" fill="#4ecdc4" font-size="10">Match: 95% for your class</text>
+
+  <rect x="670" y="605" width="380" height="60" rx="6" fill="rgba(0,0,0,0.2)"/>
+  <text x="685" y="625" fill="#eaeaea" font-size="11" font-weight="500">Consider Pit for variety</text>
+  <text x="685" y="642" fill="#a0a0a0" font-size="10">Your best items/hr area · High rune potential</text>
+  <text x="685" y="657" fill="#4ecdc4" font-size="10">+18% vs your average efficiency</text>
+
+  <!-- Active profile footer -->
+  <rect x="0" y="680" width="220" height="20" fill="rgba(0,0,0,0.3)"/>
+  <text x="20" y="694" fill="#a0a0a0" font-size="9">▸ MFSorc · Sorceress</text>
+</svg>

@@ -50,7 +50,7 @@ const detectionResultArb = fc.record({
   candidates: fc.array(matchCandidateArb, { minLength: 0, maxLength: 5 }),
   raw_text: fc.string({ minLength: 0, maxLength: 200 }),
   is_auto_suggested: fc.boolean(),
-  detected_at: fc.date().map((d) => d.toISOString()),
+  detected_at: fc.date({ min: new Date("2000-01-01"), max: new Date("2100-01-01") }).map((d) => d.toISOString()),
 });
 
 // ===== PROPERTY TESTS =====

@@ -58,6 +58,8 @@ export default function OverlayEditor() {
   const addWidget = useCallback(
     (type: WidgetType, x: number, y: number) => {
       if (!layout) return;
+      // Prevent duplicate widget types
+      if (layout.widgets.some((w) => w.type === type)) return;
       const dims = WIDGET_DIMENSIONS["medium"];
       const clamped = clampWidgetPosition(
         x,
@@ -206,6 +208,8 @@ export default function OverlayEditor() {
       const data = active.data.current;
 
       if (data?.fromLibrary) {
+        // Prevent duplicate widget types on drag-and-drop
+        if (layout.widgets.some((w) => w.type === data.type)) return;
         // New widget from library: place at center of canvas as a default
         const dropX = layout.width / 2;
         const dropY = layout.height / 2;
@@ -306,6 +310,7 @@ export default function OverlayEditor() {
                 onWidgetSelect={setSelectedWidgetId}
                 onWidgetMove={moveWidget}
                 onWidgetAdd={addWidget}
+                onRemoveWidget={removeWidget}
               />
             ) : (
               <p className="overlay-editor-no-profile">

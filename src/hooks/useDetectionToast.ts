@@ -23,6 +23,9 @@ const REASON_MESSAGES: Record<string, string> = {
   no_image: "No image found in clipboard",
   no_text: "No text detected in screenshot",
   no_match: "No item detected in screenshot",
+  ocr_init_failed: "Screenshot analysis failed — please try again",
+  ocr_failed: "Could not read text from screenshot",
+  no_candidates: "No D2R item tooltip detected in image",
 };
 
 function mapReasonToMessage(reason: string): string {

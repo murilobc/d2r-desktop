@@ -4,6 +4,9 @@ pub mod parser;
 pub mod ocr;
 pub mod monitor;
 
+#[cfg(test)]
+mod preservation_tests;
+
 use std::sync::{Arc, Mutex};
 use tauri::State;
 
@@ -25,9 +28,9 @@ pub fn get_screenshot_settings(state: State<DbState>) -> Result<ScreenshotSettin
 /// Validates and persists updated screenshot settings, starting or stopping
 /// the clipboard monitor within 1 second when the monitoring toggle changes.
 #[tauri::command]
-pub fn update_screenshot_settings(
-    state: State<DbState>,
-    monitor_state: State<MonitorState>,
+pub async fn update_screenshot_settings(
+    state: State<'_, DbState>,
+    monitor_state: State<'_, MonitorState>,
     app: tauri::AppHandle,
     settings: ScreenshotSettings,
 ) -> Result<ScreenshotSettings, String> {

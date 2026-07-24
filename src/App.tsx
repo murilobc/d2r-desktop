@@ -65,7 +65,8 @@ function App() {
 
   // Screenshot detection hook
   const { detection, dismiss: dismissDetection, confirm: confirmDetection, triggerManual } = useScreenshotDetection(
-    selectedProfile?.id ?? null
+    selectedProfile?.id ?? null,
+    showToast
   );
 
   // State for the "Change" flow: opens ItemSearch pre-filled with raw OCR text

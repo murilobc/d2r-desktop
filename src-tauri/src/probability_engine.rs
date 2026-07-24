@@ -2139,12 +2139,12 @@ mod tests {
             prob);
     }
 
-    /// Property-based bug condition test using proptest: for a set of known valid
-    /// monster/item pairs from D2R game rules, all should produce probability > 0.
+    // Property-based bug condition test using proptest: for a set of known valid
+    // monster/item pairs from D2R game rules, all should produce probability > 0.
     proptest! {
-        /// **Validates: Requirements 1.1, 1.2, 1.3, 1.4**
-        /// Bug Condition Property: All legitimate D2R monster/item pairs should produce
-        /// a valid probability > 0 with one_in_x > 1.0.
+        // **Validates: Requirements 1.1, 1.2, 1.3, 1.4**
+        // Bug Condition Property: All legitimate D2R monster/item pairs should produce
+        // a valid probability > 0 with one_in_x > 1.0.
         #[test]
         fn prop_bug_condition_valid_pairs_produce_positive_probability(
             pair_idx in 0usize..8,

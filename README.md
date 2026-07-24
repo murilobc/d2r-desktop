@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.1.3_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.3_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.1.3_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.3_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.1.4_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.4_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.1.4_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.4_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -326,22 +326,6 @@ Pre-configured session templates for one-click farming starts. Eliminates repeti
 
 ---
 
-### Customizable Overlay Editor
-
-![Overlay Editor](docs/mockups/overlay-editor.svg)
-
-Visual drag-and-drop editor for configuring what the in-game overlay displays and how it's arranged.
-
-- **Widget Library** — Available overlay widgets: Session Timer, Run Timer, Run Count, Items Found, Last Item, XP/Hour, Dry Streak, Goal Progress, Route Step
-- **Preview Canvas** — Live preview showing how the overlay will look, with drag-and-drop widget placement
-- **Profile Manager** — Create, save, load, switch between multiple overlay profiles (e.g., Compact, Streamer, Detailed)
-- **Property Inspector** — Click a widget to edit its font size, text color, label color, opacity, and position
-- **Background Settings** — Custom background color and opacity for the overlay window
-- **Dimension Controls** — Set overlay width and height in pixels
-- **Apply to Overlay** — Push the current profile layout to the live in-game overlay
-
----
-
 ### Screenshot Item Detection
 
 ![Screenshot Detection](docs/mockups/screenshot-detection.svg)
@@ -445,7 +429,6 @@ Always visible, provides navigation and utilities:
 - **Achievements** — Per-profile achievement gallery and lifetime stats
 - **Runes** — Runeword planner and rune inventory
 - **Advisor** — Personalized farming recommendations
-- **Overlay Editor** — Customizable overlay layout designer
 - **Settings** — Configuration (includes Screenshot Detection)
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
@@ -541,14 +524,7 @@ d2r-desktop/
 │   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
 │   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer
 │   │   ├── UnlockToast.tsx     # Achievement unlock notification
-│   │   ├── UpdateChecker.tsx   # Auto-update banner
-│   │   └── overlay-editor/     # Overlay editor components
-│   │       ├── BackgroundSettings.tsx
-│   │       ├── DimensionControls.tsx
-│   │       ├── PreviewCanvas.tsx
-│   │       ├── ProfileManager.tsx
-│   │       ├── PropertyInspector.tsx
-│   │       └── WidgetLibrary.tsx
+│   │   └── UpdateChecker.tsx   # Auto-update banner
 │   ├── advisor/                # Farming advisor engine
 │   │   └── advisor-engine.ts   # Rule-based recommendation logic
 │   ├── lib/
@@ -557,9 +533,7 @@ d2r-desktop/
 │   │   └── templates.property.test.ts
 │   ├── hooks/
 │   │   ├── useTheme.ts        # Dark/light theme toggle
-│   │   ├── useAchievementToasts.ts # Achievement unlock toast queue
-│   │   ├── useOverlayProfiles.ts # Overlay profile management
-│   │   └── useOverlayProfileInit.ts # Overlay profile initialization
+│   │   └── useAchievementToasts.ts # Achievement unlock toast queue
 │   ├── i18n/                   # Internationalization
 │   │   ├── index.ts            # i18next configuration
 │   │   ├── formatters.ts       # Locale-aware date/number formatters
@@ -572,9 +546,7 @@ d2r-desktop/
 │   │   └── cloud-sync.types.ts # Sync type definitions
 │   ├── overlay/                # In-game overlay window
 │   │   ├── main.tsx            # Overlay entry point
-│   │   ├── OverlayRenderer.tsx # Renders overlay from profile config
-│   │   ├── OverlayWidget.tsx   # Individual overlay widget component
-│   │   └── overlay-profile-utils.ts # Profile serialization utilities
+│   │   └── Overlay.tsx         # Overlay UI component
 │   ├── pages/
 │   │   ├── Profiles.tsx
 │   │   ├── RunTracker.tsx      # Includes Quick-Start Template integration
@@ -590,7 +562,6 @@ d2r-desktop/
 │   │   ├── RunewordPlanner.tsx
 │   │   ├── Advisor.tsx
 │   │   ├── Achievements.tsx
-│   │   ├── OverlayEditor.tsx   # Drag-and-drop overlay layout editor
 │   │   └── Settings.tsx
 │   └── utils/
 │       ├── audio.ts            # Sound notification system
@@ -601,7 +572,6 @@ d2r-desktop/
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
 │       ├── commands.rs         # Tauri commands (includes templates)
-│       ├── overlay_commands.rs # Overlay profile Tauri commands
 │       ├── drop_commands.rs    # Drop probability Tauri commands
 │       ├── probability_engine.rs # TC-based drop probability engine
 │       ├── achievements.rs    # Achievement system (schema, evaluation, stats)

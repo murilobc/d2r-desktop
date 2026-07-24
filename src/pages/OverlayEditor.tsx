@@ -275,43 +275,30 @@ export default function OverlayEditor() {
           </div>
         )}
 
-        <div className="overlay-editor-layout">
-          {/* Sidebar */}
-          <aside className="overlay-editor-sidebar">
-            <ProfileManager
-              profiles={profiles}
-              activeProfile={activeProfile}
-              onCreateProfile={handleCreateProfile}
-              onDeleteProfile={handleDeleteProfile}
-              onRenameProfile={handleRenameProfile}
-              onSwitchProfile={handleSwitchProfile}
-            />
+        <header className="overlay-editor-header">
+          <h1 className="overlay-editor-title">Overlay Editor</h1>
+          <p className="overlay-editor-subtitle">
+            Customize what your overlay shows and how it's arranged
+          </p>
+        </header>
 
+        <div className="overlay-editor-profile-bar">
+          <ProfileManager
+            profiles={profiles}
+            activeProfile={activeProfile}
+            onCreateProfile={handleCreateProfile}
+            onDeleteProfile={handleDeleteProfile}
+            onRenameProfile={handleRenameProfile}
+            onSwitchProfile={handleSwitchProfile}
+          />
+        </div>
+
+        <div className="overlay-editor-grid">
+          <aside className="overlay-editor-left">
             <WidgetLibrary placedWidgetTypes={placedWidgetTypes} />
-
-            <PropertyInspector
-              widget={selectedWidget}
-              onSizeChange={changeWidgetSize}
-              onOpacityChange={changeWidgetOpacity}
-              onRemoveWidget={removeWidget}
-            />
-
-            <BackgroundSettings
-              backgroundColor={layout?.background_color ?? "#000000"}
-              backgroundOpacity={layout?.background_opacity ?? 0.85}
-              onColorChange={changeBackgroundColor}
-              onOpacityChange={changeBackgroundOpacity}
-            />
-
-            <DimensionControls
-              width={layout?.width ?? 400}
-              height={layout?.height ?? 300}
-              onDimensionsChange={changeDimensions}
-            />
           </aside>
 
-          {/* Main canvas area */}
-          <main className="overlay-editor-main">
+          <section className="overlay-editor-center">
             {layout ? (
               <PreviewCanvas
                 layout={layout}
@@ -325,7 +312,29 @@ export default function OverlayEditor() {
                 No active profile. Create or select a profile to start editing.
               </p>
             )}
-          </main>
+            <div className="overlay-editor-canvas-settings">
+              <DimensionControls
+                width={layout?.width ?? 400}
+                height={layout?.height ?? 300}
+                onDimensionsChange={changeDimensions}
+              />
+              <BackgroundSettings
+                backgroundColor={layout?.background_color ?? "#000000"}
+                backgroundOpacity={layout?.background_opacity ?? 0.85}
+                onColorChange={changeBackgroundColor}
+                onOpacityChange={changeBackgroundOpacity}
+              />
+            </div>
+          </section>
+
+          <aside className="overlay-editor-right">
+            <PropertyInspector
+              widget={selectedWidget}
+              onSizeChange={changeWidgetSize}
+              onOpacityChange={changeWidgetOpacity}
+              onRemoveWidget={removeWidget}
+            />
+          </aside>
         </div>
       </div>
     </DndContext>

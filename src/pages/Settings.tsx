@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { register, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
+import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
 import { getObsFilePath, getKeybindProfiles, createKeybindProfile, deleteKeybindProfile, runAutoBackup, cleanupOldBackups, vacuumDatabase } from "../api";
 import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
@@ -37,6 +38,7 @@ const DEFAULT_HOTKEYS = {
   nextRun: "F9",
   pause: "F10",
   endSession: "F11",
+  detectScreenshot: "",
 };
 
 type HotkeyConfig = typeof DEFAULT_HOTKEYS;
@@ -46,13 +48,19 @@ const STORAGE_KEY = "d2r_hotkeys";
 function loadHotkeys(): HotkeyConfig {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored) {
-    try { return JSON.parse(stored); } catch { /* ignore */ }
+    try { return { ...DEFAULT_HOTKEYS, ...JSON.parse(stored) }; } catch { /* ignore */ }
   }
   return DEFAULT_HOTKEYS;
 }
 
 function saveHotkeys(config: HotkeyConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+}
+
+export function hasHotkeyConflict(config: HotkeyConfig, targetSlot: keyof HotkeyConfig, newValue: string): boolean {
+  return Object.entries(config).some(
+    ([slot, value]) => slot !== targetSlot && value === newValue && newValue !== ""
+  );
 }
 
 export async function registerHotkeys() {
@@ -77,6 +85,25 @@ export async function registerHotkeys() {
       emit("overlay-action", "end");
     }
   });
+
+  if (config.detectScreenshot) {
+    try {
+      await register(config.detectScreenshot, (event) => {
+        if (event.state === "Pressed") {
+          const profileId = localStorage.getItem("d2r_active_profile_id");
+          if (profileId) {
+            invoke("detect_from_clipboard").catch((err) => {
+              console.warn("[Hotkey] detect_from_clipboard failed:", err);
+            });
+          } else {
+            emit("screenshot:no-profile");
+          }
+        }
+      });
+    } catch (err) {
+      console.warn("[Hotkey] Failed to register detectScreenshot:", err);
+    }
+  }
 }
 
 const LOCALE_LABELS: Record<string, string> = {
@@ -144,6 +171,15 @@ export default function Settings() {
     }
 
     const shortcut = parts.join("+");
+
+    // Conflict detection: reject if the key combination is already used by another slot
+    if (hasHotkeyConflict(hotkeys, recording, shortcut)) {
+      setRecording(null);
+      setStatus("Key combination already in use");
+      setTimeout(() => setStatus(null), 3000);
+      return;
+    }
+
     const newConfig = { ...hotkeys, [recording]: shortcut };
     setHotkeys(newConfig);
     saveHotkeys(newConfig);
@@ -163,6 +199,22 @@ export default function Settings() {
       setStatus(t('settings.hotkeys.resetDone'));
       setTimeout(() => setStatus(null), 3000);
     });
+  };
+
+  const handleClearDetectScreenshot = async () => {
+    const oldShortcut = hotkeys.detectScreenshot;
+    if (oldShortcut) {
+      try {
+        await unregister(oldShortcut);
+      } catch (err) {
+        console.warn("[Hotkey] Failed to unregister detectScreenshot:", err);
+      }
+    }
+    const newConfig = { ...hotkeys, detectScreenshot: "" };
+    setHotkeys(newConfig);
+    saveHotkeys(newConfig);
+    setStatus(t('settings.hotkeys.updated'));
+    setTimeout(() => setStatus(null), 3000);
   };
 
   return (
@@ -208,6 +260,25 @@ export default function Settings() {
             >
               {recording === "endSession" ? t('settings.hotkeys.pressKey') : hotkeys.endSession}
             </button>
+          </div>
+
+          <div className="hotkey-row">
+            <span className="hotkey-label">{t('settings.hotkeys.detectScreenshot')}</span>
+            <button
+              className={`hotkey-btn ${recording === "detectScreenshot" ? "recording" : ""}`}
+              onClick={() => handleRecord("detectScreenshot")}
+            >
+              {recording === "detectScreenshot" ? t('settings.hotkeys.pressKey') : (hotkeys.detectScreenshot || t('settings.hotkeys.notSet'))}
+            </button>
+            {hotkeys.detectScreenshot && (
+              <button
+                className="btn btn-sm"
+                onClick={handleClearDetectScreenshot}
+                style={{ marginLeft: "0.5rem" }}
+              >
+                {t('settings.hotkeys.clear')}
+              </button>
+            )}
           </div>
         </div>
 

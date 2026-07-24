@@ -17,7 +17,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 
 ## Requirements
 
-### Requirement 1
+### Requirement 1: Virtual Scrolling for History
 
 **User Story:** As a player with thousands of runs logged, I want the History page to scroll smoothly without lag, so that I can browse my run history efficiently regardless of dataset size.
 
@@ -29,7 +29,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 4. WHEN a run row becomes visible in the viewport, THE Virtual_Scroller SHALL display the run area, duration, tags, date, and item count without additional API calls for that row's basic data
 5. WHEN a user expands a virtualized run row, THE History_Page SHALL load and display the items for that run
 
-### Requirement 2
+### Requirement 2: Statistics Page Batched Loading
 
 **User Story:** As a player, I want the Statistics page to load quickly even with 50,000+ runs, so that I can check my farming efficiency without waiting.
 
@@ -39,7 +39,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 2. WHEN the Combined_Stats_Command executes against a dataset of 50,000 runs, THE Combined_Stats_Command SHALL return results within 1000 milliseconds
 3. WHEN the Statistics_Page receives data from the Combined_Stats_Command, THE Statistics_Page SHALL compute derived metrics (items per hour, rarity distribution, run timeline) using memoized calculations that only recompute when input data changes
 
-### Requirement 3
+### Requirement 3: Database VACUUM Maintenance
 
 **User Story:** As a long-term user, I want to compact my SQLite database manually, so that I can reclaim disk space after deleting old data.
 
@@ -50,7 +50,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 3. IF the VACUUM operation fails, THEN THE Settings_Page SHALL display an error message describing the failure reason
 4. WHILE the VACUUM operation is in progress, THE Settings_Page SHALL display a progress indicator and disable the VACUUM button to prevent concurrent executions
 
-### Requirement 4
+### Requirement 4: Lazy Loading and Skeletons
 
 **User Story:** As a user, I want the app to start quickly and only load pages I navigate to, so that the initial load feels responsive.
 
@@ -61,7 +61,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 3. WHEN async data is being fetched on any page, THE page SHALL display Loading_Skeleton placeholders that match the shape of the expected content (stat cards, tables, charts)
 4. THE Loading_Skeleton components SHALL use animated shimmer effects that mirror the dimensions of stat cards, table rows, and chart containers
 
-### Requirement 5
+### Requirement 5: React Memoization
 
 **User Story:** As a user, I want the application UI to remain responsive during normal use, so that interactions feel instant without unnecessary re-renders.
 
@@ -71,7 +71,7 @@ Performance profiling and optimization for the D2R Tracker desktop application. 
 2. THE application SHALL use useMemo for computed values derived from large datasets (filtered runs, aggregated statistics, chart data transformations)
 3. WHEN a parent component re-renders, THE memoized child components SHALL not re-render if their props remain referentially equal
 
-### Requirement 6
+### Requirement 6: Rust Query Benchmarks
 
 **User Story:** As a developer, I want Rust-side query benchmarks for large datasets, so that I can verify query performance meets targets and catch regressions.
 

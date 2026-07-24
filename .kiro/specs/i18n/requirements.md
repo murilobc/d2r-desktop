@@ -15,7 +15,7 @@ This feature adds internationalization (i18n) support to the D2R Tracker desktop
 
 ## Requirements
 
-### Requirement 1
+### Requirement 1: UI String Localization
 
 **User Story:** As a user, I want the application UI to be available in my language, so that I can understand and navigate the interface without needing English proficiency.
 
@@ -26,7 +26,7 @@ This feature adds internationalization (i18n) support to the D2R Tracker desktop
 3. THE I18n_System SHALL provide translations for all UI strings in three locales: English (en-US), Portuguese-Brazil (pt-BR), and Spanish (es).
 4. THE I18n_System SHALL exclude Game_Terms from translation — item names, area names, class names, rune names, and boss names SHALL remain in their original English form regardless of the active locale.
 
-### Requirement 2
+### Requirement 2: Language Selection
 
 **User Story:** As a user, I want to select my preferred language from the Settings page, so that I can switch the entire UI to a language I understand.
 
@@ -38,7 +38,7 @@ This feature adds internationalization (i18n) support to the D2R Tracker desktop
 4. WHEN the application starts, THE I18n_System SHALL read the persisted locale from localStorage and activate it.
 5. WHEN no persisted locale exists in localStorage, THE I18n_System SHALL detect the operating system locale and activate the matching translation if available, or fall back to English (en-US) if no match exists.
 
-### Requirement 3
+### Requirement 3: Date and Number Formatting
 
 **User Story:** As a user, I want dates and numbers to be formatted according to my selected language, so that temporal and numeric data appears familiar to me.
 
@@ -48,7 +48,7 @@ This feature adds internationalization (i18n) support to the D2R Tracker desktop
 2. WHEN displaying numeric values (run counts, durations, XP values), THE Intl_Formatter SHALL format them using the active locale's number separators (e.g., 1.000 for pt-BR, 1,000 for en-US).
 3. WHEN the active locale changes, THE Intl_Formatter SHALL immediately apply the new formatting to all visible dates and numbers without requiring page navigation.
 
-### Requirement 4
+### Requirement 4: Extensible Translation Files
 
 **User Story:** As a developer or community contributor, I want to add a new language to the application by creating a single JSON file, so that extending localization requires no code changes.
 
@@ -58,7 +58,7 @@ This feature adds internationalization (i18n) support to the D2R Tracker desktop
 2. WHEN a new Translation_File is added to the locales directory following the established key structure, THE I18n_System SHALL make it available as a selectable locale after a rebuild.
 3. THE I18n_System SHALL validate at test time that all Translation_Files contain the same set of keys as the base English (en-US) Translation_File.
 
-### Requirement 5
+### Requirement 5: Persistent Language Preference
 
 **User Story:** As a user, I want the application to remember my language choice and load it instantly on startup, so that I don't have to re-select my language each time I open the app.
 

@@ -7,7 +7,9 @@ import Profiles from "./pages/Profiles";
 import { PageSkeleton } from "./components/Skeleton";
 import { useAchievementToasts } from "./hooks/useAchievementToasts";
 import { useScreenshotDetection } from "./hooks/useScreenshotDetection";
+import { useDetectionToast } from "./hooks/useDetectionToast";
 import UnlockToast from "./components/UnlockToast";
+import DetectionToast from "./components/DetectionToast";
 import ConfirmationDialog from "./components/ConfirmationDialog";
 import ItemSearch from "./components/ItemSearch";
 
@@ -50,6 +52,16 @@ function App() {
   const { theme, toggleTheme } = useTheme();
   useOverlayProfileInit();
   const { currentToast, enqueue: enqueueToast, dismiss: dismissToast } = useAchievementToasts();
+  const { toast, showToast, dismissToast: dismissDetectionToast } = useDetectionToast();
+
+  // Sync selected profile ID to localStorage for hotkey handler access
+  useEffect(() => {
+    if (selectedProfile) {
+      localStorage.setItem("d2r_active_profile_id", selectedProfile.id.toString());
+    } else {
+      localStorage.removeItem("d2r_active_profile_id");
+    }
+  }, [selectedProfile]);
 
   // Screenshot detection hook
   const { detection, dismiss: dismissDetection, confirm: confirmDetection, triggerManual } = useScreenshotDetection(
@@ -383,6 +395,11 @@ function App() {
               ◫ Detect Screenshot
             </button>
           )}
+          {!selectedProfile && (
+            <button className="nav-btn" onClick={() => showToast("Select a profile first to log items")}>
+              ◫ Detect Screenshot
+            </button>
+          )}
 
           <button className="nav-btn" onClick={toggleTheme}>
             {theme === "dark" ? "○" : "●"} {t('sidebar.theme')}
@@ -424,6 +441,9 @@ function App() {
       </main>
       {currentToast && (
         <UnlockToast toast={currentToast} onDismiss={dismissToast} />
+      )}
+      {toast && toast.visible && (
+        <DetectionToast message={toast.message} onDismiss={dismissDetectionToast} />
       )}
       {detection && selectedProfile && (
         <ConfirmationDialog

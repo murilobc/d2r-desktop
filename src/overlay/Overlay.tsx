@@ -57,6 +57,15 @@ export default function Overlay() {
     await invoke("overlay_action", { action });
   };
 
+  const handleDetect = async () => {
+    try {
+      await invoke("detect_from_clipboard");
+    } catch (error) {
+      // Error contains "no_image" → the main window hook handles toasts
+      // via the event system; overlay doesn't show its own toast
+    }
+  };
+
   const handleAddItem = async (gameItem: GameItem) => {
     await invoke("overlay_add_item", { name: gameItem.name });
     setShowItemSearch(false);
@@ -72,6 +81,7 @@ export default function Overlay() {
       <div className="overlay-container overlay-idle" onMouseDown={startDrag}>
         <div className="overlay-header">
           <span className="overlay-title">{t("overlay.title")}</span>
+          <button className="ov-btn ov-detect" onClick={handleDetect}>◫</button>
           <button className="overlay-close" onClick={() => getCurrentWindow().hide()}>×</button>
         </div>
         <p className="overlay-msg">{t("overlay.noSession")}</p>
@@ -108,6 +118,7 @@ export default function Overlay() {
         <button className="ov-btn ov-item" onClick={() => setShowItemSearch(!showItemSearch)}>
           +
         </button>
+        <button className="ov-btn ov-detect" onClick={handleDetect}>◫</button>
       </div>
 
       {showItemSearch && (

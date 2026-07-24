@@ -39,7 +39,7 @@ The optimizations span three layers:
 └──────────────────────────────────────────────────┘
 ```
 
-## Components
+## Components and Interfaces
 
 ### 1. Virtual Scrolling (History Page)
 
@@ -400,6 +400,13 @@ interface VacuumResult {
 *For any* memoized computation (useMemo or React.memo), if the input dependencies have not changed between renders (referential equality), the output SHALL be the same reference (===) across consecutive renders.
 
 **Validates: Requirements 2.3, 5.1, 5.2, 5.3**
+
+## Testing Strategy
+
+- Property-based tests validate virtual scroller DOM bounds and memoization stability
+- Rust benchmarks with criterion measure query latency at 10k/50k/100k row counts
+- Frontend unit tests verify skeleton → loaded transitions
+- VACUUM integration test checks before/after file size reporting
 
 ## Performance Targets
 

@@ -17,7 +17,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 
 ## Requirements
 
-### Requirement 1
+### Requirement 1: Achievement Definition Storage
 
 **User Story:** As a player, I want achievement definitions stored in the database so that new achievements can be added or updated without code changes.
 
@@ -28,7 +28,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 3. WHEN the application database is initialized or migrated, THE Achievement_Engine SHALL seed a default set of Achievement_Definitions covering all four categories.
 4. THE Achievement_Engine SHALL reference translatable string keys (name_key, description_key) in Achievement_Definitions rather than hardcoded display text.
 
-### Requirement 2
+### Requirement 2: Automatic Achievement Evaluation
 
 **User Story:** As a player, I want achievements evaluated automatically after I finish a run or session, so that I receive unlocks without manual action.
 
@@ -39,7 +39,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 3. THE Achievement_Engine SHALL evaluate achievements in batch — checking all pending definitions in a single pass per trigger event.
 4. THE Achievement_Engine SHALL NOT evaluate achievements during run creation, item logging, or other events outside of run/session completion.
 
-### Requirement 3
+### Requirement 3: Unlock Toast Notification
 
 **User Story:** As a player, I want to see a toast notification when I unlock an achievement, so that I feel rewarded in the moment.
 
@@ -51,7 +51,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 4. WHEN multiple achievements are unlocked in a single batch evaluation, THE Unlock_Toast SHALL queue notifications and display them sequentially — each toast appearing after the previous one dismisses.
 5. THE Unlock_Toast SHALL be dismissible by clicking or pressing Escape before the auto-dismiss timer completes.
 
-### Requirement 4
+### Requirement 4: Milestone Achievements
 
 **User Story:** As a player, I want milestone achievements that reward cumulative activity (run counts, item counts, time played), so that long-term farming effort is recognized.
 
@@ -62,7 +62,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 3. THE Achievement_Engine SHALL define milestone achievements that trigger when a Profile reaches specified cumulative play time thresholds.
 4. WHEN evaluating milestone achievements, THE Achievement_Engine SHALL compare the Profile lifetime statistic against the Achievement_Definition threshold value.
 
-### Requirement 5
+### Requirement 5: Streak Achievements
 
 **User Story:** As a player, I want streak achievements that reward consecutive sessions with activity, so that daily consistency is recognized.
 
@@ -73,7 +73,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 3. THE Achievement_Engine SHALL define a calendar day boundary using the local system timezone of the user.
 4. IF a Profile has no completed runs for a calendar day, THEN THE Achievement_Engine SHALL reset the consecutive-day streak counter to zero for subsequent evaluations.
 
-### Requirement 6
+### Requirement 6: Per-Class Achievements
 
 **User Story:** As a player, I want per-class achievements that reward dedication to a specific character class, so that mastery of a single class is recognized.
 
@@ -83,7 +83,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 2. WHEN evaluating per-class achievements, THE Achievement_Engine SHALL use the class field of the active Profile to match against the Achievement_Definition condition_target.
 3. THE Achievement_Engine SHALL provide per-class achievements for each of the eight character classes defined in the application (Amazon, Necromancer, Barbarian, Sorceress, Paladin, Druid, Assassin, Warlock).
 
-### Requirement 7
+### Requirement 7: Per-Area Achievements
 
 **User Story:** As a player, I want per-area achievements that reward running a specific area many times, so that dedication to a farming spot is recognized.
 
@@ -93,7 +93,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 2. WHEN evaluating per-area achievements, THE Achievement_Engine SHALL count completed runs filtered by the area field matching the Achievement_Definition condition_target.
 3. THE Achievement_Engine SHALL provide per-area achievements for commonly farmed areas including Pit, Chaos Sanctuary, Ancient Tunnels, Cow Level, Travincal, and Baal.
 
-### Requirement 8
+### Requirement 8: Achievements Gallery Page
 
 **User Story:** As a player, I want to view all achievements and my unlock progress on a dedicated Achievements page, so that I can track what I have earned and what remains.
 
@@ -105,7 +105,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 4. THE Achievements page SHALL display progress indicators for locked achievements showing current value versus the required threshold (e.g., "342 / 500 runs").
 5. THE Achievements page SHALL allow filtering achievements by Achievement_Category.
 
-### Requirement 9
+### Requirement 9: Lifetime Statistics Dashboard
 
 **User Story:** As a player, I want a lifetime statistics dashboard on the Achievements page, so that I can see a career summary of my farming activity.
 
@@ -118,7 +118,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 5. THE Lifetime_Stats_Dashboard SHALL display a breakdown of runs by area for the active Profile.
 6. THE Lifetime_Stats_Dashboard SHALL display items found grouped by rarity for the active Profile.
 
-### Requirement 10
+### Requirement 10: Per-Profile Achievement Scoping
 
 **User Story:** As a player, I want achievements to be per-profile so that each character earns progress independently.
 
@@ -129,7 +129,7 @@ This feature adds a per-profile achievement system to the D2R Tracker desktop ap
 3. WHEN a user switches the active Profile, THE Achievements page SHALL display the unlock state and progress for the newly selected Profile.
 4. WHEN a Profile is deleted, THE Achievement_Engine SHALL delete all associated Achievement_Unlock records.
 
-### Requirement 11
+### Requirement 11: Achievement Localization
 
 **User Story:** As a user, I want achievement names and descriptions displayed in my selected language, so that the achievement system respects my locale preference.
 

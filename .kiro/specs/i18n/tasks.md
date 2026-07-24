@@ -125,6 +125,21 @@ Add full internationalization support to D2R Tracker using react-i18next. Extrac
   - Run full verification: `npm test`, `npx tsc --noEmit`, `npx vite build`
   - Verify language switching works for all three locales
 
+## Task Dependency Graph
+
+```json
+{
+  "waves": [
+    { "id": 0, "tasks": ["1.1", "1.2", "1.3", "1.4", "1.5"] },
+    { "id": 1, "tasks": ["2.1", "2.2", "2.3", "2.4", "2.5"] },
+    { "id": 2, "tasks": ["3"] },
+    { "id": 3, "tasks": ["4.1", "4.2", "4.3"] },
+    { "id": 4, "tasks": ["5.1", "5.2", "5.3", "5.4", "5.5"] },
+    { "id": 5, "tasks": ["6"] }
+  ]
+}
+```
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP

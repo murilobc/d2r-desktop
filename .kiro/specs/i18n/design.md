@@ -1,6 +1,10 @@
 # Design Document: Internationalization (i18n)
 
-## Architecture Overview
+## Overview
+
+The i18n system integrates `react-i18next` with the existing React/TypeScript/Vite application. It provides a centralized translation layer that all UI components consume via the `useTranslation` hook. Date and number formatting is handled by native `Intl` APIs wrapped in a locale-aware utility module. The system is initialized synchronously before the first React render to prevent language flashes.
+
+## Architecture
 
 The i18n system integrates `react-i18next` with the existing React/TypeScript/Vite application. It provides a centralized translation layer that all UI components consume via the `useTranslation` hook. Date and number formatting is handled by native `Intl` APIs wrapped in a locale-aware utility module. The system is initialized synchronously before the first React render to prevent language flashes.
 
@@ -16,7 +20,7 @@ src/i18n/
 └── formatters.ts         # Locale-aware date/number formatting utilities
 ```
 
-## Components
+## Components and Interfaces
 
 ### 1. i18next Configuration (`src/i18n/index.ts`)
 
@@ -158,7 +162,9 @@ function LanguageSettings() {
 }
 ```
 
-### 4. Translation File Structure
+## Data Models
+
+### Translation File Structure
 
 Single JSON file per locale. Keys are organized by page/section using dot-notation nesting:
 

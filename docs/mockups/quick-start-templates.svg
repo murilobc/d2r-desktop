@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <rect x="0" y="100" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="100" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="115" fill="#eaeaea" font-size="13">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Run Tracker</text>
+  <text x="250" y="75" fill="#a0a0a0" font-size="13">Start a session from a template or configure manually</text>
+
+  <!-- Quick-Start Templates Section -->
+  <rect x="250" y="95" width="810" height="45" rx="6" fill="#16213e" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="270" y="123" fill="#4ecdc4" font-size="14" font-weight="bold">⚡ Quick-Start Templates</text>
+  <rect x="890" y="105" width="120" height="26" rx="4" fill="none" stroke="#4ecdc4"/>
+  <text x="910" y="122" fill="#4ecdc4" font-size="11">+ New Template</text>
+
+  <!-- Template Cards Row -->
+  <rect x="250" y="155" width="250" height="130" rx="8" fill="#16213e" stroke="#4ecdc4" stroke-width="2"/>
+  <text x="270" y="183" fill="#eaeaea" font-size="14" font-weight="bold">Mephisto Runs</text>
+  <text x="270" y="205" fill="#a0a0a0" font-size="11">Area: Durance of Hate Level 3</text>
+  <text x="270" y="225" fill="#a0a0a0" font-size="11">Players: 3 | Goal: 50 runs</text>
+  <text x="270" y="245" fill="#a0a0a0" font-size="11">Tags: Boss, MF</text>
+  <rect x="270" y="258" width="80" height="22" rx="4" fill="#4ecdc4"/>
+  <text x="285" y="273" fill="#000" font-size="10" font-weight="bold">Start</text>
+  <text x="380" y="273" fill="#a0a0a0" font-size="10">Last used: 2h ago</text>
+
+  <rect x="520" y="155" width="250" height="130" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="540" y="183" fill="#eaeaea" font-size="14" font-weight="bold">Chaos Sanctuary</text>
+  <text x="540" y="205" fill="#a0a0a0" font-size="11">Area: Chaos Sanctuary</text>
+  <text x="540" y="225" fill="#a0a0a0" font-size="11">Players: 7 | Goal: 30 runs</text>
+  <text x="540" y="245" fill="#a0a0a0" font-size="11">Tags: Boss, XP, Runes</text>
+  <rect x="540" y="258" width="80" height="22" rx="4" fill="#4ecdc4"/>
+  <text x="555" y="273" fill="#000" font-size="10" font-weight="bold">Start</text>
+  <text x="650" y="273" fill="#a0a0a0" font-size="10">Last used: 1d ago</text>
+
+  <rect x="790" y="155" width="250" height="130" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="810" y="183" fill="#eaeaea" font-size="14" font-weight="bold">Pit Runs (TC85)</text>
+  <text x="810" y="205" fill="#a0a0a0" font-size="11">Area: The Pit Level 2</text>
+  <text x="810" y="225" fill="#a0a0a0" font-size="11">Players: 1 | Goal: 100 runs</text>
+  <text x="810" y="245" fill="#a0a0a0" font-size="11">Tags: TC85, MF</text>
+  <rect x="810" y="258" width="80" height="22" rx="4" fill="#4ecdc4"/>
+  <text x="825" y="273" fill="#000" font-size="10" font-weight="bold">Start</text>
+  <text x="920" y="273" fill="#a0a0a0" font-size="10">Last used: 3d ago</text>
+
+  <!-- Template Form (expanded below) -->
+  <rect x="250" y="305" width="810" height="280" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="335" fill="#eaeaea" font-size="14" font-weight="bold">Create New Template</text>
+
+  <!-- Form fields -->
+  <text x="270" y="365" fill="#a0a0a0" font-size="11">Template Name</text>
+  <rect x="270" y="372" width="300" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="282" y="392" fill="#666" font-size="12">e.g. "Baal Runs P7"</text>
+
+  <text x="600" y="365" fill="#a0a0a0" font-size="11">Area</text>
+  <rect x="600" y="372" width="300" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="612" y="392" fill="#eaeaea" font-size="12">Worldstone Keep Level 3</text>
+
+  <text x="270" y="425" fill="#a0a0a0" font-size="11">Player Count</text>
+  <rect x="270" y="432" width="120" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="282" y="452" fill="#eaeaea" font-size="12">7</text>
+
+  <text x="420" y="425" fill="#a0a0a0" font-size="11">Session Goal</text>
+  <rect x="420" y="432" width="180" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="432" y="452" fill="#eaeaea" font-size="12">50 runs</text>
+
+  <text x="630" y="425" fill="#a0a0a0" font-size="11">Tags</text>
+  <rect x="630" y="432" width="270" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="642" y="452" fill="#eaeaea" font-size="12">Boss, XP, Runes</text>
+
+  <text x="270" y="485" fill="#a0a0a0" font-size="11">Route (optional)</text>
+  <rect x="270" y="492" width="300" height="30" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="282" y="512" fill="#666" font-size="12">Select a route...</text>
+
+  <!-- Save button -->
+  <rect x="270" y="545" width="120" height="30" rx="4" fill="#4ecdc4"/>
+  <text x="295" y="565" fill="#000" font-size="12" font-weight="bold">Save Template</text>
+  <rect x="410" y="545" width="90" height="30" rx="4" fill="none" stroke="#e94560"/>
+  <text x="432" y="565" fill="#e94560" font-size="12">Cancel</text>
+
+  <!-- Footer hint -->
+  <text x="250" y="620" fill="#666" font-size="11">💡 Templates save your most-used configurations for one-click session start</text>
+</svg>

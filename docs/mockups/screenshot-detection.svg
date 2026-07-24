@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <line x1="10" y1="230" x2="210" y2="230" stroke="#2a2a4a" stroke-width="1"/>
+  <rect x="0" y="240" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="240" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="260" fill="#eaeaea" font-size="13">⚙ Settings</text>
+
+  <!-- Main content -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Screenshot Item Detection</text>
+  <text x="250" y="75" fill="#a0a0a0" font-size="13">Settings → Screenshot Detection</text>
+
+  <!-- Status panel -->
+  <rect x="250" y="95" width="810" height="50" rx="6" fill="rgba(78,205,196,0.1)" stroke="#4ecdc4"/>
+  <circle cx="275" cy="120" r="6" fill="#4ecdc4"/>
+  <text x="290" y="125" fill="#4ecdc4" font-size="13" font-weight="bold">Clipboard Monitoring Active</text>
+  <text x="540" y="125" fill="#a0a0a0" font-size="11">Items detected this session: 5 | Accuracy: 92%</text>
+
+  <!-- Settings Section -->
+  <rect x="250" y="160" width="395" height="250" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="190" fill="#eaeaea" font-size="14" font-weight="bold">Detection Settings</text>
+
+  <!-- Toggle: Enable -->
+  <text x="270" y="225" fill="#eaeaea" font-size="12">Enable Screenshot Detection</text>
+  <rect x="560" y="212" width="40" height="20" rx="10" fill="#4ecdc4"/>
+  <circle cx="590" cy="222" r="8" fill="#fff"/>
+
+  <!-- Toggle: Clipboard -->
+  <text x="270" y="260" fill="#eaeaea" font-size="12">Clipboard Monitoring</text>
+  <rect x="560" y="247" width="40" height="20" rx="10" fill="#4ecdc4"/>
+  <circle cx="590" cy="257" r="8" fill="#fff"/>
+
+  <!-- Toggle: Auto-confirm -->
+  <text x="270" y="295" fill="#eaeaea" font-size="12">Auto-confirm high confidence (&gt;90%)</text>
+  <rect x="560" y="282" width="40" height="20" rx="10" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <circle cx="560" cy="292" r="8" fill="#666"/>
+
+  <!-- Confidence threshold -->
+  <text x="270" y="330" fill="#a0a0a0" font-size="11">Confidence Threshold</text>
+  <rect x="270" y="338" width="200" height="6" rx="3" fill="#1a1a2e"/>
+  <rect x="270" y="338" width="160" height="6" rx="3" fill="#4ecdc4"/>
+  <text x="480" y="345" fill="#a0a0a0" font-size="10">80%</text>
+
+  <!-- Supported items -->
+  <text x="270" y="380" fill="#a0a0a0" font-size="11">Detection targets:</text>
+  <rect x="270" y="386" width="60" height="18" rx="3" fill="rgba(196,160,0,0.2)" stroke="#c4a000"/>
+  <text x="280" y="399" fill="#c4a000" font-size="9">Unique</text>
+  <rect x="340" y="386" width="45" height="18" rx="3" fill="rgba(0,196,0,0.2)" stroke="#00c400"/>
+  <text x="350" y="399" fill="#00c400" font-size="9">Set</text>
+  <rect x="395" y="386" width="55" height="18" rx="3" fill="rgba(255,140,0,0.2)" stroke="#ff8c00"/>
+  <text x="405" y="399" fill="#ff8c00" font-size="9">Runes</text>
+
+  <!-- Detection Preview -->
+  <rect x="660" y="160" width="400" height="250" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="680" y="190" fill="#eaeaea" font-size="14" font-weight="bold">Last Detection</text>
+  <text x="890" y="190" fill="#4ecdc4" font-size="10">2 seconds ago</text>
+
+  <!-- Screenshot preview area -->
+  <rect x="680" y="205" width="220" height="80" rx="4" fill="#000" stroke="#2a2a4a"/>
+  <text x="755" y="235" fill="#c4a000" font-size="14" font-weight="bold" text-anchor="middle">Harlequin Crest</text>
+  <text x="755" y="255" fill="#a0a0a0" font-size="10" text-anchor="middle">Shako</text>
+  <text x="755" y="275" fill="#666" font-size="9" text-anchor="middle">[Screenshot Crop]</text>
+
+  <!-- Detection result -->
+  <text x="920" y="225" fill="#a0a0a0" font-size="10">Detected:</text>
+  <text x="920" y="245" fill="#c4a000" font-size="12" font-weight="bold">Shako</text>
+  <text x="920" y="265" fill="#a0a0a0" font-size="10">Confidence:</text>
+  <text x="920" y="285" fill="#4ecdc4" font-size="12" font-weight="bold">94%</text>
+
+  <!-- Confirm/Reject buttons -->
+  <rect x="680" y="300" width="100" height="28" rx="4" fill="#4ecdc4"/>
+  <text x="700" y="318" fill="#000" font-size="11" font-weight="bold">✓ Confirm</text>
+  <rect x="790" y="300" width="100" height="28" rx="4" fill="none" stroke="#ffaa00"/>
+  <text x="812" y="318" fill="#ffaa00" font-size="11">✎ Correct</text>
+  <rect x="900" y="300" width="80" height="28" rx="4" fill="none" stroke="#e94560"/>
+  <text x="916" y="318" fill="#e94560" font-size="11">✕ Skip</text>
+
+  <!-- Match dropdown (for correction) -->
+  <text x="680" y="360" fill="#a0a0a0" font-size="10">Alternative matches:</text>
+  <rect x="680" y="368" width="350" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="692" y="386" fill="#eaeaea" font-size="11">Harlequin Crest (Shako) — Unique Helm</text>
+
+  <!-- Detection History -->
+  <rect x="250" y="425" width="810" height="250" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="455" fill="#eaeaea" font-size="14" font-weight="bold">Detection History</text>
+  <text x="920" y="455" fill="#a0a0a0" font-size="11">This session</text>
+
+  <!-- History table header -->
+  <rect x="270" y="465" width="770" height="25" rx="0" fill="rgba(0,0,0,0.3)"/>
+  <text x="280" y="482" fill="#a0a0a0" font-size="10" font-weight="bold">TIME</text>
+  <text x="360" y="482" fill="#a0a0a0" font-size="10" font-weight="bold">ITEM DETECTED</text>
+  <text x="600" y="482" fill="#a0a0a0" font-size="10" font-weight="bold">CONFIDENCE</text>
+  <text x="720" y="482" fill="#a0a0a0" font-size="10" font-weight="bold">STATUS</text>
+  <text x="850" y="482" fill="#a0a0a0" font-size="10" font-weight="bold">RARITY</text>
+
+  <!-- History rows -->
+  <rect x="270" y="495" width="770" height="30" rx="0" fill="rgba(0,0,0,0.1)"/>
+  <text x="280" y="514" fill="#eaeaea" font-size="11">19:42</text>
+  <text x="360" y="514" fill="#c4a000" font-size="11">Shako (Harlequin Crest)</text>
+  <text x="610" y="514" fill="#4ecdc4" font-size="11">94%</text>
+  <text x="720" y="514" fill="#4ecdc4" font-size="11">✓ Confirmed</text>
+  <text x="850" y="514" fill="#c4a000" font-size="11">Unique</text>
+
+  <rect x="270" y="530" width="770" height="30" rx="0" fill="rgba(0,0,0,0.05)"/>
+  <text x="280" y="549" fill="#eaeaea" font-size="11">19:38</text>
+  <text x="360" y="549" fill="#ff8c00" font-size="11">Ist Rune</text>
+  <text x="610" y="549" fill="#4ecdc4" font-size="11">97%</text>
+  <text x="720" y="549" fill="#4ecdc4" font-size="11">✓ Auto-logged</text>
+  <text x="850" y="549" fill="#ff8c00" font-size="11">Rune</text>
+
+  <rect x="270" y="565" width="770" height="30" rx="0" fill="rgba(0,0,0,0.1)"/>
+  <text x="280" y="584" fill="#eaeaea" font-size="11">19:31</text>
+  <text x="360" y="584" fill="#00c400" font-size="11">Tal Rasha's Adjudication</text>
+  <text x="610" y="584" fill="#ffaa00" font-size="11">78%</text>
+  <text x="720" y="584" fill="#ffaa00" font-size="11">✎ Corrected</text>
+  <text x="850" y="584" fill="#00c400" font-size="11">Set</text>
+
+  <rect x="270" y="600" width="770" height="30" rx="0" fill="rgba(0,0,0,0.05)"/>
+  <text x="280" y="619" fill="#eaeaea" font-size="11">19:25</text>
+  <text x="360" y="619" fill="#c4a000" font-size="11">Arachnid Mesh</text>
+  <text x="610" y="619" fill="#4ecdc4" font-size="11">91%</text>
+  <text x="720" y="619" fill="#4ecdc4" font-size="11">✓ Confirmed</text>
+  <text x="850" y="619" fill="#c4a000" font-size="11">Unique</text>
+
+  <rect x="270" y="635" width="770" height="30" rx="0" fill="rgba(0,0,0,0.1)"/>
+  <text x="280" y="654" fill="#eaeaea" font-size="11">19:18</text>
+  <text x="360" y="654" fill="#ff8c00" font-size="11">Ber Rune</text>
+  <text x="610" y="654" fill="#4ecdc4" font-size="11">99%</text>
+  <text x="720" y="654" fill="#4ecdc4" font-size="11">✓ Auto-logged</text>
+  <text x="850" y="654" fill="#ff8c00" font-size="11">Rune</text>
+</svg>

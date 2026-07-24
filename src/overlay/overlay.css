@@ -227,6 +227,16 @@ body {
   font-size: 16px;
 }
 
+.ov-detect {
+  background: var(--ov-item-bg);
+  color: var(--ov-text);
+}
+
+.ov-detect:focus-visible {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 2px;
+}
+
 .ov-btn:hover:not(:disabled) {
   filter: brightness(1.2);
 }

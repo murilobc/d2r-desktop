@@ -155,6 +155,24 @@ Optimize the D2R Tracker for large datasets through virtual scrolling, batched q
   - Run `cd src-tauri && cargo check` to verify Rust compilation
   - Ensure all tests pass, ask the user if questions arise.
 
+## Task Dependency Graph
+
+```json
+{
+  "waves": [
+    { "id": 0, "tasks": ["1.1", "1.2"] },
+    { "id": 1, "tasks": ["2.1", "2.2"] },
+    { "id": 2, "tasks": ["3.1", "3.2"] },
+    { "id": 3, "tasks": ["4.1", "4.2", "4.3"] },
+    { "id": 4, "tasks": ["5.1", "5.2", "5.3"] },
+    { "id": 5, "tasks": ["6.1"] },
+    { "id": 6, "tasks": ["7.1", "7.2"] },
+    { "id": 7, "tasks": ["8.1", "8.2"] },
+    { "id": 8, "tasks": ["9"] }
+  ]
+}
+```
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP

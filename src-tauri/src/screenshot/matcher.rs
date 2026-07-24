@@ -15,7 +15,7 @@ pub struct GameItemEntry {
 }
 
 /// A match candidate returned by the fuzzy matcher.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct MatchCandidate {
     pub item_name: String,
     pub category: String,

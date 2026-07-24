@@ -110,6 +110,9 @@ export default function PreviewCanvas(props: PreviewCanvasProps) {
 
   return (
     <div className="preview-canvas-container">
+      <span className="preview-canvas-label">
+        Preview ({layout.width}×{layout.height})
+      </span>
       <section
         ref={setNodeRef}
         className="preview-canvas"

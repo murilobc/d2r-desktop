@@ -136,22 +136,6 @@ Pre-configured session templates for common farming patterns.
 
 ---
 
-#### 7. Customizable Overlay Layouts ✅
-
-Let users configure what the overlay shows and how it's arranged.
-
-**Why:** Current overlay is fixed layout. Streamers want different info than solo players. Some want XP/hour, others want item count emphasis.
-
-**Implementation:**
-- Overlay editor in Settings: drag-and-drop stat blocks onto a preview canvas
-- Available widgets: timer, run count, items found, last item, dry streak, goal progress, XP/hour, route step
-- Resize individual widgets (small/medium/large text)
-- Save multiple overlay profiles (compact, streamer, detailed)
-- Opacity slider per widget group
-- Custom background color/opacity
-
----
-
 ### Phase 3: v5.2 — Community & Social (Est. ~12h)
 
 ---
@@ -321,7 +305,7 @@ These are smaller improvements that can be sprinkled into any release:
 | Run timer + splits | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Item logging (searchable) | ✅ | ✅ (manual) | ❌ | ❌ | ❌ | ✅ (auto-OCR) |
 | Global hotkeys | ✅ | ✅ | N/A | N/A | N/A | ❌ |
-| In-game overlay | ✅ (customizable) | ✅ | N/A | N/A | N/A | ❌ |
+| In-game overlay | ✅ | ✅ | N/A | N/A | N/A | ❌ |
 | Probability calculator | ✅ (exact + integrated) | ❌ | ❌ | ✅ (exact) | ✅ (basic) | ❌ |
 | Runeword planner | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | Farming advisor | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -345,7 +329,6 @@ These are smaller improvements that can be sprinkled into any release:
 - Only tool offering farming efficiency advisor based on personal data
 - Achievement system with gamification for farming motivation
 - Local OCR item detection without requiring external API keys or cloud services
-- Customizable overlay editor with multiple profiles (Compact, Streamer, Detailed)
 - Quick-start templates for one-click farming sessions
 
 **Next differentiators (v5.2+):**
@@ -359,7 +342,7 @@ These are smaller improvements that can be sprinkled into any release:
 | Version | Theme | Features | Status |
 |---------|-------|----------|--------|
 | v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ✅ Released |
-| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates + Custom Overlay | ✅ Released |
+| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates | ✅ Released |
 | v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Next |
 | v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System + Mobile Companion | 🔲 Planned |
 
@@ -377,7 +360,6 @@ Based on: community demand, competitive gap, implementation feasibility, and eng
 | ✅ | Farming Efficiency Advisor | Shipped v5.0.0 |
 | ✅ | Quick-Start Templates | Shipped v5.1.0 |
 | ✅ | Screenshot OCR | Shipped v5.1.0 |
-| ✅ | Customizable Overlay | Shipped v5.1.0 |
 | 🥇 1 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
 | 🥇 2 | Terror Zone API Integration | Same as DClone — easy external data pull |
 | 🥈 3 | Trade Value Estimation | Nice-to-have, static data update with each release |

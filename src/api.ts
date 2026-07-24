@@ -48,9 +48,6 @@ import type {
   RuneCount,
   RunewordTarget,
   ScreenshotSettings,
-  OverlayProfile,
-  CreateOverlayProfileInput,
-  UpdateOverlayProfileInput,
   Template,
   CreateTemplateInput,
   UpdateTemplateInput,
@@ -436,25 +433,6 @@ export const updateScreenshotSettings = (settings: ScreenshotSettings) =>
 
 export const detectFromClipboard = () =>
   invoke<void>("detect_from_clipboard");
-
-// Overlay Profiles
-export const getOverlayProfiles = () =>
-  invoke<OverlayProfile[]>("get_overlay_profiles");
-
-export const getActiveOverlayProfile = () =>
-  invoke<OverlayProfile>("get_active_overlay_profile");
-
-export const createOverlayProfile = (input: CreateOverlayProfileInput) =>
-  invoke<OverlayProfile>("create_overlay_profile", { input });
-
-export const updateOverlayProfile = (id: string, input: UpdateOverlayProfileInput) =>
-  invoke<OverlayProfile>("update_overlay_profile", { id, input });
-
-export const deleteOverlayProfile = (id: string) =>
-  invoke<void>("delete_overlay_profile", { id });
-
-export const setActiveOverlayProfile = (id: string) =>
-  invoke<void>("set_active_overlay_profile", { id });
 
 // Quick-Start Templates
 export const createTemplate = (input: CreateTemplateInput) =>

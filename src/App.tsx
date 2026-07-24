@@ -28,7 +28,6 @@ const CoopPanel = lazy(() => import("./pages/CoopPanel"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const RunewordPlanner = lazy(() => import("./pages/RunewordPlanner"));
 const Advisor = lazy(() => import("./pages/Advisor"));
-const OverlayEditor = lazy(() => import("./pages/OverlayEditor"));
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
@@ -39,10 +38,9 @@ import UpdateChecker from "./components/UpdateChecker";
 import SyncStatusIndicator from "./components/SyncStatusIndicator";
 import { syncEngine } from "./services/cloud-sync";
 import { useTheme } from "./hooks/useTheme";
-import { useOverlayProfileInit } from "./hooks/useOverlayProfileInit";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements" | "runes" | "advisor" | "overlay-editor";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements" | "runes" | "advisor";
 
 function App() {
   const { t } = useTranslation();
@@ -50,7 +48,6 @@ function App() {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [importMsg, setImportMsg] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
-  useOverlayProfileInit();
   const { currentToast, enqueue: enqueueToast, dismiss: dismissToast } = useAchievementToasts();
   const { toast, showToast, dismissToast: dismissDetectionToast } = useDetectionToast();
 
@@ -223,8 +220,6 @@ function App() {
         return selectedProfile ? <RunewordPlanner profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "advisor":
         return selectedProfile ? <Advisor profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
-      case "overlay-editor":
-        return <OverlayEditor />;
       case "settings":
         return <Settings />;
       default:
@@ -372,14 +367,7 @@ function App() {
               ✦ {t('sidebar.advisor')}
             </button>
           </li>
-          <li>
-            <button
-              className={`nav-btn ${currentPage === "overlay-editor" ? "active" : ""}`}
-              onClick={() => setCurrentPage("overlay-editor")}
-            >
-              ⊞ {t('sidebar.overlayEditor', 'Overlay Editor')}
-            </button>
-          </li>
+
         </ul>
         <div className="sidebar-data-actions">
           <button

@@ -124,9 +124,6 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add rune_inventory and runeword_targets tables
     migrate_rune_planner(conn)?;
 
-    // Migration: add overlay_profiles table
-    migrate_overlay_profiles(conn)?;
-
     // Migration: add templates table
     migrate_templates(conn)?;
 
@@ -390,6 +387,7 @@ fn migrate_rune_planner(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 fn migrate_overlay_profiles(conn: &Connection) -> Result<()> {
     conn.execute_batch(
         "

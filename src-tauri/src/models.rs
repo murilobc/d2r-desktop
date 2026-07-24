@@ -582,6 +582,7 @@ pub struct OverlayProfileLayout {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct WidgetPlacement {
     pub id: String,
+    #[serde(rename = "type")]
     pub widget_type: String,
     pub x: f64,
     pub y: f64,

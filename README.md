@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.0.3_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.0.3_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.0.3_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.0.3_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.1.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.1.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -309,6 +309,57 @@ Track your farming milestones with a per-profile achievement system.
 
 ---
 
+### Quick-Start Templates
+
+![Quick-Start Templates](docs/mockups/quick-start-templates.svg)
+
+Pre-configured session templates for one-click farming starts. Eliminates repetitive setup for daily farming routines.
+
+- **Template cards** — Visual cards showing saved configurations with one-click Start button
+- **Template manager** — Save current session configuration as a named template
+- **Fields saved** — Area, player count, session goal, tags, route (optional)
+- **Recent first** — Last 3 used templates displayed prominently at the top
+- **One-click start** — Select template and session begins immediately with all settings applied
+- **Create/Edit/Delete** — Full CRUD operations on templates
+- **Per-profile** — Templates are tied to the active character profile
+- **Form validation** — Template name required, area required, sensible defaults for optional fields
+
+---
+
+### Customizable Overlay Editor
+
+![Overlay Editor](docs/mockups/overlay-editor.svg)
+
+Visual drag-and-drop editor for configuring what the in-game overlay displays and how it's arranged.
+
+- **Widget Library** — Available overlay widgets: Session Timer, Run Timer, Run Count, Items Found, Last Item, XP/Hour, Dry Streak, Goal Progress, Route Step
+- **Preview Canvas** — Live preview showing how the overlay will look, with drag-and-drop widget placement
+- **Profile Manager** — Create, save, load, switch between multiple overlay profiles (e.g., Compact, Streamer, Detailed)
+- **Property Inspector** — Click a widget to edit its font size, text color, label color, opacity, and position
+- **Background Settings** — Custom background color and opacity for the overlay window
+- **Dimension Controls** — Set overlay width and height in pixels
+- **Apply to Overlay** — Push the current profile layout to the live in-game overlay
+
+---
+
+### Screenshot Item Detection
+
+![Screenshot Detection](docs/mockups/screenshot-detection.svg)
+
+Detect items from game screenshots via local OCR to auto-log drops without manual typing.
+
+- **Clipboard monitoring** — Detects when you take a screenshot (PrintScreen) and processes it automatically
+- **OCR pipeline** — Local Tesseract-based text recognition (Rust backend, no external dependencies)
+- **Item tooltip parsing** — Extracts item name and rarity from D2R tooltip format (gold/green/orange text)
+- **Confidence scoring** — Shows match confidence percentage; high-confidence items can auto-confirm
+- **Manual correction** — Always allows overriding the detection with the correct item from the searchable database
+- **Detection history** — Log of all detected items this session with time, confidence, and status
+- **Supported targets** — Unique items, Set items, Runes (distinctive text colors for reliable detection)
+- **Privacy** — All processing is 100% local, no network calls, no external API keys needed
+- **Settings** — Enable/disable toggle, clipboard monitoring toggle, confidence threshold slider
+
+---
+
 ### Co-op
 
 ![Co-op](docs/mockups/coop-panel.svg)
@@ -380,7 +431,7 @@ Configure hotkeys, sounds, OBS integration, cloud sync, and language preferences
 Always visible, provides navigation and utilities:
 
 - **Profiles** — Manage characters
-- **Run Tracker** — Active farming session
+- **Run Tracker** — Active farming session (with Quick-Start Templates)
 - **Routes** — Multi-area farming routes
 - **History** — Past runs
 - **Statistics** — Analytics and reports
@@ -394,7 +445,8 @@ Always visible, provides navigation and utilities:
 - **Achievements** — Per-profile achievement gallery and lifetime stats
 - **Runes** — Runeword planner and rune inventory
 - **Advisor** — Personalized farming recommendations
-- **Settings** — Configuration
+- **Overlay Editor** — Customizable overlay layout designer
+- **Settings** — Configuration (includes Screenshot Detection)
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
 - **Export / Import** — JSON backup and restore
@@ -482,18 +534,32 @@ d2r-desktop/
 │   │   ├── DiminishingReturnsAlert.tsx # Overfarming detector
 │   │   ├── TerrorZoneRecommendation.tsx # TZ personalized advice
 │   │   ├── BuildSuggestions.tsx # Class-specific suggestions
+│   │   ├── TemplateForm.tsx    # Quick-start template creation form
+│   │   ├── TemplateList.tsx    # Template cards display
+│   │   ├── ScreenshotSettings.tsx # Screenshot detection settings
 │   │   ├── Skeleton.tsx        # Loading skeleton placeholders
 │   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
 │   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer
 │   │   ├── UnlockToast.tsx     # Achievement unlock notification
-│   │   └── UpdateChecker.tsx   # Auto-update banner
+│   │   ├── UpdateChecker.tsx   # Auto-update banner
+│   │   └── overlay-editor/     # Overlay editor components
+│   │       ├── BackgroundSettings.tsx
+│   │       ├── DimensionControls.tsx
+│   │       ├── PreviewCanvas.tsx
+│   │       ├── ProfileManager.tsx
+│   │       ├── PropertyInspector.tsx
+│   │       └── WidgetLibrary.tsx
 │   ├── advisor/                # Farming advisor engine
 │   │   └── advisor-engine.ts   # Rule-based recommendation logic
 │   ├── lib/
 │   │   └── eligibility-engine.ts # Runeword eligibility calculations
+│   ├── templates/              # Quick-start template logic
+│   │   └── templates.property.test.ts
 │   ├── hooks/
 │   │   ├── useTheme.ts        # Dark/light theme toggle
-│   │   └── useAchievementToasts.ts # Achievement unlock toast queue
+│   │   ├── useAchievementToasts.ts # Achievement unlock toast queue
+│   │   ├── useOverlayProfiles.ts # Overlay profile management
+│   │   └── useOverlayProfileInit.ts # Overlay profile initialization
 │   ├── i18n/                   # Internationalization
 │   │   ├── index.ts            # i18next configuration
 │   │   ├── formatters.ts       # Locale-aware date/number formatters
@@ -505,9 +571,13 @@ d2r-desktop/
 │   │   ├── cloud-sync.validation.ts    # Schema validation
 │   │   └── cloud-sync.types.ts # Sync type definitions
 │   ├── overlay/                # In-game overlay window
+│   │   ├── main.tsx            # Overlay entry point
+│   │   ├── OverlayRenderer.tsx # Renders overlay from profile config
+│   │   ├── OverlayWidget.tsx   # Individual overlay widget component
+│   │   └── overlay-profile-utils.ts # Profile serialization utilities
 │   ├── pages/
 │   │   ├── Profiles.tsx
-│   │   ├── RunTracker.tsx
+│   │   ├── RunTracker.tsx      # Includes Quick-Start Template integration
 │   │   ├── RouteEditor.tsx
 │   │   ├── History.tsx
 │   │   ├── Statistics.tsx
@@ -520,6 +590,7 @@ d2r-desktop/
 │   │   ├── RunewordPlanner.tsx
 │   │   ├── Advisor.tsx
 │   │   ├── Achievements.tsx
+│   │   ├── OverlayEditor.tsx   # Drag-and-drop overlay layout editor
 │   │   └── Settings.tsx
 │   └── utils/
 │       ├── audio.ts            # Sound notification system
@@ -529,11 +600,16 @@ d2r-desktop/
 │       ├── lib.rs              # App setup & plugin registration
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
-│       ├── commands.rs         # Tauri commands
+│       ├── commands.rs         # Tauri commands (includes templates)
+│       ├── overlay_commands.rs # Overlay profile Tauri commands
 │       ├── drop_commands.rs    # Drop probability Tauri commands
 │       ├── probability_engine.rs # TC-based drop probability engine
 │       ├── achievements.rs    # Achievement system (schema, evaluation, stats)
-│       └── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
+│       ├── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
+│       └── screenshot/        # Screenshot item detection
+│           ├── mod.rs          # Module definition
+│           ├── ocr.rs          # Tesseract OCR integration
+│           └── monitor.rs      # Clipboard monitoring
 │   └── data/
 │       └── tc_data.json        # Treasure class data for probability calculations
 ├── .github/workflows/          # CI/CD

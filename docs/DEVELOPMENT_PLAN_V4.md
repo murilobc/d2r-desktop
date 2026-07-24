@@ -95,13 +95,13 @@ Gamification layer that makes farming more rewarding.
 
 ---
 
-### Phase 2: v5.1 — Automation & QoL (Est. ~12h)
+### Phase 2: v5.1 — Automation & QoL ✅ RELEASED
 
 Reduce clicks and manual input.
 
 ---
 
-#### 5. Screenshot Item Detection (OCR/Vision)
+#### 5. Screenshot Item Detection (OCR/Vision) ✅
 
 Detect items from game screenshots to auto-log them.
 
@@ -120,7 +120,7 @@ Detect items from game screenshots to auto-log them.
 
 ---
 
-#### 6. Quick-Start Templates
+#### 6. Quick-Start Templates ✅
 
 Pre-configured session templates for common farming patterns.
 
@@ -136,7 +136,7 @@ Pre-configured session templates for common farming patterns.
 
 ---
 
-#### 7. Customizable Overlay Layouts
+#### 7. Customizable Overlay Layouts ✅
 
 Let users configure what the overlay shows and how it's arranged.
 
@@ -316,16 +316,17 @@ These are smaller improvements that can be sprinkled into any release:
 
 ## Competitive Differentiation (Updated July 2026)
 
-| Feature | D2R Tracker (v5.0) | oskros MF_counter | diablo2.io | Silospen | maxroll.gg | d2r-arcane-tracker |
+| Feature | D2R Tracker (v5.1) | oskros MF_counter | diablo2.io | Silospen | maxroll.gg | d2r-arcane-tracker |
 |---------|-------------------|-------------------|------------|----------|------------|-------------------|
 | Run timer + splits | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Item logging (searchable) | ✅ | ✅ (manual) | ❌ | ❌ | ❌ | ✅ (auto-OCR) |
 | Global hotkeys | ✅ | ✅ | N/A | N/A | N/A | ❌ |
-| In-game overlay | ✅ | ✅ | N/A | N/A | N/A | ❌ |
+| In-game overlay | ✅ (customizable) | ✅ | N/A | N/A | N/A | ❌ |
 | Probability calculator | ✅ (exact + integrated) | ❌ | ❌ | ✅ (exact) | ✅ (basic) | ❌ |
 | Runeword planner | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | Farming advisor | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Auto item detection | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ✅ (Vision LLM) |
+| Auto item detection | ✅ (local OCR) | ❌ | ❌ | ❌ | ❌ | ✅ (Vision LLM) |
+| Quick-start templates | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Route tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Terror Zone tracking | ✅ | ❌ | ✅ (web) | ❌ | ✅ (web) | ❌ |
 | DClone tracking | ✅ (manual) | ❌ | ✅ (live) | ❌ | ❌ | ❌ |
@@ -338,15 +339,18 @@ These are smaller improvements that can be sprinkled into any release:
 | Multi-language | ✅ (3) | ❌ | ✅ | ❌ | ✅ | ❌ |
 | Achievements | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-**Key differentiators (v5.0 shipped):**
+**Key differentiators (v5.1 shipped):**
 - Only desktop tool with integrated probability engine + personal farming data
 - Only tool combining runeword planning with rune drop tracking
 - Only tool offering farming efficiency advisor based on personal data
 - Achievement system with gamification for farming motivation
+- Local OCR item detection without requiring external API keys or cloud services
+- Customizable overlay editor with multiple profiles (Compact, Streamer, Detailed)
+- Quick-start templates for one-click farming sessions
 
-**Next differentiators (v5.1+):**
-- Auto item detection without requiring external LLM API keys
+**Next differentiators (v5.2+):**
 - DClone and Terror Zone live API integration
+- Trade value estimation from community data
 
 ---
 
@@ -355,8 +359,8 @@ These are smaller improvements that can be sprinkled into any release:
 | Version | Theme | Features | Status |
 |---------|-------|----------|--------|
 | v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ✅ Released |
-| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates + Custom Overlay | 🔲 Next |
-| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Planned |
+| v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates + Custom Overlay | ✅ Released |
+| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Next |
 | v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System + Mobile Companion | 🔲 Planned |
 
 ---
@@ -371,17 +375,17 @@ Based on: community demand, competitive gap, implementation feasibility, and eng
 | ✅ | Advanced Drop Calculator with Probability Engine | Shipped v5.0.0 |
 | ✅ | Session Achievements | Shipped v4.1.0 |
 | ✅ | Farming Efficiency Advisor | Shipped v5.0.0 |
-| 🥇 1 | Quick-Start Templates | Biggest QoL win for daily users, very low effort |
-| 🥇 2 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
-| 🥈 3 | Terror Zone API Integration | Same as DClone — easy external data pull |
-| 🥈 4 | Trade Value Estimation | Nice-to-have, static data update with each release |
-| 🥈 5 | Screenshot OCR | High impact but high complexity, do as v5.1 |
-| 🥉 6 | Customizable Overlay | Streamers love this, moderate effort |
-| 🥉 7 | Leaderboards & Export | Community-facing, moderate effort |
-| ⬜ 8 | Data Visualization Overhaul | Polish, not new capability |
-| ⬜ 9 | Linux Packaging | Infrastructure, serves Linux gaming niche |
-| ⬜ 10 | Plugin System | Long-term investment, defer until community demands it |
-| ⬜ 11 | Mobile Companion | Nice-to-have, low priority |
+| ✅ | Quick-Start Templates | Shipped v5.1.0 |
+| ✅ | Screenshot OCR | Shipped v5.1.0 |
+| ✅ | Customizable Overlay | Shipped v5.1.0 |
+| 🥇 1 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
+| 🥇 2 | Terror Zone API Integration | Same as DClone — easy external data pull |
+| 🥈 3 | Trade Value Estimation | Nice-to-have, static data update with each release |
+| 🥈 4 | Leaderboards & Export | Community-facing, moderate effort |
+| ⬜ 5 | Data Visualization Overhaul | Polish, not new capability |
+| ⬜ 6 | Linux Packaging | Infrastructure, serves Linux gaming niche |
+| ⬜ 7 | Plugin System | Long-term investment, defer until community demands it |
+| ⬜ 8 | Mobile Companion | Nice-to-have, low priority |
 
 ---
 
@@ -425,5 +429,5 @@ Before adding major features:
 ---
 
 *Document created: July 2026*
-*Covers: v5.1.0 through v6.0.0 (v5.0.0 released July 2026)*
+*Covers: v5.2.0 through v6.0.0 (v5.1.0 released July 2026)*
 *Previous plans: DEVELOPMENT_PLAN.md (v1.0–v2.0), DEVELOPMENT_PLAN_V3.md (v2.1–v4.0)*

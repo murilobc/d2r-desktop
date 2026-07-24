@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">↗ Routes</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">⇄ Compare</text>
+  <line x1="10" y1="255" x2="210" y2="255" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="275" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <rect x="0" y="285" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="285" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="305" fill="#eaeaea" font-size="13">◳ Overlay Editor</text>
+
+  <!-- Main content header -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Overlay Editor</text>
+  <text x="250" y="75" fill="#a0a0a0" font-size="13">Customize what your overlay shows and how it's arranged</text>
+
+  <!-- Profile Manager Bar -->
+  <rect x="250" y="90" width="810" height="40" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="115" fill="#a0a0a0" font-size="11">Profile:</text>
+  <rect x="320" y="98" width="150" height="24" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
+  <text x="335" y="114" fill="#4ecdc4" font-size="11" font-weight="bold">Streamer Layout</text>
+  <rect x="490" y="98" width="90" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="508" y="114" fill="#a0a0a0" font-size="10">Compact</text>
+  <rect x="590" y="98" width="90" height="24" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="610" y="114" fill="#a0a0a0" font-size="10">Detailed</text>
+  <rect x="920" y="98" width="80" height="24" rx="4" fill="#4ecdc4"/>
+  <text x="937" y="114" fill="#000" font-size="10" font-weight="bold">+ New</text>
+  <rect x="1010" y="98" width="30" height="24" rx="4" fill="none" stroke="#e94560"/>
+  <text x="1018" y="114" fill="#e94560" font-size="12">🗑</text>
+
+  <!-- Left Panel: Widget Library -->
+  <rect x="250" y="145" width="200" height="540" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="175" fill="#eaeaea" font-size="13" font-weight="bold">Widget Library</text>
+  <line x1="260" y1="185" x2="440" y2="185" stroke="#2a2a4a" stroke-width="1"/>
+
+  <!-- Widget items -->
+  <rect x="265" y="195" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
+  <text x="280" y="217" fill="#4ecdc4" font-size="11">⏱ Session Timer</text>
+
+  <rect x="265" y="240" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="262" fill="#eaeaea" font-size="11">⏱ Run Timer</text>
+
+  <rect x="265" y="285" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="307" fill="#eaeaea" font-size="11"># Run Count</text>
+
+  <rect x="265" y="330" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="352" fill="#eaeaea" font-size="11">💎 Items Found</text>
+
+  <rect x="265" y="375" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="397" fill="#eaeaea" font-size="11">🏷 Last Item</text>
+
+  <rect x="265" y="420" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="442" fill="#eaeaea" font-size="11">📊 XP/Hour</text>
+
+  <rect x="265" y="465" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="487" fill="#eaeaea" font-size="11">🔥 Dry Streak</text>
+
+  <rect x="265" y="510" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="532" fill="#eaeaea" font-size="11">🎯 Goal Progress</text>
+
+  <rect x="265" y="555" width="170" height="35" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="280" y="577" fill="#eaeaea" font-size="11">📍 Route Step</text>
+
+  <text x="270" y="615" fill="#666" font-size="10">Drag widgets to the canvas →</text>
+
+  <!-- Center: Preview Canvas -->
+  <rect x="465" y="145" width="390" height="350" rx="8" fill="#000" stroke="#4ecdc4" stroke-width="2" stroke-dasharray="4"/>
+  <text x="475" y="168" fill="#4ecdc4" font-size="11" font-weight="bold">PREVIEW (400×300)</text>
+
+  <!-- Overlay preview widgets on canvas -->
+  <rect x="480" y="185" width="170" height="40" rx="4" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="495" y="200" fill="#4ecdc4" font-size="9">SESSION TIME</text>
+  <text x="495" y="216" fill="#eaeaea" font-size="14" font-weight="bold" font-family="monospace">01:23:47</text>
+
+  <rect x="670" y="185" width="150" height="40" rx="4" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="685" y="200" fill="#4ecdc4" font-size="9">RUN COUNT</text>
+  <text x="685" y="216" fill="#eaeaea" font-size="14" font-weight="bold" font-family="monospace">23 (147)</text>
+
+  <rect x="480" y="240" width="340" height="40" rx="4" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="495" y="255" fill="#4ecdc4" font-size="9">RUN TIMER</text>
+  <text x="495" y="271" fill="#ffffff" font-size="16" font-weight="bold" font-family="monospace">00:02:34.7</text>
+
+  <rect x="480" y="295" width="170" height="40" rx="4" fill="rgba(233,69,96,0.15)" stroke="#e94560" stroke-width="1" stroke-dasharray="3"/>
+  <text x="495" y="310" fill="#e94560" font-size="9">ITEMS FOUND</text>
+  <text x="495" y="326" fill="#eaeaea" font-size="14" font-weight="bold" font-family="monospace">3 items</text>
+
+  <rect x="670" y="295" width="150" height="40" rx="4" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="1"/>
+  <text x="685" y="310" fill="#4ecdc4" font-size="9">DRY STREAK</text>
+  <text x="685" y="326" fill="#ffaa00" font-size="14" font-weight="bold" font-family="monospace">7 runs</text>
+
+  <!-- Selected widget indicator -->
+  <text x="475" y="370" fill="#666" font-size="10">Click a widget to edit • Drag to reposition</text>
+
+  <!-- Dimension controls below canvas -->
+  <rect x="465" y="510" width="390" height="80" rx="6" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="485" y="535" fill="#eaeaea" font-size="12" font-weight="bold">Canvas Settings</text>
+  <text x="485" y="555" fill="#a0a0a0" font-size="10">Width:</text>
+  <rect x="520" y="543" width="60" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="535" y="557" fill="#eaeaea" font-size="10">400</text>
+  <text x="595" y="555" fill="#a0a0a0" font-size="10">Height:</text>
+  <rect x="635" y="543" width="60" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="650" y="557" fill="#eaeaea" font-size="10">300</text>
+  <text x="485" y="577" fill="#a0a0a0" font-size="10">Background:</text>
+  <rect x="555" y="565" width="18" height="18" rx="3" fill="#000" stroke="#4ecdc4"/>
+  <text x="580" y="577" fill="#a0a0a0" font-size="10">Opacity: 85%</text>
+
+  <!-- Right Panel: Property Inspector -->
+  <rect x="870" y="145" width="190" height="540" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="890" y="175" fill="#eaeaea" font-size="13" font-weight="bold">Properties</text>
+  <line x1="880" y1="185" x2="1050" y2="185" stroke="#2a2a4a" stroke-width="1"/>
+
+  <text x="890" y="210" fill="#e94560" font-size="11" font-weight="bold">Items Found</text>
+
+  <text x="890" y="240" fill="#a0a0a0" font-size="10">Font Size</text>
+  <rect x="890" y="248" width="100" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="902" y="262" fill="#eaeaea" font-size="10">Large</text>
+
+  <text x="890" y="290" fill="#a0a0a0" font-size="10">Text Color</text>
+  <rect x="890" y="298" width="18" height="18" rx="3" fill="#eaeaea" stroke="#4ecdc4"/>
+  <text x="915" y="312" fill="#eaeaea" font-size="10">#eaeaea</text>
+
+  <text x="890" y="340" fill="#a0a0a0" font-size="10">Label Color</text>
+  <rect x="890" y="348" width="18" height="18" rx="3" fill="#e94560" stroke="#4ecdc4"/>
+  <text x="915" y="362" fill="#eaeaea" font-size="10">#e94560</text>
+
+  <text x="890" y="390" fill="#a0a0a0" font-size="10">Opacity</text>
+  <rect x="890" y="398" width="140" height="6" rx="3" fill="#1a1a2e"/>
+  <rect x="890" y="398" width="119" height="6" rx="3" fill="#4ecdc4"/>
+  <text x="1040" y="404" fill="#a0a0a0" font-size="9">85%</text>
+
+  <text x="890" y="430" fill="#a0a0a0" font-size="10">Position X</text>
+  <rect x="890" y="438" width="60" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="902" y="452" fill="#eaeaea" font-size="10">15</text>
+  <text x="960" y="430" fill="#a0a0a0" font-size="10">Y</text>
+  <rect x="960" y="438" width="60" height="20" rx="3" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="972" y="452" fill="#eaeaea" font-size="10">150</text>
+
+  <!-- Save/Apply buttons -->
+  <rect x="890" y="490" width="140" height="28" rx="4" fill="#4ecdc4"/>
+  <text x="925" y="508" fill="#000" font-size="11" font-weight="bold">Save Profile</text>
+  <rect x="890" y="530" width="140" height="28" rx="4" fill="none" stroke="#4ecdc4"/>
+  <text x="915" y="548" fill="#4ecdc4" font-size="11">Apply to Overlay</text>
+</svg>

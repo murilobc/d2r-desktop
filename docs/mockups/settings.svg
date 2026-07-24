@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 850" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
   <!-- Background -->
-  <rect width="1100" height="700" fill="#1a1a2e"/>
+  <rect width="1100" height="850" fill="#1a1a2e"/>
 
   <!-- Sidebar -->
-  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <rect x="0" y="0" width="220" height="850" fill="#0f3460"/>
   <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
   <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
 
@@ -37,7 +37,7 @@
   <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">Settings</text>
 
   <!-- Global Hotkeys -->
-  <rect x="250" y="75" width="810" height="195" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <rect x="250" y="75" width="810" height="235" rx="8" fill="#16213e" stroke="#2a2a4a"/>
   <text x="270" y="103" fill="#eaeaea" font-size="15" font-weight="bold">Global Hotkeys</text>
   <text x="270" y="120" fill="#a0a0a0" font-size="11">Keyboard shortcuts that work even when the app is not focused.</text>
 
@@ -55,53 +55,71 @@
   <rect x="700" y="222" width="120" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
   <text x="735" y="241" fill="#eaeaea" font-family="monospace" font-size="12">F11</text>
 
+  <line x1="270" y1="254" x2="1040" y2="254" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="279" fill="#eaeaea" font-size="12">Detect Screenshot</text>
+  <rect x="700" y="264" width="120" height="28" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="730" y="283" fill="#a0a0a0" font-family="monospace" font-size="11">Not set</text>
+  <rect x="830" y="264" width="55" height="28" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="842" y="283" fill="#a0a0a0" font-size="10">Clear</text>
+
   <!-- Sound Notifications -->
-  <rect x="250" y="285" width="810" height="155" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="313" fill="#eaeaea" font-size="15" font-weight="bold">Sound Notifications</text>
-  <text x="270" y="330" fill="#a0a0a0" font-size="11">Audio cues for milestones, item finds, and alerts during sessions.</text>
+  <rect x="250" y="325" width="810" height="155" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="353" fill="#eaeaea" font-size="15" font-weight="bold">Sound Notifications</text>
+  <text x="270" y="370" fill="#a0a0a0" font-size="11">Audio cues for milestones, item finds, and alerts during sessions.</text>
 
-  <text x="280" y="360" fill="#eaeaea" font-size="12">Enable sounds</text>
-  <rect x="700" y="345" width="60" height="26" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
-  <text x="718" y="363" fill="#4ecdc4" font-size="11">ON</text>
+  <text x="280" y="400" fill="#eaeaea" font-size="12">Enable sounds</text>
+  <rect x="700" y="385" width="60" height="26" rx="4" fill="#1a1a2e" stroke="#4ecdc4"/>
+  <text x="718" y="403" fill="#4ecdc4" font-size="11">ON</text>
 
-  <line x1="270" y1="378" x2="1040" y2="378" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="403" fill="#eaeaea" font-size="12">Volume</text>
-  <rect x="700" y="393" width="120" height="6" rx="3" fill="#2a2a4a"/>
-  <rect x="700" y="393" width="60" height="6" rx="3" fill="#4ecdc4"/>
-  <text x="830" y="400" fill="#a0a0a0" font-family="monospace" font-size="10">50%</text>
+  <line x1="270" y1="418" x2="1040" y2="418" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="443" fill="#eaeaea" font-size="12">Volume</text>
+  <rect x="700" y="433" width="120" height="6" rx="3" fill="#2a2a4a"/>
+  <rect x="700" y="433" width="60" height="6" rx="3" fill="#4ecdc4"/>
+  <text x="830" y="440" fill="#a0a0a0" font-family="monospace" font-size="10">50%</text>
 
-  <line x1="270" y1="415" x2="1040" y2="415" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="430" fill="#eaeaea" font-size="12">Test sounds</text>
-  <rect x="700" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="712" y="433" fill="#eaeaea" font-size="9">Item</text>
-  <rect x="758" y="418" width="75" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="768" y="433" fill="#eaeaea" font-size="9">Milestone</text>
-  <rect x="841" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="852" y="433" fill="#eaeaea" font-size="9">Alert</text>
-  <rect x="899" y="418" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
-  <text x="912" y="433" fill="#eaeaea" font-size="9">Goal</text>
+  <line x1="270" y1="455" x2="1040" y2="455" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="470" fill="#eaeaea" font-size="12">Test sounds</text>
+  <rect x="700" y="458" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="712" y="473" fill="#eaeaea" font-size="9">Item</text>
+  <rect x="758" y="458" width="75" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="768" y="473" fill="#eaeaea" font-size="9">Milestone</text>
+  <rect x="841" y="458" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="852" y="473" fill="#eaeaea" font-size="9">Alert</text>
+  <rect x="899" y="458" width="50" height="22" rx="4" fill="none" stroke="#2a2a4a"/>
+  <text x="912" y="473" fill="#eaeaea" font-size="9">Goal</text>
 
   <!-- OBS Integration -->
-  <rect x="250" y="455" width="810" height="220" rx="8" fill="#16213e" stroke="#2a2a4a"/>
-  <text x="270" y="483" fill="#eaeaea" font-size="15" font-weight="bold">OBS Integration</text>
-  <text x="270" y="500" fill="#a0a0a0" font-size="11">Write live session stats to a text file for OBS stream overlays.</text>
+  <rect x="250" y="495" width="810" height="170" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="523" fill="#eaeaea" font-size="15" font-weight="bold">OBS Integration</text>
+  <text x="270" y="540" fill="#a0a0a0" font-size="11">Write live session stats to a text file for OBS stream overlays.</text>
 
-  <text x="280" y="530" fill="#eaeaea" font-size="12">Enable OBS mode</text>
-  <rect x="700" y="515" width="60" height="26" rx="4" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4"/>
-  <text x="718" y="533" fill="#4ecdc4" font-size="11" font-weight="bold">ON</text>
+  <text x="280" y="570" fill="#eaeaea" font-size="12">Enable OBS mode</text>
+  <rect x="700" y="555" width="60" height="26" rx="4" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4"/>
+  <text x="718" y="573" fill="#4ecdc4" font-size="11" font-weight="bold">ON</text>
 
-  <line x1="270" y1="548" x2="1040" y2="548" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="573" fill="#eaeaea" font-size="12">Output format</text>
-  <rect x="700" y="558" width="140" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="712" y="576" fill="#eaeaea" font-size="11">Plain Text</text>
+  <line x1="270" y1="588" x2="1040" y2="588" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="613" fill="#eaeaea" font-size="12">Output format</text>
+  <rect x="700" y="598" width="140" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="712" y="616" fill="#eaeaea" font-size="11">Plain Text</text>
 
-  <line x1="270" y1="592" x2="1040" y2="592" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="617" fill="#eaeaea" font-size="12">File path</text>
-  <rect x="700" y="602" width="260" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
-  <text x="712" y="620" fill="#a0a0a0" font-family="monospace" font-size="9">C:\Users\...\AppData\...\obs_stats.txt</text>
-  <rect x="968" y="602" width="70" height="26" rx="4" fill="none" stroke="#4ecdc4"/>
-  <text x="978" y="619" fill="#4ecdc4" font-size="9">Copy path</text>
+  <line x1="270" y1="630" x2="1040" y2="630" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="655" fill="#ffaa00" font-size="11">Tip: In OBS, add "Text (GDI+)" source → Check "Read from file" → Paste the path above.</text>
 
-  <line x1="270" y1="636" x2="1040" y2="636" stroke="#2a2a4a" stroke-width="1"/>
-  <text x="280" y="660" fill="#ffaa00" font-size="11">Tip: In OBS, add "Text (GDI+)" source → Check "Read from file" → Paste the path above.</text>
+  <!-- Screenshot Detection -->
+  <rect x="250" y="680" width="810" height="150" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <text x="270" y="708" fill="#eaeaea" font-size="15" font-weight="bold">Screenshot Detection</text>
+
+  <text x="280" y="738" fill="#eaeaea" font-size="12">Clipboard Monitoring</text>
+  <rect x="700" y="723" width="60" height="26" rx="4" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4"/>
+  <text x="718" y="741" fill="#4ecdc4" font-size="11" font-weight="bold">ON</text>
+
+  <line x1="270" y1="755" x2="1040" y2="755" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="780" fill="#eaeaea" font-size="12">Auto-Detection</text>
+  <rect x="700" y="765" width="60" height="26" rx="4" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4"/>
+  <text x="718" y="783" fill="#4ecdc4" font-size="11" font-weight="bold">ON</text>
+
+  <line x1="270" y1="798" x2="1040" y2="798" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="280" y="820" fill="#eaeaea" font-size="12">Confidence Threshold</text>
+  <rect x="700" y="805" width="60" height="26" rx="4" fill="#1a1a2e" stroke="#2a2a4a"/>
+  <text x="720" y="823" fill="#eaeaea" font-family="monospace" font-size="11">80%</text>
 </svg>

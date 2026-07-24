@@ -3,6 +3,11 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager};
 
+use chrono::Utc;
+use uuid::Uuid;
+
+use crate::models::{CreateTemplateInput, Template, UpdateTemplateInput};
+
 pub struct DbState(pub Mutex<Connection>);
 
 pub fn get_db_path(app: &AppHandle) -> PathBuf {
@@ -118,6 +123,12 @@ pub fn init_db(conn: &Connection) -> Result<()> {
 
     // Migration: add rune_inventory and runeword_targets tables
     migrate_rune_planner(conn)?;
+
+    // Migration: add overlay_profiles table
+    migrate_overlay_profiles(conn)?;
+
+    // Migration: add templates table
+    migrate_templates(conn)?;
 
     // Initialize achievements tables and seed definitions
     crate::achievements::init_achievements(conn)?;
@@ -375,6 +386,295 @@ fn migrate_rune_planner(conn: &Connection) -> Result<()> {
         CREATE INDEX IF NOT EXISTS idx_runeword_targets_profile ON runeword_targets(profile_id);
         ",
     )?;
+
+    Ok(())
+}
+
+fn migrate_overlay_profiles(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS overlay_profiles (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL UNIQUE,
+            layout_json TEXT NOT NULL,
+            is_active INTEGER NOT NULL DEFAULT 0,
+            is_default INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_overlay_profiles_active ON overlay_profiles(is_active);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_templates(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS templates (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            area TEXT NOT NULL,
+            player_count INTEGER NOT NULL DEFAULT 1,
+            route_id TEXT,
+            session_goal_type TEXT NOT NULL DEFAULT 'none',
+            session_goal_value INTEGER,
+            tags TEXT,
+            last_used_at TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
+            FOREIGN KEY (route_id) REFERENCES routes(id) ON DELETE SET NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_templates_profile ON templates(profile_id);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_templates_profile_name ON templates(profile_id, name COLLATE NOCASE);
+        ",
+    )?;
+
+    Ok(())
+}
+
+// ===== QUICK-START TEMPLATES =====
+
+pub fn db_create_template(
+    conn: &Connection,
+    input: CreateTemplateInput,
+) -> std::result::Result<Template, String> {
+    // Validate name: at least 1 non-whitespace char, max 100 chars
+    if input.name.trim().is_empty() {
+        return Err("Template name must contain at least 1 non-whitespace character".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Template name must not exceed 100 characters".to_string());
+    }
+
+    // Validate player_count: 1–8
+    if input.player_count < 1 || input.player_count > 8 {
+        return Err("Player count must be between 1 and 8".to_string());
+    }
+
+    // Validate session_goal_value: 1–9999 if provided
+    if let Some(goal) = input.session_goal_value {
+        if goal < 1 || goal > 9999 {
+            return Err("Session goal must be between 1 and 9999".to_string());
+        }
+    }
+
+    let id = Uuid::new_v4().to_string();
+    let now = Utc::now().to_rfc3339();
+    let tags_json = input
+        .tags
+        .as_ref()
+        .map(|t| serde_json::to_string(t).unwrap_or_else(|_| "[]".to_string()));
+
+    conn.execute(
+        "INSERT INTO templates (id, profile_id, name, area, player_count, route_id, session_goal_type, session_goal_value, tags, last_used_at, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, NULL, ?10, ?10)",
+        rusqlite::params![
+            id,
+            input.profile_id,
+            input.name,
+            input.area,
+            input.player_count,
+            input.route_id,
+            input.session_goal_type,
+            input.session_goal_value,
+            tags_json,
+            now,
+        ],
+    )
+    .map_err(|e| {
+        if e.to_string().contains("UNIQUE constraint failed") {
+            "A template with this name already exists".to_string()
+        } else {
+            e.to_string()
+        }
+    })?;
+
+    Ok(Template {
+        id,
+        profile_id: input.profile_id,
+        name: input.name,
+        area: input.area,
+        player_count: input.player_count,
+        route_id: input.route_id,
+        session_goal_type: input.session_goal_type,
+        session_goal_value: input.session_goal_value,
+        tags: tags_json,
+        last_used_at: None,
+        created_at: now.clone(),
+        updated_at: now,
+    })
+}
+
+pub fn db_get_templates(
+    conn: &Connection,
+    profile_id: &str,
+) -> std::result::Result<Vec<Template>, String> {
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, profile_id, name, area, player_count, route_id, session_goal_type, session_goal_value, tags, last_used_at, created_at, updated_at FROM templates WHERE profile_id = ?1 ORDER BY CASE WHEN last_used_at IS NULL THEN 1 ELSE 0 END, last_used_at DESC, created_at DESC",
+        )
+        .map_err(|e| e.to_string())?;
+
+    let templates = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            Ok(Template {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                area: row.get(3)?,
+                player_count: row.get(4)?,
+                route_id: row.get(5)?,
+                session_goal_type: row.get(6)?,
+                session_goal_value: row.get(7)?,
+                tags: row.get(8)?,
+                last_used_at: row.get(9)?,
+                created_at: row.get(10)?,
+                updated_at: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<std::result::Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    Ok(templates)
+}
+
+pub fn db_update_template(
+    conn: &Connection,
+    id: &str,
+    input: UpdateTemplateInput,
+) -> std::result::Result<Template, String> {
+    // Validate name: at least 1 non-whitespace char, max 100 chars
+    if input.name.trim().is_empty() {
+        return Err("Template name must contain at least 1 non-whitespace character".to_string());
+    }
+    if input.name.len() > 100 {
+        return Err("Template name must not exceed 100 characters".to_string());
+    }
+
+    // Validate player_count: 1–8
+    if input.player_count < 1 || input.player_count > 8 {
+        return Err("Player count must be between 1 and 8".to_string());
+    }
+
+    // Validate session_goal_value: 1–9999 if provided
+    if let Some(goal) = input.session_goal_value {
+        if goal < 1 || goal > 9999 {
+            return Err("Session goal must be between 1 and 9999".to_string());
+        }
+    }
+
+    // Verify template exists
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM templates WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Template not found".to_string());
+    }
+
+    let now = Utc::now().to_rfc3339();
+    let tags_json = input
+        .tags
+        .as_ref()
+        .map(|t| serde_json::to_string(t).unwrap_or_else(|_| "[]".to_string()));
+
+    conn.execute(
+        "UPDATE templates SET name = ?1, area = ?2, player_count = ?3, route_id = ?4, session_goal_type = ?5, session_goal_value = ?6, tags = ?7, updated_at = ?8 WHERE id = ?9",
+        rusqlite::params![
+            input.name,
+            input.area,
+            input.player_count,
+            input.route_id,
+            input.session_goal_type,
+            input.session_goal_value,
+            tags_json,
+            now,
+            id,
+        ],
+    )
+    .map_err(|e| {
+        if e.to_string().contains("UNIQUE constraint failed") {
+            "A template with this name already exists".to_string()
+        } else {
+            e.to_string()
+        }
+    })?;
+
+    // Fetch and return the updated template
+    let mut stmt = conn
+        .prepare("SELECT id, profile_id, name, area, player_count, route_id, session_goal_type, session_goal_value, tags, last_used_at, created_at, updated_at FROM templates WHERE id = ?1")
+        .map_err(|e| e.to_string())?;
+
+    let template = stmt
+        .query_row(rusqlite::params![id], |row| {
+            Ok(Template {
+                id: row.get(0)?,
+                profile_id: row.get(1)?,
+                name: row.get(2)?,
+                area: row.get(3)?,
+                player_count: row.get(4)?,
+                route_id: row.get(5)?,
+                session_goal_type: row.get(6)?,
+                session_goal_value: row.get(7)?,
+                tags: row.get(8)?,
+                last_used_at: row.get(9)?,
+                created_at: row.get(10)?,
+                updated_at: row.get(11)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    Ok(template)
+}
+
+pub fn db_delete_template(conn: &Connection, id: &str) -> std::result::Result<(), String> {
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM templates WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Template not found".to_string());
+    }
+
+    conn.execute("DELETE FROM templates WHERE id = ?1", rusqlite::params![id])
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+pub fn db_touch_template(conn: &Connection, id: &str) -> std::result::Result<(), String> {
+    let exists: bool = conn
+        .query_row(
+            "SELECT COUNT(*) > 0 FROM templates WHERE id = ?1",
+            rusqlite::params![id],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+
+    if !exists {
+        return Err("Template not found".to_string());
+    }
+
+    let now = Utc::now().to_rfc3339();
+    conn.execute(
+        "UPDATE templates SET last_used_at = ?1 WHERE id = ?2",
+        rusqlite::params![now, id],
+    )
+    .map_err(|e| e.to_string())?;
 
     Ok(())
 }

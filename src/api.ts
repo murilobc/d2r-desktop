@@ -48,6 +48,12 @@ import type {
   RuneCount,
   RunewordTarget,
   ScreenshotSettings,
+  OverlayProfile,
+  CreateOverlayProfileInput,
+  UpdateOverlayProfileInput,
+  Template,
+  CreateTemplateInput,
+  UpdateTemplateInput,
 } from "./types";
 import type {
   GistPullResult,
@@ -430,3 +436,38 @@ export const updateScreenshotSettings = (settings: ScreenshotSettings) =>
 
 export const detectFromClipboard = () =>
   invoke<void>("detect_from_clipboard");
+
+// Overlay Profiles
+export const getOverlayProfiles = () =>
+  invoke<OverlayProfile[]>("get_overlay_profiles");
+
+export const getActiveOverlayProfile = () =>
+  invoke<OverlayProfile>("get_active_overlay_profile");
+
+export const createOverlayProfile = (input: CreateOverlayProfileInput) =>
+  invoke<OverlayProfile>("create_overlay_profile", { input });
+
+export const updateOverlayProfile = (id: string, input: UpdateOverlayProfileInput) =>
+  invoke<OverlayProfile>("update_overlay_profile", { id, input });
+
+export const deleteOverlayProfile = (id: string) =>
+  invoke<void>("delete_overlay_profile", { id });
+
+export const setActiveOverlayProfile = (id: string) =>
+  invoke<void>("set_active_overlay_profile", { id });
+
+// Quick-Start Templates
+export const createTemplate = (input: CreateTemplateInput) =>
+  invoke<Template>("create_template", { input });
+
+export const getTemplates = (profileId: string) =>
+  invoke<Template[]>("get_templates", { profileId });
+
+export const updateTemplate = (id: string, input: UpdateTemplateInput) =>
+  invoke<Template>("update_template", { id, input });
+
+export const deleteTemplate = (id: string) =>
+  invoke<void>("delete_template", { id });
+
+export const touchTemplate = (id: string) =>
+  invoke<void>("touch_template", { id });

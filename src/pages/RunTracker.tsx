@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import type { Profile, Item, Run, Route, AchievementUnlock } from "../types";
+import type { Profile, Item, Run, Route, Template, AchievementUnlock } from "../types";
 import { AREAS } from "../types";
 import { createRun, getRuns, finishRun, createItem, getItems, deleteItem, getCustomAreas, addCustomArea, writeObsStats, getRoutes, updateRunTags, updateRunArea, runAutoBackup, cleanupOldBackups, evaluateAchievements } from "../api";
 import { syncRuneOnCreate, syncRuneOnDelete } from "../lib/rune-sync";
@@ -12,6 +12,8 @@ import MFCalculator from "../components/MFCalculator";
 import TierBadge from "../components/TierBadge";
 import QuickTags from "../components/QuickTags";
 import TerrorZoneDisplay from "../components/TerrorZoneDisplay";
+import TemplateList from "../components/TemplateList";
+import TemplateForm from "../components/TemplateForm";
 import { isAreaInTerrorZone, loadCurrentTZ } from "../data/terror-zones";
 import { playSound } from "../utils/audio";
 
@@ -75,6 +77,10 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
 
   // Tags
   const [runTags, setRunTags] = useState<string[]>([]);
+
+  // Template state
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
 
   // Timers
   const sessionTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -440,6 +446,85 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
     }
   }, [area, sessionActive, currentRun]);
 
+  // Template handlers
+  const handleStartFromTemplate = useCallback((template: Template) => {
+    // Populate session config from template
+    updateArea(template.area);
+    setPlayerCount(template.player_count);
+
+    // Handle goal type and value
+    const tGoalType = template.session_goal_type as "none" | "runs" | "time";
+    setGoalType(tGoalType);
+    if (template.session_goal_value != null) {
+      setGoalValue(template.session_goal_value);
+    }
+
+    // Handle route — if route_id is null (deleted route), start without route mode
+    if (template.route_id) {
+      const route = availableRoutes.find((r) => r.id === template.route_id);
+      if (route) {
+        setRouteMode(true);
+        setSelectedRoute(route);
+      } else {
+        // Route was deleted — start without route mode
+        setRouteMode(false);
+        setSelectedRoute(null);
+      }
+    } else {
+      setRouteMode(false);
+      setSelectedRoute(null);
+    }
+
+    // Parse and set tags
+    if (template.tags) {
+      try {
+        const parsed = JSON.parse(template.tags);
+        if (Array.isArray(parsed)) {
+          setRunTags(parsed);
+        }
+      } catch {
+        // Invalid tags JSON — ignore
+      }
+    } else {
+      setRunTags([]);
+    }
+
+    // Start session immediately
+    setSessionActive(true);
+    setSessionElapsed(0);
+    setSessionRunCount(0);
+    setSessionRunTimes([]);
+    setPaused(false);
+    goalReachedRef.current = false;
+
+    if (template.route_id) {
+      const route = availableRoutes.find((r) => r.id === template.route_id);
+      if (route) {
+        setCurrentStepIndex(0);
+        currentStepIndexRef.current = 0;
+        setCycleCount(0);
+        updateArea(route.areas[0]);
+      }
+    }
+
+    startNewRun();
+  }, [availableRoutes, startNewRun]);
+
+  const handleEditTemplate = useCallback((template: Template) => {
+    setEditingTemplate(template);
+    setShowTemplateForm(true);
+  }, []);
+
+  const handleTemplateSave = useCallback(() => {
+    setShowTemplateForm(false);
+    setEditingTemplate(null);
+  }, []);
+
+  const handleTemplateFormCancel = useCallback(() => {
+    setShowTemplateForm(false);
+    setEditingTemplate(null);
+  }, []);
+
   return (
     <div className="page">
       <div className="page-header">
@@ -451,119 +536,142 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
       <TerrorZoneDisplay onTZChange={() => autoTagTZ(area)} />
 
       {!sessionActive ? (
-        <div className="start-session-card">
-          <h2>{t('tracker.startSession')}</h2>
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('tracker.area')}</label>
-              <select value={area} onChange={(e) => updateArea(e.target.value)}>
-                {allAreas.map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
-              <div className="add-area-row">
-                <input
-                  type="text"
-                  value={newAreaInput}
-                  onChange={(e) => setNewAreaInput(e.target.value)}
-                  placeholder={t('tracker.addCustomArea')}
-                  className="add-area-input"
-                />
-                <button
-                  className="btn btn-sm"
-                  onClick={async () => {
-                    if (newAreaInput.trim()) {
-                      await addCustomArea(profile.id, newAreaInput.trim());
-                      setCustomAreas([...customAreas, newAreaInput.trim()]);
-                      setNewAreaInput("");
-                    }
-                  }}
-                  disabled={!newAreaInput.trim()}
-                >+</button>
-              </div>
-            </div>
-            {profile.mode === "Single Player" && (
+        <>
+          {/* Template Quick Start */}
+          <TemplateList
+            profileId={profile.id}
+            onStartFromTemplate={handleStartFromTemplate}
+            onEditTemplate={handleEditTemplate}
+            sessionActive={sessionActive}
+          />
+
+          <div className="start-session-card">
+            <h2>{t('tracker.startSession')}</h2>
+            <div className="form-row">
               <div className="form-group">
-                <label>{t('tracker.players')}</label>
-                <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
-                  {[1,2,3,4,5,6,7,8].map((n) => (
-                    <option key={n} value={n}>/players {n}</option>
+                <label>{t('tracker.area')}</label>
+                <select value={area} onChange={(e) => updateArea(e.target.value)}>
+                  {allAreas.map((a) => (
+                    <option key={a} value={a}>{a}</option>
                   ))}
                 </select>
+                <div className="add-area-row">
+                  <input
+                    type="text"
+                    value={newAreaInput}
+                    onChange={(e) => setNewAreaInput(e.target.value)}
+                    placeholder={t('tracker.addCustomArea')}
+                    className="add-area-input"
+                  />
+                  <button
+                    className="btn btn-sm"
+                    onClick={async () => {
+                      if (newAreaInput.trim()) {
+                        await addCustomArea(profile.id, newAreaInput.trim());
+                        setCustomAreas([...customAreas, newAreaInput.trim()]);
+                        setNewAreaInput("");
+                      }
+                    }}
+                    disabled={!newAreaInput.trim()}
+                  >+</button>
+                </div>
               </div>
-            )}
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('tracker.sessionGoal')}</label>
-              <select value={goalType} onChange={(e) => setGoalType(e.target.value as "none" | "runs" | "time")}>
-                <option value="none">{t('tracker.noGoal')}</option>
-                <option value="runs">{t('tracker.runCount')}</option>
-                <option value="time">{t('tracker.timeMinutes')}</option>
-              </select>
+              {profile.mode === "Single Player" && (
+                <div className="form-group">
+                  <label>{t('tracker.players')}</label>
+                  <select value={playerCount} onChange={(e) => setPlayerCount(Number(e.target.value))}>
+                    {[1,2,3,4,5,6,7,8].map((n) => (
+                      <option key={n} value={n}>/players {n}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
-            {goalType !== "none" && (
+            <div className="form-row">
               <div className="form-group">
-                <label>{goalType === "runs" ? t('tracker.targetRuns') : t('tracker.targetMinutes')}</label>
-                <input
-                  type="number"
-                  min={1}
-                  value={goalValue}
-                  onChange={(e) => setGoalValue(Number.parseInt(e.target.value) || 1)}
-                />
-              </div>
-            )}
-          </div>
-          {/* Route Mode */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>{t('tracker.routeMode')}</label>
-              <div className="route-mode-toggle">
-                <button
-                  type="button"
-                  className={`btn btn-sm ${routeMode ? "btn-primary" : ""}`}
-                  onClick={() => {
-                    if (availableRoutes.length === 0) return;
-                    setRouteMode(!routeMode);
-                    if (routeMode) setSelectedRoute(null);
-                  }}
-                  disabled={availableRoutes.length === 0}
-                >
-                  {routeMode ? `🗺️ ${t('tracker.routeOn')}` : t('tracker.routeOff')}
-                </button>
-                {availableRoutes.length === 0 && (
-                  <small className="text-muted">{t('tracker.createRoutesFirst')}</small>
-                )}
-                {availableRoutes.length > 0 && !routeMode && (
-                  <small className="text-muted">{t('tracker.routesAvailable', { count: availableRoutes.length })}</small>
-                )}
-              </div>
-            </div>
-            {routeMode && (
-              <div className="form-group">
-                <label htmlFor="route-select">{t('tracker.route')}</label>
-                <select
-                  id="route-select"
-                  value={selectedRoute?.id || ""}
-                  onChange={(e) => {
-                    const route = availableRoutes.find((r) => r.id === e.target.value) || null;
-                    setSelectedRoute(route);
-                    if (route) updateArea(route.areas[0]);
-                  }}
-                >
-                  <option value="">{t('tracker.selectRoute')}</option>
-                  {availableRoutes.map((r) => (
-                    <option key={r.id} value={r.id}>{r.name} ({r.areas.length} areas)</option>
-                  ))}
+                <label>{t('tracker.sessionGoal')}</label>
+                <select value={goalType} onChange={(e) => setGoalType(e.target.value as "none" | "runs" | "time")}>
+                  <option value="none">{t('tracker.noGoal')}</option>
+                  <option value="runs">{t('tracker.runCount')}</option>
+                  <option value="time">{t('tracker.timeMinutes')}</option>
                 </select>
               </div>
-            )}
+              {goalType !== "none" && (
+                <div className="form-group">
+                  <label>{goalType === "runs" ? t('tracker.targetRuns') : t('tracker.targetMinutes')}</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={goalValue}
+                    onChange={(e) => setGoalValue(Number.parseInt(e.target.value) || 1)}
+                  />
+                </div>
+              )}
+            </div>
+            {/* Route Mode */}
+            <div className="form-row">
+              <div className="form-group">
+                <label>{t('tracker.routeMode')}</label>
+                <div className="route-mode-toggle">
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${routeMode ? "btn-primary" : ""}`}
+                    onClick={() => {
+                      if (availableRoutes.length === 0) return;
+                      setRouteMode(!routeMode);
+                      if (routeMode) setSelectedRoute(null);
+                    }}
+                    disabled={availableRoutes.length === 0}
+                  >
+                    {routeMode ? `🗺️ ${t('tracker.routeOn')}` : t('tracker.routeOff')}
+                  </button>
+                  {availableRoutes.length === 0 && (
+                    <small className="text-muted">{t('tracker.createRoutesFirst')}</small>
+                  )}
+                  {availableRoutes.length > 0 && !routeMode && (
+                    <small className="text-muted">{t('tracker.routesAvailable', { count: availableRoutes.length })}</small>
+                  )}
+                </div>
+              </div>
+              {routeMode && (
+                <div className="form-group">
+                  <label htmlFor="route-select">{t('tracker.route')}</label>
+                  <select
+                    id="route-select"
+                    value={selectedRoute?.id || ""}
+                    onChange={(e) => {
+                      const route = availableRoutes.find((r) => r.id === e.target.value) || null;
+                      setSelectedRoute(route);
+                      if (route) updateArea(route.areas[0]);
+                    }}
+                  >
+                    <option value="">{t('tracker.selectRoute')}</option>
+                    {availableRoutes.map((r) => (
+                      <option key={r.id} value={r.id}>{r.name} ({r.areas.length} areas)</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="form-row template-action-row">
+              <button className="btn btn-primary btn-lg" onClick={startSession}>
+                ▶ {t('tracker.startSessionBtn')}
+              </button>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  setEditingTemplate(null);
+                  setShowTemplateForm(true);
+                }}
+                disabled={!profile.id}
+                title="Save current configuration as a template"
+              >
+                💾 Save as Template
+              </button>
+            </div>
+            {profile.magic_find && <MFCalculator magicFind={profile.magic_find} />}
           </div>
-          <button className="btn btn-primary btn-lg" onClick={startSession}>
-            ▶ {t('tracker.startSessionBtn')}
-          </button>
-          {profile.magic_find && <MFCalculator magicFind={profile.magic_find} />}
-        </div>
+        </>
       ) : (
         <div className="session-card">
           {/* Timer Display */}
@@ -680,6 +788,31 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
             </div>
           </div>
         </div>
+      )}
+
+      {/* Template Form Modal */}
+      {showTemplateForm && (
+        <TemplateForm
+          mode={editingTemplate ? "edit" : "create"}
+          initialValues={
+            editingTemplate
+              ? editingTemplate
+              : {
+                  area,
+                  player_count: playerCount,
+                  route_id: routeMode && selectedRoute ? selectedRoute.id : undefined,
+                  session_goal_type: goalType,
+                  session_goal_value: goalType !== "none" ? goalValue : undefined,
+                  tags: runTags.length > 0 ? JSON.stringify(runTags) : undefined,
+                }
+          }
+          profileId={profile.id}
+          routes={availableRoutes}
+          customAreas={customAreas}
+          availableTags={runTags}
+          onSave={handleTemplateSave}
+          onCancel={handleTemplateFormCancel}
+        />
       )}
     </div>
   );

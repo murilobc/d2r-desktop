@@ -19,7 +19,8 @@ export interface UseScreenshotDetection {
 }
 
 export function useScreenshotDetection(
-  profileId: string | null
+  profileId: string | null,
+  onError?: (message: string) => void
 ): UseScreenshotDetection {
   const [detection, setDetection] = useState<DetectionResult | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,8 +112,16 @@ export function useScreenshotDetection(
   const triggerManual = useCallback(() => {
     detectFromClipboard().catch((error) => {
       console.error("Manual detection failed:", error);
+      if (onError) {
+        const msg = String(error);
+        if (msg.includes("no_image")) {
+          onError("No image found in clipboard");
+        } else {
+          onError("Screenshot detection failed");
+        }
+      }
     });
-  }, []);
+  }, [onError]);
 
   return { detection, dismiss, confirm, triggerManual };
 }

@@ -133,6 +133,18 @@ impl ClipboardMonitor {
         self.running.load(Ordering::Relaxed)
     }
 
+    /// Creates a monitor in the "running" state for testing purposes.
+    /// Does not spawn any tokio tasks — only useful for testing stop()/is_running().
+    #[cfg(test)]
+    pub fn new_running_for_test() -> Self {
+        Self {
+            running: Arc::new(AtomicBool::new(true)),
+            last_hash: Arc::new(Mutex::new(None)),
+            pending_image: Arc::new(Mutex::new(None)),
+            processing: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
     /// Polls the clipboard for image content. Returns `Ok(Some(png_bytes))` when a new
     /// image is detected (different SHA-256 hash from last), `Ok(None)` when no new image
     /// is available, or `Err` on clipboard access failures.
@@ -392,6 +404,69 @@ pub fn determine_routing(scores: &[u8], threshold: u8) -> (bool, bool, bool) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Bug Condition Exploration Test: Tokio Spawn Panics Outside Runtime Context
+    ///
+    /// **Validates: Requirements 1.1**
+    ///
+    /// This test confirms the root cause of the clipboard monitor crash:
+    /// `tokio::spawn` panics when called from a plain thread without a Tokio runtime context.
+    ///
+    /// In the unfixed code, `update_screenshot_settings` is a synchronous Tauri command
+    /// that runs on a thread-pool thread (no Tokio runtime). When it calls
+    /// `ClipboardMonitor::start()`, the internal `tokio::spawn` panics with:
+    /// "there is no reactor running, must be called from the context of a Tokio runtime"
+    ///
+    /// Bug condition: `isBugCondition(input)` where
+    ///   `new_settings.monitoring_enabled = true AND old_settings.monitoring_enabled = false`
+    ///
+    /// This test spawns a plain std::thread (simulating the Tauri sync command thread pool)
+    /// and attempts to call `tokio::spawn`, which is what `ClipboardMonitor::start()` does.
+    /// The test expects a panic, confirming the bug exists on unfixed code.
+    #[test]
+    fn test_bug_condition_tokio_spawn_panics_outside_runtime() {
+        // Spawn a plain std::thread — no Tokio runtime context, simulating
+        // how Tauri 2 dispatches synchronous commands on its thread pool.
+        let handle = std::thread::spawn(|| {
+            // Use catch_unwind to capture the panic without crashing the test runner
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                // This is exactly what ClipboardMonitor::start() does internally:
+                // it calls tokio::spawn from whatever thread context it's on.
+                // On a sync Tauri command thread (no runtime), this panics.
+                tokio::spawn(async {
+                    // The body doesn't matter — the panic happens at spawn time
+                });
+            }));
+
+            // The bug condition is confirmed when tokio::spawn panics
+            assert!(
+                result.is_err(),
+                "Expected tokio::spawn to panic outside runtime context, but it did not panic. \
+                 Bug condition NOT confirmed — tokio::spawn should fail without a Tokio runtime."
+            );
+
+            // Verify the panic message matches the expected Tokio error
+            if let Err(panic_payload) = &result {
+                let panic_msg = if let Some(s) = panic_payload.downcast_ref::<String>() {
+                    s.clone()
+                } else if let Some(s) = panic_payload.downcast_ref::<&str>() {
+                    s.to_string()
+                } else {
+                    "unknown panic payload".to_string()
+                };
+
+                assert!(
+                    panic_msg.contains("no reactor running")
+                        || panic_msg.contains("must be called from the context of a Tokio")
+                        || panic_msg.contains("there is no reactor running"),
+                    "Panic message should indicate missing Tokio runtime context, got: {}",
+                    panic_msg
+                );
+            }
+        });
+
+        handle.join().expect("Test thread should not panic outside catch_unwind");
+    }
 
     #[test]
     fn test_determine_routing_empty_scores() {

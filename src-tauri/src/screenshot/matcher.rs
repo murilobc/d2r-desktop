@@ -931,7 +931,7 @@ mod tests {
         use super::*;
         use proptest::prelude::*;
 
-        /// **Validates: Requirements 3.3, 3.4**
+        // **Validates: Requirements 3.3, 3.4**
         proptest! {
             #[test]
             fn prop_confidence_score_range_and_count(input in "\\PC{0,50}") {
@@ -951,11 +951,11 @@ mod tests {
 
         // Feature: screenshot-item-detection, Property 2: Match results sorted by confidence descending
 
-        /// **Validates: Requirements 3.1, 3.2**
-        ///
-        /// For arbitrary non-empty strings, verify candidates returned by `match_items`
-        /// are ordered by confidence descending, allowing tiebreaker reordering within
-        /// a 5-point band.
+        // **Validates: Requirements 3.1, 3.2**
+        //
+        // For arbitrary non-empty strings, verify candidates returned by `match_items`
+        // are ordered by confidence descending, allowing tiebreaker reordering within
+        // a 5-point band.
         proptest! {
             #[test]
             fn prop_sorted_results(input in "[A-Za-z]{1,20}") {
@@ -977,10 +977,10 @@ mod tests {
 
         // Feature: screenshot-item-detection, Property 3: Category tiebreaker ordering within confidence band
 
-        /// **Validates: Requirements 3.5**
-        ///
-        /// Within any 5-point confidence band in the results, priority category items
-        /// (Unique, Set, Rune) appear before non-priority items.
+        // **Validates: Requirements 3.5**
+        //
+        // Within any 5-point confidence band in the results, priority category items
+        // (Unique, Set, Rune) appear before non-priority items.
         proptest! {
             #[test]
             fn prop_category_tiebreaker(input in "[A-Za-z]{2,15}") {
@@ -1014,7 +1014,7 @@ mod tests {
 
         // Feature: screenshot-item-detection, Property 4: OCR character normalization is idempotent
 
-        /// **Validates: Requirements 3.6**
+        // **Validates: Requirements 3.6**
         proptest! {
             #[test]
             fn prop_normalize_ocr_idempotent(input in "\\PC{0,100}") {
@@ -1026,7 +1026,7 @@ mod tests {
 
         // Feature: screenshot-item-detection, Property 11: Empty and whitespace-only input returns no candidates
 
-        /// **Validates: Requirements 3.7**
+        // **Validates: Requirements 3.7**
         proptest! {
             #[test]
             fn prop_empty_whitespace_no_candidates(input in "[ \\t\\n\\r]{0,50}") {

@@ -715,12 +715,12 @@ mod tests {
         use super::*;
         use proptest::prelude::*;
 
-        /// **Validates: Requirements 4.1, 4.2, 4.4, 4.5**
-        ///
-        /// For arbitrary threshold T (50–100) and score vectors, verify:
-        /// - top > T → auto-suggested
-        /// - top in (30, T] → not auto-suggested with non-empty candidates
-        /// - all ≤ 30 → ItemSearch fallback
+        // **Validates: Requirements 4.1, 4.2, 4.4, 4.5**
+        //
+        // For arbitrary threshold T (50–100) and score vectors, verify:
+        // - top > T → auto-suggested
+        // - top in (30, T] → not auto-suggested with non-empty candidates
+        // - all ≤ 30 → ItemSearch fallback
         proptest! {
             #[test]
             fn prop_detection_routing(

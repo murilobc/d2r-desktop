@@ -1795,6 +1795,15 @@ body {
   min-width: 60px;
   width: 60px;
   text-align: center;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.hotkey-btn.toggle-btn.recording {
+  animation: none;
+  border-color: var(--success);
+  color: var(--success);
+  background: rgba(34, 197, 94, 0.1);
+  opacity: 1;
 }
 
 /* Folder path display */
@@ -4445,6 +4454,7 @@ body {
 
 .widget-library-item--placed {
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .widget-library-item--placed:hover {
@@ -4815,6 +4825,54 @@ body {
   font-size: 0.75rem;
   color: var(--text-muted);
   letter-spacing: 0.5px;
+}
+
+.preview-canvas-widget-delete {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-canvas-widget-delete:hover {
+  filter: brightness(1.2);
+}
+
+.preview-canvas-controls {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.preview-ctrl-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  font-size: 14px;
+  color: #fff;
 }
 
 /* ===== OVERLAY EDITOR: Profile Manager ===== */

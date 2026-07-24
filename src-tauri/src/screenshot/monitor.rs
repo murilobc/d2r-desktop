@@ -213,6 +213,13 @@ impl ClipboardMonitor {
             Ok(e) => e,
             Err(e) => {
                 eprintln!("[ClipboardMonitor] OCR init failed: {}", e);
+                let payload = DetectionFailedPayload {
+                    reason: "ocr_init_failed".to_string(),
+                    message: format!("OCR engine initialization failed: {}", e),
+                };
+                if let Err(emit_err) = app_handle.emit("screenshot:detection-failed", &payload) {
+                    eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", emit_err);
+                }
                 return;
             }
         };
@@ -221,6 +228,13 @@ impl ClipboardMonitor {
             Ok(text) => text,
             Err(e) => {
                 eprintln!("[ClipboardMonitor] OCR extraction failed: {}", e);
+                let payload = DetectionFailedPayload {
+                    reason: "ocr_failed".to_string(),
+                    message: format!("OCR text extraction failed: {}", e),
+                };
+                if let Err(emit_err) = app_handle.emit("screenshot:detection-failed", &payload) {
+                    eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", emit_err);
+                }
                 return;
             }
         };
@@ -239,6 +253,13 @@ impl ClipboardMonitor {
         // 2. Parse tooltip text into candidate item names
         let parsed_candidates = parse_tooltip_text(&raw_text);
         if parsed_candidates.is_empty() {
+            let payload = DetectionFailedPayload {
+                reason: "no_candidates".to_string(),
+                message: "OCR text did not match D2R tooltip format".to_string(),
+            };
+            if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
+                eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", e);
+            }
             return;
         }
 

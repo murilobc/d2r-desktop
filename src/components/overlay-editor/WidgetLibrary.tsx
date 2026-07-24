@@ -39,6 +39,7 @@ function DraggableWidgetItem({ type, isPlaced }: DraggableWidgetItemProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `widget-library-${type}`,
     data: { type, fromLibrary: true },
+    disabled: isPlaced,
   });
 
   return (

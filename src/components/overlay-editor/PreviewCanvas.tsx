@@ -22,15 +22,18 @@ interface PreviewCanvasProps {
   readonly onWidgetMove: (id: string, x: number, y: number) => void;
   // Called by the parent DndContext onDragEnd handler when a new widget is dropped on the canvas
   readonly onWidgetAdd: (type: WidgetType, x: number, y: number) => void;
+  // Called when a widget's delete button is clicked on the canvas
+  readonly onRemoveWidget?: (id: string) => void;
 }
 
 interface DraggableWidgetProps {
   readonly widget: WidgetPlacement;
   readonly isSelected: boolean;
   readonly onSelect: (id: string) => void;
+  readonly onRemove?: (id: string) => void;
 }
 
-function DraggableWidget({ widget, isSelected, onSelect }: DraggableWidgetProps) {
+function DraggableWidget({ widget, isSelected, onSelect, onRemove }: DraggableWidgetProps) {
   const { attributes, listeners, setNodeRef, isDragging, transform } = useDraggable({
     id: `canvas-widget-${widget.id}`,
     data: { widgetId: widget.id, fromCanvas: true },
@@ -77,12 +80,33 @@ function DraggableWidget({ widget, isSelected, onSelect }: DraggableWidgetProps)
       data-widget-id={widget.id}
     >
       {WIDGET_PLACEHOLDERS[widget.type]}
+      {isSelected && (
+        <span
+          role="button"
+          className="preview-canvas-widget-delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove?.(widget.id);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove?.(widget.id);
+            }
+          }}
+          aria-label={`Remove ${widget.type} widget`}
+          tabIndex={0}
+        >
+          ×
+        </span>
+      )}
     </button>
   );
 }
 
 export default function PreviewCanvas(props: PreviewCanvasProps) {
-  const { layout, selectedWidgetId, onWidgetSelect } = props;
+  const { layout, selectedWidgetId, onWidgetSelect, onRemoveWidget } = props;
   // onWidgetMove and onWidgetAdd are part of the interface so the parent OverlayEditor
   // can pass them through and call them in the DndContext onDragEnd handler.
   // PreviewCanvas provides the droppable area and draggable widgets.
@@ -147,8 +171,16 @@ export default function PreviewCanvas(props: PreviewCanvasProps) {
             widget={widget}
             isSelected={selectedWidgetId === widget.id}
             onSelect={onWidgetSelect}
+            onRemove={onRemoveWidget}
           />
         ))}
+        {/* Static controller button preview */}
+        <div className="preview-canvas-controls" aria-label="Controller buttons preview">
+          <span className="preview-ctrl-btn">⏭</span>
+          <span className="preview-ctrl-btn">⏸</span>
+          <span className="preview-ctrl-btn">⏹</span>
+          <span className="preview-ctrl-btn">◫</span>
+        </div>
       </section>
     </div>
   );

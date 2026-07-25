@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.1.7_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.7_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.1.7_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.7_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.1.8_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.8_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.1.8_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.8_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -85,6 +85,9 @@ A compact, always-on-top window that floats over D2R while you play. Toggle from
 - **Session timer** — Session elapsed time with recording dot
 - **Run timer** — Current run time, identical to main window
 - **Run count** — Session + total
+- **Item count** — Number of items logged in the current run, updated in real-time
+- **Detect Screenshot** — Trigger detection from overlay; relays results to main window with status indicator
+- **Session guard** — Detect button shows "Start a session first" if no session is active
 - **Controls** — Next Run, Pause/Resume, End Session, Add Item
 - **Drag anywhere** — Reposition the overlay on screen
 - **Hide** — Close the overlay without stopping the session
@@ -341,15 +344,19 @@ Detect items from game screenshots via local OCR to auto-log drops without manua
 **Image Sources:**
 - **Clipboard monitoring** — Detects when you take a screenshot (PrintScreen) and processes it automatically via clipboard polling
 - **Folder monitoring** — Watches the D2R screenshots folder for new `.jpg`/`.png` files, processes them automatically within 2 seconds
+- **Auto-start on launch** — Folder watcher starts automatically on app launch when enabled in settings (no manual toggle needed)
+- **Manual trigger checks both** — Sidebar button and keybind check clipboard AND folder for new screenshots
 - **Auto-detect folder** — Finds the D2R screenshots path automatically (`Documents\Diablo II Resurrected\Screenshots\` or `Saved Games\...`)
 - **Custom folder** — Browse to select any folder as the screenshot source
 - **Manual file detection** — Trigger detection from a specific file on disk
 
 **Detection Pipeline:**
+- **Session guard** — Detection requires an active session; triggers "Start a session first to detect items" toast if no session is running
 - **Item tooltip parsing** — Extracts item name and rarity from D2R tooltip format
 - **Confidence scoring** — Shows match confidence percentage; high-confidence items can auto-confirm
 - **Manual correction** — Always allows overriding the detection with the correct item from the searchable database
 - **5-second timeout** — Pipeline aborts gracefully if processing takes too long
+- **Overlay relay** — Detection triggered from the overlay shows a status indicator and brings the main window to focus for confirmation
 
 **Anti-Cheat Compliance:**
 - All processing is 100% local — no network calls, no external API keys
@@ -361,6 +368,7 @@ Detect items from game screenshots via local OCR to auto-log drops without manua
 - Enable/disable folder monitoring toggle with path display
 - Auto-detect and Browse buttons for folder path
 - Confidence threshold slider (50-100%)
+- Detect Screenshot keybind with toast notification on registration failure
 - Validation warnings for invalid folder paths
 
 ---

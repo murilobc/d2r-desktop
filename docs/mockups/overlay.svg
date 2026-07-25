@@ -51,8 +51,8 @@
   <!-- Run timer -->
   <text x="560" y="230" fill="#ffffff" font-size="44" font-weight="bold" font-family="monospace" text-anchor="middle">00:02:34.7</text>
 
-  <!-- Run count -->
-  <text x="560" y="270" fill="#ff6600" font-size="14" font-family="monospace" text-anchor="middle">Run: 23 (147)</text>
+  <!-- Run count + Items -->
+  <text x="560" y="270" fill="#ff6600" font-size="14" font-family="monospace" text-anchor="middle">Run: 23 (147) · Items: 3</text>
 
   <!-- Control buttons -->
   <rect x="415" y="300" width="50" height="36" rx="4" fill="#4ecdc4"/>

@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.1.4_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.4_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.1.4_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.4_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.2.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.2.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -330,17 +330,38 @@ Pre-configured session templates for one-click farming starts. Eliminates repeti
 
 ![Screenshot Detection](docs/mockups/screenshot-detection.svg)
 
-Detect items from game screenshots via local OCR to auto-log drops without manual typing.
+Detect items from game screenshots via local OCR to auto-log drops without manual typing. Works out-of-the-box with zero external dependencies.
 
-- **Clipboard monitoring** — Detects when you take a screenshot (PrintScreen) and processes it automatically
-- **OCR pipeline** — Local Tesseract-based text recognition (Rust backend, no external dependencies)
-- **Item tooltip parsing** — Extracts item name and rarity from D2R tooltip format (gold/green/orange text)
+**OCR Engine:**
+- **Layered strategy** — Windows native OCR (primary, via Windows.Media.Ocr API) with embedded `ocrs` fallback (pure Rust, bundled ONNX models)
+- **Zero dependencies** — No Tesseract, no external downloads, works immediately after installation on Windows 10+
+- **Color-based text detection** — Scans for D2R item name colors (Unique gold, Set green, Rune orange, Rare yellow, Magic blue, Normal white) to locate and crop the text region before OCR
+- **Binarization** — Converts the cropped region to pure black/white for maximum OCR accuracy
+
+**Image Sources:**
+- **Clipboard monitoring** — Detects when you take a screenshot (PrintScreen) and processes it automatically via clipboard polling
+- **Folder monitoring** — Watches the D2R screenshots folder for new `.jpg`/`.png` files, processes them automatically within 2 seconds
+- **Auto-detect folder** — Finds the D2R screenshots path automatically (`Documents\Diablo II Resurrected\Screenshots\` or `Saved Games\...`)
+- **Custom folder** — Browse to select any folder as the screenshot source
+- **Manual file detection** — Trigger detection from a specific file on disk
+
+**Detection Pipeline:**
+- **Item tooltip parsing** — Extracts item name and rarity from D2R tooltip format
 - **Confidence scoring** — Shows match confidence percentage; high-confidence items can auto-confirm
 - **Manual correction** — Always allows overriding the detection with the correct item from the searchable database
-- **Detection history** — Log of all detected items this session with time, confidence, and status
-- **Supported targets** — Unique items, Set items, Runes (distinctive text colors for reliable detection)
-- **Privacy** — All processing is 100% local, no network calls, no external API keys needed
-- **Settings** — Enable/disable toggle, clipboard monitoring toggle, confidence threshold slider
+- **5-second timeout** — Pipeline aborts gracefully if processing takes too long
+
+**Anti-Cheat Compliance:**
+- All processing is 100% local — no network calls, no external API keys
+- Folder watcher uses only standard filesystem APIs (`std::fs::read`) — no kernel hooks, no process injection
+- Never opens handles to the game process or monitors running processes
+
+**Settings:**
+- Enable/disable clipboard monitoring toggle
+- Enable/disable folder monitoring toggle with path display
+- Auto-detect and Browse buttons for folder path
+- Confidence threshold slider (50-100%)
+- Validation warnings for invalid folder paths
 
 ---
 
@@ -450,7 +471,7 @@ Always visible, provides navigation and utilities:
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React 19, TypeScript, Recharts, jsPDF, react-i18next, react-window |
-| Backend | Rust, Tauri 2, SQLite (rusqlite), reqwest, keyring |
+| Backend | Rust, Tauri 2, SQLite (rusqlite), reqwest, keyring, windows-rs, ocrs/rten |
 | Desktop | Tauri (native webview, no Electron) |
 | Build | Vite, Cargo |
 | CI/CD | GitHub Actions, automated tests |
@@ -519,7 +540,7 @@ d2r-desktop/
 │   │   ├── BuildSuggestions.tsx # Class-specific suggestions
 │   │   ├── TemplateForm.tsx    # Quick-start template creation form
 │   │   ├── TemplateList.tsx    # Template cards display
-│   │   ├── ScreenshotSettings.tsx # Screenshot detection settings
+│   │   ├── ScreenshotSettings.tsx # Screenshot detection & folder monitoring settings
 │   │   ├── Skeleton.tsx        # Loading skeleton placeholders
 │   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
 │   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer
@@ -577,9 +598,15 @@ d2r-desktop/
 │       ├── achievements.rs    # Achievement system (schema, evaluation, stats)
 │       ├── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
 │       └── screenshot/        # Screenshot item detection
-│           ├── mod.rs          # Module definition
-│           ├── ocr.rs          # Tesseract OCR integration
-│           └── monitor.rs      # Clipboard monitoring
+│           ├── mod.rs          # Module definition, Tauri commands, state
+│           ├── ocr.rs          # Layered OCR (Windows native + ocrs fallback)
+│           ├── color_detector.rs # D2R color-based text region detection
+│           ├── folder_watcher.rs # Folder polling for new screenshots
+│           ├── monitor.rs      # Clipboard monitoring & detection pipeline
+│           ├── settings.rs     # Screenshot settings & DB migration
+│           ├── matcher.rs      # Fuzzy item matching
+│           └── parser.rs       # Tooltip text parser
+│   ├── models/                 # OCR model files (downloaded at build time)
 │   └── data/
 │       └── tc_data.json        # Treasure class data for probability calculations
 ├── .github/workflows/          # CI/CD

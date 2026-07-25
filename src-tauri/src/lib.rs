@@ -40,6 +40,9 @@ pub fn run() {
             app.manage(screenshot::MonitorState(
                 std::sync::Arc::new(std::sync::Mutex::new(None)),
             ));
+            app.manage(screenshot::FolderWatcherState(
+                std::sync::Arc::new(std::sync::Mutex::new(None)),
+            ));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -152,6 +155,8 @@ pub fn run() {
             screenshot::get_screenshot_settings,
             screenshot::update_screenshot_settings,
             screenshot::detect_from_clipboard,
+            screenshot::get_default_screenshot_folder,
+            screenshot::detect_from_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

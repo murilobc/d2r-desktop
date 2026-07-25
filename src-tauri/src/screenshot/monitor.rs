@@ -2,16 +2,21 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex,
 };
+use std::time::Instant;
 
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Emitter};
 
+use super::color_detector;
 use super::matcher::{match_items, MatchCandidate, ITEM_DATABASE};
 use super::ocr::OcrEngine;
 use super::parser::parse_tooltip_text;
 use super::settings::ScreenshotSettings;
+
+/// Maximum time allowed for the entire detection pipeline (5 seconds).
+const PIPELINE_TIMEOUT_SECS: u64 = 5;
 
 /// Event payload for detection failures.
 ///
@@ -194,21 +199,64 @@ impl ClipboardMonitor {
         Ok(Some(png_bytes))
     }
 
-    /// Runs the full detection pipeline: OCR → Parser → Matcher → Event emission.
+    /// Runs the full detection pipeline: Color Detection → OCR → Parser → Matcher → Event emission.
     ///
-    /// 1. Initializes the OCR engine and extracts text from the image
-    /// 2. Parses tooltip text into candidate item names
-    /// 3. Matches candidates against the item database
-    /// 4. Filters results below score 30
-    /// 5. Builds a `DetectionResult` and emits it via Tauri event
+    /// 1. Starts a 5-second timeout clock
+    /// 2. Runs color-based text region detection to crop and binarize the item name area
+    /// 3. Initializes the OCR engine and extracts text from the (cropped or full) image
+    /// 4. Parses tooltip text into candidate item names
+    /// 5. Matches candidates against the item database
+    /// 6. Filters results below score 30
+    /// 7. Builds a `DetectionResult` and emits it via Tauri event
+    /// 8. Checks timeout at key stages — aborts with `detection-failed` (reason: `timeout`) if exceeded
     ///
     /// Image data is not persisted — it is released after processing.
-    fn process_image(
+    pub(super) fn process_image(
         app_handle: &AppHandle,
         image_data: &[u8],
         settings: &ScreenshotSettings,
     ) {
-        // 1. Run OCR
+        let start = Instant::now();
+        let timeout = std::time::Duration::from_secs(PIPELINE_TIMEOUT_SECS);
+
+        // 1. Color-based text region detection
+        let (ocr_input, _category_hint) = match color_detector::detect_item_text_region(image_data)
+        {
+            Ok(result) => {
+                let category = result.detected_category.clone();
+                if !category.is_empty() {
+                    eprintln!(
+                        "[ClipboardMonitor] Color detection: category='{}', confidence_boost={}",
+                        category, result.confidence_boost
+                    );
+                }
+                (result.cropped_image, Some(category))
+            }
+            Err(e) => {
+                eprintln!(
+                    "[ClipboardMonitor] Color detection failed (falling back to full image): {}",
+                    e
+                );
+                (image_data.to_vec(), None)
+            }
+        };
+
+        // Check timeout after color detection
+        if start.elapsed() > timeout {
+            let payload = DetectionFailedPayload {
+                reason: "timeout".to_string(),
+                message: "Detection pipeline exceeded 5-second timeout".to_string(),
+            };
+            if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
+            }
+            return;
+        }
+
+        // 2. Run OCR on the (cropped/binarized or full) image
         let mut engine = match OcrEngine::new() {
             Ok(e) => e,
             Err(e) => {
@@ -218,13 +266,16 @@ impl ClipboardMonitor {
                     message: format!("OCR engine initialization failed: {}", e),
                 };
                 if let Err(emit_err) = app_handle.emit("screenshot:detection-failed", &payload) {
-                    eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", emit_err);
+                    eprintln!(
+                        "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                        emit_err
+                    );
                 }
                 return;
             }
         };
 
-        let raw_text = match engine.extract_text(image_data) {
+        let raw_text = match engine.extract_text(&ocr_input) {
             Ok(text) => text,
             Err(e) => {
                 eprintln!("[ClipboardMonitor] OCR extraction failed: {}", e);
@@ -233,11 +284,29 @@ impl ClipboardMonitor {
                     message: format!("OCR text extraction failed: {}", e),
                 };
                 if let Err(emit_err) = app_handle.emit("screenshot:detection-failed", &payload) {
-                    eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", emit_err);
+                    eprintln!(
+                        "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                        emit_err
+                    );
                 }
                 return;
             }
         };
+
+        // Check timeout after OCR
+        if start.elapsed() > timeout {
+            let payload = DetectionFailedPayload {
+                reason: "timeout".to_string(),
+                message: "Detection pipeline exceeded 5-second timeout".to_string(),
+            };
+            if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
+            }
+            return;
+        }
 
         if raw_text.is_empty() {
             let payload = DetectionFailedPayload {
@@ -245,12 +314,15 @@ impl ClipboardMonitor {
                 message: "No readable text found in the clipboard image".to_string(),
             };
             if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
-                eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", e);
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
             }
             return;
         }
 
-        // 2. Parse tooltip text into candidate item names
+        // 3. Parse tooltip text into candidate item names
         let parsed_candidates = parse_tooltip_text(&raw_text);
         if parsed_candidates.is_empty() {
             let payload = DetectionFailedPayload {
@@ -258,15 +330,19 @@ impl ClipboardMonitor {
                 message: "OCR text did not match D2R tooltip format".to_string(),
             };
             if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
-                eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", e);
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
             }
             return;
         }
 
-        // 3. Match against item database
-        let matches = match_items(&parsed_candidates, &ITEM_DATABASE, settings.confidence_threshold);
+        // 4. Match against item database
+        let matches =
+            match_items(&parsed_candidates, &ITEM_DATABASE, settings.confidence_threshold);
 
-        // 4. Filter: only keep candidates above score 30
+        // 5. Filter: only keep candidates above score 30
         let above_30: Vec<MatchCandidate> =
             matches.into_iter().filter(|m| m.confidence > 30).collect();
         if above_30.is_empty() {
@@ -275,12 +351,30 @@ impl ClipboardMonitor {
                 message: "No item matched the detected text".to_string(),
             };
             if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
-                eprintln!("[ClipboardMonitor] Failed to emit detection-failed event: {}", e);
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
             }
             return;
         }
 
-        // 5. Build DetectionResult
+        // Final timeout check before emitting success
+        if start.elapsed() > timeout {
+            let payload = DetectionFailedPayload {
+                reason: "timeout".to_string(),
+                message: "Detection pipeline exceeded 5-second timeout".to_string(),
+            };
+            if let Err(e) = app_handle.emit("screenshot:detection-failed", &payload) {
+                eprintln!(
+                    "[ClipboardMonitor] Failed to emit detection-failed event: {}",
+                    e
+                );
+            }
+            return;
+        }
+
+        // 6. Build DetectionResult
         let top = above_30.first().cloned();
         let is_auto_suggested = top
             .as_ref()
@@ -295,7 +389,7 @@ impl ClipboardMonitor {
             detected_at: Utc::now().to_rfc3339(),
         };
 
-        // 6. Emit Tauri event
+        // 7. Emit Tauri event
         if let Err(e) = app_handle.emit("screenshot:item-detected", &result) {
             eprintln!("[ClipboardMonitor] Failed to emit detection event: {}", e);
         }
@@ -731,7 +825,106 @@ mod tests {
         assert_eq!(json2["message"], "No item matched the detected text");
     }
 
-    /// Feature: screenshot-item-detection, Property 6: Detection routing by confidence threshold
+    // Feature: screenshot-detect-folder-source, Property 6: Detection pipeline never panics on arbitrary image input
+    //
+    // **Validates: Requirements 1.1, 8.4, 8.5**
+    //
+    // For any non-empty byte sequence passed as image_data to process_image, the function
+    // SHALL either emit a detection event or a detection-failed event, but SHALL NOT panic
+    // or crash the application. Since process_image requires an AppHandle, we test
+    // individual pipeline components: color_detector::detect_item_text_region,
+    // parse_tooltip_text, match_items, and determine_process_outcome.
+    mod pipeline_robustness_tests {
+        use super::*;
+        use crate::screenshot::color_detector;
+        use crate::screenshot::matcher::{match_items, MatchCandidate, ITEM_DATABASE};
+        use crate::screenshot::parser::{parse_tooltip_text, ParsedCandidate};
+        use proptest::prelude::*;
+
+        // Property 6: detect_item_text_region never panics on arbitrary byte sequences
+        proptest! {
+            #[test]
+            fn prop_color_detector_never_panics_on_arbitrary_bytes(
+                data in proptest::collection::vec(any::<u8>(), 1..512),
+            ) {
+                // Must not panic — can return Ok or Err, both are fine
+                let result = std::panic::catch_unwind(|| {
+                    let _ = color_detector::detect_item_text_region(&data);
+                });
+                prop_assert!(result.is_ok(), "detect_item_text_region panicked on arbitrary input");
+            }
+        }
+
+        // Property 6: parse_tooltip_text never panics on arbitrary strings
+        proptest! {
+            #[test]
+            fn prop_parse_tooltip_text_never_panics_on_arbitrary_strings(
+                text in "\\PC{0,500}",
+            ) {
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    let _ = parse_tooltip_text(&text);
+                }));
+                prop_assert!(result.is_ok(), "parse_tooltip_text panicked on arbitrary input");
+            }
+        }
+
+        // Property 6: match_items never panics on arbitrary candidates and thresholds
+        proptest! {
+            #[test]
+            fn prop_match_items_never_panics_on_arbitrary_input(
+                candidate_texts in proptest::collection::vec("\\PC{0,100}", 0..5),
+                threshold in 0u8..=100u8,
+            ) {
+                let candidates: Vec<ParsedCandidate> = candidate_texts
+                    .iter()
+                    .enumerate()
+                    .map(|(i, text)| ParsedCandidate {
+                        text: text.clone(),
+                        line_index: i,
+                    })
+                    .collect();
+
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    let _ = match_items(&candidates, &ITEM_DATABASE, threshold);
+                }));
+                prop_assert!(result.is_ok(), "match_items panicked on arbitrary input");
+            }
+        }
+
+        // Property 6: determine_process_outcome never panics on arbitrary text and match candidates
+        proptest! {
+            #[test]
+            fn prop_determine_process_outcome_never_panics(
+                raw_text in "\\PC{0,200}",
+                num_matches in 0usize..5,
+                confidences in proptest::collection::vec(0u8..=100u8, 0..5),
+                threshold in 50u8..=100u8,
+            ) {
+                let matches: Vec<MatchCandidate> = confidences
+                    .into_iter()
+                    .take(num_matches)
+                    .map(|conf| MatchCandidate {
+                        item_name: "TestItem".to_string(),
+                        category: "TestCat".to_string(),
+                        subcategory: "TestSub".to_string(),
+                        confidence: conf,
+                    })
+                    .collect();
+
+                let settings = ScreenshotSettings {
+                    confidence_threshold: threshold,
+                    ..ScreenshotSettings::default()
+                };
+
+                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    let _ = determine_process_outcome(&raw_text, matches, &settings);
+                }));
+                prop_assert!(result.is_ok(), "determine_process_outcome panicked on arbitrary input");
+            }
+        }
+    }
+
+    // Feature: screenshot-item-detection, Property 6: Detection routing by confidence threshold
     mod property_tests {
         use super::*;
         use proptest::prelude::*;

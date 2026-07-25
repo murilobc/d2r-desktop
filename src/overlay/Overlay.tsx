@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import ItemSearch from "../components/ItemSearch";
 import type { GameItem } from "../data/items";
 import "./overlay.css";
@@ -15,6 +15,7 @@ interface OverlayState {
   sessionRunCount: number;
   totalRunCount: number;
   area: string;
+  runItemCount: number;
 }
 
 export default function Overlay() {
@@ -27,8 +28,10 @@ export default function Overlay() {
     sessionRunCount: 0,
     totalRunCount: 0,
     area: "",
+    runItemCount: 0,
   });
   const [showItemSearch, setShowItemSearch] = useState(false);
+  const [detectionStatus, setDetectionStatus] = useState<string | null>(null);
 
   // Apply theme from localStorage on mount
   useEffect(() => {
@@ -42,6 +45,28 @@ export default function Overlay() {
       setState(event.payload);
     });
     return () => { unlisten.then((fn) => fn()); };
+  }, []);
+
+  // Listen for detection results to show status indicators
+  useEffect(() => {
+    const unlistenDetected = listen("screenshot:item-detected", () => {
+      setDetectionStatus("✓ Item detected");
+      // Emit event so main window can bring itself to focus
+      emit("screenshot:overlay-detected");
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => setDetectionStatus(null), 3000);
+    });
+
+    const unlistenFailed = listen("screenshot:detection-failed", () => {
+      setDetectionStatus("✗ Detection failed");
+      // Auto-dismiss after 3 seconds
+      setTimeout(() => setDetectionStatus(null), 3000);
+    });
+
+    return () => {
+      unlistenDetected.then((fn) => fn());
+      unlistenFailed.then((fn) => fn());
+    };
   }, []);
 
   const formatTime = (tenths: number) => {
@@ -58,6 +83,12 @@ export default function Overlay() {
   };
 
   const handleDetect = async () => {
+    // Guard: require active session before invoking detection
+    if (!state.sessionActive) {
+      setDetectionStatus("Start a session first");
+      setTimeout(() => setDetectionStatus(null), 3000);
+      return;
+    }
     try {
       await invoke("detect_from_clipboard");
     } catch (error) {
@@ -85,6 +116,9 @@ export default function Overlay() {
           <button className="overlay-close" onClick={() => getCurrentWindow().hide()}>×</button>
         </div>
         <p className="overlay-msg">{t("overlay.noSession")}</p>
+        {detectionStatus && (
+          <div className="overlay-detection-status">{detectionStatus}</div>
+        )}
       </div>
     );
   }
@@ -102,7 +136,7 @@ export default function Overlay() {
       <div className="overlay-run-timer">{formatTime(state.runElapsed)}</div>
 
       <div className="overlay-stats">
-        {t("overlay.runCount")} {state.sessionRunCount} ({state.totalRunCount})
+        {t("overlay.runCount")} {state.sessionRunCount} ({state.totalRunCount}) · Items: {state.runItemCount}
       </div>
 
       <div className="overlay-controls">
@@ -128,6 +162,10 @@ export default function Overlay() {
             placeholder={t("tracker.searchItem")}
           />
         </div>
+      )}
+
+      {detectionStatus && (
+        <div className="overlay-detection-status">{detectionStatus}</div>
       )}
     </div>
   );

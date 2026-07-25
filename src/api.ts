@@ -434,6 +434,9 @@ export const updateScreenshotSettings = (settings: ScreenshotSettings) =>
 export const detectFromClipboard = () =>
   invoke<void>("detect_from_clipboard");
 
+export const detectFromFolder = () =>
+  invoke<void>("detect_from_folder");
+
 export const getDefaultScreenshotFolder = () =>
   invoke<string | null>("get_default_screenshot_folder");
 

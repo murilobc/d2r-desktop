@@ -12,6 +12,7 @@ import UnlockToast from "./components/UnlockToast";
 import DetectionToast from "./components/DetectionToast";
 import ConfirmationDialog from "./components/ConfirmationDialog";
 import ItemSearch from "./components/ItemSearch";
+import { listen } from "@tauri-apps/api/event";
 
 const RunTracker = lazy(() => import("./pages/RunTracker"));
 const History = lazy(() => import("./pages/History"));
@@ -51,6 +52,28 @@ function App() {
   const { currentToast, enqueue: enqueueToast, dismiss: dismissToast } = useAchievementToasts();
   const { toast, showToast, dismissToast: dismissDetectionToast } = useDetectionToast();
 
+  // Track session active state from RunTracker via overlay-state-update event
+  const [sessionActive, setSessionActive] = useState(false);
+
+  useEffect(() => {
+    const unlistenPromise = listen<{ sessionActive: boolean }>("overlay-state-update", (event) => {
+      setSessionActive(event.payload.sessionActive);
+    });
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, []);
+
+  // Listen for overlay-detected event to bring main window to focus
+  useEffect(() => {
+    const unlistenPromise = listen("screenshot:overlay-detected", () => {
+      getCurrentWindow().setFocus();
+    });
+    return () => {
+      unlistenPromise.then((unlisten) => unlisten());
+    };
+  }, []);
+
   // Sync selected profile ID to localStorage for hotkey handler access
   useEffect(() => {
     if (selectedProfile) {
@@ -63,7 +86,8 @@ function App() {
   // Screenshot detection hook
   const { detection, dismiss: dismissDetection, confirm: confirmDetection, triggerManual } = useScreenshotDetection(
     selectedProfile?.id ?? null,
-    showToast
+    showToast,
+    sessionActive
   );
 
   // State for the "Change" flow: opens ItemSearch pre-filled with raw OCR text

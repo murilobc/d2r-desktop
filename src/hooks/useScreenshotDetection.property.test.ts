@@ -17,9 +17,11 @@ import { renderHook, act } from "@testing-library/react";
 
 vi.mock("../api", () => ({
   detectFromClipboard: vi.fn(),
+  detectFromFolder: vi.fn(),
+  getScreenshotSettings: vi.fn().mockResolvedValue({ folder_monitoring_enabled: false }),
   createItem: vi.fn(),
   createRun: vi.fn(),
-  getRuns: vi.fn(),
+  getRuns: vi.fn().mockResolvedValue([{ id: "run-1", profile_id: "test-profile", finished_at: null }]),
   updateRuneCount: vi.fn(),
 }));
 
@@ -68,13 +70,13 @@ describe("Feature: screenshot-detect-no-feedback-fix, Property 1: Bug Condition 
 
         const onError = vi.fn();
         const { result } = renderHook(() =>
-          useScreenshotDetection("test-profile", onError)
+          useScreenshotDetection("test-profile", onError, true)
         );
 
         await act(async () => {
           result.current.triggerManual();
-          // Allow microtask queue to flush (promise rejection handling)
-          await new Promise((r) => setTimeout(r, 0));
+          // Allow multiple promise chains to flush (getRuns -> detectFromClipboard)
+          await new Promise((r) => setTimeout(r, 10));
         });
 
         expect(onError).toHaveBeenCalledWith("No image found in clipboard");
@@ -96,13 +98,13 @@ describe("Feature: screenshot-detect-no-feedback-fix, Property 1: Bug Condition 
 
         const onError = vi.fn();
         const { result } = renderHook(() =>
-          useScreenshotDetection("test-profile", onError)
+          useScreenshotDetection("test-profile", onError, true)
         );
 
         await act(async () => {
           result.current.triggerManual();
-          // Allow microtask queue to flush
-          await new Promise((r) => setTimeout(r, 0));
+          // Allow multiple promise chains to flush (getRuns -> detectFromClipboard)
+          await new Promise((r) => setTimeout(r, 10));
         });
 
         expect(onError).toHaveBeenCalledWith("Screenshot detection failed");

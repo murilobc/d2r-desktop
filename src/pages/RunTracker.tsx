@@ -307,8 +307,9 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
       area,
       profileName: profile.name,
       fastestTime,
+      runItemCount: items.length,
     });
-  }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area, profile.name, fastestTime]);
+  }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area, profile.name, fastestTime, items]);
 
   // Listen for overlay actions
   useEffect(() => {

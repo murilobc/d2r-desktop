@@ -73,7 +73,7 @@ impl FolderWatcher {
         let r = running.clone();
         let lm = last_modified.clone();
 
-        tokio::spawn(async move {
+        tauri::async_runtime::spawn(async move {
             while r.load(Ordering::Relaxed) {
                 let new_files = poll_new_files_inner(&path, &lm);
 
@@ -82,7 +82,7 @@ impl FolderWatcher {
                         Ok(image_data) => {
                             let ah = app_handle.clone();
                             let s = settings.clone();
-                            tokio::task::spawn_blocking(move || {
+                            tauri::async_runtime::spawn_blocking(move || {
                                 ClipboardMonitor::process_image(&ah, &image_data, &s);
                             });
                         }

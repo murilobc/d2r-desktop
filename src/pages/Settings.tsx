@@ -102,6 +102,7 @@ export async function registerHotkeys() {
       });
     } catch (err) {
       console.warn("[Hotkey] Failed to register detectScreenshot:", err);
+      emit("screenshot:keybind-failed", { key: config.detectScreenshot, reason: String(err) });
     }
   }
 }

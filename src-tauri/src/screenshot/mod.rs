@@ -153,3 +153,38 @@ pub async fn detect_from_clipboard(
 
     ClipboardMonitor::detect_once(&app, &settings)
 }
+
+/// Polls the watched folder for new screenshot files and processes them through
+/// the detection pipeline. Used by the frontend when manual detection is triggered
+/// and folder monitoring is enabled — complements `detect_from_clipboard`.
+#[tauri::command]
+pub async fn detect_from_folder(
+    app: tauri::AppHandle,
+    state: State<'_, DbState>,
+    folder_watcher_state: State<'_, FolderWatcherState>,
+) -> Result<(), String> {
+    let settings = {
+        let conn = state.0.lock().map_err(|e| format!("DB lock failed: {}", e))?;
+        settings::get_settings(&conn)
+    };
+
+    let watcher_guard = folder_watcher_state
+        .0
+        .lock()
+        .map_err(|e| format!("FolderWatcher lock failed: {}", e))?;
+
+    let watcher = match watcher_guard.as_ref() {
+        Some(w) => w,
+        None => return Ok(()), // No active folder watcher — nothing to do
+    };
+
+    let new_files = watcher.poll_new_files();
+
+    for file_path in new_files {
+        let image_data =
+            std::fs::read(&file_path).map_err(|e| format!("Failed to read file {:?}: {}", file_path, e))?;
+        ClipboardMonitor::process_image(&app, &image_data, &settings);
+    }
+
+    Ok(())
+}

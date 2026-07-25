@@ -43,6 +43,34 @@ pub fn run() {
             app.manage(screenshot::FolderWatcherState(
                 std::sync::Arc::new(std::sync::Mutex::new(None)),
             ));
+
+            // Auto-start folder watcher if persisted settings have it enabled
+            {
+                let db_state: tauri::State<DbState> = app.state();
+                let conn = db_state.0.lock().expect("DB lock failed during setup");
+                let settings = screenshot::settings::get_settings(&conn);
+
+                if settings.folder_monitoring_enabled {
+                    let folder_path = if let Some(ref custom_path) = settings.screenshot_folder_path {
+                        let p = std::path::PathBuf::from(custom_path);
+                        if p.is_dir() { Some(p) } else { None }
+                    } else {
+                        screenshot::folder_watcher::FolderWatcher::resolve_default_path()
+                    };
+
+                    if let Some(path) = folder_path {
+                        let watcher = screenshot::folder_watcher::FolderWatcher::start(
+                            app.handle().clone(),
+                            path,
+                            settings,
+                        );
+                        let watcher_state: tauri::State<screenshot::FolderWatcherState> = app.state();
+                        let mut guard = watcher_state.0.lock().expect("FolderWatcher lock failed during setup");
+                        *guard = Some(watcher);
+                    }
+                }
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -155,6 +183,7 @@ pub fn run() {
             screenshot::get_screenshot_settings,
             screenshot::update_screenshot_settings,
             screenshot::detect_from_clipboard,
+            screenshot::detect_from_folder,
             screenshot::get_default_screenshot_folder,
             screenshot::detect_from_file,
         ])

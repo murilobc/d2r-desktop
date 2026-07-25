@@ -281,3 +281,21 @@ body {
 .overlay-item-search .item-search-tag {
   font-size: 9px;
 }
+
+.overlay-detection-status {
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 8px;
+  margin-top: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ov-text);
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

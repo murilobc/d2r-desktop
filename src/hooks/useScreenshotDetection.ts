@@ -3,10 +3,11 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { DetectionResult, MatchCandidate, Run } from "../types";
 import {
   createItem,
-  createRun,
   getRuns,
   updateRuneCount,
   detectFromClipboard,
+  detectFromFolder,
+  getScreenshotSettings,
 } from "../api";
 
 const AUTO_DISMISS_MS = 30_000;
@@ -20,7 +21,8 @@ export interface UseScreenshotDetection {
 
 export function useScreenshotDetection(
   profileId: string | null,
-  onError?: (message: string) => void
+  onError?: (message: string) => void,
+  _sessionActive?: boolean
 ): UseScreenshotDetection {
   const [detection, setDetection] = useState<DetectionResult | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,8 +80,16 @@ export function useScreenshotDetection(
       if (!profileId) return;
 
       try {
-        // Find or create a run for this profile
-        const runId = await getOrCreateRunId(profileId);
+        // Find an active run for this profile
+        const runId = await getActiveRunId(profileId);
+
+        if (runId === null) {
+          // No active session — block confirm and notify user
+          if (onError) {
+            onError("Start a session first to detect items");
+          }
+          return;
+        }
 
         // Log the item
         await createItem({
@@ -105,32 +115,88 @@ export function useScreenshotDetection(
         setDetection(null);
       }
     },
-    [profileId, clearTimer]
+    [profileId, clearTimer, onError]
   );
 
   // Manual trigger: invoke the backend clipboard detection
   const triggerManual = useCallback(() => {
-    detectFromClipboard().catch((error) => {
-      console.error("Manual detection failed:", error);
+    // Session guard: check for active runs in the backend
+    // If profileId is not set, we can't check — block
+    if (!profileId) {
       if (onError) {
-        const msg = String(error);
-        if (msg.includes("no_image")) {
-          onError("No image found in clipboard");
-        } else {
-          onError("Screenshot detection failed");
-        }
+        onError("Start a session first to detect items");
       }
-    });
-  }, [onError]);
+      return;
+    }
+
+    getRuns(profileId)
+      .then((runs) => {
+        // If runs is a valid array with no active runs, block detection
+        if (Array.isArray(runs) && runs.filter((r) => r.finished_at === null).length === 0) {
+          if (onError) {
+            onError("Start a session first to detect items");
+          }
+          return;
+        }
+
+        // Session is active — proceed with detection
+        detectFromClipboard().catch((error) => {
+          console.error("Manual detection failed:", error);
+          if (onError) {
+            const msg = String(error);
+            if (msg.includes("no_image")) {
+              onError("No image found in clipboard");
+            } else {
+              onError("Screenshot detection failed");
+            }
+          }
+        });
+
+        // Also check folder source if folder monitoring is enabled
+        getScreenshotSettings()
+          .then((settings) => {
+            if (settings.folder_monitoring_enabled) {
+              return detectFromFolder();
+            }
+          })
+          .catch((error) => {
+            console.error("Folder detection failed:", error);
+          });
+      })
+      .catch(() => {
+        // If we can't check runs, proceed with detection anyway (fail-open)
+        detectFromClipboard().catch((error) => {
+          console.error("Manual detection failed:", error);
+          if (onError) {
+            const msg = String(error);
+            if (msg.includes("no_image")) {
+              onError("No image found in clipboard");
+            } else {
+              onError("Screenshot detection failed");
+            }
+          }
+        });
+
+        getScreenshotSettings()
+          .then((settings) => {
+            if (settings.folder_monitoring_enabled) {
+              return detectFromFolder();
+            }
+          })
+          .catch((error) => {
+            console.error("Folder detection failed:", error);
+          });
+      });
+  }, [onError, profileId]);
 
   return { detection, dismiss, confirm, triggerManual };
 }
 
 /**
- * Finds an active run (one with no finished_at) for the given profile,
- * or creates a standalone run if none exists.
+ * Finds an active run (one with no finished_at) for the given profile.
+ * Returns null when no active run exists (no auto-creation of standalone runs).
  */
-async function getOrCreateRunId(profileId: string): Promise<string> {
+async function getActiveRunId(profileId: string): Promise<string | null> {
   const runs: Run[] = await getRuns(profileId);
   const activeRun = runs.find((r) => r.finished_at === null);
 
@@ -138,11 +204,5 @@ async function getOrCreateRunId(profileId: string): Promise<string> {
     return activeRun.id;
   }
 
-  // No active run — create a standalone run
-  const newRun = await createRun({
-    profile_id: profileId,
-    area: "Screenshot Detection",
-  });
-
-  return newRun.id;
+  return null;
 }

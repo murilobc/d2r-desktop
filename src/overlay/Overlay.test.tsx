@@ -45,7 +45,7 @@ describe("Overlay detection button", () => {
       expect(detectBtn).toHaveTextContent("◫");
     });
 
-    it("click invokes detect_from_clipboard", async () => {
+    it("click shows 'Start a session first' status when no session active", async () => {
       const { container } = render(<Overlay />);
 
       const detectBtn = container.querySelector(".ov-detect") as HTMLElement;
@@ -53,7 +53,11 @@ describe("Overlay detection button", () => {
         fireEvent.click(detectBtn);
       });
 
-      expect(mockInvoke).toHaveBeenCalledWith("detect_from_clipboard");
+      // Session guard blocks invoke — shows local status instead
+      expect(mockInvoke).not.toHaveBeenCalledWith("detect_from_clipboard");
+      const status = container.querySelector(".overlay-detection-status");
+      expect(status).toBeInTheDocument();
+      expect(status).toHaveTextContent("Start a session first");
     });
 
     it("is keyboard accessible - Enter activates", async () => {

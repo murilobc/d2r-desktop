@@ -19,6 +19,11 @@ interface DetectionFailedPayload {
   message: string;
 }
 
+interface KeybindFailedPayload {
+  key: string;
+  reason: string;
+}
+
 const REASON_MESSAGES: Record<string, string> = {
   no_image: "No image found in clipboard",
   no_text: "No text detected in screenshot",
@@ -64,6 +69,7 @@ export function useDetectionToast(): UseDetectionToast {
   useEffect(() => {
     let unlistenFailed: UnlistenFn | null = null;
     let unlistenNoProfile: UnlistenFn | null = null;
+    let unlistenKeybindFailed: UnlistenFn | null = null;
 
     const setup = async () => {
       unlistenFailed = await listen<DetectionFailedPayload>(
@@ -80,6 +86,14 @@ export function useDetectionToast(): UseDetectionToast {
           showToast("Select a profile first to log items");
         }
       );
+
+      unlistenKeybindFailed = await listen<KeybindFailedPayload>(
+        "screenshot:keybind-failed",
+        (event) => {
+          const { key, reason } = event.payload;
+          showToast(`Keybind ${key} could not be registered — ${reason}`);
+        }
+      );
     };
 
     setup();
@@ -87,6 +101,7 @@ export function useDetectionToast(): UseDetectionToast {
     return () => {
       if (unlistenFailed) unlistenFailed();
       if (unlistenNoProfile) unlistenNoProfile();
+      if (unlistenKeybindFailed) unlistenKeybindFailed();
       clearTimer();
     };
   }, [showToast, clearTimer]);

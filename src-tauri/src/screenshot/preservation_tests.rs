@@ -36,15 +36,6 @@ mod ocr_preservation_property_tests {
         png_bytes
     }
 
-    // Helper: paint a filled rectangle of a given RGBA color onto an image
-    fn fill_rect(img: &mut RgbaImage, x1: u32, y1: u32, x2: u32, y2: u32, color: [u8; 4]) {
-        for y in y1..=y2.min(img.height() - 1) {
-            for x in x1..=x2.min(img.width() - 1) {
-                img.put_pixel(x, y, image::Rgba(color));
-            }
-        }
-    }
-
     // Helper: check if a color is within tolerance of any known item color
     fn matches_any_item_color(r: u8, g: u8, b: u8) -> bool {
         for color in ITEM_COLORS {
@@ -164,24 +155,30 @@ mod ocr_preservation_property_tests {
     // This verifies that clean single-source detection continues to work after
     // the fix modifies the detection control flow.
     //
+    // The cluster is painted as a text-like pattern (~30-50% density) on a
+    // 1920x1080 image to match the spatial clustering algorithm's constraints:
+    //   min_width = 32px, max_width = 378px, min_height = 11px, max_height = 32px
+    //   aspect_ratio 4-15 for full score, density 15-60% for full score
+    //
     // **Validates: Requirement 3.2**
     // =========================================================================
     proptest! {
         #![proptest_config(ProptestConfig::with_cases(30))]
         #[test]
         fn prop_single_cluster_detects_correct_category(
-            // Which item color to plant
-            color_idx in 0usize..6usize,
-            // Cluster position in top half of a 400x400 image
-            cluster_x in 50u32..300u32,
-            cluster_y in 20u32..150u32,
-            // Cluster size (enough pixels to be the largest match)
-            cluster_w in 30u32..60u32,
-            cluster_h in 5u32..15u32,
+            // Which item color to plant (includes all 7 colors: Unique, Set, Rune, Rare, Magic, Normal, Socketed)
+            color_idx in 0usize..7usize,
+            // Cluster position in top half of a 1920x1080 image
+            cluster_x in 100u32..800u32,
+            cluster_y in 50u32..400u32,
+            // Cluster dimensions that satisfy size constraints for 1080p:
+            // width: 80-200px (within 32-378 range), height: 14-25px (within 11-32 range)
+            cluster_w in 80u32..200u32,
+            cluster_h in 14u32..25u32,
         ) {
             let target_color = &ITEM_COLORS[color_idx];
-            let img_width = 400u32;
-            let img_height = 400u32;
+            let img_width = 1920u32;
+            let img_height = 1080u32;
 
             // Ensure the cluster fits in the top half
             let max_y = cluster_y + cluster_h;
@@ -195,21 +192,26 @@ mod ocr_preservation_property_tests {
                 *pixel = image::Rgba([80, 60, 50, 255]);
             }
 
-            // Paint a single cluster of item-colored pixels in the top half
-            let paint_color = [
+            // Paint a text-like pattern of item-colored pixels (~40% density)
+            // Real text is not a solid block — paint every other pixel in alternating rows
+            let paint_color = image::Rgba([
                 target_color.r_center,
                 target_color.g_center,
                 target_color.b_center,
                 255,
-            ];
-            fill_rect(
-                &mut rgba,
-                cluster_x,
-                cluster_y,
-                cluster_x + cluster_w,
-                cluster_y + cluster_h,
-                paint_color,
-            );
+            ]);
+            for dy in 0..cluster_h {
+                for dx in 0..cluster_w {
+                    // Paint ~40% of pixels in a text-like pattern
+                    if (dx + dy) % 3 == 0 || (dx % 5 == 0 && dy % 2 == 0) {
+                        let px = cluster_x + dx;
+                        let py = cluster_y + dy;
+                        if px < img_width && py < img_height {
+                            rgba.put_pixel(px, py, paint_color);
+                        }
+                    }
+                }
+            }
 
             // Ensure background doesn't accidentally match any item color
             prop_assume!(!matches_any_item_color(80, 60, 50));

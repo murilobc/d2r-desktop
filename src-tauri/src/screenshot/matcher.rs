@@ -63,17 +63,18 @@ fn is_priority_category(category: &str) -> bool {
 /// For each candidate with non-empty text:
 /// 1. Normalize and lowercase the text
 /// 2. Compute confidence against every item in the database
-/// 3. Collect matches with confidence > 0
+/// 3. Filter out matches with confidence < min_confidence
 /// 4. Dedup by item_name (keep highest confidence)
 /// 5. Sort by confidence descending with tiebreaker: within a 5-point band,
 ///    Unique/Set/Rune categories rank above others
 /// 6. Return at most 5 matches
 ///
-/// Returns an empty list if all candidates have empty/whitespace-only text.
+/// Returns an empty list if all candidates have empty/whitespace-only text
+/// or if no match meets the minimum confidence floor.
 pub fn match_items(
     candidates: &[ParsedCandidate],
     item_database: &[GameItemEntry],
-    _threshold: u8,
+    min_confidence: u8,
 ) -> Vec<MatchCandidate> {
     // 1. Check for empty/whitespace-only inputs
     let has_valid_input = candidates.iter().any(|c| !c.text.trim().is_empty());
@@ -105,12 +106,15 @@ pub fn match_items(
         }
     }
 
-    // 3. Dedup by item_name, keeping highest confidence
+    // 3. Filter out matches below the minimum confidence floor
+    matches.retain(|m| m.confidence >= min_confidence);
+
+    // 4. Dedup by item_name, keeping highest confidence
     matches.sort_by(|a, b| b.confidence.cmp(&a.confidence));
     let mut seen = HashSet::new();
     matches.retain(|m| seen.insert(m.item_name.clone()));
 
-    // 4. Apply tiebreaker within 5-point bands
+    // 5. Apply tiebreaker within 5-point bands
     // Sort with tiebreaker: if within 5 points, prefer Unique/Set/Rune
     matches.sort_by(|a, b| {
         if a.confidence.abs_diff(b.confidence) <= 5 {
@@ -126,7 +130,7 @@ pub fn match_items(
         }
     });
 
-    // 5. Return top 5
+    // 6. Return top 5
     matches.truncate(5);
     matches
 }

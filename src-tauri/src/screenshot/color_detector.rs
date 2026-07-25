@@ -35,16 +35,156 @@ fn pixel_matches(r: u8, g: u8, b: u8, color: &ColorRange) -> bool {
     dr <= color.tolerance && dg <= color.tolerance && db <= color.tolerance
 }
 
+// Returns true if the given pixel is a dark tooltip background pixel.
+// D2R tooltip backgrounds are near-black with moderate-to-high alpha.
+fn is_dark_pixel(r: u8, g: u8, b: u8, a: u8) -> bool {
+    r < 25 && g < 25 && b < 25 && a > 170
+}
+
+/// Finds the bounding box of the largest dark rectangular region in the image.
+///
+/// D2R tooltips have a near-black semi-transparent background. This function
+/// locates that background by scanning for contiguous dark pixels and finding
+/// the largest rectangle that meets minimum size requirements.
+///
+/// After finding the largest dark rectangle as a seed, the function expands it
+/// upward and downward to include adjacent rows that still have high dark pixel
+/// density (≥50%) within the same x-range. This handles tooltips with colored
+/// text lines that interrupt the strict dark-pixel continuity.
+///
+/// Returns `Some((min_x, min_y, max_x, max_y))` if a dark rectangle at least
+/// 100px wide × 40px tall is found, or `None` otherwise.
+pub fn find_tooltip_bounds(rgba: &RgbaImage) -> Option<(u32, u32, u32, u32)> {
+    let (width, height) = rgba.dimensions();
+
+    // Build a boolean row for "is this pixel dark?"
+    // Then use the histogram-based maximal rectangle algorithm per row.
+    // heights[x] = number of consecutive dark pixels ending at current row for column x.
+    let mut heights: Vec<u32> = vec![0; width as usize];
+
+    let mut best_area: u32 = 0;
+    let mut best_rect: Option<(u32, u32, u32, u32)> = None; // (min_x, min_y, max_x, max_y)
+
+    for y in 0..height {
+        // Update histogram heights for this row
+        for x in 0..width {
+            let pixel = rgba.get_pixel(x, y);
+            if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
+                heights[x as usize] += 1;
+            } else {
+                heights[x as usize] = 0;
+            }
+        }
+
+        // Find the largest rectangle in the histogram using a stack-based approach
+        let mut stack: Vec<usize> = Vec::new(); // indices into heights
+
+        for x in 0..=(width as usize) {
+            let current_height = if x < width as usize { heights[x] } else { 0 };
+
+            while !stack.is_empty() && heights[*stack.last().unwrap()] > current_height {
+                let top = stack.pop().unwrap();
+                let h = heights[top];
+                let w = if stack.is_empty() {
+                    x as u32
+                } else {
+                    (x - stack.last().unwrap() - 1) as u32
+                };
+
+                let area = h * w;
+                if area > best_area && w >= 100 && h >= 40 {
+                    best_area = area;
+                    // Compute bounding box
+                    let min_x = if stack.is_empty() {
+                        0u32
+                    } else {
+                        (*stack.last().unwrap() as u32) + 1
+                    };
+                    let max_x = (x as u32) - 1;
+                    let max_y = y;
+                    let min_y = y - h + 1;
+                    best_rect = Some((min_x, min_y, max_x, max_y));
+                }
+            }
+
+            stack.push(x);
+        }
+    }
+
+    // Expand the seed rectangle to include adjacent rows with high dark pixel density.
+    // Tooltip text lines (colored pixels) break strict continuity but the surrounding
+    // rows still have mostly dark pixels. Expanding captures the full tooltip extent.
+    if let Some((min_x, min_y, max_x, max_y)) = best_rect {
+        let rect_width = max_x - min_x + 1;
+        // Require at least 50% of the row's pixels within the x-range to be dark
+        let density_threshold = rect_width / 2;
+
+        // Expand upward
+        let mut expanded_min_y = min_y;
+        if min_y > 0 {
+            let mut y = min_y - 1;
+            loop {
+                let mut dark_count: u32 = 0;
+                for x in min_x..=max_x {
+                    let pixel = rgba.get_pixel(x, y);
+                    if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
+                        dark_count += 1;
+                    }
+                }
+                if dark_count >= density_threshold {
+                    expanded_min_y = y;
+                } else {
+                    break;
+                }
+                if y == 0 {
+                    break;
+                }
+                y -= 1;
+            }
+        }
+
+        // Expand downward
+        let mut expanded_max_y = max_y;
+        for y in (max_y + 1)..height {
+            let mut dark_count: u32 = 0;
+            for x in min_x..=max_x {
+                let pixel = rgba.get_pixel(x, y);
+                if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
+                    dark_count += 1;
+                }
+            }
+            if dark_count >= density_threshold {
+                expanded_max_y = y;
+            } else {
+                break;
+            }
+        }
+
+        // Only return if the expanded rectangle still meets minimum size
+        let final_h = expanded_max_y - expanded_min_y + 1;
+        if rect_width >= 100 && final_h >= 40 {
+            return Some((min_x, expanded_min_y, max_x, expanded_max_y));
+        }
+    }
+
+    best_rect
+}
+
 /// Detects the item name text region based on D2R color conventions.
 ///
-/// Algorithm:
-/// 1. Scan top 50% of image (item names appear at top of tooltip)
+/// Algorithm (tooltip-first path):
+/// 1. Decode image to RGBA
+/// 2. Attempt to find tooltip bounds via dark background detection
+/// 3. If tooltip found: extract first line for each color, pick best, crop + binarize
+/// 4. If tooltip NOT found: fall through to legacy top-50% scan
+///
+/// Legacy fallback (no tooltip):
+/// 1. Scan top 50% of image for item-colored pixels
 /// 2. For each known color, find pixels within tolerance
-/// 3. Cluster adjacent matching pixels into regions
-/// 4. Select the largest horizontal region (item name is widest text)
-/// 5. Expand bounding box by 10px padding
-/// 6. Binarize: matching pixels → white (255), rest → black (0)
-/// 7. Return cropped + binarized PNG for OCR
+/// 3. Select the color with the most matching pixels
+/// 4. Expand bounding box by 10px padding
+/// 5. Binarize: matching pixels → white (255), rest → black (0)
+/// 6. Return cropped + binarized PNG for OCR
 ///
 /// If no colored text region is found, returns the full image as-is (fallback).
 pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult, String> {
@@ -53,6 +193,76 @@ pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult
 
     let rgba = img.to_rgba8();
     let (width, height) = rgba.dimensions();
+
+    // --- Tooltip-first path ---
+    // Attempt to locate the tooltip background and constrain scanning to it
+    if let Some(tooltip_bounds) = find_tooltip_bounds(&rgba) {
+        // For each item color, find the first-line region within the tooltip
+        // and count matching pixels to determine the best color
+        let mut best_color_idx: Option<usize> = None;
+        let mut best_pixel_count: u32 = 0;
+        let mut best_first_line: (u32, u32, u32, u32) = (0, 0, 0, 0);
+
+        for (color_idx, color) in ITEM_COLORS.iter().enumerate() {
+            if let Some(first_line) = extract_first_line_region(&rgba, tooltip_bounds, color) {
+                // Count matching pixels within the first-line region
+                let (fl_min_x, fl_min_y, fl_max_x, fl_max_y) = first_line;
+                let mut count: u32 = 0;
+                for y in fl_min_y..=fl_max_y {
+                    for x in fl_min_x..=fl_max_x {
+                        let pixel = rgba.get_pixel(x, y);
+                        if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
+                            count += 1;
+                        }
+                    }
+                }
+
+                if count > best_pixel_count {
+                    best_pixel_count = count;
+                    best_color_idx = Some(color_idx);
+                    best_first_line = first_line;
+                }
+            }
+        }
+
+        // If we found colored text in the tooltip first line, crop and binarize it
+        if let Some(color_idx) = best_color_idx {
+            let color = &ITEM_COLORS[color_idx];
+            let (fl_min_x, fl_min_y, fl_max_x, fl_max_y) = best_first_line;
+
+            let crop_w = fl_max_x - fl_min_x + 1;
+            let crop_h = fl_max_y - fl_min_y + 1;
+
+            // Crop the first-line region from the RGBA image
+            let cropped_rgba =
+                image::imageops::crop_imm(&rgba, fl_min_x, fl_min_y, crop_w, crop_h).to_image();
+
+            // Binarize: matching pixels → white, rest → black
+            let binarized = binarize_region(&cropped_rgba, color);
+
+            // Encode binarized image to PNG
+            let mut png_bytes: Vec<u8> = Vec::new();
+            let encoder =
+                image::codecs::png::PngEncoder::new(std::io::Cursor::new(&mut png_bytes));
+            image::ImageEncoder::write_image(
+                encoder,
+                binarized.as_raw(),
+                binarized.width(),
+                binarized.height(),
+                image::ExtendedColorType::L8,
+            )
+            .map_err(|e| format!("Failed to encode binarized image: {}", e))?;
+
+            return Ok(ColorDetectionResult {
+                cropped_image: png_bytes,
+                detected_category: color.category.to_string(),
+                confidence_boost: 15,
+            });
+        }
+        // If no colored text found in tooltip, fall through to legacy scan
+    }
+
+    // --- Legacy fallback path (no tooltip detected or no colored text in tooltip) ---
     let scan_height = height / 2; // top 50%
 
     // For each color, find matching pixels in the top half and compute bounding box
@@ -152,6 +362,97 @@ pub fn binarize_region(image: &RgbaImage, color: &ColorRange) -> GrayImage {
     }
 
     output
+}
+
+/// Extracts the bounding box of the first line of text matching the given color
+/// within the specified tooltip bounds.
+///
+/// Scans from the top of the tooltip region downward to find the first row containing
+/// pixels that match the target item color, then determines the vertical extent of that
+/// first text line. Returns a tight bounding box with 5px padding (clamped to tooltip bounds)
+/// for OCR readability, or None if no matching pixels are found.
+pub fn extract_first_line_region(
+    rgba: &RgbaImage,
+    tooltip_bounds: (u32, u32, u32, u32),
+    color: &ColorRange,
+) -> Option<(u32, u32, u32, u32)> {
+    let (tb_min_x, tb_min_y, tb_max_x, tb_max_y) = tooltip_bounds;
+
+    // Find the first row (from top) within tooltip bounds that has a matching pixel
+    let mut first_row: Option<u32> = None;
+    for y in tb_min_y..=tb_max_y {
+        for x in tb_min_x..=tb_max_x {
+            let pixel = rgba.get_pixel(x, y);
+            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
+                first_row = Some(y);
+                break;
+            }
+        }
+        if first_row.is_some() {
+            break;
+        }
+    }
+
+    let first_row = first_row?;
+
+    // Now find the vertical extent of this first text line.
+    // Scan downward from first_row: the line continues as long as rows contain
+    // matching pixels. Allow small gaps (up to 2px) for anti-aliased text edges.
+    let mut last_row = first_row;
+    let mut gap = 0u32;
+    let max_gap = 2;
+
+    for y in (first_row + 1)..=tb_max_y {
+        let mut row_has_match = false;
+        for x in tb_min_x..=tb_max_x {
+            let pixel = rgba.get_pixel(x, y);
+            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
+                row_has_match = true;
+                break;
+            }
+        }
+
+        if row_has_match {
+            last_row = y;
+            gap = 0;
+        } else {
+            gap += 1;
+            if gap > max_gap {
+                break;
+            }
+        }
+    }
+
+    // Find horizontal extent (min_x, max_x) across the first line rows
+    let mut min_x = tb_max_x;
+    let mut max_x = tb_min_x;
+    for y in first_row..=last_row {
+        for x in tb_min_x..=tb_max_x {
+            let pixel = rgba.get_pixel(x, y);
+            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
+                if x < min_x {
+                    min_x = x;
+                }
+                if x > max_x {
+                    max_x = x;
+                }
+            }
+        }
+    }
+
+    // Safety check: ensure we found valid horizontal extent
+    if max_x < min_x {
+        return None;
+    }
+
+    // Add 5px padding, clamped to tooltip bounds
+    let pad = 5u32;
+    let padded_min_x = min_x.saturating_sub(pad).max(tb_min_x);
+    let padded_min_y = first_row.saturating_sub(pad).max(tb_min_y);
+    let padded_max_x = (max_x + pad).min(tb_max_x);
+    let padded_max_y = (last_row + pad).min(tb_max_y);
+
+    Some((padded_min_x, padded_min_y, padded_max_x, padded_max_y))
 }
 
 #[cfg(test)]

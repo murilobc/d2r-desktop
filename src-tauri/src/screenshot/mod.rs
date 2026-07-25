@@ -8,6 +8,8 @@ pub mod monitor;
 
 #[cfg(test)]
 mod preservation_tests;
+#[cfg(test)]
+mod bug_exploration_tests;
 
 use std::sync::{Arc, Mutex};
 use tauri::State;

@@ -206,7 +206,7 @@ impl ClipboardMonitor {
     /// 3. Initializes the OCR engine and extracts text from the (cropped or full) image
     /// 4. Parses tooltip text into candidate item names
     /// 5. Matches candidates against the item database
-    /// 6. Filters results below score 30
+    /// 6. Filters results below the configured confidence floor
     /// 7. Builds a `DetectionResult` and emits it via Tauri event
     /// 8. Checks timeout at key stages — aborts with `detection-failed` (reason: `timeout`) if exceeded
     ///
@@ -338,14 +338,17 @@ impl ClipboardMonitor {
             return;
         }
 
-        // 4. Match against item database
+        // 4. Match against item database (match_items filters at >= confidence_threshold)
         let matches =
             match_items(&parsed_candidates, &ITEM_DATABASE, settings.confidence_threshold);
 
-        // 5. Filter: only keep candidates above score 30
-        let above_30: Vec<MatchCandidate> =
-            matches.into_iter().filter(|m| m.confidence > 30).collect();
-        if above_30.is_empty() {
+        // 5. Filter: only keep candidates above the configured confidence floor
+        let min_confidence = settings.confidence_threshold;
+        let viable: Vec<MatchCandidate> = matches
+            .into_iter()
+            .filter(|m| m.confidence > min_confidence)
+            .collect();
+        if viable.is_empty() {
             let payload = DetectionFailedPayload {
                 reason: "no_match".to_string(),
                 message: "No item matched the detected text".to_string(),
@@ -375,7 +378,7 @@ impl ClipboardMonitor {
         }
 
         // 6. Build DetectionResult
-        let top = above_30.first().cloned();
+        let top = viable.first().cloned();
         let is_auto_suggested = top
             .as_ref()
             .map(|t| t.confidence > settings.confidence_threshold)
@@ -383,7 +386,7 @@ impl ClipboardMonitor {
 
         let result = DetectionResult {
             top_match: top,
-            candidates: above_30,
+            candidates: viable,
             raw_text,
             is_auto_suggested,
             detected_at: Utc::now().to_rfc3339(),
@@ -449,9 +452,9 @@ impl ClipboardMonitor {
 pub enum ProcessOutcome {
     /// OCR returned no text — emit `screenshot:detection-failed` with reason "no_text"
     NoText,
-    /// All match scores were ≤ 30 — emit `screenshot:detection-failed` with reason "no_match"
+    /// All match scores were below the confidence floor — emit `screenshot:detection-failed` with reason "no_match"
     NoMatch,
-    /// At least one match above score 30 — emit `screenshot:item-detected`
+    /// At least one match above the confidence floor — emit `screenshot:item-detected`
     MatchFound(DetectionResult),
 }
 
@@ -461,7 +464,7 @@ pub enum ProcessOutcome {
 /// requiring a Tauri `AppHandle`, making it testable in unit tests.
 ///
 /// - If `raw_text` is empty → `ProcessOutcome::NoText`
-/// - If all match candidates have confidence ≤ 30 → `ProcessOutcome::NoMatch`
+/// - If all match candidates have confidence ≤ the settings-driven floor → `ProcessOutcome::NoMatch`
 /// - Otherwise → `ProcessOutcome::MatchFound` with the detection result
 pub fn determine_process_outcome(
     raw_text: &str,
@@ -472,12 +475,16 @@ pub fn determine_process_outcome(
         return ProcessOutcome::NoText;
     }
 
-    let above_30: Vec<MatchCandidate> = matches.into_iter().filter(|m| m.confidence > 30).collect();
-    if above_30.is_empty() {
+    let min_confidence = settings.confidence_threshold;
+    let viable: Vec<MatchCandidate> = matches
+        .into_iter()
+        .filter(|m| m.confidence > min_confidence)
+        .collect();
+    if viable.is_empty() {
         return ProcessOutcome::NoMatch;
     }
 
-    let top = above_30.first().cloned();
+    let top = viable.first().cloned();
     let is_auto_suggested = top
         .as_ref()
         .map(|t| t.confidence > settings.confidence_threshold)
@@ -485,7 +492,7 @@ pub fn determine_process_outcome(
 
     ProcessOutcome::MatchFound(DetectionResult {
         top_match: top,
-        candidates: above_30,
+        candidates: viable,
         raw_text: raw_text.to_string(),
         is_auto_suggested,
         detected_at: Utc::now().to_rfc3339(),
@@ -494,21 +501,22 @@ pub fn determine_process_outcome(
 
 /// Determines the detection routing based on confidence scores and threshold.
 ///
-/// Given a vector of match candidate confidence scores and a configured threshold T (50–100):
-/// - If scores is empty or all scores ≤ 30 → fallback to ItemSearch (no event emitted)
+/// Given a vector of match candidate confidence scores, a configured threshold T (50–100),
+/// and a minimum confidence floor:
+/// - If scores is empty or all scores ≤ min_confidence → fallback to ItemSearch (no event emitted)
 /// - If top score > T → auto-suggested (emit event with is_auto_suggested = true)
-/// - If top score in (30, T] → not auto-suggested but has candidates (emit event with candidates)
+/// - If top score in (min_confidence, T] → not auto-suggested but has candidates (emit event with candidates)
 ///
 /// Returns a tuple: `(is_auto_suggested, should_emit_event, should_fallback_to_search)`
-pub fn determine_routing(scores: &[u8], threshold: u8) -> (bool, bool, bool) {
+pub fn determine_routing(scores: &[u8], threshold: u8, min_confidence: u8) -> (bool, bool, bool) {
     if scores.is_empty() {
         return (false, false, true); // No candidates → fallback
     }
     let top_score = *scores.iter().max().unwrap();
-    let above_30_count = scores.iter().filter(|&&s| s > 30).count();
+    let above_floor_count = scores.iter().filter(|&&s| s > min_confidence).count();
 
-    if above_30_count == 0 {
-        (false, false, true) // All ≤ 30 → fallback
+    if above_floor_count == 0 {
+        (false, false, true) // All ≤ min_confidence → fallback
     } else if top_score > threshold {
         (true, true, false) // Auto-suggested
     } else {
@@ -585,7 +593,7 @@ mod tests {
 
     #[test]
     fn test_determine_routing_empty_scores() {
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[], 80);
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[], 80, 55);
         assert!(!is_auto);
         assert!(!should_emit);
         assert!(should_fallback);
@@ -593,7 +601,7 @@ mod tests {
 
     #[test]
     fn test_determine_routing_all_below_30() {
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[10, 20, 30], 80);
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[10, 20, 30], 80, 55);
         assert!(!is_auto);
         assert!(!should_emit);
         assert!(should_fallback);
@@ -601,7 +609,7 @@ mod tests {
 
     #[test]
     fn test_determine_routing_auto_suggested() {
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[85, 60, 40], 80);
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[85, 60, 40], 80, 55);
         assert!(is_auto);
         assert!(should_emit);
         assert!(!should_fallback);
@@ -609,7 +617,7 @@ mod tests {
 
     #[test]
     fn test_determine_routing_candidates_not_auto() {
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[65, 50, 40], 80);
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[65, 50, 40], 80, 55);
         assert!(!is_auto);
         assert!(should_emit);
         assert!(!should_fallback);
@@ -618,7 +626,7 @@ mod tests {
     #[test]
     fn test_determine_routing_threshold_boundary() {
         // Score exactly equal to threshold → not auto-suggested (must be strictly above)
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[80], 80);
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[80], 80, 55);
         assert!(!is_auto);
         assert!(should_emit);
         assert!(!should_fallback);
@@ -626,11 +634,11 @@ mod tests {
 
     #[test]
     fn test_determine_routing_score_exactly_31() {
-        // Score of 31 is above 30, so not a fallback
-        let (is_auto, should_emit, should_fallback) = determine_routing(&[31], 80);
+        // Score of 31 is below the confidence floor (55), so it's a fallback
+        let (is_auto, should_emit, should_fallback) = determine_routing(&[31], 80, 55);
         assert!(!is_auto);
-        assert!(should_emit);
-        assert!(!should_fallback);
+        assert!(!should_emit);
+        assert!(should_fallback);
     }
 
     // === Task 1.3: Failure event emission tests ===
@@ -683,11 +691,12 @@ mod tests {
             "Should return NoText when OCR text is empty");
     }
 
-    /// Test that `determine_process_outcome` returns `NoMatch` when all scores ≤ 30.
+    /// Test that `determine_process_outcome` returns `NoMatch` when all scores are below the confidence floor.
     /// This verifies requirement 5.3: emit detection-failed with reason "no_match".
     #[test]
     fn test_process_image_emits_no_match_when_all_scores_below_30() {
         let settings = ScreenshotSettings::default();
+        // confidence_threshold defaults to 80, so scores must be > 80 to pass
         let matches = vec![
             MatchCandidate {
                 item_name: "Enigma".to_string(),
@@ -699,20 +708,20 @@ mod tests {
                 item_name: "Infinity".to_string(),
                 category: "Runeword".to_string(),
                 subcategory: "Runeword".to_string(),
-                confidence: 30, // exactly 30 is NOT above 30
+                confidence: 50,
             },
             MatchCandidate {
                 item_name: "Spirit".to_string(),
                 category: "Runeword".to_string(),
                 subcategory: "Runeword".to_string(),
-                confidence: 10,
+                confidence: 80, // exactly at threshold is NOT above it
             },
         ];
 
         let outcome = determine_process_outcome("some ocr text", matches, &settings);
 
         assert_eq!(outcome, ProcessOutcome::NoMatch,
-            "Should return NoMatch when all match scores are ≤ 30");
+            "Should return NoMatch when all match scores are ≤ confidence_threshold");
     }
 
     /// Test that `determine_process_outcome` does NOT return a failure when matches are found.
@@ -734,7 +743,7 @@ mod tests {
                 item_name: "Spirit".to_string(),
                 category: "Runeword".to_string(),
                 subcategory: "Runeword".to_string(),
-                confidence: 45,
+                confidence: 81,
             },
         ];
 
@@ -745,7 +754,7 @@ mod tests {
                 assert!(result.top_match.is_some(), "Should have a top match");
                 assert_eq!(result.top_match.unwrap().item_name, "Enigma");
                 assert!(result.is_auto_suggested, "Should be auto-suggested when top > threshold");
-                assert_eq!(result.candidates.len(), 2, "Should include both candidates above 30");
+                assert_eq!(result.candidates.len(), 2, "Should include both candidates above confidence floor");
             }
             other => panic!("Expected MatchFound, got {:?}", other),
         }
@@ -931,29 +940,30 @@ mod tests {
 
         // **Validates: Requirements 4.1, 4.2, 4.4, 4.5**
         //
-        // For arbitrary threshold T (50–100) and score vectors, verify:
+        // For arbitrary threshold T (50–100), min_confidence floor, and score vectors, verify:
         // - top > T → auto-suggested
-        // - top in (30, T] → not auto-suggested with non-empty candidates
-        // - all ≤ 30 → ItemSearch fallback
+        // - top in (min_confidence, T] → not auto-suggested with non-empty candidates
+        // - all ≤ min_confidence → ItemSearch fallback
         proptest! {
             #[test]
             fn prop_detection_routing(
                 threshold in 50u8..=100u8,
+                min_confidence in 30u8..=60u8,
                 scores in proptest::collection::vec(0u8..=100u8, 0..10),
             ) {
-                let (is_auto, should_emit, should_fallback) = determine_routing(&scores, threshold);
+                let (is_auto, should_emit, should_fallback) = determine_routing(&scores, threshold, min_confidence);
 
                 let top_score = scores.iter().max().copied().unwrap_or(0);
-                let above_30_count = scores.iter().filter(|&&s| s > 30).count();
+                let above_floor_count = scores.iter().filter(|&&s| s > min_confidence).count();
 
-                if scores.is_empty() || above_30_count == 0 {
-                    // All ≤ 30 or empty → fallback
+                if scores.is_empty() || above_floor_count == 0 {
+                    // All ≤ min_confidence or empty → fallback
                     prop_assert!(!is_auto,
-                        "Should not be auto-suggested when all scores ≤ 30 or empty");
+                        "Should not be auto-suggested when all scores ≤ min_confidence or empty");
                     prop_assert!(!should_emit,
-                        "Should not emit event when all scores ≤ 30 or empty");
+                        "Should not emit event when all scores ≤ min_confidence or empty");
                     prop_assert!(should_fallback,
-                        "Should fallback to ItemSearch when all scores ≤ 30 or empty");
+                        "Should fallback to ItemSearch when all scores ≤ min_confidence or empty");
                 } else if top_score > threshold {
                     // Auto-suggested
                     prop_assert!(is_auto,
@@ -966,16 +976,16 @@ mod tests {
                         "Should not fallback when top score {} > threshold {}",
                         top_score, threshold);
                 } else {
-                    // Not auto-suggested, but has candidates (top in (30, T])
+                    // Not auto-suggested, but has candidates (top in (min_confidence, T])
                     prop_assert!(!is_auto,
                         "Should not be auto-suggested when top score {} ≤ threshold {}",
                         top_score, threshold);
                     prop_assert!(should_emit,
-                        "Should emit event when top score {} is in (30, {}]",
-                        top_score, threshold);
+                        "Should emit event when top score {} is in ({}, {}]",
+                        top_score, min_confidence, threshold);
                     prop_assert!(!should_fallback,
-                        "Should not fallback when top score {} is in (30, {}]",
-                        top_score, threshold);
+                        "Should not fallback when top score {} is in ({}, {}]",
+                        top_score, min_confidence, threshold);
                 }
             }
         }

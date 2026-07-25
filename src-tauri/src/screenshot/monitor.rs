@@ -76,7 +76,7 @@ impl ClipboardMonitor {
         let proc = processing.clone();
         let _ah = app_handle.clone();
 
-        tokio::spawn(async move {
+        tauri::async_runtime::spawn(async move {
             let _settings = settings;
             let _app_handle = _ah;
 
@@ -95,7 +95,7 @@ impl ClipboardMonitor {
                             let _ah_clone = _app_handle.clone();
                             let _settings_clone = _settings.clone();
 
-                            tokio::task::spawn_blocking(move || {
+                            tauri::async_runtime::spawn_blocking(move || {
                                 // Process the image (pipeline wired in task 7.2)
                                 Self::process_image(&_ah_clone, &image_data, &_settings_clone);
 

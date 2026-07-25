@@ -21,9 +21,10 @@ interface Props {
   profile: Profile;
   isVisible?: boolean;
   onAchievementUnlocks?: (unlocks: AchievementUnlock[]) => void;
+  onItemAdded?: () => void;
 }
 
-export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks }: Props) {
+export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks, onItemAdded }: Props) {
   const { t } = useTranslation();
 
   // Session state
@@ -311,7 +312,7 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
     });
   }, [sessionActive, paused, sessionElapsed, runElapsed, sessionRunCount, totalRunCount, area, profile.name, fastestTime, items]);
 
-  // Listen for overlay actions
+  // Listen for overlay actions and screenshot item confirmations
   useEffect(() => {
     const unlistenAction = listen<string>("overlay-action", (event) => {
       switch (event.payload) {
@@ -331,11 +332,21 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
         notes: undefined,
       }).then(() => { if (currentRun) loadItems(currentRun.id); });
     });
+    // Reload items when a screenshot detection confirms an item
+    const unlistenDetected = listen<{ run_id: string }>("screenshot:item-confirmed", (event) => {
+      if (currentRun && event.payload.run_id === currentRun.id) {
+        loadItems(currentRun.id);
+        setCurrentStreak(0);
+        playSound("item");
+        onItemAdded?.();
+      }
+    });
     return () => {
       unlistenAction.then((fn) => fn());
       unlistenItem.then((fn) => fn());
+      unlistenDetected.then((fn) => fn());
     };
-  }, [currentRun, profile.id]);
+  }, [currentRun, profile.id, onItemAdded]);
 
   const addItem = async (gameItem: GameItem) => {
     if (!currentRun) return;

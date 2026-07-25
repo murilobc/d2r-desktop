@@ -446,7 +446,7 @@ function App() {
           {/* RunTracker stays mounted to preserve session state across tab switches */}
           {selectedProfile && (
             <div style={{ display: currentPage === "tracker" ? "block" : "none" }}>
-              <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} onAchievementUnlocks={enqueueToast} />
+              <RunTracker profile={selectedProfile} isVisible={currentPage === "tracker"} onAchievementUnlocks={enqueueToast} onItemAdded={() => { /* item list updates via screenshot:item-confirmed event */ }} />
             </div>
           )}
           {currentPage !== "tracker" && renderPage()}

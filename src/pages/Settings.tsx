@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
+import { register, unregister } from "@tauri-apps/plugin-global-shortcut";
 import { emit } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { getSoundPrefs, setSoundPrefs, playSound } from "../utils/audio";
@@ -75,23 +75,30 @@ export async function registerHotkeys() {
 async function _doRegisterHotkeys() {
   const config = loadHotkeys();
 
-  await unregisterAll();
+  // Unregister each keybind individually before re-registering.
+  // Using unregisterAll + re-register has timing issues on Windows where
+  // the OS may not release shortcuts immediately, causing false "already
+  // registered" errors. Individual unregister/register is reliable.
+  const allKeys = [
+    config.nextRun,
+    config.pause,
+    config.endSession,
+    ...(config.detectScreenshot ? [config.detectScreenshot] : []),
+  ].filter(Boolean);
+
+  for (const key of allKeys) {
+    try { await unregister(key); } catch { /* not registered yet — ok */ }
+  }
 
   await Promise.all([
     register(config.nextRun, (event) => {
-      if (event.state === "Pressed") {
-        emit("overlay-action", "split");
-      }
+      if (event.state === "Pressed") emit("overlay-action", "split");
     }),
     register(config.pause, (event) => {
-      if (event.state === "Pressed") {
-        emit("overlay-action", "pause");
-      }
+      if (event.state === "Pressed") emit("overlay-action", "pause");
     }),
     register(config.endSession, (event) => {
-      if (event.state === "Pressed") {
-        emit("overlay-action", "end");
-      }
+      if (event.state === "Pressed") emit("overlay-action", "end");
     }),
   ]);
 
@@ -101,11 +108,9 @@ async function _doRegisterHotkeys() {
         if (event.state === "Pressed") {
           const profileId = localStorage.getItem("d2r_active_profile_id");
           if (profileId) {
-            // Try clipboard detection
             invoke("detect_from_clipboard").catch((err) => {
               console.warn("[Hotkey] detect_from_clipboard failed:", err);
             });
-            // Also try the latest file in the screenshots folder
             invoke("detect_latest_folder_file").catch((err) => {
               console.warn("[Hotkey] detect_latest_folder_file failed:", err);
             });

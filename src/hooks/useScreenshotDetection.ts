@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { listen, emit, type UnlistenFn } from "@tauri-apps/api/event";
 import type { DetectionResult, MatchCandidate, Run } from "../types";
 import {
   createItem,
@@ -98,6 +98,9 @@ export function useScreenshotDetection(
           item_type: item.subcategory,  // subcategory = physical type (Armor, Weapon, Shield...)
           rarity: item.category,         // category = rarity (Unique, Set, Rune...)
         });
+
+        // Notify RunTracker to reload its items list
+        await emit("screenshot:item-confirmed", { run_id: runId });
 
         // If it's a Rune, also sync rune inventory
         if (item.category === "Rune") {

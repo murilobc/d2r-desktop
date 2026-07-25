@@ -66,10 +66,12 @@ mod bug_exploration_property_tests {
             // Contaminant position (right side, distant from tooltip)
             contaminant_x in 1100u32..1300u32,
             contaminant_y in 250u32..350u32,
-            // Number of colored text pixels inside tooltip (simulating item name)
-            text_pixel_count in 30u32..80u32,
-            // Number of contaminant pixels outside tooltip
-            contaminant_pixel_count in 10u32..40u32,
+            // Text band dimensions that meet 1080p size constraints:
+            // min_width=32, min_height=11, aspect_ratio >= 3 for partial score
+            text_band_w in 80u32..140u32,
+            text_band_h in 14u32..20u32,
+            // Contaminant band (smaller, below min size so it won't be picked)
+            contaminant_pixel_count in 10u32..25u32,
         ) {
             // Create a 1920x1080 dark game-world image
             let mut img = RgbaImage::new(1920, 1080);
@@ -85,27 +87,33 @@ mod bug_exploration_property_tests {
 
             // Use orange/Rune color (index 2): r=255, g=168, b=0
             let rune_color = &ITEM_COLORS[2]; // Rune: orange
-            let text_color = [rune_color.r_center, rune_color.g_center, rune_color.b_center, 255];
+            let text_color = image::Rgba([rune_color.r_center, rune_color.g_center, rune_color.b_center, 255]);
 
-            // Paint item-colored pixels INSIDE the tooltip (simulating "Lum Rune" text)
-            // Place them in the top portion of the tooltip (first line)
+            // Paint item-colored pixels INSIDE the tooltip as a text-like band (~40% density)
+            // This simulates "Lum Rune" text rendered in the item name area
             let text_start_x = tooltip_x + 15;
             let text_start_y = tooltip_y + 12;
-            for i in 0..text_pixel_count {
-                let px = text_start_x + (i % 60);
-                let py = text_start_y + (i / 60);
-                if px <= tooltip_x2 && py <= tooltip_y2 {
-                    img.put_pixel(px, py, image::Rgba(text_color));
+            prop_assume!(text_start_x + text_band_w <= tooltip_x2);
+            prop_assume!(text_start_y + text_band_h <= tooltip_y2);
+            for dy in 0..text_band_h {
+                for dx in 0..text_band_w {
+                    // ~40% density text-like pattern
+                    if (dx + dy) % 3 == 0 || (dx % 5 == 0 && dy % 2 == 0) {
+                        let px = text_start_x + dx;
+                        let py = text_start_y + dy;
+                        img.put_pixel(px, py, text_color);
+                    }
                 }
             }
 
             // Paint contaminant pixels OUTSIDE the tooltip (distant inventory panel)
-            // These simulate orange item names visible in the inventory panel
+            // These simulate scattered orange pixels that are NOT a valid text cluster
+            // (too small/sparse to meet size constraints)
             for i in 0..contaminant_pixel_count {
-                let px = contaminant_x + (i % 20);
-                let py = contaminant_y + (i / 20);
+                let px = contaminant_x + (i % 5);
+                let py = contaminant_y + (i / 5);
                 if px < 1920 && py < 1080 {
-                    img.put_pixel(px, py, image::Rgba(text_color));
+                    img.put_pixel(px, py, text_color);
                 }
             }
 

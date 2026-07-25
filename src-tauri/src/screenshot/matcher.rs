@@ -61,13 +61,14 @@ fn is_priority_category(category: &str) -> bool {
 /// Match parsed candidates against the item database and return the top results.
 ///
 /// For each candidate with non-empty text:
-/// 1. Normalize and lowercase the text
-/// 2. Compute confidence against every item in the database
-/// 3. Filter out matches with confidence < min_confidence
-/// 4. Dedup by item_name (keep highest confidence)
-/// 5. Sort by confidence descending with tiebreaker: within a 5-point band,
+/// 1. Check for exact match (fast path, returns immediately at 100% confidence)
+/// 2. Try "X Rune" pattern for short text (< 5 chars)
+/// 3. Compute fuzzy confidence using multi-word matching strategies
+/// 4. Apply dynamic confidence floor per candidate
+/// 5. Dedup by item_name (keep highest confidence)
+/// 6. Sort by confidence descending with tiebreaker: within a 5-point band,
 ///    Unique/Set/Rune categories rank above others
-/// 6. Return at most 5 matches
+/// 7. Return at most 5 matches
 ///
 /// Returns an empty list if all candidates have empty/whitespace-only text
 /// or if no match meets the minimum confidence floor.
@@ -93,9 +94,76 @@ pub fn match_items(
 
         let normalized = normalize_ocr_chars(&text.to_lowercase());
 
+        // --- Exact match fast path ---
+        if let Some(item) = item_database
+            .iter()
+            .find(|item| item.normalized_name == normalized)
+        {
+            matches.push(MatchCandidate {
+                item_name: item.name.clone(),
+                category: item.category.clone(),
+                subcategory: item.subcategory.clone(),
+                confidence: 100,
+            });
+            continue;
+        }
+
+        // --- "X Rune" pattern for short text ---
+        if text.len() < 5 {
+            let rune_form = normalize_ocr_chars(&format!("{} rune", text.to_lowercase()));
+            if let Some(item) = item_database
+                .iter()
+                .find(|item| item.normalized_name == rune_form)
+            {
+                matches.push(MatchCandidate {
+                    item_name: item.name.clone(),
+                    category: item.category.clone(),
+                    subcategory: item.subcategory.clone(),
+                    confidence: 100,
+                });
+                continue;
+            }
+        }
+
+        // --- Dynamic confidence floor ---
+        let effective_floor = if normalized.len() < 6 {
+            min_confidence.max(70)
+        } else {
+            min_confidence.max(50)
+        };
+
+        // --- Multi-word matching with fuzzy scores ---
+        let words: Vec<&str> = normalized.split_whitespace().collect();
+
         for item in item_database {
-            let confidence = calculate_confidence(&normalized, &item.name);
-            if confidence > 0 {
+            // (a) Full text score
+            let full_score = calculate_confidence(&normalized, &item.name);
+
+            // (b) Individual word scores
+            let word_scores: Vec<u8> = words
+                .iter()
+                .map(|w| calculate_confidence(w, &item.name))
+                .collect();
+            let best_word_score = word_scores.iter().copied().max().unwrap_or(0);
+
+            // (c) Consecutive word combination scores
+            let mut best_combo_score: u8 = 0;
+            if words.len() > 1 {
+                for window_size in 2..=words.len() {
+                    for window in words.windows(window_size) {
+                        let combo = window.join(" ");
+                        let score = calculate_confidence(&combo, &item.name);
+                        if score > best_combo_score {
+                            best_combo_score = score;
+                        }
+                    }
+                }
+            }
+
+            // Take max confidence across all sub-strategies
+            let confidence = full_score.max(best_word_score).max(best_combo_score);
+
+            if confidence >= effective_floor {
                 matches.push(MatchCandidate {
                     item_name: item.name.clone(),
                     category: item.category.clone(),
@@ -105,9 +173,6 @@ pub fn match_items(
             }
         }
     }
-
-    // 3. Filter out matches below the minimum confidence floor
-    matches.retain(|m| m.confidence >= min_confidence);
 
     // 4. Dedup by item_name, keeping highest confidence
     matches.sort_by(|a, b| b.confidence.cmp(&a.confidence));
@@ -1038,6 +1103,61 @@ mod tests {
                 let results = match_items(&candidates, &ITEM_DATABASE, 80);
                 prop_assert!(results.is_empty(),
                     "Expected empty results for whitespace input, got {} candidates", results.len());
+            }
+        }
+
+        // **Validates: Requirements 2.5, 2.6, 2.7**
+        //
+        // Bug Condition Exploration Test: Exact Match Fast Path
+        //
+        // When OCR text "Ber" is passed to match_items with min_confidence=55,
+        // the expected behavior is that the matcher recognizes "Ber" as an exact
+        // match for "Ber Rune" (via the "X Rune" pattern) and returns it at 100%
+        // confidence.
+        //
+        // Bug condition (unfixed code): no exact-match fast path exists, so "Ber"
+        // goes through fuzzy matching where it gets unreliable Levenshtein scores
+        // against many short database entries, potentially returning wrong items
+        // or "Ber Rune" at less than 100% confidence.
+        //
+        // This test is EXPECTED TO FAIL on unfixed code, confirming the bug exists.
+        proptest! {
+            #[test]
+            fn prop_bug_condition_exact_match_fast_path(
+                // Vary case to confirm case-insensitive matching
+                ber_text in prop::sample::select(vec![
+                    "Ber".to_string(),
+                    "ber".to_string(),
+                    "BER".to_string(),
+                ]),
+            ) {
+                let candidates = vec![ParsedCandidate { text: ber_text.clone(), line_index: 0 }];
+                let results = match_items(&candidates, &ITEM_DATABASE, 55);
+
+                // Should return results
+                prop_assert!(
+                    !results.is_empty(),
+                    "match_items should return results for '{}' with min_confidence=55",
+                    ber_text
+                );
+
+                // The top result should be "Ber Rune" at exactly 100% confidence
+                // (exact match via "X Rune" pattern fast path)
+                prop_assert_eq!(
+                    &results[0].item_name,
+                    "Ber Rune",
+                    "Top result for '{}' should be 'Ber Rune', got '{}'. \
+                     Bug: no exact-match fast path exists, fuzzy matching returns wrong item.",
+                    ber_text, results[0].item_name
+                );
+
+                prop_assert_eq!(
+                    results[0].confidence,
+                    100u8,
+                    "Confidence for exact match 'Ber' -> 'Ber Rune' should be 100%, got {}%. \
+                     Bug: no exact-match fast path, fuzzy Levenshtein unreliable on short strings.",
+                    results[0].confidence
+                );
             }
         }
     }

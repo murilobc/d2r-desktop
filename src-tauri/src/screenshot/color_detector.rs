@@ -1,4 +1,4 @@
-use image::{GrayImage, RgbaImage};
+use image::{GrayImage, ImageEncoder, RgbaImage};
 
 /// Known D2R item name text colors with tolerance.
 #[derive(Debug, Clone)]
@@ -18,6 +18,7 @@ pub const ITEM_COLORS: &[ColorRange] = &[
     ColorRange { r_center: 255, g_center: 255, b_center: 119, tolerance: 30, category: "Rare" },
     ColorRange { r_center: 107, g_center: 107, b_center: 255, tolerance: 30, category: "Magic" },
     ColorRange { r_center: 255, g_center: 255, b_center: 255, tolerance: 15, category: "Normal" },
+    ColorRange { r_center: 148, g_center: 148, b_center: 148, tolerance: 20, category: "Socketed" },
 ];
 
 /// Result of color-based text region detection.
@@ -35,271 +36,106 @@ fn pixel_matches(r: u8, g: u8, b: u8, color: &ColorRange) -> bool {
     dr <= color.tolerance && dg <= color.tolerance && db <= color.tolerance
 }
 
-// Returns true if the given pixel is a dark tooltip background pixel.
-// D2R tooltip backgrounds are near-black with moderate-to-high alpha.
-fn is_dark_pixel(r: u8, g: u8, b: u8, a: u8) -> bool {
-    r < 25 && g < 25 && b < 25 && a > 170
-}
-
-/// Finds the bounding box of the largest dark rectangular region in the image.
-///
-/// D2R tooltips have a near-black semi-transparent background. This function
-/// locates that background by scanning for contiguous dark pixels and finding
-/// the largest rectangle that meets minimum size requirements.
-///
-/// After finding the largest dark rectangle as a seed, the function expands it
-/// upward and downward to include adjacent rows that still have high dark pixel
-/// density (≥50%) within the same x-range. This handles tooltips with colored
-/// text lines that interrupt the strict dark-pixel continuity.
-///
-/// Returns `Some((min_x, min_y, max_x, max_y))` if a dark rectangle at least
-/// 100px wide × 40px tall is found, or `None` otherwise.
-pub fn find_tooltip_bounds(rgba: &RgbaImage) -> Option<(u32, u32, u32, u32)> {
-    let (width, height) = rgba.dimensions();
-
-    // Build a boolean row for "is this pixel dark?"
-    // Then use the histogram-based maximal rectangle algorithm per row.
-    // heights[x] = number of consecutive dark pixels ending at current row for column x.
-    let mut heights: Vec<u32> = vec![0; width as usize];
-
-    let mut best_area: u32 = 0;
-    let mut best_rect: Option<(u32, u32, u32, u32)> = None; // (min_x, min_y, max_x, max_y)
-
-    for y in 0..height {
-        // Update histogram heights for this row
-        for x in 0..width {
-            let pixel = rgba.get_pixel(x, y);
-            if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
-                heights[x as usize] += 1;
-            } else {
-                heights[x as usize] = 0;
-            }
-        }
-
-        // Find the largest rectangle in the histogram using a stack-based approach
-        let mut stack: Vec<usize> = Vec::new(); // indices into heights
-
-        for x in 0..=(width as usize) {
-            let current_height = if x < width as usize { heights[x] } else { 0 };
-
-            while !stack.is_empty() && heights[*stack.last().unwrap()] > current_height {
-                let top = stack.pop().unwrap();
-                let h = heights[top];
-                let w = if stack.is_empty() {
-                    x as u32
-                } else {
-                    (x - stack.last().unwrap() - 1) as u32
-                };
-
-                let area = h * w;
-                if area > best_area && w >= 100 && h >= 40 {
-                    best_area = area;
-                    // Compute bounding box
-                    let min_x = if stack.is_empty() {
-                        0u32
-                    } else {
-                        (*stack.last().unwrap() as u32) + 1
-                    };
-                    let max_x = (x as u32) - 1;
-                    let max_y = y;
-                    let min_y = y - h + 1;
-                    best_rect = Some((min_x, min_y, max_x, max_y));
-                }
-            }
-
-            stack.push(x);
-        }
-    }
-
-    // Expand the seed rectangle to include adjacent rows with high dark pixel density.
-    // Tooltip text lines (colored pixels) break strict continuity but the surrounding
-    // rows still have mostly dark pixels. Expanding captures the full tooltip extent.
-    if let Some((min_x, min_y, max_x, max_y)) = best_rect {
-        let rect_width = max_x - min_x + 1;
-        // Require at least 50% of the row's pixels within the x-range to be dark
-        let density_threshold = rect_width / 2;
-
-        // Expand upward
-        let mut expanded_min_y = min_y;
-        if min_y > 0 {
-            let mut y = min_y - 1;
-            loop {
-                let mut dark_count: u32 = 0;
-                for x in min_x..=max_x {
-                    let pixel = rgba.get_pixel(x, y);
-                    if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
-                        dark_count += 1;
-                    }
-                }
-                if dark_count >= density_threshold {
-                    expanded_min_y = y;
-                } else {
-                    break;
-                }
-                if y == 0 {
-                    break;
-                }
-                y -= 1;
-            }
-        }
-
-        // Expand downward
-        let mut expanded_max_y = max_y;
-        for y in (max_y + 1)..height {
-            let mut dark_count: u32 = 0;
-            for x in min_x..=max_x {
-                let pixel = rgba.get_pixel(x, y);
-                if is_dark_pixel(pixel[0], pixel[1], pixel[2], pixel[3]) {
-                    dark_count += 1;
-                }
-            }
-            if dark_count >= density_threshold {
-                expanded_max_y = y;
-            } else {
-                break;
-            }
-        }
-
-        // Only return if the expanded rectangle still meets minimum size
-        let final_h = expanded_max_y - expanded_min_y + 1;
-        if rect_width >= 100 && final_h >= 40 {
-            return Some((min_x, expanded_min_y, max_x, expanded_max_y));
-        }
-    }
-
-    best_rect
-}
 
 /// Detects the item name text region based on D2R color conventions.
 ///
-/// Algorithm (tooltip-first path):
-/// 1. Decode image to RGBA
-/// 2. Attempt to find tooltip bounds via dark background detection
-/// 3. If tooltip found: extract first line for each color, pick best, crop + binarize
-/// 4. If tooltip NOT found: fall through to legacy top-50% scan
-///
-/// Legacy fallback (no tooltip):
-/// 1. Scan top 50% of image for item-colored pixels
-/// 2. For each known color, find pixels within tolerance
-/// 3. Select the color with the most matching pixels
-/// 4. Expand bounding box by 10px padding
-/// 5. Binarize: matching pixels → white (255), rest → black (0)
-/// 6. Return cropped + binarized PNG for OCR
-///
-/// If no colored text region is found, returns the full image as-is (fallback).
+/// Uses spatial clustering of colored pixels to identify the item name text
+/// region, selecting the cluster with the best text-like aspect ratio and density.
 pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult, String> {
     let img = image::load_from_memory(image_data)
         .map_err(|e| format!("Failed to decode image: {}", e))?;
-
     let rgba = img.to_rgba8();
-    let (width, height) = rgba.dimensions();
+    let (img_width, img_height) = rgba.dimensions();
 
-    // --- Tooltip-first path ---
-    // Attempt to locate the tooltip background and constrain scanning to it
-    if let Some(tooltip_bounds) = find_tooltip_bounds(&rgba) {
-        // For each item color, find the first-line region within the tooltip
-        // and count matching pixels to determine the best color
-        let mut best_color_idx: Option<usize> = None;
-        let mut best_pixel_count: u32 = 0;
-        let mut best_first_line: (u32, u32, u32, u32) = (0, 0, 0, 0);
+    let scale_factor = img_height as f64 / 1080.0;
+    let connectivity_gap = (5.0 * scale_factor).round() as u32;
 
-        for (color_idx, color) in ITEM_COLORS.iter().enumerate() {
-            if let Some(first_line) = extract_first_line_region(&rgba, tooltip_bounds, color) {
-                // Count matching pixels within the first-line region
-                let (fl_min_x, fl_min_y, fl_max_x, fl_max_y) = first_line;
-                let mut count: u32 = 0;
-                for y in fl_min_y..=fl_max_y {
-                    for x in fl_min_x..=fl_max_x {
-                        let pixel = rgba.get_pixel(x, y);
-                        if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
-                            count += 1;
-                        }
-                    }
-                }
+    // Size constraints scaled by image height
+    let min_width = (img_height as f64 * 0.03).round() as u32;
+    let max_width = (img_height as f64 * 0.35).round() as u32;
+    let min_height_px = (img_height as f64 * 0.01).round() as u32;
+    let max_height_px = (img_height as f64 * 0.03).round() as u32;
 
-                if count > best_pixel_count {
-                    best_pixel_count = count;
-                    best_color_idx = Some(color_idx);
-                    best_first_line = first_line;
+    // Collect matching pixel coordinates per color in a single image pass
+    let num_colors = ITEM_COLORS.len();
+    let mut pixels_per_color: Vec<Vec<(u32, u32)>> = vec![Vec::new(); num_colors];
+
+    for y in 0..img_height {
+        for x in 0..img_width {
+            let p = rgba.get_pixel(x, y);
+            let (pr, pg, pb) = (p[0], p[1], p[2]);
+            for (color_idx, color) in ITEM_COLORS.iter().enumerate() {
+                if pixel_matches(pr, pg, pb, color) {
+                    pixels_per_color[color_idx].push((x, y));
+                    break; // Each pixel matches at most one color (first match wins)
                 }
             }
         }
-
-        // If we found colored text in the tooltip first line, crop and binarize it
-        if let Some(color_idx) = best_color_idx {
-            let color = &ITEM_COLORS[color_idx];
-            let (fl_min_x, fl_min_y, fl_max_x, fl_max_y) = best_first_line;
-
-            let crop_w = fl_max_x - fl_min_x + 1;
-            let crop_h = fl_max_y - fl_min_y + 1;
-
-            // Crop the first-line region from the RGBA image
-            let cropped_rgba =
-                image::imageops::crop_imm(&rgba, fl_min_x, fl_min_y, crop_w, crop_h).to_image();
-
-            // Binarize: matching pixels → white, rest → black
-            let binarized = binarize_region(&cropped_rgba, color);
-
-            // Encode binarized image to PNG
-            let mut png_bytes: Vec<u8> = Vec::new();
-            let encoder =
-                image::codecs::png::PngEncoder::new(std::io::Cursor::new(&mut png_bytes));
-            image::ImageEncoder::write_image(
-                encoder,
-                binarized.as_raw(),
-                binarized.width(),
-                binarized.height(),
-                image::ExtendedColorType::L8,
-            )
-            .map_err(|e| format!("Failed to encode binarized image: {}", e))?;
-
-            return Ok(ColorDetectionResult {
-                cropped_image: png_bytes,
-                detected_category: color.category.to_string(),
-                confidence_boost: 15,
-            });
-        }
-        // If no colored text found in tooltip, fall through to legacy scan
     }
 
-    // --- Legacy fallback path (no tooltip detected or no colored text in tooltip) ---
-    let scan_height = height / 2; // top 50%
+    let mut best_score: f64 = 0.0;
+    let mut best_color_idx: usize = 0;
+    let mut best_bbox: (u32, u32, u32, u32) = (0, 0, 0, 0);
 
-    // For each color, find matching pixels in the top half and compute bounding box
-    let mut best_color_idx: Option<usize> = None;
-    let mut best_pixel_count: u32 = 0;
-    let mut best_bbox: (u32, u32, u32, u32) = (0, 0, 0, 0); // min_x, min_y, max_x, max_y
+    for (color_idx, pixels) in pixels_per_color.iter().enumerate() {
+        if pixels.is_empty() {
+            continue;
+        }
 
-    for (color_idx, color) in ITEM_COLORS.iter().enumerate() {
-        let mut min_x = width;
-        let mut min_y = scan_height;
-        let mut max_x = 0u32;
-        let mut max_y = 0u32;
-        let mut count = 0u32;
+        // Pixels are already sorted by (y, x) since we scanned row by row
+        // Group into row-segments
+        let segments = build_row_segments(pixels, connectivity_gap);
 
-        for y in 0..scan_height {
-            for x in 0..width {
-                let pixel = rgba.get_pixel(x, y);
-                if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
-                    count += 1;
-                    if x < min_x { min_x = x; }
-                    if y < min_y { min_y = y; }
-                    if x > max_x { max_x = x; }
-                    if y > max_y { max_y = y; }
-                }
+        // Merge segments into clusters
+        let clusters = merge_segments_into_clusters(&segments);
+
+        // Score each cluster
+        for cluster in &clusters {
+            let (c_min_x, c_min_y, c_max_x, c_max_y) = cluster_bounding_box(cluster);
+            let c_width = c_max_x - c_min_x + 1;
+            let c_height = c_max_y - c_min_y + 1;
+
+            // Apply size constraints
+            if c_width < min_width || c_width > max_width {
+                continue;
+            }
+            if c_height < min_height_px || c_height > max_height_px {
+                continue;
+            }
+
+            let pixel_count = cluster_pixel_count(cluster);
+            let aspect_ratio = c_width as f64 / c_height as f64;
+            let density = pixel_count as f64 / (c_width as f64 * c_height as f64);
+
+            let aspect_ratio_score = if (4.0..=15.0).contains(&aspect_ratio) {
+                1.0
+            } else if (3.0..4.0).contains(&aspect_ratio) || (15.0..=25.0).contains(&aspect_ratio)
+            {
+                0.5
+            } else {
+                0.0
+            };
+
+            let density_score = if (0.15..=0.60).contains(&density) {
+                1.0
+            } else if (0.10..0.15).contains(&density) || (0.60..=0.80).contains(&density) {
+                0.5
+            } else {
+                0.0
+            };
+
+            let score = pixel_count as f64 * aspect_ratio_score * density_score;
+
+            if score > 0.0 && score > best_score {
+                best_score = score;
+                best_color_idx = color_idx;
+                best_bbox = (c_min_x, c_min_y, c_max_x, c_max_y);
             }
         }
-
-        // Select the color with the most matching pixels (largest region)
-        if count > best_pixel_count {
-            best_pixel_count = count;
-            best_color_idx = Some(color_idx);
-            best_bbox = (min_x, min_y, max_x, max_y);
-        }
     }
 
-    // If no matching pixels found, return the original image data as fallback
-    if best_pixel_count == 0 || best_color_idx.is_none() {
+    // Fallback: no valid cluster found
+    if best_score == 0.0 {
         return Ok(ColorDetectionResult {
             cropped_image: image_data.to_vec(),
             detected_category: String::new(),
@@ -307,41 +143,207 @@ pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult
         });
     }
 
-    let color = &ITEM_COLORS[best_color_idx.unwrap()];
-    let (min_x, min_y, max_x, max_y) = best_bbox;
+    // Pad bounding box
+    let pad = (5.0 * scale_factor).round() as u32;
+    let padded_min_x = best_bbox.0.saturating_sub(pad);
+    let padded_min_y = best_bbox.1.saturating_sub(pad);
+    let padded_max_x = (best_bbox.2 + pad).min(img_width - 1);
+    let padded_max_y = (best_bbox.3 + pad).min(img_height - 1);
 
-    // Expand bounding box by 10px padding (clamped to image bounds)
-    let pad = 10u32;
-    let crop_x = min_x.saturating_sub(pad);
-    let crop_y = min_y.saturating_sub(pad);
-    let crop_x2 = (max_x + pad).min(width - 1);
-    let crop_y2 = (max_y + pad).min(height - 1);
-    let crop_w = crop_x2 - crop_x + 1;
-    let crop_h = crop_y2 - crop_y + 1;
+    let crop_width = padded_max_x - padded_min_x + 1;
+    let crop_height = padded_max_y - padded_min_y + 1;
 
-    // Crop the region
-    let cropped_rgba = image::imageops::crop_imm(&rgba, crop_x, crop_y, crop_w, crop_h).to_image();
+    // Crop RGBA sub-image
+    let mut cropped_rgba = RgbaImage::new(crop_width, crop_height);
+    for y in 0..crop_height {
+        for x in 0..crop_width {
+            let src_x = padded_min_x + x;
+            let src_y = padded_min_y + y;
+            cropped_rgba.put_pixel(x, y, *rgba.get_pixel(src_x, src_y));
+        }
+    }
 
-    // Binarize: matching pixels → white, rest → black
+    // Binarize
+    let color = &ITEM_COLORS[best_color_idx];
     let binarized = binarize_region(&cropped_rgba, color);
 
-    // Encode binarized image to PNG
+    // Encode to PNG
     let mut png_bytes: Vec<u8> = Vec::new();
     let encoder = image::codecs::png::PngEncoder::new(std::io::Cursor::new(&mut png_bytes));
-    image::ImageEncoder::write_image(
-        encoder,
-        binarized.as_raw(),
-        binarized.width(),
-        binarized.height(),
-        image::ExtendedColorType::L8,
-    )
-    .map_err(|e| format!("Failed to encode binarized image: {}", e))?;
+    encoder
+        .write_image(
+            binarized.as_raw(),
+            binarized.width(),
+            binarized.height(),
+            image::ExtendedColorType::L8,
+        )
+        .map_err(|e| format!("Failed to encode PNG: {}", e))?;
 
     Ok(ColorDetectionResult {
         cropped_image: png_bytes,
         detected_category: color.category.to_string(),
-        confidence_boost: 10,
+        confidence_boost: 15,
     })
+}
+
+/// A row-segment: a contiguous horizontal group of pixels on a single row.
+struct RowSegment {
+    y: u32,
+    x_min: u32,
+    x_max: u32,
+    pixel_count: u32,
+}
+
+/// Builds row-segments from sorted pixels. Pixels on the same row within
+/// `connectivity_gap` horizontal distance are grouped together.
+fn build_row_segments(pixels: &[(u32, u32)], connectivity_gap: u32) -> Vec<RowSegment> {
+    let mut segments: Vec<RowSegment> = Vec::new();
+    if pixels.is_empty() {
+        return segments;
+    }
+
+    let mut seg_y = pixels[0].1;
+    let mut seg_x_min = pixels[0].0;
+    let mut seg_x_max = pixels[0].0;
+    let mut seg_count = 1u32;
+
+    for &(x, y) in pixels.iter().skip(1) {
+        if y == seg_y && x <= seg_x_max + connectivity_gap {
+            // Same row, within gap — extend segment
+            seg_x_max = x;
+            seg_count += 1;
+        } else {
+            // New segment
+            segments.push(RowSegment {
+                y: seg_y,
+                x_min: seg_x_min,
+                x_max: seg_x_max,
+                pixel_count: seg_count,
+            });
+            seg_y = y;
+            seg_x_min = x;
+            seg_x_max = x;
+            seg_count = 1;
+        }
+    }
+    segments.push(RowSegment {
+        y: seg_y,
+        x_min: seg_x_min,
+        x_max: seg_x_max,
+        pixel_count: seg_count,
+    });
+
+    segments
+}
+
+/// A cluster is a collection of row-segments that are vertically adjacent
+/// (within 2px gap) and horizontally overlapping.
+struct Cluster {
+    segments: Vec<RowSegment>,
+}
+
+/// Merges row-segments into clusters. Segments on adjacent rows (within 2px
+/// vertical gap) that overlap horizontally are merged into the same cluster.
+fn merge_segments_into_clusters(segments: &[RowSegment]) -> Vec<Cluster> {
+    if segments.is_empty() {
+        return Vec::new();
+    }
+
+    // Use union-find approach: assign each segment to a cluster index
+    let n = segments.len();
+    let mut parent: Vec<usize> = (0..n).collect();
+
+    fn find(parent: &mut [usize], i: usize) -> usize {
+        let mut root = i;
+        while parent[root] != root {
+            root = parent[root];
+        }
+        // Path compression
+        let mut curr = i;
+        while parent[curr] != root {
+            let next = parent[curr];
+            parent[curr] = root;
+            curr = next;
+        }
+        root
+    }
+
+    fn union(parent: &mut [usize], a: usize, b: usize) {
+        let ra = find(parent, a);
+        let rb = find(parent, b);
+        if ra != rb {
+            parent[rb] = ra;
+        }
+    }
+
+    // Segments are sorted by y (inherited from pixel sort).
+    // For each segment, only look backwards at segments within 2px vertical gap.
+    for i in 1..n {
+        let seg_i_y = segments[i].y;
+        for j in (0..i).rev() {
+            let seg_j_y = segments[j].y;
+            // Since segments are ordered by y, once we go more than 2 rows back, stop.
+            if seg_i_y > seg_j_y + 2 {
+                break;
+            }
+            // Check horizontal overlap
+            if segments[i].x_min <= segments[j].x_max
+                && segments[j].x_min <= segments[i].x_max
+            {
+                union(&mut parent, i, j);
+            }
+        }
+    }
+
+    // Group segments by their root
+    let mut cluster_map: std::collections::HashMap<usize, Vec<usize>> =
+        std::collections::HashMap::new();
+    for i in 0..n {
+        let root = find(&mut parent, i);
+        cluster_map.entry(root).or_default().push(i);
+    }
+
+    // Build cluster objects
+    cluster_map
+        .into_values()
+        .map(|indices| {
+            let segs = indices
+                .into_iter()
+                .map(|idx| {
+                    let s = &segments[idx];
+                    RowSegment {
+                        y: s.y,
+                        x_min: s.x_min,
+                        x_max: s.x_max,
+                        pixel_count: s.pixel_count,
+                    }
+                })
+                .collect();
+            Cluster { segments: segs }
+        })
+        .collect()
+}
+
+/// Computes bounding box (min_x, min_y, max_x, max_y) for a cluster.
+fn cluster_bounding_box(cluster: &Cluster) -> (u32, u32, u32, u32) {
+    let mut min_x = u32::MAX;
+    let mut min_y = u32::MAX;
+    let mut max_x = 0u32;
+    let mut max_y = 0u32;
+
+    for seg in &cluster.segments {
+        min_x = min_x.min(seg.x_min);
+        max_x = max_x.max(seg.x_max);
+        min_y = min_y.min(seg.y);
+        max_y = max_y.max(seg.y);
+    }
+
+    (min_x, min_y, max_x, max_y)
+}
+
+/// Computes total pixel count across all segments in a cluster.
+fn cluster_pixel_count(cluster: &Cluster) -> u32 {
+    cluster.segments.iter().map(|s| s.pixel_count).sum()
 }
 
 /// Binarizes a region: pixels matching the target color become white, rest black.
@@ -362,97 +364,6 @@ pub fn binarize_region(image: &RgbaImage, color: &ColorRange) -> GrayImage {
     }
 
     output
-}
-
-/// Extracts the bounding box of the first line of text matching the given color
-/// within the specified tooltip bounds.
-///
-/// Scans from the top of the tooltip region downward to find the first row containing
-/// pixels that match the target item color, then determines the vertical extent of that
-/// first text line. Returns a tight bounding box with 5px padding (clamped to tooltip bounds)
-/// for OCR readability, or None if no matching pixels are found.
-pub fn extract_first_line_region(
-    rgba: &RgbaImage,
-    tooltip_bounds: (u32, u32, u32, u32),
-    color: &ColorRange,
-) -> Option<(u32, u32, u32, u32)> {
-    let (tb_min_x, tb_min_y, tb_max_x, tb_max_y) = tooltip_bounds;
-
-    // Find the first row (from top) within tooltip bounds that has a matching pixel
-    let mut first_row: Option<u32> = None;
-    for y in tb_min_y..=tb_max_y {
-        for x in tb_min_x..=tb_max_x {
-            let pixel = rgba.get_pixel(x, y);
-            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
-                first_row = Some(y);
-                break;
-            }
-        }
-        if first_row.is_some() {
-            break;
-        }
-    }
-
-    let first_row = first_row?;
-
-    // Now find the vertical extent of this first text line.
-    // Scan downward from first_row: the line continues as long as rows contain
-    // matching pixels. Allow small gaps (up to 2px) for anti-aliased text edges.
-    let mut last_row = first_row;
-    let mut gap = 0u32;
-    let max_gap = 2;
-
-    for y in (first_row + 1)..=tb_max_y {
-        let mut row_has_match = false;
-        for x in tb_min_x..=tb_max_x {
-            let pixel = rgba.get_pixel(x, y);
-            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
-                row_has_match = true;
-                break;
-            }
-        }
-
-        if row_has_match {
-            last_row = y;
-            gap = 0;
-        } else {
-            gap += 1;
-            if gap > max_gap {
-                break;
-            }
-        }
-    }
-
-    // Find horizontal extent (min_x, max_x) across the first line rows
-    let mut min_x = tb_max_x;
-    let mut max_x = tb_min_x;
-    for y in first_row..=last_row {
-        for x in tb_min_x..=tb_max_x {
-            let pixel = rgba.get_pixel(x, y);
-            if pixel_matches(pixel[0], pixel[1], pixel[2], color) {
-                if x < min_x {
-                    min_x = x;
-                }
-                if x > max_x {
-                    max_x = x;
-                }
-            }
-        }
-    }
-
-    // Safety check: ensure we found valid horizontal extent
-    if max_x < min_x {
-        return None;
-    }
-
-    // Add 5px padding, clamped to tooltip bounds
-    let pad = 5u32;
-    let padded_min_x = min_x.saturating_sub(pad).max(tb_min_x);
-    let padded_min_y = first_row.saturating_sub(pad).max(tb_min_y);
-    let padded_max_x = (max_x + pad).min(tb_max_x);
-    let padded_max_y = (last_row + pad).min(tb_max_y);
-
-    Some((padded_min_x, padded_min_y, padded_max_x, padded_max_y))
 }
 
 #[cfg(test)]
@@ -479,22 +390,19 @@ mod tests {
     // Property 1: Color detection identifies known D2R item colors
     //
     // For any pixel with RGB values within the defined tolerance of a known D2R item color,
-    // detect_item_text_region SHALL include that pixel in the candidate text region and
+    // detect_item_text_region SHALL identify a text-like cluster of those pixels and
     // return the correct category label.
     proptest! {
         #[test]
         fn prop_color_detection_identifies_known_colors(
-            color_idx in 0..6usize,
-            // Image dimensions (small for speed)
-            width in 10u32..50u32,
-            height in 10u32..50u32,
-            // Position of the colored pixel block in the top half
-            block_x in 0u32..10u32,
-            block_y in 0u32..5u32,
+            color_idx in 0..7usize,
             // Random offsets within tolerance for the color pixel
             r_offset in 0u8..30u8,
             g_offset in 0u8..30u8,
             b_offset in 0u8..30u8,
+            // Vary the text band position slightly
+            band_y in 100u32..200u32,
+            band_x in 50u32..150u32,
         ) {
             let color = &ITEM_COLORS[color_idx];
             let tol = color.tolerance;
@@ -521,19 +429,28 @@ mod tests {
                 color.b_center.saturating_sub(b_off)
             };
 
-            // Create a dark image with a small block of the target color pixels
-            let mut rgba = RgbaImage::new(width, height);
+            // Use a 540x540 image (scale_factor=0.5) to keep tests fast
+            // At this scale: min_width=16, max_width=189, min_height=5, max_height=16
+            let img_width = 540u32;
+            let img_height = 540u32;
+
+            let mut rgba = RgbaImage::new(img_width, img_height);
             // Fill with dark pixels (far from any item color)
             for pixel in rgba.pixels_mut() {
                 *pixel = image::Rgba([50, 50, 50, 255]);
             }
 
-            // Place a 3x3 block of matching-color pixels in the top half
-            let px = block_x.min(width - 3);
-            let py = block_y.min(height / 2 - 3);
-            for dy in 0..3 {
-                for dx in 0..3 {
-                    rgba.put_pixel(px + dx, py + dy, image::Rgba([r, g, b, 255]));
+            // Place a text-like horizontal band: ~80px wide, ~10px tall, ~50% density
+            let band_width = 80u32;
+            let band_height = 10u32;
+            let bx = band_x.min(img_width - band_width - 1);
+            let by = band_y.min(img_height - band_height - 1);
+            for dy in 0..band_height {
+                for dx in 0..band_width {
+                    // ~50% density (checkerboard-like pattern)
+                    if (dx + dy) % 2 == 0 {
+                        rgba.put_pixel(bx + dx, by + dy, image::Rgba([r, g, b, 255]));
+                    }
                 }
             }
 
@@ -638,6 +555,153 @@ mod tests {
                 result.confidence_boost,
                 0u8,
                 "Fallback should have zero confidence boost"
+            );
+        }
+    }
+
+    // Validates: Requirements 3.1, 3.2
+    // Property: pixel_matches returns true iff each channel difference ≤ tolerance
+    //
+    // For all pixels and any ColorRange, pixel_matches SHALL return true if and only if
+    // the absolute difference between each channel (r, g, b) and the corresponding
+    // center value is less than or equal to the tolerance.
+    proptest! {
+        #[test]
+        fn prop_pixel_matches_correctness(
+            r in 0u8..=255u8,
+            g in 0u8..=255u8,
+            b in 0u8..=255u8,
+            r_center in 0u8..=255u8,
+            g_center in 0u8..=255u8,
+            b_center in 0u8..=255u8,
+            tolerance in 0u8..=50u8,
+        ) {
+            let color = ColorRange {
+                r_center,
+                g_center,
+                b_center,
+                tolerance,
+                category: "Test",
+            };
+
+            let result = pixel_matches(r, g, b, &color);
+
+            // Compute expected result: true iff each channel diff ≤ tolerance
+            let dr = (r as i16 - r_center as i16).unsigned_abs() as u8;
+            let dg = (g as i16 - g_center as i16).unsigned_abs() as u8;
+            let db = (b as i16 - b_center as i16).unsigned_abs() as u8;
+            let expected = dr <= tolerance && dg <= tolerance && db <= tolerance;
+
+            prop_assert_eq!(
+                result,
+                expected,
+                "pixel_matches({}, {}, {}) with center=({}, {}, {}) tol={}: got {}, expected {}",
+                r, g, b, r_center, g_center, b_center, tolerance, result, expected
+            );
+        }
+    }
+
+    // **Validates: Requirements 1.1, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3**
+    //
+    // Bug Condition Exploration Test: Spatial Clustering vs Background Detection
+    //
+    // This test creates a synthetic 1920x1080 image with:
+    // - A tight horizontal band of ~50 gold (Unique) pixels at (x:400-500, y:200-215)
+    //   simulating an item name like "Harlequin Crest"
+    // - 30+ scattered gold pixels at distant positions (x:1200-1400, y:100-500)
+    //   simulating inventory panel items
+    //
+    // Expected behavior (after fix): the returned crop isolates the text cluster
+    // with width < 200px and text-like aspect ratio (width/height > 3.0).
+    //
+    // Bug condition (unfixed code): the legacy top-50% scan aggregates ALL gold pixels
+    // into one bounding box spanning from x:400 to x:1400, producing a ~1000px crop.
+    //
+    // This test is EXPECTED TO FAIL on unfixed code, confirming the bug exists.
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(10))]
+        #[test]
+        fn prop_bug_condition_spatial_clustering_isolates_text(
+            // Vary the exact position of the text band slightly
+            text_x_start in 400u32..420u32,
+            text_y_start in 200u32..210u32,
+            // Vary noise pixel positions in the inventory region
+            noise_x_offset in 0u32..200u32,
+            noise_y_offset in 0u32..400u32,
+        ) {
+            let width = 1920u32;
+            let height = 1080u32;
+
+            // Create a 1920x1080 image with a medium-gray background.
+            // Using (80,80,80) which is NOT dark (won't trigger find_tooltip_bounds)
+            // and NOT matching any item color (far from all ITEM_COLORS entries).
+            // This forces the code through the legacy top-50% scan path where the
+            // bounding-box aggregation bug manifests.
+            let mut rgba = RgbaImage::new(width, height);
+            for pixel in rgba.pixels_mut() {
+                *pixel = image::Rgba([80, 80, 80, 255]);
+            }
+
+            // Gold/Unique color (within tolerance of ITEM_COLORS[0]: r:199 g:179 b:119 tol:30)
+            let gold = image::Rgba([199u8, 179, 119, 255]);
+
+            // Place a tight horizontal band of ~50 gold pixels simulating item name text
+            // This represents "Harlequin Crest" text - a single line ~100px wide, ~15px tall
+            let text_width = 100u32;
+            let text_height = 15u32;
+            for y in text_y_start..(text_y_start + text_height) {
+                for x in text_x_start..(text_x_start + text_width) {
+                    // Place pixels in a text-like pattern (not every pixel, ~50% density)
+                    if (x + y) % 2 == 0 {
+                        rgba.put_pixel(x, y, gold);
+                    }
+                }
+            }
+
+            // Place 30+ scattered gold pixels in the inventory region (distant from text)
+            // These simulate inventory items with gold-colored names
+            let noise_base_x = 1200u32 + (noise_x_offset % 200);
+            let noise_base_y = 100u32 + (noise_y_offset % 400);
+            for i in 0..35u32 {
+                let nx = noise_base_x + (i * 7) % 150;
+                let ny = noise_base_y + (i * 13) % 300;
+                if nx < width && ny < height / 2 {
+                    rgba.put_pixel(nx, ny, gold);
+                }
+            }
+
+            let png_data = create_png_from_rgba(&rgba);
+            let result = detect_item_text_region(&png_data).unwrap();
+
+            // Detection should succeed (category non-empty)
+            prop_assert!(
+                !result.detected_category.is_empty(),
+                "Detection should identify the gold text cluster"
+            );
+
+            // Decode the cropped image to check its dimensions
+            let cropped_img = image::load_from_memory(&result.cropped_image)
+                .expect("Cropped image should be valid");
+            let crop_width = cropped_img.width();
+            let crop_height = cropped_img.height();
+
+            // The crop should isolate the text cluster, NOT span from text to noise.
+            // Text cluster is ~100px wide, so with padding crop should be < 200px.
+            // Bug condition: legacy code returns ~1000px+ spanning text+noise.
+            prop_assert!(
+                crop_width < 200,
+                "Crop width should be < 200px (isolated text cluster), got {}px. \
+                 Bug: legacy code aggregates text+noise into one bounding box.",
+                crop_width
+            );
+
+            // Text-like aspect ratio: width/height > 3.0
+            let aspect_ratio = crop_width as f64 / crop_height as f64;
+            prop_assert!(
+                aspect_ratio > 3.0,
+                "Crop should have text-like aspect ratio > 3.0, got {:.2} \
+                 (width={}, height={}). Bug: oversized crop has low aspect ratio.",
+                aspect_ratio, crop_width, crop_height
             );
         }
     }

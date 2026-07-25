@@ -63,28 +63,37 @@ export function hasHotkeyConflict(config: HotkeyConfig, targetSlot: keyof Hotkey
   );
 }
 
+// Mutex: serializes concurrent registerHotkeys() calls so that App.tsx startup
+// and user-triggered re-registrations never race with each other.
+let _registerMutex: Promise<void> = Promise.resolve();
+
 export async function registerHotkeys() {
+  _registerMutex = _registerMutex.then(() => _doRegisterHotkeys()).catch(() => { /* absorb so mutex never deadlocks */ });
+  return _registerMutex;
+}
+
+async function _doRegisterHotkeys() {
   const config = loadHotkeys();
 
   await unregisterAll();
 
-  await register(config.nextRun, (event) => {
-    if (event.state === "Pressed") {
-      emit("overlay-action", "split");
-    }
-  });
-
-  await register(config.pause, (event) => {
-    if (event.state === "Pressed") {
-      emit("overlay-action", "pause");
-    }
-  });
-
-  await register(config.endSession, (event) => {
-    if (event.state === "Pressed") {
-      emit("overlay-action", "end");
-    }
-  });
+  await Promise.all([
+    register(config.nextRun, (event) => {
+      if (event.state === "Pressed") {
+        emit("overlay-action", "split");
+      }
+    }),
+    register(config.pause, (event) => {
+      if (event.state === "Pressed") {
+        emit("overlay-action", "pause");
+      }
+    }),
+    register(config.endSession, (event) => {
+      if (event.state === "Pressed") {
+        emit("overlay-action", "end");
+      }
+    }),
+  ]);
 
   if (config.detectScreenshot) {
     try {
@@ -151,7 +160,8 @@ export default function Settings() {
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    registerHotkeys();
+    // Hotkeys are registered by App.tsx on startup.
+    // No re-registration needed on Settings mount — avoids race with unregisterAll().
   }, []);
 
   const handleRecord = (action: keyof HotkeyConfig) => {

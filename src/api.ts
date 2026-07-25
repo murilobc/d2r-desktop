@@ -434,6 +434,12 @@ export const updateScreenshotSettings = (settings: ScreenshotSettings) =>
 export const detectFromClipboard = () =>
   invoke<void>("detect_from_clipboard");
 
+export const getDefaultScreenshotFolder = () =>
+  invoke<string | null>("get_default_screenshot_folder");
+
+export const detectFromFile = (path: string) =>
+  invoke<void>("detect_from_file", { path });
+
 // Quick-Start Templates
 export const createTemplate = (input: CreateTemplateInput) =>
   invoke<Template>("create_template", { input });

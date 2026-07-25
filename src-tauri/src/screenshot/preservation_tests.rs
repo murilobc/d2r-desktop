@@ -82,6 +82,8 @@ mod preservation_property_tests {
                 monitoring_enabled: old_monitoring,
                 auto_detection_enabled: true,
                 confidence_threshold: 80,
+                folder_monitoring_enabled: false,
+                screenshot_folder_path: None,
             };
             update_settings(&conn, &old_settings).unwrap();
 
@@ -90,6 +92,8 @@ mod preservation_property_tests {
                 monitoring_enabled,
                 auto_detection_enabled: auto_detection,
                 confidence_threshold: threshold,
+                folder_monitoring_enabled: false,
+                screenshot_folder_path: None,
             };
             let result = update_settings(&conn, &new_settings);
             prop_assert!(result.is_ok(), "update_settings should succeed for valid inputs");
@@ -120,6 +124,8 @@ mod preservation_property_tests {
                 monitoring_enabled: monitoring_state,
                 auto_detection_enabled: true,
                 confidence_threshold: 80,
+                folder_monitoring_enabled: false,
+                screenshot_folder_path: None,
             };
             update_settings(&conn, &initial).unwrap();
 
@@ -128,6 +134,8 @@ mod preservation_property_tests {
                 monitoring_enabled: monitoring_state, // same — no toggle
                 auto_detection_enabled: auto_detection,
                 confidence_threshold: threshold,
+                folder_monitoring_enabled: false,
+                screenshot_folder_path: None,
             };
             let result = update_settings(&conn, &updated);
             prop_assert!(result.is_ok());
@@ -163,6 +171,8 @@ mod preservation_property_tests {
                     monitoring_enabled: *monitoring,
                     auto_detection_enabled: *auto_detect,
                     confidence_threshold: *threshold,
+                    folder_monitoring_enabled: false,
+                    screenshot_folder_path: None,
                 };
                 update_settings(&conn, &s).unwrap();
                 last_settings = s;

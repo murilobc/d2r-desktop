@@ -551,6 +551,8 @@ export interface ScreenshotSettings {
   monitoring_enabled: boolean;
   auto_detection_enabled: boolean;
   confidence_threshold: number;
+  folder_monitoring_enabled: boolean;
+  screenshot_folder_path: string | null;
 }
 
 export interface MatchCandidate {

@@ -133,6 +133,9 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add screenshot_settings table
     crate::screenshot::settings::create_screenshot_settings_table(conn)?;
 
+    // Migration: add folder monitoring columns to screenshot_settings
+    crate::screenshot::settings::migrate_screenshot_settings(conn)?;
+
     Ok(())
 }
 

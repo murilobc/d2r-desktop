@@ -245,8 +245,33 @@ pub async fn detect_latest_folder_file(
     match newest {
         None => Ok(false),
         Some((file_path, _)) => {
-            let image_data = std::fs::read(&file_path)
+            let raw_bytes = std::fs::read(&file_path)
                 .map_err(|e| format!("Failed to read {:?}: {}", file_path, e))?;
+
+            // Decode and re-encode as clean RGBA PNG to strip JPEG artifacts,
+            // ICC profiles, and other metadata that can confuse color detection.
+            let image_data = match image::load_from_memory(&raw_bytes) {
+                Ok(img) => {
+                    let rgba = img.to_rgba8();
+                    let mut png_bytes: Vec<u8> = Vec::new();
+                    let encoder = image::codecs::png::PngEncoder::new(
+                        std::io::Cursor::new(&mut png_bytes)
+                    );
+                    if image::ImageEncoder::write_image(
+                        encoder,
+                        rgba.as_raw(),
+                        rgba.width(),
+                        rgba.height(),
+                        image::ExtendedColorType::Rgba8,
+                    ).is_ok() {
+                        png_bytes
+                    } else {
+                        raw_bytes // fall back to raw if encode fails
+                    }
+                }
+                Err(_) => raw_bytes, // fall back to raw if decode fails
+            };
+
             ClipboardMonitor::process_image(&app, &image_data, &settings);
             Ok(true)
         }

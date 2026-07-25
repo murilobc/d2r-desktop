@@ -11,14 +11,16 @@ pub struct ColorRange {
 }
 
 /// All D2R item name colors. Ordered by visual distinctiveness.
+/// Tolerances are generous to handle different monitor profiles, D2R rendering
+/// modes (DX11/DX12), HDR, and JPEG compression artifacts in screenshots.
 pub const ITEM_COLORS: &[ColorRange] = &[
-    ColorRange { r_center: 199, g_center: 179, b_center: 119, tolerance: 30, category: "Unique" },
-    ColorRange { r_center: 0,   g_center: 255, b_center: 0,   tolerance: 30, category: "Set" },
-    ColorRange { r_center: 255, g_center: 168, b_center: 0,   tolerance: 30, category: "Rune" },
-    ColorRange { r_center: 255, g_center: 255, b_center: 119, tolerance: 30, category: "Rare" },
-    ColorRange { r_center: 107, g_center: 107, b_center: 255, tolerance: 30, category: "Magic" },
-    ColorRange { r_center: 255, g_center: 255, b_center: 255, tolerance: 15, category: "Normal" },
-    ColorRange { r_center: 148, g_center: 148, b_center: 148, tolerance: 20, category: "Socketed" },
+    ColorRange { r_center: 199, g_center: 179, b_center: 119, tolerance: 40, category: "Unique" },
+    ColorRange { r_center: 0,   g_center: 255, b_center: 0,   tolerance: 40, category: "Set" },
+    ColorRange { r_center: 255, g_center: 168, b_center: 0,   tolerance: 40, category: "Rune" },
+    ColorRange { r_center: 255, g_center: 255, b_center: 119, tolerance: 40, category: "Rare" },
+    ColorRange { r_center: 107, g_center: 107, b_center: 255, tolerance: 40, category: "Magic" },
+    ColorRange { r_center: 255, g_center: 255, b_center: 255, tolerance: 20, category: "Normal" },
+    ColorRange { r_center: 148, g_center: 148, b_center: 148, tolerance: 30, category: "Socketed" },
 ];
 
 /// Result of color-based text region detection.
@@ -134,13 +136,82 @@ pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult
         }
     }
 
-    // Fallback: no valid cluster found
+    // Fallback: no valid cluster found — try quadrant scanning before giving up
     if best_score == 0.0 {
-        return Ok(ColorDetectionResult {
-            cropped_image: image_data.to_vec(),
-            detected_category: String::new(),
-            confidence_boost: 0,
-        });
+        // D2R tooltips appear wherever the cursor is, but commonly in right or center
+        // of the screen. Try processing quadrants of the image to find the tooltip.
+        // Right half, then left half, then center strip — cover common tooltip positions.
+        let quadrants: &[(u32, u32, u32, u32)] = &[
+            // (x_start_frac_num, x_start_frac_den, x_end_frac_num, x_end_frac_den) as fractions
+        ];
+        let _ = quadrants; // unused for now — implement quadrant detection below
+
+        // Sub-image regions to scan: right third, left third, center third vertically
+        let region_defs: &[(f64, f64, f64, f64)] = &[
+            (0.5, 0.0, 1.0, 1.0),   // right half
+            (0.0, 0.0, 0.5, 1.0),   // left half
+            (0.25, 0.2, 0.75, 0.8), // center rectangle
+        ];
+
+        for &(x0f, y0f, x1f, y1f) in region_defs {
+            let rx0 = (img_width as f64 * x0f) as u32;
+            let ry0 = (img_height as f64 * y0f) as u32;
+            let rx1 = (img_width as f64 * x1f).min(img_width as f64 - 1.0) as u32;
+            let ry1 = (img_height as f64 * y1f).min(img_height as f64 - 1.0) as u32;
+
+            // Re-scan this sub-region
+            let mut sub_pixels_per_color: Vec<Vec<(u32, u32)>> = vec![Vec::new(); num_colors];
+            for y in ry0..=ry1 {
+                for x in rx0..=rx1 {
+                    let p = rgba.get_pixel(x, y);
+                    let (pr, pg, pb) = (p[0], p[1], p[2]);
+                    for (color_idx, color) in ITEM_COLORS.iter().enumerate() {
+                        if pixel_matches(pr, pg, pb, color) {
+                            sub_pixels_per_color[color_idx].push((x, y));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for (color_idx, pixels) in sub_pixels_per_color.iter().enumerate() {
+                if pixels.is_empty() { continue; }
+                let segments = build_row_segments(pixels, connectivity_gap);
+                let clusters = merge_segments_into_clusters(&segments);
+                for cluster in &clusters {
+                    let (c_min_x, c_min_y, c_max_x, c_max_y) = cluster_bounding_box(cluster);
+                    let c_width = c_max_x - c_min_x + 1;
+                    let c_height = c_max_y - c_min_y + 1;
+                    if c_width < min_width || c_width > max_width { continue; }
+                    if c_height < min_height_px || c_height > max_height_px { continue; }
+                    let pixel_count = cluster_pixel_count(cluster);
+                    let aspect_ratio = c_width as f64 / c_height as f64;
+                    let density = pixel_count as f64 / (c_width as f64 * c_height as f64);
+                    let aspect_ratio_score = if (4.0..=15.0).contains(&aspect_ratio) { 1.0 }
+                        else if (3.0..4.0).contains(&aspect_ratio) || (15.0..=25.0).contains(&aspect_ratio) { 0.5 }
+                        else { 0.0 };
+                    let density_score = if (0.15..=0.60).contains(&density) { 1.0 }
+                        else if (0.10..0.15).contains(&density) || (0.60..=0.80).contains(&density) { 0.5 }
+                        else { 0.0 };
+                    let score = pixel_count as f64 * aspect_ratio_score * density_score;
+                    if score > 0.0 && score > best_score {
+                        best_score = score;
+                        best_color_idx = color_idx;
+                        best_bbox = (c_min_x, c_min_y, c_max_x, c_max_y);
+                    }
+                }
+            }
+            if best_score > 0.0 { break; } // found in this quadrant
+        }
+
+        // If still nothing found, return full image for OCR fallback
+        if best_score == 0.0 {
+            return Ok(ColorDetectionResult {
+                cropped_image: image_data.to_vec(),
+                detected_category: String::new(),
+                confidence_boost: 0,
+            });
+        }
     }
 
     // Pad bounding box

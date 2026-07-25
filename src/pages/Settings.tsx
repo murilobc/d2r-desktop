@@ -66,8 +66,12 @@ export function hasHotkeyConflict(config: HotkeyConfig, targetSlot: keyof Hotkey
 // Mutex: serializes concurrent registerHotkeys() calls so that App.tsx startup
 // and user-triggered re-registrations never race with each other.
 let _registerMutex: Promise<void> = Promise.resolve();
+// Flag: true only when registration is triggered by a user action (key capture / reset),
+// false during automatic startup registration. Controls whether errors show a toast.
+let _registeringFromUserAction = false;
 
-export async function registerHotkeys() {
+export async function registerHotkeys(fromUserAction = false) {
+  _registeringFromUserAction = fromUserAction;
   _registerMutex = _registerMutex.then(() => _doRegisterHotkeys()).catch(() => { /* absorb so mutex never deadlocks */ });
   return _registerMutex;
 }
@@ -120,12 +124,19 @@ async function _doRegisterHotkeys() {
         }
       });
     } catch (err) {
+      // If we just set this key ourselves (same process, previous registration),
+      // the unregister above should have cleared it. If it still fails, it's a
+      // genuine system conflict.
       console.warn("[Hotkey] Failed to register detectScreenshot:", err);
       const raw = String(err);
-      const reason = raw.toLowerCase().includes("already registered")
-        ? "it may already be in use by another application"
-        : "registration failed — try a different key combination";
-      emit("screenshot:keybind-failed", { key: config.detectScreenshot, reason });
+      // Only show toast when registering from user action (not from app startup).
+      // _registeringFromUserAction is set true only when handleKeyCapture triggers it.
+      if (_registeringFromUserAction) {
+        const reason = raw.toLowerCase().includes("already registered")
+          ? "it may already be in use by another application"
+          : "registration failed — try a different key combination";
+        emit("screenshot:keybind-failed", { key: config.detectScreenshot, reason });
+      }
     }
   }
 }
@@ -210,17 +221,19 @@ export default function Settings() {
     saveHotkeys(newConfig);
     setRecording(null);
 
-    // Re-register with new config
-    registerHotkeys().then(() => {
-      setStatus(t('settings.hotkeys.updated'));
-      setTimeout(() => setStatus(null), 3000);
-    });
+    // Re-register with new config — delay slightly so the key is released before registering
+    setTimeout(() => {
+      registerHotkeys(true).then(() => {
+        setStatus(t('settings.hotkeys.updated'));
+        setTimeout(() => setStatus(null), 3000);
+      });
+    }, 300);
   };
 
   const handleReset = () => {
     setHotkeys(DEFAULT_HOTKEYS);
     saveHotkeys(DEFAULT_HOTKEYS);
-    registerHotkeys().then(() => {
+    registerHotkeys(true).then(() => {
       setStatus(t('settings.hotkeys.resetDone'));
       setTimeout(() => setStatus(null), 3000);
     });
@@ -361,7 +374,7 @@ function KeybindProfilesSettings() {
     try {
       const bindings = JSON.parse(profile.bindings);
       saveHotkeys(bindings);
-      registerHotkeys().then(() => {
+      registerHotkeys(true).then(() => {
         setKbStatus(t('settings.keybindProfiles.activated', { name: profile.name }));
         setTimeout(() => setKbStatus(null), 3000);
       });

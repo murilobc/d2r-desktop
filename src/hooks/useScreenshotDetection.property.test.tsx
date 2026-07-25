@@ -164,8 +164,8 @@ describe("Bug Condition: Detection Trigger Paths Fail Silently or Create Orphane
           return undefined;
         });
 
-        // Call registerHotkeys
-        await registerHotkeys();
+        // Call registerHotkeys — pass true to simulate user action (shows toast on failure)
+        await registerHotkeys(true);
 
         // Bug 2 assertion: a keybind-failed event should be emitted
         // On unfixed code, only console.warn is called — no event is emitted

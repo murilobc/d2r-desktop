@@ -40,7 +40,7 @@ arboard = { version = "3", features = ["image-data"] }
 image = "0.25"
 strsim = "0.11"
 sha2 = "0.10"
-windows = { version = "0.58", features = ["Media_Ocr", "Graphics_Imaging", "Storage_Streams", "Foundation"] }
+windows = { version = "0.58", features = ["Media_Ocr", "Graphics_Imaging", "Storage_Streams", "Foundation", "Foundation_Collections"] }
 ocrs = "0.9"
 rten = "0.13"
 dirs = "5"

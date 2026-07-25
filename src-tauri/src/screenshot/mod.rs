@@ -188,3 +188,67 @@ pub async fn detect_from_folder(
 
     Ok(())
 }
+
+/// Finds the most recently modified .jpg/.png in the configured screenshots folder
+/// and processes it through the detection pipeline.
+///
+/// Unlike `detect_from_folder` (which requires the watcher baseline), this command
+/// always picks the newest file by mtime regardless of when the watcher started.
+/// Used by the manual "Detect Screenshot" button and the detect keybind so that
+/// Print Screen saves are picked up reliably.
+#[tauri::command]
+pub async fn detect_latest_folder_file(
+    app: tauri::AppHandle,
+    state: State<'_, DbState>,
+) -> Result<bool, String> {
+    let settings = {
+        let conn = state.0.lock().map_err(|e| format!("DB lock failed: {}", e))?;
+        settings::get_settings(&conn)
+    };
+
+    if !settings.folder_monitoring_enabled {
+        return Ok(false);
+    }
+
+    let folder_path = if let Some(ref custom_path) = settings.screenshot_folder_path {
+        let p = std::path::PathBuf::from(custom_path);
+        if p.is_dir() { p } else { return Ok(false); }
+    } else {
+        match folder_watcher::FolderWatcher::resolve_default_path() {
+            Some(p) => p,
+            None => return Ok(false),
+        }
+    };
+
+    // Find the most recently modified .jpg / .png in the folder
+    let entries = std::fs::read_dir(&folder_path)
+        .map_err(|e| format!("Cannot read folder {:?}: {}", folder_path, e))?;
+
+    let mut newest: Option<(std::path::PathBuf, std::time::SystemTime)> = None;
+
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if !path.is_file() { continue; }
+        let ext = path.extension().and_then(|e| e.to_str()).map(|e| e.to_lowercase());
+        if !matches!(ext.as_deref(), Some("jpg") | Some("png")) { continue; }
+        if let Ok(meta) = entry.metadata() {
+            if let Ok(modified) = meta.modified() {
+                match &newest {
+                    None => { newest = Some((path, modified)); }
+                    Some((_, best)) if modified > *best => { newest = Some((path, modified)); }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    match newest {
+        None => Ok(false),
+        Some((file_path, _)) => {
+            let image_data = std::fs::read(&file_path)
+                .map_err(|e| format!("Failed to read {:?}: {}", file_path, e))?;
+            ClipboardMonitor::process_image(&app, &image_data, &settings);
+            Ok(true)
+        }
+    }
+}

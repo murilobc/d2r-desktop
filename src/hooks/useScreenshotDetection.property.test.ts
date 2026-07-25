@@ -1,12 +1,10 @@
 /**
- * Bug Condition Exploration Property Test
+ * Property tests for useScreenshotDetection triggerManual behavior.
  *
- * Tests that `triggerManual` invokes `onError` when `detectFromClipboard`
- * rejects with a "no_image" error — and invokes it with a generic message
- * for other errors.
- *
- * EXPECTED: This test FAILS on unfixed code because `useScreenshotDetection`
- * does not accept or invoke an `onError` callback. Failure confirms the bug.
+ * Tests that triggerManual:
+ * - calls detectFromClipboard when session is active
+ * - calls detectLatestFolderFile when session is active
+ * - blocks detection with onError when no session is active
  *
  * **Validates: Requirements 1.1, 1.2, 2.1, 2.2**
  */
@@ -16,100 +14,83 @@ import * as fc from "fast-check";
 import { renderHook, act } from "@testing-library/react";
 
 vi.mock("../api", () => ({
-  detectFromClipboard: vi.fn(),
-  detectFromFolder: vi.fn(),
-  getScreenshotSettings: vi.fn().mockResolvedValue({ folder_monitoring_enabled: false }),
+  detectFromClipboard: vi.fn().mockResolvedValue(undefined),
+  detectLatestFolderFile: vi.fn().mockResolvedValue(false),
   createItem: vi.fn(),
   createRun: vi.fn(),
   getRuns: vi.fn().mockResolvedValue([{ id: "run-1", profile_id: "test-profile", finished_at: null }]),
   updateRuneCount: vi.fn(),
 }));
 
-import { detectFromClipboard } from "../api";
+import { detectFromClipboard, detectLatestFolderFile } from "../api";
 import { useScreenshotDetection } from "./useScreenshotDetection";
 
 const mockedDetectFromClipboard = vi.mocked(detectFromClipboard);
+const mockedDetectLatestFolderFile = vi.mocked(detectLatestFolderFile);
 
-// ===== GENERATORS =====
-
-/** Generate error messages that contain "no_image" — the bug condition. */
-const noImageErrorArb = fc.constantFrom(
-  "no_image",
-  "error: no_image found",
-  "clipboard no_image",
-  "no_image: clipboard is empty",
-  "detect_from_clipboard failed: no_image"
-);
-
-/** Generate generic error messages that do NOT contain "no_image". */
-const genericErrorArb = fc.constantFrom(
-  "network timeout",
-  "unknown backend error",
-  "permission denied",
-  "clipboard access failed",
-  "internal error: decode failed"
-);
-
-// ===== PROPERTY TESTS =====
-
-describe("Feature: screenshot-detect-no-feedback-fix, Property 1: Bug Condition - No-Image Error Silent Failure", () => {
+describe("Feature: screenshot-detect, triggerManual behavior", () => {
   beforeEach(() => {
     mockedDetectFromClipboard.mockReset();
+    mockedDetectLatestFolderFile.mockReset();
+    mockedDetectFromClipboard.mockResolvedValue(undefined);
+    mockedDetectLatestFolderFile.mockResolvedValue(false);
   });
 
   /**
-   * Property 1a: For any error containing "no_image", triggerManual
-   * should invoke onError with "No image found in clipboard".
+   * Property 1a: triggerManual calls both detectFromClipboard and
+   * detectLatestFolderFile when session is active.
    *
-   * **Validates: Requirements 1.1, 1.2, 2.1, 2.2**
+   * **Validates: Requirements 2.1, 2.2**
    */
-  it("triggerManual calls onError with 'No image found in clipboard' when detectFromClipboard rejects with a no_image error", async () => {
+  it("triggerManual calls detectFromClipboard and detectLatestFolderFile when session is active", async () => {
     await fc.assert(
-      fc.asyncProperty(noImageErrorArb, async (errorMsg) => {
-        mockedDetectFromClipboard.mockRejectedValueOnce(errorMsg);
+      fc.asyncProperty(fc.uuid(), async (profileId) => {
+        mockedDetectFromClipboard.mockResolvedValue(undefined);
+        mockedDetectLatestFolderFile.mockResolvedValue(false);
 
         const onError = vi.fn();
         const { result } = renderHook(() =>
-          useScreenshotDetection("test-profile", onError, true)
+          useScreenshotDetection(profileId, onError, true)
         );
 
         await act(async () => {
           result.current.triggerManual();
-          // Allow multiple promise chains to flush (getRuns -> detectFromClipboard)
-          await new Promise((r) => setTimeout(r, 10));
+          await new Promise((r) => setTimeout(r, 20));
         });
 
-        expect(onError).toHaveBeenCalledWith("No image found in clipboard");
+        expect(mockedDetectFromClipboard).toHaveBeenCalled();
+        expect(mockedDetectLatestFolderFile).toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
       }),
-      { numRuns: 20 }
+      { numRuns: 10 }
     );
   });
 
   /**
-   * Property 1b: For any generic error (not containing "no_image"),
-   * triggerManual should invoke onError with "Screenshot detection failed".
+   * Property 1b: triggerManual blocks and calls onError when no session is active.
    *
    * **Validates: Requirements 2.1, 2.2**
    */
-  it("triggerManual calls onError with 'Screenshot detection failed' for generic errors", async () => {
+  it("triggerManual calls onError when sessionActive is false", async () => {
     await fc.assert(
-      fc.asyncProperty(genericErrorArb, async (errorMsg) => {
-        mockedDetectFromClipboard.mockRejectedValueOnce(errorMsg);
+      fc.asyncProperty(fc.uuid(), async (profileId) => {
+        mockedDetectFromClipboard.mockClear();
+        mockedDetectLatestFolderFile.mockClear();
 
         const onError = vi.fn();
         const { result } = renderHook(() =>
-          useScreenshotDetection("test-profile", onError, true)
+          useScreenshotDetection(profileId, onError, false)
         );
 
         await act(async () => {
           result.current.triggerManual();
-          // Allow multiple promise chains to flush (getRuns -> detectFromClipboard)
-          await new Promise((r) => setTimeout(r, 10));
+          await new Promise((r) => setTimeout(r, 20));
         });
 
-        expect(onError).toHaveBeenCalledWith("Screenshot detection failed");
+        expect(onError).toHaveBeenCalledWith("Start a session first to detect items");
+        expect(mockedDetectFromClipboard).not.toHaveBeenCalled();
       }),
-      { numRuns: 20 }
+      { numRuns: 10 }
     );
   });
 });

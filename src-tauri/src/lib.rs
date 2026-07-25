@@ -184,6 +184,7 @@ pub fn run() {
             screenshot::update_screenshot_settings,
             screenshot::detect_from_clipboard,
             screenshot::detect_from_folder,
+            screenshot::detect_latest_folder_file,
             screenshot::get_default_screenshot_folder,
             screenshot::detect_from_file,
         ])

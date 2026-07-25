@@ -437,6 +437,9 @@ export const detectFromClipboard = () =>
 export const detectFromFolder = () =>
   invoke<void>("detect_from_folder");
 
+export const detectLatestFolderFile = () =>
+  invoke<boolean>("detect_latest_folder_file");
+
 export const getDefaultScreenshotFolder = () =>
   invoke<string | null>("get_default_screenshot_folder");
 

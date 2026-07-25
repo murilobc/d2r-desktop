@@ -6,8 +6,7 @@ import {
   getRuns,
   updateRuneCount,
   detectFromClipboard,
-  detectFromFolder,
-  getScreenshotSettings,
+  detectLatestFolderFile,
 } from "../api";
 
 const AUTO_DISMISS_MS = 30_000;
@@ -22,7 +21,7 @@ export interface UseScreenshotDetection {
 export function useScreenshotDetection(
   profileId: string | null,
   onError?: (message: string) => void,
-  _sessionActive?: boolean
+  sessionActive?: boolean
 ): UseScreenshotDetection {
   const [detection, setDetection] = useState<DetectionResult | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -96,8 +95,8 @@ export function useScreenshotDetection(
           run_id: runId,
           profile_id: profileId,
           name: item.item_name,
-          item_type: item.category,
-          rarity: item.subcategory,
+          item_type: item.subcategory,  // subcategory = physical type (Armor, Weapon, Shield...)
+          rarity: item.category,         // category = rarity (Unique, Set, Rune...)
         });
 
         // If it's a Rune, also sync rune inventory
@@ -118,78 +117,48 @@ export function useScreenshotDetection(
     [profileId, clearTimer, onError]
   );
 
-  // Manual trigger: invoke the backend clipboard detection
+  // Manual trigger: clipboard + latest folder file
   const triggerManual = useCallback(() => {
-    // Session guard: check for active runs in the backend
-    // If profileId is not set, we can't check — block
     if (!profileId) {
-      if (onError) {
-        onError("Start a session first to detect items");
-      }
+      if (onError) onError("Start a session first to detect items");
       return;
     }
 
-    getRuns(profileId)
-      .then((runs) => {
-        // If runs is a valid array with no active runs, block detection
+    // Session guard: use sessionActive prop (from App.tsx via overlay-state-update)
+    // Fall back to backend check only when sessionActive is undefined (not yet received)
+    if (sessionActive === false) {
+      if (onError) onError("Start a session first to detect items");
+      return;
+    }
+
+    if (sessionActive === undefined) {
+      // Haven't received session state yet — check backend
+      getRuns(profileId).then((runs) => {
         if (Array.isArray(runs) && runs.filter((r) => r.finished_at === null).length === 0) {
-          if (onError) {
-            onError("Start a session first to detect items");
-          }
+          if (onError) onError("Start a session first to detect items");
           return;
         }
+        _runDetection(onError);
+      }).catch(() => _runDetection(onError));
+      return;
+    }
 
-        // Session is active — proceed with detection
-        detectFromClipboard().catch((error) => {
-          console.error("Manual detection failed:", error);
-          if (onError) {
-            const msg = String(error);
-            if (msg.includes("no_image")) {
-              onError("No image found in clipboard");
-            } else {
-              onError("Screenshot detection failed");
-            }
-          }
-        });
-
-        // Also check folder source if folder monitoring is enabled
-        getScreenshotSettings()
-          .then((settings) => {
-            if (settings.folder_monitoring_enabled) {
-              return detectFromFolder();
-            }
-          })
-          .catch((error) => {
-            console.error("Folder detection failed:", error);
-          });
-      })
-      .catch(() => {
-        // If we can't check runs, proceed with detection anyway (fail-open)
-        detectFromClipboard().catch((error) => {
-          console.error("Manual detection failed:", error);
-          if (onError) {
-            const msg = String(error);
-            if (msg.includes("no_image")) {
-              onError("No image found in clipboard");
-            } else {
-              onError("Screenshot detection failed");
-            }
-          }
-        });
-
-        getScreenshotSettings()
-          .then((settings) => {
-            if (settings.folder_monitoring_enabled) {
-              return detectFromFolder();
-            }
-          })
-          .catch((error) => {
-            console.error("Folder detection failed:", error);
-          });
-      });
-  }, [onError, profileId]);
+    _runDetection(onError);
+  }, [profileId, onError, sessionActive]);
 
   return { detection, dismiss, confirm, triggerManual };
+}
+
+function _runDetection(_onError?: (message: string) => void) {
+  // 1. Always try clipboard first
+  detectFromClipboard().catch((error) => {
+    console.error("Clipboard detection failed:", error);
+  });
+
+  // 2. Also try the latest file in the screenshots folder (for Print Screen saves)
+  detectLatestFolderFile().catch((error) => {
+    console.error("Folder detection failed:", error);
+  });
 }
 
 /**

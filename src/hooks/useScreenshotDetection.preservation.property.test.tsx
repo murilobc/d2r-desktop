@@ -490,8 +490,8 @@ describe("Property 2: Preservation — confirm calls createItem with correct par
             run_id: runId,
             profile_id: profileId,
             name: candidate.item_name,
-            item_type: candidate.category,
-            rarity: candidate.subcategory,
+            item_type: candidate.subcategory,  // subcategory = physical type (Armor, Weapon...)
+            rarity: candidate.category,          // category = rarity (Unique, Set, Rune...)
           },
         });
 

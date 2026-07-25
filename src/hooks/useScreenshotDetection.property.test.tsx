@@ -97,7 +97,7 @@ describe("Bug Condition: Detection Trigger Paths Fail Silently or Create Orphane
    */
   it("triggerManual processes folder files when folder monitoring is enabled", async () => {
     await fc.assert(
-      fc.asyncProperty(profileIdArb, folderPathArb, async (profileId, folderPath) => {
+      fc.asyncProperty(profileIdArb, async (profileId) => {
         cleanup();
         vi.clearAllMocks();
         mockListen.mockReturnValue(Promise.resolve(() => {}));
@@ -105,22 +105,13 @@ describe("Bug Condition: Detection Trigger Paths Fail Silently or Create Orphane
         // Mock: clipboard detection succeeds
         mockInvoke.mockImplementation(async (cmd) => {
           if (cmd === "detect_from_clipboard") return undefined;
-          if (cmd === "detect_from_folder") return undefined;
-          if (cmd === "get_screenshot_settings") {
-            return {
-              monitoring_enabled: true,
-              auto_detection_enabled: false,
-              confidence_threshold: 80,
-              folder_monitoring_enabled: true,
-              screenshot_folder_path: folderPath,
-            };
-          }
+          if (cmd === "detect_latest_folder_file") return true;
           return undefined;
         });
 
         const onError = vi.fn();
         const { result } = renderHook(() =>
-          useScreenshotDetection(profileId, onError)
+          useScreenshotDetection(profileId, onError, true)
         );
 
         // Trigger manual detection
@@ -130,10 +121,10 @@ describe("Bug Condition: Detection Trigger Paths Fail Silently or Create Orphane
           await new Promise((r) => setTimeout(r, 50));
         });
 
-        // Bug 1 assertion: detect_from_folder should be called when folder monitoring
-        // is enabled. On unfixed code, ONLY detect_from_clipboard is called.
+        // Bug 1 assertion: detect_latest_folder_file should be called.
+        // On unfixed code, ONLY detect_from_clipboard is called.
         const folderCalls = mockInvoke.mock.calls.filter(
-          ([cmd]) => cmd === "detect_from_folder"
+          ([cmd]) => cmd === "detect_latest_folder_file"
         );
         expect(folderCalls.length).toBeGreaterThan(0);
       }),

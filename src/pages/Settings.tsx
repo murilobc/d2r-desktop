@@ -101,8 +101,13 @@ async function _doRegisterHotkeys() {
         if (event.state === "Pressed") {
           const profileId = localStorage.getItem("d2r_active_profile_id");
           if (profileId) {
+            // Try clipboard detection
             invoke("detect_from_clipboard").catch((err) => {
               console.warn("[Hotkey] detect_from_clipboard failed:", err);
+            });
+            // Also try the latest file in the screenshots folder
+            invoke("detect_latest_folder_file").catch((err) => {
+              console.warn("[Hotkey] detect_latest_folder_file failed:", err);
             });
           } else {
             emit("screenshot:no-profile");

@@ -51,6 +51,8 @@ import type {
   Template,
   CreateTemplateInput,
   UpdateTemplateInput,
+  PersonalBests,
+  Season,
 } from "./types";
 import type {
   GistPullResult,
@@ -461,3 +463,13 @@ export const deleteTemplate = (id: string) =>
 
 export const touchTemplate = (id: string) =>
   invoke<void>("touch_template", { id });
+
+// Leaderboards
+export const getPersonalBests = (profileId: string, since?: string) =>
+  invoke<PersonalBests>("get_personal_bests", { profileId, since: since ?? null });
+
+export const createSeason = (profileId: string, name: string) =>
+  invoke<Season>("create_season", { profileId, name });
+
+export const getSeasons = (profileId: string) =>
+  invoke<Season[]>("get_seasons", { profileId });

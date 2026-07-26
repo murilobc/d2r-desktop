@@ -136,6 +136,50 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add folder monitoring columns to screenshot_settings
     crate::screenshot::settings::migrate_screenshot_settings(conn)?;
 
+    // Migration: add seasons table
+    migrate_seasons(conn)?;
+
+    // Migration: add season_start_date column to profiles
+    migrate_season_start_date(conn)?;
+
+    Ok(())
+}
+
+fn migrate_seasons(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS seasons (
+            id TEXT PRIMARY KEY,
+            profile_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            bests_snapshot_json TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_seasons_profile ON seasons(profile_id);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_seasons_profile_name ON seasons(profile_id, name);
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_season_start_date(conn: &Connection) -> Result<()> {
+    let has_col: bool = conn
+        .prepare(
+            "SELECT COUNT(*) FROM pragma_table_info('profiles') WHERE name = 'season_start_date'",
+        )?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if !has_col {
+        conn.execute_batch(
+            "ALTER TABLE profiles ADD COLUMN season_start_date TEXT DEFAULT NULL;",
+        )?;
+    }
+
     Ok(())
 }
 

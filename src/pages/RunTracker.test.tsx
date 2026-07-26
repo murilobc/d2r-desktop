@@ -7,6 +7,12 @@ import { mockProfile } from "../test/mocks";
 vi.mock("@tauri-apps/api/core");
 const mockInvoke = vi.mocked(invoke);
 
+vi.mock("../utils/audio", () => ({
+  playSound: vi.fn(),
+  getSoundPrefs: vi.fn().mockReturnValue({ enabled: false, volume: 50 }),
+  setSoundPrefs: vi.fn(),
+}));
+
 describe("RunTracker Page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -283,5 +289,112 @@ describe("RunTracker OBS Integration", () => {
     expect(parsed.sessionTime).toBe(payload.sessionTime);
     expect(parsed.currentArea).toBe(payload.currentArea);
     expect(parsed.lastItems).toEqual(payload.lastItems);
+  });
+});
+
+import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
+import { mockItems } from "../test/mocks";
+
+describe("RunTracker TradeValue Integration", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    mockInvoke.mockImplementation(async (cmd) => {
+      if (cmd === "get_runs") return [];
+      if (cmd === "get_custom_areas") return [];
+      if (cmd === "get_routes") return [];
+      if (cmd === "create_run") return {
+        id: "run-new",
+        profile_id: mockProfile.id,
+        area: "Mephisto",
+        duration_secs: 0,
+        started_at: new Date().toISOString(),
+        finished_at: null,
+        status: "in_progress",
+        notes: null,
+        tags: null,
+        route_id: null,
+        route_step_index: null,
+      };
+      if (cmd === "create_item") return { id: "item-new", run_id: mockItems[0].run_id, profile_id: mockItems[0].profile_id, name: mockItems[0].name, item_type: mockItems[0].item_type, rarity: mockItems[0].rarity, found_at: mockItems[0].found_at, notes: null };
+      // loadItems is called after create_item; return the mock items
+      if (cmd === "get_items") return mockItems; // "Harlequin Crest" (HR+), "Ist Rune" (Low)
+      if (cmd === "finish_run") return {};
+      return undefined;
+    });
+  });
+
+  async function startSessionAndAddHarlequin() {
+    await act(async () => {
+      fireEvent.click(screen.getByText("▶ Start Session"));
+    });
+    // Wait for session to fully start — "Items Found (0)" confirms currentRun is set
+    // because the items section only renders inside the session card
+    await waitFor(() => {
+      expect(screen.getByText(/Items Found/)).toBeInTheDocument();
+    });
+    // Also wait for create_run to have been called (currentRun set)
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("create_run", expect.anything());
+    });
+    // Open the item form
+    await act(async () => {
+      fireEvent.click(screen.getByText("+ Item"));
+    });
+    // Type to filter and open dropdown
+    await waitFor(() => {
+      const input = screen.getByPlaceholderText("Search D2R item...");
+      fireEvent.change(input, { target: { value: "Harlequin Crest" } });
+    });
+    // Click the dropdown option via mouseDown (ItemSearch uses onMouseDown)
+    await waitFor(() => {
+      const option = screen.getByText("Harlequin Crest");
+      fireEvent.mouseDown(option);
+    });
+    // Wait for create_item to be called (confirms addItem ran with a valid currentRun)
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("create_item", expect.anything());
+    });
+    // Wait for loadItems to complete (get_items returns mockItems → setItems called)
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("get_items", expect.anything());
+    });
+  }
+
+  it("renders TradeValueBadge when showTradeValues is true and item is in TRADE_VALUES", async () => {
+    localStorage.setItem("show_trade_values", "true");
+    render(<RunTracker profile={mockProfile} />);
+
+    await startSessionAndAddHarlequin();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Estimated trade value: HR+")).toBeInTheDocument();
+    });
+  });
+
+  it("no TradeValueBadge when showTradeValues is false", async () => {
+    localStorage.setItem("show_trade_values", "false");
+    render(<RunTracker profile={mockProfile} />);
+
+    await startSessionAndAddHarlequin();
+
+    // Harlequin Crest name should appear (it's in the items list)
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("create_item", expect.anything());
+    });
+
+    // But no trade value badge
+    expect(screen.queryByLabelText(/Estimated trade value/)).toBeNull();
+  });
+
+  it("attribution text visible when showTradeValues is true and session has items", async () => {
+    localStorage.setItem("show_trade_values", "true");
+    render(<RunTracker profile={mockProfile} />);
+
+    await startSessionAndAddHarlequin();
+
+    await waitFor(() => {
+      expect(screen.getByText(SOURCE_ATTRIBUTION)).toBeInTheDocument();
+    });
   });
 });

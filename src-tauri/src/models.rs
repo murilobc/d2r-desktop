@@ -7,6 +7,7 @@ pub struct Profile {
     pub class: String,
     pub mode: String,
     pub magic_find: Option<i32>,
+    pub season_start_date: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -538,6 +539,53 @@ pub struct LifetimeStats {
 pub struct ClassCount {
     pub class: String,
     pub count: i64,
+}
+
+// ===== LEADERBOARDS =====
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct PersonalBestRun {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct PersonalBestItemsInRun {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+    pub item_count: i64,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct PersonalBestItemsPerHour {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+    pub items_per_hour: f64,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct PersonalBests {
+    pub fastest_run: Option<PersonalBestRun>,
+    pub best_items_in_run: Option<PersonalBestItemsInRun>,
+    pub best_items_per_hour: Option<PersonalBestItemsPerHour>,
+    pub longest_run: Option<PersonalBestRun>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
+pub struct Season {
+    pub id: String,
+    pub profile_id: String,
+    pub name: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub bests_snapshot: PersonalBests,
+    pub created_at: String,
 }
 
 // ===== RUNE INVENTORY =====

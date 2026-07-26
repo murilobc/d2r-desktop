@@ -258,20 +258,6 @@ Lay groundwork for community-contributed features without bloating core app.
 
 ---
 
-#### 15. Mobile Companion (Read-Only)
-
-A lightweight web view of your stats accessible from phone.
-
-**Why:** Checking farming progress away from the PC (at work, on break, etc.) is a common request.
-
-**Implementation:**
-- Local web server mode: Tauri app serves read-only stats on LAN
-- Access via phone browser: `http://192.168.x.x:PORT/`
-- Shows: recent sessions, lifetime stats, current session (if running)
-- No login required (LAN-only security)
-- Optional: export stats to a static HTML file that can be opened anywhere
-- Settings: enable/disable companion server, configure port
-
 ---
 
 ## Quality of Life Improvements (Any Version)
@@ -344,7 +330,7 @@ These are smaller improvements that can be sprinkled into any release:
 | v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ✅ Released |
 | v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates | ✅ Released |
 | v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Next |
-| v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System + Mobile Companion | 🔲 Planned |
+| v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System | 🔲 Planned |
 
 ---
 
@@ -367,7 +353,6 @@ Based on: community demand, competitive gap, implementation feasibility, and eng
 | ⬜ 5 | Data Visualization Overhaul | Polish, not new capability |
 | ⬜ 6 | Linux Packaging | Infrastructure, serves Linux gaming niche |
 | ⬜ 7 | Plugin System | Long-term investment, defer until community demands it |
-| ⬜ 8 | Mobile Companion | Nice-to-have, low priority |
 
 ---
 

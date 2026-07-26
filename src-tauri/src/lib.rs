@@ -187,6 +187,10 @@ pub fn run() {
             screenshot::detect_latest_folder_file,
             screenshot::get_default_screenshot_folder,
             screenshot::detect_from_file,
+            // Leaderboards
+            commands::get_personal_bests,
+            commands::create_season,
+            commands::get_seasons,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -13,14 +13,15 @@ pub struct ColorRange {
 /// All D2R item name colors. Ordered by visual distinctiveness.
 /// Tolerances are generous to handle different monitor profiles, D2R rendering
 /// modes (DX11/DX12), HDR, and JPEG compression artifacts in screenshots.
+/// JPEG at D2R default quality (~85%) can shift colors by up to ±25 per channel.
 pub const ITEM_COLORS: &[ColorRange] = &[
-    ColorRange { r_center: 199, g_center: 179, b_center: 119, tolerance: 40, category: "Unique" },
-    ColorRange { r_center: 0,   g_center: 255, b_center: 0,   tolerance: 40, category: "Set" },
-    ColorRange { r_center: 255, g_center: 168, b_center: 0,   tolerance: 40, category: "Rune" },
-    ColorRange { r_center: 255, g_center: 255, b_center: 119, tolerance: 40, category: "Rare" },
-    ColorRange { r_center: 107, g_center: 107, b_center: 255, tolerance: 40, category: "Magic" },
+    ColorRange { r_center: 199, g_center: 179, b_center: 119, tolerance: 45, category: "Unique" },
+    ColorRange { r_center: 0,   g_center: 255, b_center: 0,   tolerance: 50, category: "Set" },
+    ColorRange { r_center: 255, g_center: 168, b_center: 0,   tolerance: 50, category: "Rune" },
+    ColorRange { r_center: 255, g_center: 255, b_center: 119, tolerance: 50, category: "Rare" },
+    ColorRange { r_center: 107, g_center: 107, b_center: 255, tolerance: 50, category: "Magic" },
     ColorRange { r_center: 255, g_center: 255, b_center: 255, tolerance: 20, category: "Normal" },
-    ColorRange { r_center: 148, g_center: 148, b_center: 148, tolerance: 30, category: "Socketed" },
+    ColorRange { r_center: 148, g_center: 148, b_center: 148, tolerance: 20, category: "Socketed" },
 ];
 
 /// Result of color-based text region detection.
@@ -504,6 +505,14 @@ mod tests {
             // At this scale: min_width=16, max_width=189, min_height=5, max_height=16
             let img_width = 540u32;
             let img_height = 540u32;
+
+            // Skip this test case if the generated pixel also matches any EARLIER color
+            // (first-match-wins means an earlier color would "steal" the detection).
+            for earlier_color in &ITEM_COLORS[..color_idx] {
+                if pixel_matches(r, g, b, earlier_color) {
+                    return Ok(()); // prop_assume equivalent — discard this case
+                }
+            }
 
             let mut rgba = RgbaImage::new(img_width, img_height);
             // Fill with dark pixels (far from any item color)

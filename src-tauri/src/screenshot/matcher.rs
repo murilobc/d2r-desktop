@@ -586,6 +586,8 @@ const BASE_ITEM_NAMES: &[&str] = &[
 ];
 
 const CHARM_NAMES: &[&str] = &[
+    // Plain charm base types (without affixes — OCR often reads just the base name)
+    "Grand Charm", "Large Charm", "Small Charm",
     // Small Charms (valuable affixes)
     "Small Charm of Vita (20 Life)", "Small Charm 5% FHR", "Small Charm 3% FRW",
     "Small Charm 5 All Res", "Small Charm 11 Fire Res", "Small Charm 11 Lightning Res",
@@ -628,6 +630,12 @@ const JEWEL_NAMES: &[&str] = &[
     "Jewel -5/+5 Cold Facet (Die)", "Jewel -5/+5 Cold Facet (Level)",
     "Jewel -5/+5 Lightning Facet (Die)", "Jewel -5/+5 Lightning Facet (Level)",
     "Jewel -5/+5 Poison Facet (Die)", "Jewel -5/+5 Poison Facet (Level)",
+    // Rainbow Facet — the in-game display name for facet jewels
+    "Rainbow Facet (Fire Die)", "Rainbow Facet (Fire Level)",
+    "Rainbow Facet (Cold Die)", "Rainbow Facet (Cold Level)",
+    "Rainbow Facet (Lightning Die)", "Rainbow Facet (Lightning Level)",
+    "Rainbow Facet (Poison Die)", "Rainbow Facet (Poison Level)",
+    "Rainbow Facet",
     "Jewel 30% ED / 9 Max (Rare)",
 ];
 

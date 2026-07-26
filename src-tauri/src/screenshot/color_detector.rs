@@ -110,19 +110,19 @@ pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult
             let aspect_ratio = c_width as f64 / c_height as f64;
             let density = pixel_count as f64 / (c_width as f64 * c_height as f64);
 
-            let aspect_ratio_score = if (4.0..=15.0).contains(&aspect_ratio) {
+            // Aspect ratio: 1.5-25 for text (short item names like "The Oculus" can be ~2:1)
+            let aspect_ratio_score = if (1.5..=25.0).contains(&aspect_ratio) {
                 1.0
-            } else if (3.0..4.0).contains(&aspect_ratio) || (15.0..=25.0).contains(&aspect_ratio)
-            {
+            } else if (1.0..1.5).contains(&aspect_ratio) {
                 0.5
             } else {
                 0.0
             };
 
-            let density_score = if (0.15..=0.60).contains(&density) {
+            // Density: very sparse for large clusters (PNG screenshots spread pixels),
+            // denser for small clusters. Use a wide range to catch both cases.
+            let density_score = if (0.005..=0.80).contains(&density) {
                 1.0
-            } else if (0.10..0.15).contains(&density) || (0.60..=0.80).contains(&density) {
-                0.5
             } else {
                 0.0
             };
@@ -188,11 +188,10 @@ pub fn detect_item_text_region(image_data: &[u8]) -> Result<ColorDetectionResult
                     let pixel_count = cluster_pixel_count(cluster);
                     let aspect_ratio = c_width as f64 / c_height as f64;
                     let density = pixel_count as f64 / (c_width as f64 * c_height as f64);
-                    let aspect_ratio_score = if (4.0..=15.0).contains(&aspect_ratio) { 1.0 }
-                        else if (3.0..4.0).contains(&aspect_ratio) || (15.0..=25.0).contains(&aspect_ratio) { 0.5 }
+                    let aspect_ratio_score = if (1.5..=25.0).contains(&aspect_ratio) { 1.0 }
+                        else if (1.0..1.5).contains(&aspect_ratio) { 0.5 }
                         else { 0.0 };
-                    let density_score = if (0.15..=0.60).contains(&density) { 1.0 }
-                        else if (0.10..0.15).contains(&density) || (0.60..=0.80).contains(&density) { 0.5 }
+                    let density_score = if (0.005..=0.80).contains(&density) { 1.0 }
                         else { 0.0 };
                     let score = pixel_count as f64 * aspect_ratio_score * density_score;
                     if score > 0.0 && score > best_score {

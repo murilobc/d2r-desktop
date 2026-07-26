@@ -1,6 +1,6 @@
-# D2R Tracker — Development Plan v5.1+
+# D2R Tracker — Development Plan v5.2+
 
-Continuation of the roadmap. All features from v1.0–v5.0 are implemented and released.
+Continuation of the roadmap. All features from v1.0–v5.2 are implemented and released.
 This document covers the next wave of features based on community research, competitive analysis, and D2R v3.2 Season 14 meta.
 
 **Last updated:** July 2026
@@ -136,11 +136,11 @@ Pre-configured session templates for common farming patterns.
 
 ---
 
-### Phase 3: v5.2 — Community & Social (Est. ~12h)
+### Phase 3: v5.2 — Community & Social ✅ RELEASED
 
 ---
 
-#### 8. Leaderboards (Local + Export)
+#### 8. Leaderboards (Local + Export) ✅
 
 Compare your stats against your own history or export for community comparison.
 
@@ -155,7 +155,7 @@ Compare your stats against your own history or export for community comparison.
 
 ---
 
-#### 9. DClone API Integration (Live Data)
+#### 9. DClone API Integration (Live Data) ✅
 
 Pull live Diablo Clone progress from diablo2.io API instead of manual entry.
 
@@ -172,7 +172,7 @@ Pull live Diablo Clone progress from diablo2.io API instead of manual entry.
 
 ---
 
-#### 10. Terror Zone API Integration
+#### 10. Terror Zone API Integration ✅
 
 Pull current Terror Zone data from community APIs for online play.
 
@@ -187,7 +187,7 @@ Pull current Terror Zone data from community APIs for online play.
 
 ---
 
-#### 11. Trade Value Estimation
+#### 11. Trade Value Estimation ✅
 
 Show approximate trade value for items using community price data.
 
@@ -299,27 +299,31 @@ These are smaller improvements that can be sprinkled into any release:
 | Quick-start templates | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Route tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Terror Zone tracking | ✅ | ❌ | ✅ (web) | ❌ | ✅ (web) | ❌ |
-| DClone tracking | ✅ (manual) | ❌ | ✅ (live) | ❌ | ❌ | ❌ |
+| DClone tracking | ✅ (live API) | ❌ | ✅ (live) | ❌ | ❌ | ❌ |
 | Herald/Ancients tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Cloud sync | ✅ | ❌ | N/A (web) | N/A | N/A | ❌ |
 | Co-op tracking | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | PDF reports | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Offline-first | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| Trade values | 🔲 Planned | ❌ | ✅ (live) | ❌ | ✅ (guide) | ❌ |
+| Trade values | ✅ (static) | ❌ | ✅ (live) | ❌ | ✅ (guide) | ❌ |
 | Multi-language | ✅ (3) | ❌ | ✅ | ❌ | ✅ | ❌ |
 | Achievements | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-**Key differentiators (v5.1 shipped):**
+**Key differentiators (v5.2 shipped):**
 - Only desktop tool with integrated probability engine + personal farming data
 - Only tool combining runeword planning with rune drop tracking
 - Only tool offering farming efficiency advisor based on personal data
 - Achievement system with gamification for farming motivation
 - Local OCR item detection without requiring external API keys or cloud services
 - Quick-start templates for one-click farming sessions
+- Live DClone and Terror Zone API integration (all HTTP via Rust, CSP-compliant)
+- Personal bests leaderboard with seasonal archive and PNG/JSON export
+- Static trade value estimation with source attribution
 
-**Next differentiators (v5.2+):**
-- DClone and Terror Zone live API integration
-- Trade value estimation from community data
+**Next differentiators (v6.0+):**
+- Data Visualization Overhaul (heatmaps, calendar, scatter plots)
+- Linux native packaging (AppImage, .deb, Flatpak, AUR)
+- Plugin/Extension System
 
 ---
 
@@ -329,7 +333,7 @@ These are smaller improvements that can be sprinkled into any release:
 |---------|-------|----------|--------|
 | v5.0.0 | Intelligence | Advanced Drop Calc + Runeword Planner + Efficiency Advisor + Achievements | ✅ Released |
 | v5.1.0 | Automation | Screenshot OCR + Quick-Start Templates | ✅ Released |
-| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | 🔲 Next |
+| v5.2.0 | Community | Leaderboards + DClone API + TZ API + Trade Values | ✅ Released |
 | v6.0.0 | Platform | Linux Packaging + Viz Overhaul + Plugin System | 🔲 Planned |
 
 ---
@@ -346,13 +350,13 @@ Based on: community demand, competitive gap, implementation feasibility, and eng
 | ✅ | Farming Efficiency Advisor | Shipped v5.0.0 |
 | ✅ | Quick-Start Templates | Shipped v5.1.0 |
 | ✅ | Screenshot OCR | Shipped v5.1.0 |
-| 🥇 1 | DClone API Integration | Easy win, removes manual input, diablo2.io provides data |
-| 🥇 2 | Terror Zone API Integration | Same as DClone — easy external data pull |
-| 🥈 3 | Trade Value Estimation | Nice-to-have, static data update with each release |
-| 🥈 4 | Leaderboards & Export | Community-facing, moderate effort |
-| ⬜ 5 | Data Visualization Overhaul | Polish, not new capability |
-| ⬜ 6 | Linux Packaging | Infrastructure, serves Linux gaming niche |
-| ⬜ 7 | Plugin System | Long-term investment, defer until community demands it |
+| ✅ | DClone API Integration | Shipped v5.2.0 |
+| ✅ | Terror Zone API Integration | Shipped v5.2.0 |
+| ✅ | Trade Value Estimation | Shipped v5.2.0 |
+| ✅ | Leaderboards & Export | Shipped v5.2.0 |
+| ⬜ 1 | Data Visualization Overhaul | Polish, not new capability |
+| ⬜ 2 | Linux Packaging | Infrastructure, serves Linux gaming niche |
+| ⬜ 3 | Plugin System | Long-term investment, defer until community demands it |
 
 ---
 
@@ -396,5 +400,5 @@ Before adding major features:
 ---
 
 *Document created: July 2026*
-*Covers: v5.2.0 through v6.0.0 (v5.1.0 released July 2026)*
+*Covers: v5.2.0 through v6.0.0 (v5.2.0 released July 2026)*
 *Previous plans: DEVELOPMENT_PLAN.md (v1.0–v2.0), DEVELOPMENT_PLAN_V3.md (v2.1–v4.0)*

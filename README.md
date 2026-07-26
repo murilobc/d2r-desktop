@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.2.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.2.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.2.1_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.1_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.2.1_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.1_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -341,14 +341,8 @@ Detect items from game screenshots via local OCR to auto-log drops without manua
 - **Color-based text detection** — Scans for D2R item name colors (Unique gold, Set green, Rune orange, Rare yellow, Magic blue, Normal white) to locate and crop the text region before OCR
 - **Binarization** — Converts the cropped region to pure black/white for maximum OCR accuracy
 
-**Image Sources:**
+**Image Source:**
 - **Clipboard monitoring** — Detects when you take a screenshot (PrintScreen) and processes it automatically via clipboard polling
-- **Folder monitoring** — Watches the D2R screenshots folder for new `.jpg`/`.png` files, processes them automatically within 2 seconds
-- **Auto-start on launch** — Folder watcher starts automatically on app launch when enabled in settings (no manual toggle needed)
-- **Manual trigger checks both** — Sidebar button and keybind check clipboard AND folder for new screenshots
-- **Auto-detect folder** — Finds the D2R screenshots path automatically (`Documents\Diablo II Resurrected\Screenshots\` or `Saved Games\...`)
-- **Custom folder** — Browse to select any folder as the screenshot source
-- **Manual file detection** — Trigger detection from a specific file on disk
 
 **Detection Pipeline:**
 - **Session guard** — Detection requires an active session; triggers "Start a session first to detect items" toast if no session is running
@@ -360,16 +354,13 @@ Detect items from game screenshots via local OCR to auto-log drops without manua
 
 **Anti-Cheat Compliance:**
 - All processing is 100% local — no network calls, no external API keys
-- Folder watcher uses only standard filesystem APIs (`std::fs::read`) — no kernel hooks, no process injection
 - Never opens handles to the game process or monitors running processes
 
 **Settings:**
 - Enable/disable clipboard monitoring toggle
-- Enable/disable folder monitoring toggle with path display
-- Auto-detect and Browse buttons for folder path
-- Confidence threshold slider (50-100%)
-- Detect Screenshot keybind with toast notification on registration failure
-- Validation warnings for invalid folder paths
+- Enable/disable auto-detection toggle
+- Confidence threshold (50–100%)
+- Detect Screenshot keybind
 
 ---
 
@@ -391,7 +382,7 @@ Personal competition and progress tracking — all computed offline from your lo
 
 Tracks Diablo Clone progress per region with live data from diablo2.io.
 
-- **Live auto-fetch** — Polls `diablo2.io/api/dclone` automatically every 5 minutes (configurable 5–30 min); all HTTP goes through Rust
+- **Live auto-fetch** — Polls `diablo2.io/dclone_api.php` every 5 minutes (configurable 5–30 min); all HTTP goes through Rust, never from JavaScript
 - **Multi-mode support** — Non-Ladder, Ladder, Hardcore Non-Ladder, Hardcore Ladder per region (Americas, Europe, Asia)
 - **Stale indicator** — Clock icon (⏰) appears when data exceeds 2× the poll interval
 - **Manual override** — Set any region/mode manually; "Manual" badge shows until the next API fetch; dedicated clear-override button
@@ -406,7 +397,7 @@ Tracks Diablo Clone progress per region with live data from diablo2.io.
 
 Tracks the active Terror Zone with live API data or deterministic offline calculation.
 
-- **Live fetch** — Polls `terrorzonetracker.com/api/v1/tz` with a 10-min rate limit and 10-second timeout; bypasses cooldown on hourly boundaries
+- **Live fetch** — Polls `d2r.kimpton.io/api/tz` with a 10-min rate limit and 10-second timeout; bypasses cooldown on hourly boundaries; all HTTP through Rust
 - **Single Player fallback** — Deterministic UTC-based rotation (65 zones) — works fully offline, no network required
 - **TZ Display** — Active zone name with tier badge (S/A/B/C) and countdown to next hourly rotation; auto-refreshes on zone change
 - **TZ Calendar** — Next 3–5 upcoming zones with scheduled UTC start times
@@ -518,7 +509,7 @@ Always visible, provides navigation and utilities:
 - **Runes** — Runeword planner and rune inventory
 - **Advisor** — Personalized farming recommendations
 - **Leaderboards** — Personal bests, monthly comparison, seasonal archive, export
-- **Terror Zone** — Live TZ display, calendar, advisor, RunTracker integration
+- **Terror Zone** — Live TZ display (∇), calendar, advisor, RunTracker integration
 - **Settings** — Configuration (includes Screenshot Detection, Trade Values toggle)
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
@@ -612,7 +603,7 @@ d2r-desktop/
 │   │   ├── BuildSuggestions.tsx # Class-specific suggestions
 │   │   ├── TemplateForm.tsx    # Quick-start template creation form
 │   │   ├── TemplateList.tsx    # Template cards display
-│   │   ├── ScreenshotSettings.tsx # Screenshot detection & folder monitoring settings
+│   │   ├── ScreenshotSettings.tsx # Screenshot detection (clipboard only) settings
 │   │   ├── Skeleton.tsx        # Loading skeleton placeholders
 │   │   ├── CloudSyncSettings.tsx # Cloud sync settings section
 │   │   ├── SyncStatusIndicator.tsx # Sync status in sidebar footer

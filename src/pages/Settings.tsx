@@ -79,10 +79,9 @@ export async function registerHotkeys(fromUserAction = false) {
 async function _doRegisterHotkeys() {
   const config = loadHotkeys();
 
-  // Unregister each keybind individually before re-registering.
-  // Using unregisterAll + re-register has timing issues on Windows where
-  // the OS may not release shortcuts immediately, causing false "already
-  // registered" errors. Individual unregister/register is reliable.
+  // Unregister each keybind individually first.
+  // We attempt to unregister every key that might be registered by this app
+  // (F9, F10, F11, and whatever detectScreenshot is set to).
   const allKeys = [
     config.nextRun,
     config.pause,
@@ -94,17 +93,32 @@ async function _doRegisterHotkeys() {
     try { await unregister(key); } catch { /* not registered yet — ok */ }
   }
 
-  await Promise.all([
-    register(config.nextRun, (event) => {
+  // Register each keybind sequentially (not in parallel) so that if any
+  // registration fails it doesn't affect the others and there's no race
+  // between concurrent register() calls on the same key.
+  try {
+    await register(config.nextRun, (event) => {
       if (event.state === "Pressed") emit("overlay-action", "split");
-    }),
-    register(config.pause, (event) => {
+    });
+  } catch (err) {
+    console.warn("[Hotkey] Failed to register nextRun:", err);
+  }
+
+  try {
+    await register(config.pause, (event) => {
       if (event.state === "Pressed") emit("overlay-action", "pause");
-    }),
-    register(config.endSession, (event) => {
+    });
+  } catch (err) {
+    console.warn("[Hotkey] Failed to register pause:", err);
+  }
+
+  try {
+    await register(config.endSession, (event) => {
       if (event.state === "Pressed") emit("overlay-action", "end");
-    }),
-  ]);
+    });
+  } catch (err) {
+    console.warn("[Hotkey] Failed to register endSession:", err);
+  }
 
   if (config.detectScreenshot) {
     try {
@@ -124,13 +138,8 @@ async function _doRegisterHotkeys() {
         }
       });
     } catch (err) {
-      // If we just set this key ourselves (same process, previous registration),
-      // the unregister above should have cleared it. If it still fails, it's a
-      // genuine system conflict.
       console.warn("[Hotkey] Failed to register detectScreenshot:", err);
       const raw = String(err);
-      // Only show toast when registering from user action (not from app startup).
-      // _registeringFromUserAction is set true only when handleKeyCapture triggers it.
       if (_registeringFromUserAction) {
         const reason = raw.toLowerCase().includes("already registered")
           ? "it may already be in use by another application"

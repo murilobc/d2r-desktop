@@ -8,8 +8,8 @@ A desktop application for tracking Magic Find runs in **Diablo II: Resurrected**
 
 | Platform | Installer |
 |----------|-----------|
-| Windows (.exe) | [d2r-desktop_5.1.8_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.8_x64-setup.exe) |
-| Windows (.msi) | [d2r-desktop_5.1.8_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.1.8_x64_en-US.msi) |
+| Windows (.exe) | [d2r-desktop_5.2.0_x64-setup.exe](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64-setup.exe) |
+| Windows (.msi) | [d2r-desktop_5.2.0_x64_en-US.msi](https://github.com/murilobc/d2r-desktop/releases/latest/download/d2r-desktop_5.2.0_x64_en-US.msi) |
 
 > [All releases](https://github.com/murilobc/d2r-desktop/releases/latest)
 
@@ -373,6 +373,61 @@ Detect items from game screenshots via local OCR to auto-log drops without manua
 
 ---
 
+### Leaderboards
+
+![Leaderboards](docs/mockups/leaderboards.svg)
+
+Personal competition and progress tracking — all computed offline from your local data.
+
+- **Personal Bests board** — Fastest run per area, best items/run, best items/hour, longest run; each record shows area, value, and date
+- **Monthly Comparison** — "This Month vs Last Month" using your actual farming data; signed percentage deltas for items/hour, items/run, fastest run, and total runs
+- **Seasonal Archive** — Archive your stats at the end of a ladder season and start fresh without deleting any raw run data; each season snapshot is preserved read-only
+- **Export Share Card (PNG)** — Renders your personal bests as a shareable image card for Discord/Reddit via html2canvas + Tauri save dialog
+- **Export Community JSON** — Structured v1.0 JSON schema for community leaderboard interoperability
+
+---
+
+### Diablo Clone Tracker (Live API)
+
+Tracks Diablo Clone progress per region with live data from diablo2.io.
+
+- **Live auto-fetch** — Polls `diablo2.io/api/dclone` automatically every 5 minutes (configurable 5–30 min); all HTTP goes through Rust
+- **Multi-mode support** — Non-Ladder, Ladder, Hardcore Non-Ladder, Hardcore Ladder per region (Americas, Europe, Asia)
+- **Stale indicator** — Clock icon (⏰) appears when data exceeds 2× the poll interval
+- **Manual override** — Set any region/mode manually; "Manual" badge shows until the next API fetch; dedicated clear-override button
+- **Settings** — Toggle auto-fetch on/off, poll interval, preferred region/mode, notification threshold (stored in SQLite, migrated from localStorage on first launch)
+- **Annihilus log** — Record obtained Annihilus charms with stats and notes
+
+---
+
+### Terror Zone (Live API + SP Offline)
+
+![Terror Zone](docs/mockups/terror-zone.svg)
+
+Tracks the active Terror Zone with live API data or deterministic offline calculation.
+
+- **Live fetch** — Polls `terrorzonetracker.com/api/v1/tz` with a 10-min rate limit and 10-second timeout; bypasses cooldown on hourly boundaries
+- **Single Player fallback** — Deterministic UTC-based rotation (65 zones) — works fully offline, no network required
+- **TZ Display** — Active zone name with tier badge (S/A/B/C) and countdown to next hourly rotation; auto-refreshes on zone change
+- **TZ Calendar** — Next 3–5 upcoming zones with scheduled UTC start times
+- **TZ Advisor** — Compares your items/hour in the current TZ against your profile-wide average; shows "Recommended" when 10%+ above average
+- **RunTracker Banner** — Highlighted suggestion above the area selector when a preferred zone is active; "⭐ Good TZ" label for zones in your top 5 areas
+- **Settings** — Toggle polling on/off, tier threshold for good-TZ labeling (S/A/B/C)
+
+---
+
+### Trade Values
+
+Estimated trade value categories for commonly traded D2R items — embedded statically at build time.
+
+- **4 categories** — **~HR+** (worth high runes Sur+), **~Mid** (Ist–Vex), **~Low** (Pul–Gul), **~Self-use** (personal value, low trade demand)
+- **~90 items covered** — High-value runewords (Enigma, Infinity, Fortitude…), runes (Ber–Sur), elite uniques (Shako, Arachnid Mesh…), charms, jewels, sunder charms
+- **Colored badges** — Gold for HR+, gray for Mid, bronze for Low, charcoal for Self-use; shown in History and RunTracker item rows
+- **Source attribution** — "Values based on diablo2.io price data as of YYYY-MM-DD" displayed below item lists
+- **Settings toggle** — Show/hide trade values globally (default: on); players who don't trade can turn it off cleanly
+
+---
+
 ### Co-op
 
 ![Co-op](docs/mockups/coop-panel.svg)
@@ -429,6 +484,10 @@ Configure hotkeys, sounds, OBS integration, cloud sync, and language preferences
 - Sound notification when a preferred zone becomes active
 - Checkbox grid to select favorite zones
 
+**Trade Values:**
+- Toggle to show/hide estimated trade value badges in History and RunTracker
+- Enabled by default; turn off if you don't trade
+
 **Theme:**
 - Dark/Light toggle from the sidebar
 
@@ -451,14 +510,16 @@ Always visible, provides navigation and utilities:
 - **Compare** — Area/date efficiency comparison
 - **Heralds** — Herald of Terror tracking
 - **Ancients** — Colossal Ancients boss tracker
-- **DClone** — Diablo Clone progress and Annihilus log
+- **DClone** — Diablo Clone live tracker (API + manual)
 - **XP** — Experience rate tracking
 - **Drops** — Drop calculator and probability engine
 - **Co-op** — Shared farming sessions
 - **Achievements** — Per-profile achievement gallery and lifetime stats
 - **Runes** — Runeword planner and rune inventory
 - **Advisor** — Personalized farming recommendations
-- **Settings** — Configuration (includes Screenshot Detection)
+- **Leaderboards** — Personal bests, monthly comparison, seasonal archive, export
+- **Terror Zone** — Live TZ display, calendar, advisor, RunTracker integration
+- **Settings** — Configuration (includes Screenshot Detection, Trade Values toggle)
 - **Overlay** — Toggle in-game overlay
 - **Theme** — Dark/Light switch
 - **Export / Import** — JSON backup and restore
@@ -530,12 +591,15 @@ d2r-desktop/
 │   │   ├── areas.ts           # Area metadata (alvl, TC, drops, tips)
 │   │   ├── runewords.ts       # Runeword recipes and rune data
 │   │   ├── terror-zones.ts    # Terror Zone definitions and preferences
+│   │   ├── tradeValues.ts     # Static community trade value data (~90 items)
 │   │   └── xp-table.ts        # D2R XP requirements per level (1-99)
 │   ├── components/
 │   │   ├── ItemSearch.tsx      # Searchable combobox
 │   │   ├── MFCalculator.tsx    # Effective MF widget
 │   │   ├── TierBadge.tsx       # Item value tier badge
+│   │   ├── TradeValueBadge.tsx # Trade value category badge (HR+/Mid/Low/Self-use)
 │   │   ├── TerrorZoneDisplay.tsx # Active Terror Zone indicator
+│   │   ├── TzSuggestionBanner.tsx # TZ suggestion in RunTracker
 │   │   ├── QuickTags.tsx       # Quick tag buttons
 │   │   ├── RuneGrid.tsx        # Rune inventory grid
 │   │   ├── EligibilityList.tsx # Available runewords list
@@ -562,6 +626,8 @@ d2r-desktop/
 │   │   └── templates.property.test.ts
 │   ├── hooks/
 │   │   ├── useTheme.ts        # Dark/light theme toggle
+│   │   ├── useTerrorZone.ts   # TZ state hook (cache + SP fallback)
+│   │   ├── useTradeValueSettings.ts # Trade value display preference
 │   │   └── useAchievementToasts.ts # Achievement unlock toast queue
 │   ├── i18n/                   # Internationalization
 │   │   ├── index.ts            # i18next configuration
@@ -578,19 +644,22 @@ d2r-desktop/
 │   │   └── Overlay.tsx         # Overlay UI component
 │   ├── pages/
 │   │   ├── Profiles.tsx
-│   │   ├── RunTracker.tsx      # Includes Quick-Start Template integration
+│   │   ├── RunTracker.tsx      # Includes Quick-Start Templates + TZ banner + trade values
 │   │   ├── RouteEditor.tsx
-│   │   ├── History.tsx
+│   │   ├── History.tsx         # Includes trade value badges
 │   │   ├── Statistics.tsx
 │   │   ├── Comparison.tsx
 │   │   ├── HeraldTracker.tsx
 │   │   ├── ColossalAncients.tsx
-│   │   ├── DCloneTracker.tsx
+│   │   ├── DCloneTracker.tsx   # Live API polling, multi-mode, stale indicator
 │   │   ├── XPTracker.tsx
 │   │   ├── DropCalculator.tsx
 │   │   ├── RunewordPlanner.tsx
 │   │   ├── Advisor.tsx
 │   │   ├── Achievements.tsx
+│   │   ├── Leaderboards.tsx    # Personal bests, monthly comparison, seasonal archive, export
+│   │   ├── TerrorZone.tsx      # TZ display, calendar, advisor, settings
+│   │   ├── leaderboard-helpers.ts # Pure computation functions for leaderboards
 │   │   └── Settings.tsx
 │   └── utils/
 │       ├── audio.ts            # Sound notification system
@@ -600,11 +669,14 @@ d2r-desktop/
 │       ├── lib.rs              # App setup & plugin registration
 │       ├── db.rs               # SQLite connection & migrations
 │       ├── models.rs           # Data structs
-│       ├── commands.rs         # Tauri commands (includes templates)
+│       ├── commands.rs         # Tauri commands (leaderboards, DClone API)
 │       ├── drop_commands.rs    # Drop probability Tauri commands
 │       ├── probability_engine.rs # TC-based drop probability engine
 │       ├── achievements.rs    # Achievement system (schema, evaluation, stats)
 │       ├── sync.rs            # Cloud sync (keychain, GitHub API, file I/O)
+│       ├── tz/                # Terror Zone API module
+│       │   ├── mod.rs          # Pure rotation logic (65 zones, 5 proptest properties)
+│       │   └── commands.rs     # Tauri commands (fetch, SP calc, cache, settings)
 │       └── screenshot/        # Screenshot item detection
 │           ├── mod.rs          # Module definition, Tauri commands, state
 │           ├── ocr.rs          # Layered OCR (Windows native + ocrs fallback)

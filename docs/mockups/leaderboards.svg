@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif">
+  <!-- Background -->
+  <rect width="1100" height="700" fill="#1a1a2e"/>
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="220" height="700" fill="#0f3460"/>
+  <text x="20" y="38" fill="#e94560" font-size="16" font-weight="bold">D2R Tracker</text>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="85" fill="#eaeaea" font-size="13" opacity="0.6">◎ Profiles</text>
+  <text x="20" y="115" fill="#eaeaea" font-size="13" opacity="0.6">▶ Run Tracker</text>
+  <text x="20" y="145" fill="#eaeaea" font-size="13" opacity="0.6">☰ History</text>
+  <text x="20" y="175" fill="#eaeaea" font-size="13" opacity="0.6">◈ Statistics</text>
+  <text x="20" y="205" fill="#eaeaea" font-size="13" opacity="0.6">※ DClone</text>
+  <text x="20" y="235" fill="#eaeaea" font-size="13" opacity="0.6">★ Achievements</text>
+  <rect x="0" y="250" width="220" height="30" fill="rgba(233,69,96,0.2)"/>
+  <rect x="0" y="250" width="3" height="30" fill="#e94560"/>
+  <text x="20" y="270" fill="#eaeaea" font-size="13">⊞ Leaderboards</text>
+  <text x="20" y="300" fill="#eaeaea" font-size="13" opacity="0.6">⚡ Terror Zone</text>
+  <line x1="10" y1="325" x2="210" y2="325" stroke="#2a2a4a" stroke-width="1"/>
+  <text x="20" y="350" fill="#eaeaea" font-size="13" opacity="0.6">⚙ Settings</text>
+  <!-- Main -->
+  <text x="250" y="50" fill="#eaeaea" font-size="22" font-weight="bold">⊞ Leaderboards</text>
+  <rect x="800" y="28" width="175" height="28" rx="4" fill="#0f3460" stroke="#2a2a4a"/>
+  <text x="815" y="47" fill="#eaeaea" font-size="12">MFSorc · Sorceress</text>
+  <!-- Personal Bests Section -->
+  <text x="250" y="90" fill="#eaeaea" font-size="16" font-weight="bold">Personal Bests</text>
+  <rect x="250" y="100" width="815" height="130" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <!-- Table header -->
+  <rect x="250" y="100" width="815" height="30" rx="8" fill="#0f3460"/>
+  <text x="270" y="120" fill="#a0a0a0" font-size="12" font-weight="bold">Metric</text>
+  <text x="430" y="120" fill="#a0a0a0" font-size="12" font-weight="bold">Value</text>
+  <text x="580" y="120" fill="#a0a0a0" font-size="12" font-weight="bold">Area</text>
+  <text x="800" y="120" fill="#a0a0a0" font-size="12" font-weight="bold">Date</text>
+  <!-- Row 1 -->
+  <text x="270" y="148" fill="#eaeaea" font-size="13">Fastest Run</text>
+  <text x="430" y="148" fill="#4ecdc4" font-size="13" font-weight="bold">1m 23s</text>
+  <text x="580" y="148" fill="#eaeaea" font-size="13">Chaos Sanctuary</text>
+  <text x="800" y="148" fill="#a0a0a0" font-size="12">2026-07-20</text>
+  <!-- Row 2 -->
+  <text x="270" y="170" fill="#eaeaea" font-size="13">Best Items/Run</text>
+  <text x="430" y="170" fill="#ffd700" font-size="13" font-weight="bold">7 items</text>
+  <text x="580" y="170" fill="#eaeaea" font-size="13">Pit</text>
+  <text x="800" y="170" fill="#a0a0a0" font-size="12">2026-07-18</text>
+  <!-- Row 3 -->
+  <text x="270" y="192" fill="#eaeaea" font-size="13">Best Items/Hour</text>
+  <text x="430" y="192" fill="#ff8c00" font-size="13" font-weight="bold">18.4/hr</text>
+  <text x="580" y="192" fill="#eaeaea" font-size="13">Lower Kurast</text>
+  <text x="800" y="192" fill="#a0a0a0" font-size="12">2026-07-15</text>
+  <!-- Row 4 -->
+  <text x="270" y="214" fill="#eaeaea" font-size="13">Longest Run</text>
+  <text x="430" y="214" fill="#a0a0a0" font-size="13">12m 07s</text>
+  <text x="580" y="214" fill="#eaeaea" font-size="13">Travincal</text>
+  <text x="800" y="214" fill="#a0a0a0" font-size="12">2026-07-12</text>
+  <!-- Monthly Comparison -->
+  <text x="250" y="255" fill="#eaeaea" font-size="16" font-weight="bold">Monthly Comparison</text>
+  <rect x="250" y="265" width="815" height="110" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <rect x="250" y="265" width="815" height="30" rx="8" fill="#0f3460"/>
+  <text x="270" y="285" fill="#a0a0a0" font-size="12" font-weight="bold">Metric</text>
+  <text x="500" y="285" fill="#a0a0a0" font-size="12" font-weight="bold">This Month</text>
+  <text x="700" y="285" fill="#a0a0a0" font-size="12" font-weight="bold">Last Month</text>
+  <text x="900" y="285" fill="#a0a0a0" font-size="12" font-weight="bold">Change</text>
+  <text x="270" y="315" fill="#eaeaea" font-size="13">Total Runs</text>
+  <text x="500" y="315" fill="#eaeaea" font-size="13">142</text>
+  <text x="700" y="315" fill="#eaeaea" font-size="13">118</text>
+  <text x="900" y="315" fill="#4caf50" font-size="13">+20.3%</text>
+  <text x="270" y="338" fill="#eaeaea" font-size="13">Items/Hour</text>
+  <text x="500" y="338" fill="#eaeaea" font-size="13">12.8</text>
+  <text x="700" y="338" fill="#eaeaea" font-size="13">10.4</text>
+  <text x="900" y="338" fill="#4caf50" font-size="13">+23.1%</text>
+  <text x="270" y="361" fill="#eaeaea" font-size="13">Fastest Run</text>
+  <text x="500" y="361" fill="#eaeaea" font-size="13">1m 23s</text>
+  <text x="700" y="361" fill="#eaeaea" font-size="13">1m 45s</text>
+  <text x="900" y="361" fill="#4caf50" font-size="13">-21.0%</text>
+  <!-- Season Archive -->
+  <text x="250" y="400" fill="#eaeaea" font-size="16" font-weight="bold">Season Archive</text>
+  <rect x="830" y="378" width="145" height="28" rx="4" fill="#e94560"/>
+  <text x="853" y="397" fill="white" font-size="12">⊞ Start New Season</text>
+  <rect x="250" y="410" width="815" height="80" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <rect x="250" y="410" width="815" height="28" rx="8" fill="#0f3460"/>
+  <text x="270" y="429" fill="#a0a0a0" font-size="12" font-weight="bold">Season</text>
+  <text x="460" y="429" fill="#a0a0a0" font-size="12" font-weight="bold">Date Range</text>
+  <text x="660" y="429" fill="#a0a0a0" font-size="12" font-weight="bold">Fastest</text>
+  <text x="780" y="429" fill="#a0a0a0" font-size="12" font-weight="bold">Best Items</text>
+  <text x="940" y="429" fill="#a0a0a0" font-size="12" font-weight="bold">Best /hr</text>
+  <text x="270" y="456" fill="#eaeaea" font-size="13">Season 13 Ladder</text>
+  <text x="460" y="456" fill="#a0a0a0" font-size="12">2026-01-01 — 2026-06-30</text>
+  <text x="660" y="456" fill="#4ecdc4" font-size="12">1m 31s</text>
+  <text x="780" y="456" fill="#eaeaea" font-size="12">6</text>
+  <text x="940" y="456" fill="#eaeaea" font-size="12">15.2/hr</text>
+  <text x="270" y="475" fill="#eaeaea" font-size="13">Season 12 Ladder</text>
+  <text x="460" y="475" fill="#a0a0a0" font-size="12">2025-07-01 — 2025-12-31</text>
+  <text x="660" y="475" fill="#4ecdc4" font-size="12">1m 48s</text>
+  <text x="780" y="475" fill="#eaeaea" font-size="12">5</text>
+  <text x="940" y="475" fill="#eaeaea" font-size="12">12.7/hr</text>
+  <!-- Export Section -->
+  <text x="250" y="522" fill="#eaeaea" font-size="16" font-weight="bold">Export</text>
+  <rect x="250" y="530" width="815" height="70" rx="8" fill="#16213e" stroke="#2a2a4a"/>
+  <rect x="270" y="548" width="200" height="32" rx="4" fill="#e94560"/>
+  <text x="300" y="569" fill="white" font-size="13">◫ Export Share Card (PNG)</text>
+  <rect x="490" y="548" width="200" height="32" rx="4" fill="#0f3460" stroke="#e94560"/>
+  <text x="520" y="569" fill="#eaeaea" font-size="13">↓ Export Community JSON</text>
+</svg>

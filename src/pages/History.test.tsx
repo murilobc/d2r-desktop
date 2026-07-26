@@ -82,3 +82,70 @@ describe("History Page", () => {
     });
   });
 });
+
+import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
+
+describe("History TradeValue Integration", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    mockInvoke.mockImplementation(async (cmd, args) => {
+      if (cmd === "get_runs") return mockRuns;
+      if (cmd === "get_runs_paginated") return { runs: mockRuns, total: mockRuns.length };
+      if (cmd === "get_items") {
+        const { runId } = args as { runId: string };
+        if (runId === "run-1") return mockItems;
+        return [];
+      }
+      if (cmd === "get_stats") return {
+        total_runs: mockRuns.length,
+        total_items: mockItems.length,
+        total_time_secs: 600,
+        avg_run_duration_secs: 120,
+        items_per_run: 1.0,
+        items_by_rarity: [],
+        runs_by_area: [
+          { area: "Mephisto", count: 2 },
+          { area: "Ancient Tunnels", count: 1 },
+        ],
+      };
+      return undefined;
+    });
+  });
+
+  it("item row renders TradeValueBadge when showTradeValues is true and item is in TRADE_VALUES", async () => {
+    // "Harlequin Crest" is in TRADE_VALUES with category "HR+"
+    localStorage.setItem("show_trade_values", "true");
+    render(<History profile={mockProfile} />);
+    await waitFor(() => {
+      expect(screen.getByLabelText("Estimated trade value: HR+")).toBeInTheDocument();
+    });
+  });
+
+  it("TradeValueBadge is absent when showTradeValues is false", async () => {
+    localStorage.setItem("show_trade_values", "false");
+    render(<History profile={mockProfile} />);
+    await waitFor(() => {
+      // Items should still load
+      expect(screen.getByText("Harlequin Crest")).toBeInTheDocument();
+    });
+    expect(screen.queryByLabelText("Estimated trade value: HR+")).toBeNull();
+  });
+
+  it("attribution text is present when showTradeValues is true and items include a trade-valued item", async () => {
+    localStorage.setItem("show_trade_values", "true");
+    render(<History profile={mockProfile} />);
+    await waitFor(() => {
+      expect(screen.getByText(SOURCE_ATTRIBUTION)).toBeInTheDocument();
+    });
+  });
+
+  it("attribution text is absent when showTradeValues is false", async () => {
+    localStorage.setItem("show_trade_values", "false");
+    render(<History profile={mockProfile} />);
+    await waitFor(() => {
+      expect(screen.getByText("Harlequin Crest")).toBeInTheDocument();
+    });
+    expect(screen.queryByText(SOURCE_ATTRIBUTION)).toBeNull();
+  });
+});

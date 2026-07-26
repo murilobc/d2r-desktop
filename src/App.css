@@ -5377,3 +5377,44 @@ body {
   outline: 2px solid var(--success);
   outline-offset: 2px;
 }
+
+/* Trade value badges */
+.trade-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: default;
+}
+
+.trade-badge-hr {
+  background-color: #b8860b;
+  color: #fff9e6;
+}
+
+.trade-badge-mid {
+  background-color: #707070;
+  color: #f0f0f0;
+}
+
+.trade-badge-low {
+  background-color: #7a4a1e;
+  color: #fde8c8;
+}
+
+.trade-badge-selfuse {
+  background-color: #3a3a3a;
+  color: #aaa;
+}
+
+/* Attribution footer */
+.trade-attribution {
+  font-size: 0.72rem;
+  color: var(--text-muted, #888);
+  margin-top: 0.5rem;
+  font-style: italic;
+}

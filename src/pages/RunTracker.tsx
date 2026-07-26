@@ -16,6 +16,9 @@ import TemplateList from "../components/TemplateList";
 import TemplateForm from "../components/TemplateForm";
 import { isAreaInTerrorZone, loadCurrentTZ } from "../data/terror-zones";
 import { playSound } from "../utils/audio";
+import TradeValueBadge from "../components/TradeValueBadge";
+import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
+import { useTradeValueSettings } from "../hooks/useTradeValueSettings";
 
 interface Props {
   profile: Profile;
@@ -26,6 +29,7 @@ interface Props {
 
 export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks, onItemAdded }: Props) {
   const { t } = useTranslation();
+  const { showTradeValues } = useTradeValueSettings();
 
   // Session state
   const [sessionActive, setSessionActive] = useState(false);
@@ -792,12 +796,16 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
                 <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
                   <span className="item-name">{item.name}</span>
                   <TierBadge itemName={item.name} category={item.rarity} />
+                  {showTradeValues && <TradeValueBadge itemName={item.name} />}
                   <span className="item-type">{item.item_type}</span>
                   <span className="item-rarity">{item.rarity}</span>
                   <button className="btn-icon" onClick={() => removeItem(item.id)}>✕</button>
                 </div>
               ))}
             </div>
+            {showTradeValues && items.length > 0 && (
+              <p className="trade-attribution">{SOURCE_ATTRIBUTION}</p>
+            )}
           </div>
         </div>
       )}

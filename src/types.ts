@@ -4,6 +4,7 @@ export interface Profile {
   class: string;
   mode: string;
   magic_find: number | null;
+  season_start_date?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -606,4 +607,30 @@ export interface UpdateTemplateInput {
   session_goal_type: string;
   session_goal_value?: number;
   tags?: string[];
+}
+
+// ===== LEADERBOARDS =====
+
+export interface PersonalBest {
+  area: string;
+  value: number;
+  run_id: string;
+  date: string; // ISO-8601 date string
+}
+
+export interface PersonalBests {
+  fastest_run: PersonalBest | null;
+  best_items_in_run: (PersonalBest & { item_count: number }) | null;
+  best_items_per_hour: (PersonalBest & { items_per_hour: number }) | null;
+  longest_run: PersonalBest | null;
+}
+
+export interface Season {
+  id: string;
+  profile_id: string;
+  name: string;
+  start_date: string; // ISO-8601
+  end_date: string;   // ISO-8601
+  bests_snapshot: PersonalBests;
+  created_at: string;
 }

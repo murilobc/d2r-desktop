@@ -2051,11 +2051,13 @@ pub async fn poll_dclone_api(state: State<'_, DbState>) -> Result<Vec<DCloneProg
 
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(10))
+        .user_agent("d2r-tracker/5.2.0")
         .build()
         .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
 
+    // Correct endpoint: dclone_api.php (not /api/dclone which is behind Cloudflare)
     let response = client
-        .get("https://diablo2.io/api/dclone")
+        .get("https://diablo2.io/dclone_api.php")
         .send()
         .await
         .map_err(|e| format!("Network error: {}", e))?;
@@ -2078,18 +2080,25 @@ pub async fn poll_dclone_api(state: State<'_, DbState>) -> Result<Vec<DCloneProg
         let conn = state.0.lock().map_err(|e| e.to_string())?;
 
         for record in &records {
+            // API fields: region ("1"=Americas, "2"=Europe, "3"=Asia),
+            //             ladder ("1"=Ladder, "2"=Non-Ladder),
+            //             hc ("1"=Hardcore, "2"=Softcore)
             let region = match record.region.as_str() {
                 "1" => "Americas",
                 "2" => "Europe",
                 "3" => "Asia",
                 code => { eprintln!("[dclone] Unknown region code: {}", code); continue; }
             };
-            let mode = match record.mode.as_str() {
-                "1" => "Non-Ladder",
-                "2" => "Ladder",
-                "3" => "Hardcore Non-Ladder",
-                "4" => "Hardcore Ladder",
-                code => { eprintln!("[dclone] Unknown mode code: {}", code); continue; }
+
+            // Build mode string from ladder + hc fields
+            let ladder_str = record.ladder.as_deref().unwrap_or("2");
+            let hc_str = record.hc.as_deref().unwrap_or("2");
+            let mode = match (ladder_str, hc_str) {
+                ("1", "2") => "Ladder",
+                ("2", "2") => "Non-Ladder",
+                ("1", "1") => "Hardcore Ladder",
+                ("2", "1") => "Hardcore Non-Ladder",
+                _ => { eprintln!("[dclone] Unknown ladder/hc combo: {}/{}", ladder_str, hc_str); continue; }
             };
 
             let is_override: bool = conn

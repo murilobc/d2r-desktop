@@ -412,7 +412,7 @@ function App() {
               onClick={() => setCurrentPage("terrorzone")}
               disabled={!selectedProfile}
             >
-              ⚡ Terror Zone
+              ∇ Terror Zone
             </button>
           </li>
 

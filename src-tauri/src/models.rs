@@ -379,13 +379,20 @@ pub struct DCloneSettings {
 }
 
 /// Raw record as returned by the diablo2.io API
+/// Raw record as returned by diablo2.io/dclone_api.php.
+/// Fields: region ("1"=Americas,"2"=Europe,"3"=Asia),
+///         ladder ("1"=Ladder,"2"=Non-Ladder),
+///         hc ("1"=Hardcore,"2"=Softcore),
+///         progress (string "1"-"6"),
+///         timestamped (unix timestamp, not needed)
 #[derive(Debug, Deserialize)]
 pub struct DCloneApiRecord {
     pub region: String,
-    pub mode: String,
+    pub ladder: Option<String>,
+    pub hc: Option<String>,
     pub progress: String,
     #[allow(dead_code)]
-    pub updated: String,
+    pub timestamped: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

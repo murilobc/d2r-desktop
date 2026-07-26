@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { getScreenshotSettings, updateScreenshotSettings, getDefaultScreenshotFolder } from "../api";
-import { open } from "@tauri-apps/plugin-dialog";
+import { getScreenshotSettings, updateScreenshotSettings } from "../api";
 import type { ScreenshotSettings } from "../types";
 
 export default function ScreenshotSettingsPanel() {
@@ -15,8 +14,6 @@ export default function ScreenshotSettingsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [thresholdInput, setThresholdInput] = useState("80");
   const [thresholdError, setThresholdError] = useState<string | null>(null);
-  const [folderStatus, setFolderStatus] = useState<{ exists: boolean; fileCount: number } | null>(null);
-  const [folderValidationError, setFolderValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     getScreenshotSettings()
@@ -30,39 +27,16 @@ export default function ScreenshotSettingsPanel() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Resolve folder status when path changes
-  useEffect(() => {
-    const path = settings.screenshot_folder_path;
-    if (!path) {
-      setFolderStatus(null);
-      setFolderValidationError(null);
-      return;
+  const saveSettings = useCallback(async (updated: ScreenshotSettings) => {
+    setError(null);
+    try {
+      const saved = await updateScreenshotSettings(updated);
+      setSettings(saved);
+      setThresholdInput(String(saved.confidence_threshold));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save settings");
     }
-    // We rely on the backend to validate the folder when enabling monitoring.
-    // For UI display purposes, we show the path and let the backend report errors.
-    // The folderStatus will be set by auto-detect responses or backend error messages.
-  }, [settings.screenshot_folder_path]);
-
-  const saveSettings = useCallback(
-    async (updated: ScreenshotSettings) => {
-      setError(null);
-      setFolderValidationError(null);
-      try {
-        const saved = await updateScreenshotSettings(updated);
-        setSettings(saved);
-        setThresholdInput(String(saved.confidence_threshold));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Failed to save settings";
-        // If the error is about folder path, show as validation error
-        if (message.toLowerCase().includes("folder") || message.toLowerCase().includes("path") || message.toLowerCase().includes("directory")) {
-          setFolderValidationError(message);
-        } else {
-          setError(message);
-        }
-      }
-    },
-    []
-  );
+  }, []);
 
   const handleMonitoringToggle = () => {
     const updated = { ...settings, monitoring_enabled: !settings.monitoring_enabled };
@@ -92,53 +66,6 @@ export default function ScreenshotSettingsPanel() {
     saveSettings(updated);
   };
 
-  const handleFolderMonitoringToggle = () => {
-    if (!settings.folder_monitoring_enabled && !settings.screenshot_folder_path) {
-      setFolderValidationError("Screenshots folder not found — please set a valid path");
-      return;
-    }
-    const updated = { ...settings, folder_monitoring_enabled: !settings.folder_monitoring_enabled };
-    setSettings(updated);
-    saveSettings(updated);
-  };
-
-  const handleAutoDetect = async () => {
-    setFolderValidationError(null);
-    try {
-      const path = await getDefaultScreenshotFolder();
-      if (path) {
-        const updated = { ...settings, screenshot_folder_path: path };
-        setSettings(updated);
-        setFolderStatus({ exists: true, fileCount: 0 });
-        saveSettings(updated);
-      } else {
-        setFolderValidationError("D2R screenshots folder not found on this system");
-        setFolderStatus(null);
-      }
-    } catch (err) {
-      setFolderValidationError(
-        err instanceof Error ? err.message : "Failed to auto-detect folder"
-      );
-    }
-  };
-
-  const handleBrowse = async () => {
-    setFolderValidationError(null);
-    try {
-      const selected = await open({ directory: true, title: "Select D2R Screenshots Folder" });
-      if (selected) {
-        const updated = { ...settings, screenshot_folder_path: selected };
-        setSettings(updated);
-        setFolderStatus({ exists: true, fileCount: 0 });
-        saveSettings(updated);
-      }
-    } catch (err) {
-      setFolderValidationError(
-        err instanceof Error ? err.message : "Failed to open folder picker"
-      );
-    }
-  };
-
   if (loading) {
     return (
       <div className="settings-section">
@@ -148,11 +75,12 @@ export default function ScreenshotSettingsPanel() {
     );
   }
 
-  const folderPath = settings.screenshot_folder_path;
-
   return (
     <div className="settings-section">
       <h2>Screenshot Detection</h2>
+      <p className="settings-description">
+        Detects items from clipboard screenshots (PrintScreen). All processing is local — no network calls.
+      </p>
 
       <div className="hotkey-row">
         <label className="hotkey-label" htmlFor="screenshot-monitoring-toggle">
@@ -209,90 +137,6 @@ export default function ScreenshotSettingsPanel() {
           </span>
         )}
       </div>
-
-      <h3 style={{ marginTop: "1.5rem", marginBottom: "0.75rem" }}>Folder Monitoring</h3>
-
-      <div className="hotkey-row">
-        <label className="hotkey-label" htmlFor="folder-monitoring-toggle">
-          Folder Monitoring
-        </label>
-        <button
-          id="folder-monitoring-toggle"
-          className={`hotkey-btn toggle-btn ${settings.folder_monitoring_enabled ? "recording" : ""}`}
-          onClick={handleFolderMonitoringToggle}
-          aria-pressed={settings.folder_monitoring_enabled}
-          aria-describedby={folderValidationError ? "folder-validation-error" : undefined}
-        >
-          {settings.folder_monitoring_enabled ? "ON" : "OFF"}
-        </button>
-      </div>
-
-      <div className="hotkey-row">
-        <label className="hotkey-label" htmlFor="folder-path-display">
-          Screenshots Folder
-        </label>
-        <span
-          id="folder-path-display"
-          className="hotkey-btn"
-          style={{
-            flex: 1,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            fontSize: "0.85rem",
-            opacity: folderPath ? 1 : 0.6,
-          }}
-          title={folderPath || "No folder configured"}
-        >
-          {folderPath || "Not configured"}
-        </span>
-      </div>
-
-      <div className="hotkey-row" style={{ gap: "0.5rem" }}>
-        <label className="hotkey-label">Folder Actions</label>
-        <button
-          className="hotkey-btn"
-          onClick={handleAutoDetect}
-          aria-label="Auto-detect D2R screenshots folder"
-        >
-          Auto-detect
-        </button>
-        <button
-          className="hotkey-btn"
-          onClick={handleBrowse}
-          aria-label="Browse for screenshots folder"
-        >
-          Browse
-        </button>
-      </div>
-
-      {folderStatus && (
-        <div className="hotkey-row">
-          <span className="hotkey-label">Status</span>
-          <span
-            style={{
-              fontSize: "0.85rem",
-              color: folderStatus.exists ? "var(--color-success, #27ae60)" : "var(--color-error, #e74c3c)",
-            }}
-            aria-live="polite"
-          >
-            {folderStatus.exists
-              ? `Folder exists (${folderStatus.fileCount} files)`
-              : "Folder not found"}
-          </span>
-        </div>
-      )}
-
-      {folderValidationError && (
-        <div
-          id="folder-validation-error"
-          className="hotkey-row"
-          style={{ color: "var(--color-error, #e74c3c)", fontSize: "0.85rem" }}
-          role="alert"
-        >
-          {folderValidationError}
-        </div>
-      )}
 
       {error && (
         <div

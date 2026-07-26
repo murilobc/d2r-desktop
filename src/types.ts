@@ -366,9 +366,30 @@ export const COLOSSAL_BOSSES = ["Baal", "Diablo", "Mephisto", "Duriel", "Andarie
 
 export interface DCloneProgress {
   region: string;
+  mode: string;
   progress: number;
   last_updated: string;
+  is_manual_override: boolean;
 }
+
+export interface DCloneSettings {
+  auto_fetch_enabled: boolean;
+  poll_interval_minutes: number;
+  notify_threshold: number;
+  preferred_region: string;
+  preferred_mode: string;
+  last_poll_at: string | null;
+  last_notified_progress: number | null;
+}
+
+export const DCLONE_MODES = [
+  "Non-Ladder",
+  "Ladder",
+  "Hardcore Non-Ladder",
+  "Hardcore Ladder",
+] as const;
+
+export const DCLONE_POLL_INTERVALS = [5, 10, 15, 30] as const;
 
 export interface AnniLog {
   id: string;
@@ -385,6 +406,31 @@ export interface CreateAnniLogInput {
 }
 
 export const DCLONE_REGIONS = ["Americas", "Europe", "Asia"] as const;
+
+// ===== TERROR ZONE API =====
+
+export interface TerrorZoneApiResponse {
+  current_zone: string;
+  next_zone: string;
+  upcoming: string[];
+}
+
+export interface TerrorZoneInfo {
+  zone_name: string;
+  tier: "S" | "A" | "B" | "C";
+  fetched_at: string | null;
+}
+
+export interface TzSettings {
+  polling_enabled: boolean;
+  good_tz_tier: "S" | "A" | "B" | "C";
+}
+
+export interface UpcomingZoneEntry {
+  zone_name: string;
+  tier: "S" | "A" | "B" | "C";
+  utc_start_secs: number;
+}
 
 // ===== XP TRACKING =====
 

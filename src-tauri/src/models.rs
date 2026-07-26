@@ -361,8 +361,31 @@ pub struct BossStats {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DCloneProgress {
     pub region: String,
+    pub mode: String,
     pub progress: i64,
     pub last_updated: String,
+    pub is_manual_override: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DCloneSettings {
+    pub auto_fetch_enabled: bool,
+    pub poll_interval_minutes: u32,
+    pub notify_threshold: u8,
+    pub preferred_region: String,
+    pub preferred_mode: String,
+    pub last_poll_at: Option<String>,
+    pub last_notified_progress: Option<i64>,
+}
+
+/// Raw record as returned by the diablo2.io API
+#[derive(Debug, Deserialize)]
+pub struct DCloneApiRecord {
+    pub region: String,
+    pub mode: String,
+    pub progress: String,
+    #[allow(dead_code)]
+    pub updated: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -30,6 +30,7 @@ const Achievements = lazy(() => import("./pages/Achievements"));
 const RunewordPlanner = lazy(() => import("./pages/RunewordPlanner"));
 const Advisor = lazy(() => import("./pages/Advisor"));
 const Leaderboards = lazy(() => import("./pages/Leaderboards"));
+const TerrorZone = lazy(() => import("./pages/TerrorZone"));
 import { exportData, importData } from "./api";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
@@ -42,7 +43,7 @@ import { syncEngine } from "./services/cloud-sync";
 import { useTheme } from "./hooks/useTheme";
 import "./App.css";
 
-type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements" | "runes" | "advisor" | "leaderboards";
+type Page = "profiles" | "tracker" | "routes" | "history" | "stats" | "comparison" | "heralds" | "ancients" | "dclone" | "xp" | "drops" | "settings" | "coop" | "achievements" | "runes" | "advisor" | "leaderboards" | "terrorzone";
 
 function App() {
   const { t } = useTranslation();
@@ -247,6 +248,8 @@ function App() {
         return selectedProfile ? <Advisor profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "leaderboards":
         return selectedProfile ? <Leaderboards profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
+      case "terrorzone":
+        return selectedProfile ? <TerrorZone profile={selectedProfile} /> : <Profiles onSelectProfile={handleSelectProfile} />;
       case "settings":
         return <Settings />;
       default:
@@ -401,6 +404,15 @@ function App() {
               disabled={!selectedProfile}
             >
               ⊞ Leaderboards
+            </button>
+          </li>
+          <li>
+            <button
+              className={`nav-btn ${currentPage === "terrorzone" ? "active" : ""}`}
+              onClick={() => setCurrentPage("terrorzone")}
+              disabled={!selectedProfile}
+            >
+              ⚡ Terror Zone
             </button>
           </li>
 

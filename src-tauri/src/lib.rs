@@ -7,6 +7,7 @@ mod models;
 mod probability_engine;
 pub mod screenshot;
 mod sync;
+pub mod tz;
 
 use db::{init_db, DbState};
 use rusqlite::Connection;
@@ -191,6 +192,16 @@ pub fn run() {
             commands::get_personal_bests,
             commands::create_season,
             commands::get_seasons,
+            // DClone API
+            commands::get_dclone_settings,
+            commands::update_dclone_settings,
+            commands::poll_dclone_api,
+            // Terror Zone API
+            tz::commands::fetch_terror_zone,
+            tz::commands::get_sp_terror_zone,
+            tz::commands::get_tz_cache,
+            tz::commands::get_tz_settings,
+            tz::commands::update_tz_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

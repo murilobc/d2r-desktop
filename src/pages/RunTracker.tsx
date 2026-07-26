@@ -19,12 +19,31 @@ import { playSound } from "../utils/audio";
 import TradeValueBadge from "../components/TradeValueBadge";
 import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
 import { useTradeValueSettings } from "../hooks/useTradeValueSettings";
+import TzSuggestionBanner from "../components/TzSuggestionBanner";
+import { useTerrorZone } from "../hooks/useTerrorZone";
 
 interface Props {
   profile: Profile;
   isVisible?: boolean;
   onAchievementUnlocks?: (unlocks: AchievementUnlock[]) => void;
   onItemAdded?: () => void;
+}
+
+// Inline TZ suggestion banner component for RunTracker
+function TzBannerInRunTracker({
+  onApply,
+}: {
+  onApply: (zone: string) => void;
+}) {
+  const { tzInfo } = useTerrorZone();
+
+  return (
+    <TzSuggestionBanner
+      tzInfo={tzInfo}
+      isGoodTz={false}
+      onApply={onApply}
+    />
+  );
 }
 
 export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks, onItemAdded }: Props) {
@@ -563,6 +582,7 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
 
           <div className="start-session-card">
             <h2>{t('tracker.startSession')}</h2>
+            <TzBannerInRunTracker onApply={updateArea} />
             <div className="form-row">
               <div className="form-group">
                 <label>{t('tracker.area')}</label>

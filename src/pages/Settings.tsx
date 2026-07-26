@@ -11,6 +11,7 @@ import type { KeybindProfile } from "../types";
 import CloudSyncSettings from "../components/CloudSyncSettings";
 import ScreenshotSettingsPanel from "../components/ScreenshotSettings";
 import { SUPPORTED_LOCALES, LOCALE_STORAGE_KEY } from "../i18n";
+import { useTradeValueSettings } from "../hooks/useTradeValueSettings";
 
 // OBS Preferences
 interface ObsPrefs {
@@ -350,6 +351,7 @@ export default function Settings() {
       <TerrorZoneSettings />
       <CloudSyncSettings />
       <ScreenshotSettingsPanel />
+      <TradeValueSettings />
     </div>
   );
 }
@@ -833,6 +835,33 @@ function TerrorZoneSettings() {
 
       <div className="settings-note">
         <strong>{t('common.tip')}:</strong> {t('settings.terrorZones.tip')}
+      </div>
+    </div>
+  );
+}
+
+function TradeValueSettings() {
+  const { showTradeValues, toggle } = useTradeValueSettings();
+
+  return (
+    <div className="settings-section">
+      <h2>Trade Value Display</h2>
+      <p className="settings-description">
+        Show estimated trade value categories next to items in Run Tracker and History.
+        Values are sourced from diablo2.io and embedded at build time.
+      </p>
+      <div className="hotkey-row">
+        <label className="hotkey-label" htmlFor="trade-values-toggle">
+          Show Trade Values
+        </label>
+        <button
+          id="trade-values-toggle"
+          className={`hotkey-btn ${showTradeValues ? "recording" : ""}`}
+          onClick={toggle}
+          aria-pressed={showTradeValues}
+        >
+          {showTradeValues ? "ON" : "OFF"}
+        </button>
       </div>
     </div>
   );

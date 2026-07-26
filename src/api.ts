@@ -30,6 +30,7 @@ import type {
   CreateColossalAttemptInput,
   ColossalAncientStats,
   DCloneProgress,
+  DCloneSettings,
   AnniLog,
   CreateAnniLogInput,
   XpEntry,
@@ -51,6 +52,11 @@ import type {
   Template,
   CreateTemplateInput,
   UpdateTemplateInput,
+  PersonalBests,
+  Season,
+  TerrorZoneApiResponse,
+  TerrorZoneInfo,
+  TzSettings,
 } from "./types";
 import type {
   GistPullResult,
@@ -193,8 +199,27 @@ export const deleteAncientAttempt = (id: string) =>
 export const getDcloneProgress = () =>
   invoke<DCloneProgress[]>("get_dclone_progress");
 
-export const updateDcloneProgress = (region: string, progress: number) =>
-  invoke<DCloneProgress>("update_dclone_progress", { region, progress });
+export const updateDcloneProgress = (
+  region: string,
+  progress: number,
+  mode?: string,
+  isManualOverride?: boolean,
+) =>
+  invoke<DCloneProgress>("update_dclone_progress", {
+    region,
+    progress,
+    mode: mode ?? null,
+    isManualOverride: isManualOverride ?? null,
+  });
+
+export const pollDcloneApi = () =>
+  invoke<DCloneProgress[]>("poll_dclone_api");
+
+export const getDcloneSettings = () =>
+  invoke<DCloneSettings>("get_dclone_settings");
+
+export const updateDcloneSettings = (settings: DCloneSettings) =>
+  invoke<DCloneSettings>("update_dclone_settings", { settings });
 
 export const createAnniLog = (input: CreateAnniLogInput) =>
   invoke<AnniLog>("create_anni_log", { input });
@@ -461,3 +486,36 @@ export const deleteTemplate = (id: string) =>
 
 export const touchTemplate = (id: string) =>
   invoke<void>("touch_template", { id });
+
+// ─── Leaderboards ─────────────────────────────────────────────────────────────
+
+export const getPersonalBests = (profileId: string, since?: string) =>
+  invoke<PersonalBests>("get_personal_bests", {
+    profileId,
+    since: since ?? null,
+  });
+
+export const createSeason = (profileId: string, name: string) =>
+  invoke<Season>("create_season", { profileId, name });
+
+export const getSeasons = (profileId: string) =>
+  invoke<Season[]>("get_seasons", { profileId });
+
+// ─── Terror Zone API ──────────────────────────────────────────────────────────
+
+export const fetchTerrorZone = () =>
+  invoke<TerrorZoneApiResponse>("fetch_terror_zone");
+
+export const getSpTerrorZone = (timestampUnix: number) =>
+  invoke<TerrorZoneInfo>("get_sp_terror_zone", {
+    timestampUnix: Math.floor(timestampUnix),
+  });
+
+export const getTzCache = () =>
+  invoke<TerrorZoneInfo | null>("get_tz_cache");
+
+export const getTzSettings = () =>
+  invoke<TzSettings>("get_tz_settings");
+
+export const updateTzSettings = (settings: TzSettings) =>
+  invoke<TzSettings>("update_tz_settings", { settings });

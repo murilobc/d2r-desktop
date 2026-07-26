@@ -14,6 +14,9 @@ import TierBadge from "../components/TierBadge";
 import type { TierName } from "../data/item-values";
 import { getItemTierName, TIER_NAMES, TIERS } from "../data/item-values";
 import SessionTimeline from "../components/SessionTimeline";
+import TradeValueBadge from "../components/TradeValueBadge";
+import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
+import { useTradeValueSettings } from "../hooks/useTradeValueSettings";
 
 interface Props {
   profile: Profile;
@@ -130,6 +133,7 @@ const HistoryRow = memo(function HistoryRow({
 
 export default function History({ profile }: Props) {
   const { t } = useTranslation();
+  const { showTradeValues } = useTradeValueSettings();
   const [runs, setRuns] = useState<Run[]>([]);
   const [runItems, setRunItems] = useState<Record<string, Item[]>>({});
   const [showItemSearch, setShowItemSearch] = useState<string | null>(null);
@@ -504,6 +508,7 @@ export default function History({ profile }: Props) {
                           <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
                             <span className="item-name">{item.name}</span>
                             <TierBadge itemName={item.name} category={item.rarity} />
+                            {showTradeValues && <TradeValueBadge itemName={item.name} />}
                             <span className="item-type">{item.item_type}</span>
                             <span className="item-rarity">{item.rarity}</span>
                             <button className="btn-icon" onClick={() => handleDeleteItem(item.id, selectedRun.id)}>✕</button>
@@ -512,6 +517,9 @@ export default function History({ profile }: Props) {
                       </div>
                     ) : (
                       <p className="empty-state-sm">No items in this run.</p>
+                    )}
+                    {showTradeValues && (runItems[selectedRun.id]?.length ?? 0) > 0 && (
+                      <p className="trade-attribution">{SOURCE_ATTRIBUTION}</p>
                     )}
                   </div>
                 </div>

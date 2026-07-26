@@ -9,6 +9,7 @@ pub struct Profile {
     pub magic_find: Option<i32>,
     pub created_at: String,
     pub updated_at: String,
+    pub season_start_date: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -360,8 +361,31 @@ pub struct BossStats {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DCloneProgress {
     pub region: String,
+    pub mode: String,
     pub progress: i64,
     pub last_updated: String,
+    pub is_manual_override: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct DCloneSettings {
+    pub auto_fetch_enabled: bool,
+    pub poll_interval_minutes: u32,
+    pub notify_threshold: u8,
+    pub preferred_region: String,
+    pub preferred_mode: String,
+    pub last_poll_at: Option<String>,
+    pub last_notified_progress: Option<i64>,
+}
+
+/// Raw record as returned by the diablo2.io API
+#[derive(Debug, Deserialize)]
+pub struct DCloneApiRecord {
+    pub region: String,
+    pub mode: String,
+    pub progress: String,  // API returns strings; we parse to i64 then clamp
+    #[allow(dead_code)]
+    pub updated: String,   // Unix timestamp as string (kept for future use)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -558,3 +582,50 @@ pub struct RunewordTarget {
 }
 
 
+
+// ===== LEADERBOARDS =====
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PersonalBestRun {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PersonalBestItemsInRun {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+    pub item_count: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PersonalBestItemsPerHour {
+    pub area: String,
+    pub value: f64,
+    pub run_id: String,
+    pub date: String,
+    pub items_per_hour: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PersonalBests {
+    pub fastest_run: Option<PersonalBestRun>,
+    pub best_items_in_run: Option<PersonalBestItemsInRun>,
+    pub best_items_per_hour: Option<PersonalBestItemsPerHour>,
+    pub longest_run: Option<PersonalBestRun>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Season {
+    pub id: String,
+    pub profile_id: String,
+    pub name: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub bests_snapshot: PersonalBests,
+    pub created_at: String,
+}

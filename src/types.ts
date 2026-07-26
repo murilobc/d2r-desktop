@@ -6,6 +6,7 @@ export interface Profile {
   magic_find: number | null;
   created_at: string;
   updated_at: string;
+  season_start_date?: string | null;
 }
 
 export interface CreateProfileInput {
@@ -365,8 +366,10 @@ export const COLOSSAL_BOSSES = ["Baal", "Diablo", "Mephisto", "Duriel", "Andarie
 
 export interface DCloneProgress {
   region: string;
+  mode: string;
   progress: number;
   last_updated: string;
+  is_manual_override: boolean;
 }
 
 export interface AnniLog {
@@ -384,6 +387,25 @@ export interface CreateAnniLogInput {
 }
 
 export const DCLONE_REGIONS = ["Americas", "Europe", "Asia"] as const;
+
+export const DCLONE_MODES = [
+  "Non-Ladder",
+  "Ladder",
+  "Hardcore Non-Ladder",
+  "Hardcore Ladder",
+] as const;
+
+export const DCLONE_POLL_INTERVALS = [5, 10, 15, 30] as const;
+
+export interface DCloneSettings {
+  auto_fetch_enabled: boolean;
+  poll_interval_minutes: number;  // 5 | 10 | 15 | 30
+  notify_threshold: number;       // 3–6
+  preferred_region: string;
+  preferred_mode: string;
+  last_poll_at: string | null;
+  last_notified_progress: number | null;
+}
 
 // ===== XP TRACKING =====
 
@@ -606,4 +628,55 @@ export interface UpdateTemplateInput {
   session_goal_type: string;
   session_goal_value?: number;
   tags?: string[];
+}
+
+// ===== LEADERBOARDS =====
+
+export interface PersonalBest {
+  area: string;
+  value: number;
+  run_id: string;
+  date: string; // ISO-8601 date string (YYYY-MM-DD)
+}
+
+export interface PersonalBests {
+  fastest_run: PersonalBest | null;
+  best_items_in_run: (PersonalBest & { item_count: number }) | null;
+  best_items_per_hour: (PersonalBest & { items_per_hour: number }) | null;
+  longest_run: PersonalBest | null;
+}
+
+export interface Season {
+  id: string;
+  profile_id: string;
+  name: string;
+  start_date: string;  // ISO-8601
+  end_date: string;    // ISO-8601
+  bests_snapshot: PersonalBests;
+  created_at: string;
+}
+
+// ===== TERROR ZONE API =====
+
+export interface TerrorZoneApiResponse {
+  current_zone: string;
+  next_zone: string;
+  upcoming: string[];
+}
+
+export interface TerrorZoneInfo {
+  zone_name: string;
+  tier: "S" | "A" | "B" | "C";
+  fetched_at: string | null;
+}
+
+export interface TzSettings {
+  polling_enabled: boolean;
+  good_tz_tier: "S" | "A" | "B" | "C";
+}
+
+export interface UpcomingZoneEntry {
+  zone_name: string;
+  tier: "S" | "A" | "B" | "C";
+  utc_start_secs: number;
 }

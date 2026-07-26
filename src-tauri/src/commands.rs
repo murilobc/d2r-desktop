@@ -38,6 +38,7 @@ pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Resul
         magic_find: input.magic_find,
         created_at: now.clone(),
         updated_at: now,
+        season_start_date: None,
     })
 }
 
@@ -45,7 +46,7 @@ pub fn create_profile(state: State<DbState>, input: CreateProfileInput) -> Resul
 pub fn get_profiles(state: State<DbState>) -> Result<Vec<Profile>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at FROM profiles ORDER BY created_at DESC")
+        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at, season_start_date FROM profiles ORDER BY created_at DESC")
         .map_err(|e| e.to_string())?;
 
     let profiles = stmt
@@ -58,6 +59,7 @@ pub fn get_profiles(state: State<DbState>) -> Result<Vec<Profile>, String> {
                 magic_find: row.get(4)?,
                 created_at: row.get(5)?,
                 updated_at: row.get(6)?,
+                season_start_date: row.get(7)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -74,7 +76,7 @@ pub fn update_profile(state: State<DbState>, id: String, input: UpdateProfileInp
 
     // Get current profile
     let mut stmt = conn
-        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at FROM profiles WHERE id = ?1")
+        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at, season_start_date FROM profiles WHERE id = ?1")
         .map_err(|e| e.to_string())?;
 
     let mut profile: Profile = stmt
@@ -87,6 +89,7 @@ pub fn update_profile(state: State<DbState>, id: String, input: UpdateProfileInp
                 magic_find: row.get(4)?,
                 created_at: row.get(5)?,
                 updated_at: row.get(6)?,
+                season_start_date: row.get(7)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -765,7 +768,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
 
     // Profiles
     let mut stmt = conn
-        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at FROM profiles ORDER BY created_at ASC")
+        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at, season_start_date FROM profiles ORDER BY created_at ASC")
         .map_err(|e| e.to_string())?;
     let profiles = stmt
         .query_map([], |row| {
@@ -777,6 +780,7 @@ pub fn export_data(state: State<DbState>) -> Result<ExportData, String> {
                 magic_find: row.get(4)?,
                 created_at: row.get(5)?,
                 updated_at: row.get(6)?,
+                season_start_date: row.get(7)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -1863,15 +1867,17 @@ pub fn delete_ancient_attempt(state: State<DbState>, id: String) -> Result<(), S
 pub fn get_dclone_progress(state: State<DbState>) -> Result<Vec<DCloneProgress>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT region, progress, last_updated FROM dclone_progress ORDER BY region")
+        .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
         .map_err(|e| e.to_string())?;
 
     let progress = stmt
         .query_map([], |row| {
             Ok(DCloneProgress {
                 region: row.get(0)?,
-                progress: row.get(1)?,
-                last_updated: row.get(2)?,
+                mode: row.get(1)?,
+                progress: row.get(2)?,
+                last_updated: row.get(3)?,
+                is_manual_override: row.get::<_, i64>(4)? != 0,
             })
         })
         .map_err(|e| e.to_string())?
@@ -1882,8 +1888,13 @@ pub fn get_dclone_progress(state: State<DbState>) -> Result<Vec<DCloneProgress>,
 }
 
 #[tauri::command]
-pub fn update_dclone_progress(state: State<DbState>, region: String, progress: i64) -> Result<DCloneProgress, String> {
-    // Input validation
+pub fn update_dclone_progress(
+    state: State<DbState>,
+    region: String,
+    progress: i64,
+    mode: Option<String>,
+    is_manual_override: Option<bool>,
+) -> Result<DCloneProgress, String> {
     let valid_regions = ["Americas", "Europe", "Asia"];
     if !valid_regions.contains(&region.as_str()) {
         return Err(format!("Invalid region. Must be one of: {}", valid_regions.join(", ")));
@@ -1892,19 +1903,256 @@ pub fn update_dclone_progress(state: State<DbState>, region: String, progress: i
         return Err("Progress must be between 1 and 6".to_string());
     }
 
+    let mode_val = mode.unwrap_or_else(|| "Non-Ladder".to_string());
+    let override_val = is_manual_override.unwrap_or(true);
+
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
 
     conn.execute(
-        "INSERT INTO dclone_progress (region, progress, last_updated) VALUES (?1, ?2, ?3) ON CONFLICT(region) DO UPDATE SET progress = ?2, last_updated = ?3",
-        rusqlite::params![region, progress, now],
+        "INSERT INTO dclone_progress (region, mode, progress, last_updated, is_manual_override)
+         VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(region, mode) DO UPDATE SET progress = ?3, last_updated = ?4, is_manual_override = ?5",
+        rusqlite::params![region, mode_val, progress, now, override_val as i64],
     ).map_err(|e| e.to_string())?;
 
     Ok(DCloneProgress {
         region,
+        mode: mode_val,
         progress,
         last_updated: now,
+        is_manual_override: override_val,
     })
+}
+
+#[tauri::command]
+pub fn get_dclone_settings(state: State<DbState>) -> Result<DCloneSettings, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let result = conn
+        .query_row(
+            "SELECT auto_fetch_enabled, poll_interval_minutes, notify_threshold,
+                    preferred_region, preferred_mode, last_poll_at, last_notified_progress
+             FROM dclone_settings WHERE id = 1",
+            [],
+            |row| {
+                Ok(DCloneSettings {
+                    auto_fetch_enabled: row.get::<_, i64>(0)? != 0,
+                    poll_interval_minutes: row.get::<_, u32>(1)?,
+                    notify_threshold: row.get::<_, u8>(2)?,
+                    preferred_region: row.get(3)?,
+                    preferred_mode: row.get(4)?,
+                    last_poll_at: row.get(5)?,
+                    last_notified_progress: row.get(6)?,
+                })
+            },
+        )
+        .unwrap_or(DCloneSettings {
+            auto_fetch_enabled: true,
+            poll_interval_minutes: 5,
+            notify_threshold: 5,
+            preferred_region: "Americas".to_string(),
+            preferred_mode: "Non-Ladder".to_string(),
+            last_poll_at: None,
+            last_notified_progress: None,
+        });
+
+    Ok(result)
+}
+
+#[tauri::command]
+pub fn update_dclone_settings(
+    state: State<DbState>,
+    settings: DCloneSettings,
+) -> Result<DCloneSettings, String> {
+    // Validate ranges
+    if settings.poll_interval_minutes < 5 || settings.poll_interval_minutes > 30 {
+        return Err("poll_interval_minutes must be between 5 and 30".to_string());
+    }
+    if settings.notify_threshold < 3 || settings.notify_threshold > 6 {
+        return Err("notify_threshold must be between 3 and 6".to_string());
+    }
+    let valid_regions = ["Americas", "Europe", "Asia"];
+    if !valid_regions.contains(&settings.preferred_region.as_str()) {
+        return Err("Invalid region".to_string());
+    }
+    let valid_modes = ["Non-Ladder", "Ladder", "Hardcore Non-Ladder", "Hardcore Ladder"];
+    if !valid_modes.contains(&settings.preferred_mode.as_str()) {
+        return Err("Invalid mode".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO dclone_settings
+            (id, auto_fetch_enabled, poll_interval_minutes, notify_threshold,
+             preferred_region, preferred_mode, last_poll_at, last_notified_progress)
+         VALUES (1, ?1, ?2, ?3, ?4, ?5, ?6, ?7)
+         ON CONFLICT(id) DO UPDATE SET
+            auto_fetch_enabled = ?1,
+            poll_interval_minutes = ?2,
+            notify_threshold = ?3,
+            preferred_region = ?4,
+            preferred_mode = ?5,
+            last_poll_at = ?6,
+            last_notified_progress = ?7",
+        rusqlite::params![
+            settings.auto_fetch_enabled as i64,
+            settings.poll_interval_minutes,
+            settings.notify_threshold,
+            settings.preferred_region,
+            settings.preferred_mode,
+            settings.last_poll_at,
+            settings.last_notified_progress,
+        ],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(settings)
+}
+
+#[tauri::command]
+pub async fn poll_dclone_api(state: State<'_, DbState>) -> Result<Vec<DCloneProgress>, String> {
+    // Check rate limit
+    {
+        let conn = state.0.lock().map_err(|e| e.to_string())?;
+        let last_poll: Option<String> = conn
+            .query_row(
+                "SELECT last_poll_at FROM dclone_settings WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap_or(None);
+
+        if let Some(last) = last_poll {
+            if let Ok(last_dt) = chrono::DateTime::parse_from_rfc3339(&last) {
+                let elapsed = Utc::now().signed_duration_since(last_dt.with_timezone(&Utc));
+                if elapsed.num_seconds() < 300 {
+                    // Return cached records without making API call
+                    let mut stmt = conn
+                        .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
+                        .map_err(|e| e.to_string())?;
+                    let records = stmt
+                        .query_map([], |row| {
+                            Ok(DCloneProgress {
+                                region: row.get(0)?,
+                                mode: row.get(1)?,
+                                progress: row.get(2)?,
+                                last_updated: row.get(3)?,
+                                is_manual_override: row.get::<_, i64>(4)? != 0,
+                            })
+                        })
+                        .map_err(|e| e.to_string())?
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(|e| e.to_string())?;
+                    return Ok(records);
+                }
+            }
+        }
+    }
+
+    // Fetch from API
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+
+    let response = client
+        .get("https://diablo2.io/api/dclone")
+        .send()
+        .await
+        .map_err(|e| format!("Network error: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!("API returned HTTP {}", response.status()));
+    }
+
+    let raw_text = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    let records: Vec<DCloneApiRecord> = serde_json::from_str(&raw_text)
+        .map_err(|e| format!("Failed to parse API response: {}; raw body: {}", e, raw_text))?;
+
+    let now = Utc::now().to_rfc3339();
+
+    // Process records and upsert into DB
+    {
+        let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+        for record in &records {
+            let region = match record.region.as_str() {
+                "1" => "Americas",
+                "2" => "Europe",
+                "3" => "Asia",
+                code => {
+                    eprintln!("[dclone] Unknown region code: {}", code);
+                    continue;
+                }
+            };
+            let mode = match record.mode.as_str() {
+                "1" => "Non-Ladder",
+                "2" => "Ladder",
+                "3" => "Hardcore Non-Ladder",
+                "4" => "Hardcore Ladder",
+                code => {
+                    eprintln!("[dclone] Unknown mode code: {}", code);
+                    continue;
+                }
+            };
+
+            // Check manual override
+            let is_override: bool = conn
+                .query_row(
+                    "SELECT is_manual_override FROM dclone_progress WHERE region = ?1 AND mode = ?2",
+                    rusqlite::params![region, mode],
+                    |row| row.get::<_, i64>(0),
+                )
+                .map(|v| v != 0)
+                .unwrap_or(false);
+
+            if is_override {
+                continue; // respect manual override
+            }
+
+            let raw_progress: i64 = record.progress.parse().unwrap_or(1);
+            let progress = raw_progress.clamp(1, 6);
+
+            if let Err(e) = conn.execute(
+                "INSERT INTO dclone_progress (region, mode, progress, last_updated, is_manual_override)
+                 VALUES (?1, ?2, ?3, ?4, 0)
+                 ON CONFLICT(region, mode) DO UPDATE SET progress = ?3, last_updated = ?4, is_manual_override = 0",
+                rusqlite::params![region, mode, progress, now],
+            ) {
+                eprintln!("[dclone] DB upsert failed for {}/{}: {}", region, mode, e);
+            }
+        }
+
+        // Update last_poll_at
+        let _ = conn.execute(
+            "UPDATE dclone_settings SET last_poll_at = ?1 WHERE id = 1",
+            rusqlite::params![now],
+        );
+
+        // Return all current records
+        let mut stmt = conn
+            .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
+            .map_err(|e| e.to_string())?;
+        let result = stmt
+            .query_map([], |row| {
+                Ok(DCloneProgress {
+                    region: row.get(0)?,
+                    mode: row.get(1)?,
+                    progress: row.get(2)?,
+                    last_updated: row.get(3)?,
+                    is_manual_override: row.get::<_, i64>(4)? != 0,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?;
+        Ok(result)
+    }
 }
 
 #[tauri::command]
@@ -2214,7 +2462,7 @@ pub fn run_auto_backup(state: State<DbState>, folder_path: String) -> Result<Str
 
     // Profiles
     let mut stmt = conn
-        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at FROM profiles ORDER BY created_at ASC")
+        .prepare("SELECT id, name, class, mode, magic_find, created_at, updated_at, season_start_date FROM profiles ORDER BY created_at ASC")
         .map_err(|e| e.to_string())?;
     let profiles = stmt
         .query_map([], |row| {
@@ -2226,6 +2474,7 @@ pub fn run_auto_backup(state: State<DbState>, folder_path: String) -> Result<Str
                 magic_find: row.get(4)?,
                 created_at: row.get(5)?,
                 updated_at: row.get(6)?,
+                season_start_date: row.get(7)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -2615,6 +2864,362 @@ pub fn delete_template(state: State<DbState>, id: String) -> Result<(), String> 
 pub fn touch_template(state: State<DbState>, id: String) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     db_touch_template(&conn, &id)
+}
+
+// ===== LEADERBOARDS =====
+
+#[tauri::command]
+pub fn get_personal_bests(
+    state: State<DbState>,
+    profile_id: String,
+    since: Option<String>,
+) -> Result<PersonalBests, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // Fastest run (lowest duration_secs > 0)
+    let fastest = {
+        let mut stmt = conn
+            .prepare(
+                "SELECT r.id, r.area, r.duration_secs, r.started_at
+                 FROM runs r
+                 WHERE r.profile_id = ?1
+                   AND r.status = 'completed'
+                   AND r.finished_at IS NOT NULL
+                   AND r.duration_secs > 0
+                   AND (?2 IS NULL OR r.finished_at >= ?2)
+                 ORDER BY r.duration_secs ASC, r.started_at DESC
+                 LIMIT 1",
+            )
+            .map_err(|e| e.to_string())?;
+        stmt.query_row(rusqlite::params![profile_id, since], |row| {
+            Ok(PersonalBestRun {
+                run_id: row.get(0)?,
+                area: row.get(1)?,
+                value: row.get::<_, f64>(2)?,
+                date: row.get::<_, String>(3)?.chars().take(10).collect(),
+            })
+        })
+        .ok()
+    };
+
+    // Best items in run
+    let best_items = {
+        let mut stmt = conn
+            .prepare(
+                "SELECT r.id, r.area, r.started_at, COUNT(i.id) as item_count
+                 FROM runs r
+                 LEFT JOIN items i ON i.run_id = r.id
+                 WHERE r.profile_id = ?1
+                   AND r.status = 'completed'
+                   AND r.finished_at IS NOT NULL
+                   AND (?2 IS NULL OR r.finished_at >= ?2)
+                 GROUP BY r.id
+                 ORDER BY item_count DESC, r.started_at DESC
+                 LIMIT 1",
+            )
+            .map_err(|e| e.to_string())?;
+        stmt.query_row(rusqlite::params![profile_id, since], |row| {
+            let item_count: i64 = row.get(3)?;
+            Ok(PersonalBestItemsInRun {
+                run_id: row.get(0)?,
+                area: row.get(1)?,
+                date: row.get::<_, String>(2)?.chars().take(10).collect(),
+                value: item_count as f64,
+                item_count,
+            })
+        })
+        .ok()
+    };
+
+    // Best items per hour
+    let best_iph = {
+        let mut stmt = conn
+            .prepare(
+                "SELECT r.id, r.area, r.started_at, r.duration_secs,
+                        (CAST(COUNT(i.id) AS REAL) / r.duration_secs) * 3600 AS items_per_hour,
+                        COUNT(i.id) as item_count
+                 FROM runs r
+                 LEFT JOIN items i ON i.run_id = r.id
+                 WHERE r.profile_id = ?1
+                   AND r.status = 'completed'
+                   AND r.finished_at IS NOT NULL
+                   AND r.duration_secs > 0
+                   AND (?2 IS NULL OR r.finished_at >= ?2)
+                 GROUP BY r.id
+                 ORDER BY items_per_hour DESC, r.started_at DESC
+                 LIMIT 1",
+            )
+            .map_err(|e| e.to_string())?;
+        stmt.query_row(rusqlite::params![profile_id, since], |row| {
+            let items_per_hour: f64 = row.get(4)?;
+            Ok(PersonalBestItemsPerHour {
+                run_id: row.get(0)?,
+                area: row.get(1)?,
+                date: row.get::<_, String>(2)?.chars().take(10).collect(),
+                value: items_per_hour,
+                items_per_hour,
+            })
+        })
+        .ok()
+    };
+
+    // Longest run
+    let longest = {
+        let mut stmt = conn
+            .prepare(
+                "SELECT r.id, r.area, r.duration_secs, r.started_at
+                 FROM runs r
+                 WHERE r.profile_id = ?1
+                   AND r.status = 'completed'
+                   AND r.finished_at IS NOT NULL
+                   AND (?2 IS NULL OR r.finished_at >= ?2)
+                 ORDER BY r.duration_secs DESC, r.started_at DESC
+                 LIMIT 1",
+            )
+            .map_err(|e| e.to_string())?;
+        stmt.query_row(rusqlite::params![profile_id, since], |row| {
+            Ok(PersonalBestRun {
+                run_id: row.get(0)?,
+                area: row.get(1)?,
+                value: row.get::<_, f64>(2)?,
+                date: row.get::<_, String>(3)?.chars().take(10).collect(),
+            })
+        })
+        .ok()
+    };
+
+    Ok(PersonalBests {
+        fastest_run: fastest,
+        best_items_in_run: best_items,
+        best_items_per_hour: best_iph,
+        longest_run: longest,
+    })
+}
+
+#[tauri::command]
+pub fn create_season(
+    state: State<DbState>,
+    profile_id: String,
+    name: String,
+) -> Result<Season, String> {
+    // Validate name
+    let name = name.trim().to_string();
+    if name.is_empty() || name.len() > 80 {
+        return Err("Season name must be between 1 and 80 characters".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    // All operations inside one transaction
+    conn.execute_batch("BEGIN IMMEDIATE").map_err(|e| e.to_string())?;
+
+    let result = (|| -> Result<Season, String> {
+        // Check 50-season limit
+        let count: i64 = conn
+            .query_row(
+                "SELECT COUNT(*) FROM seasons WHERE profile_id = ?1",
+                rusqlite::params![profile_id],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+        if count >= 50 {
+            return Err("Season limit reached (max 50)".to_string());
+        }
+
+        // Check uniqueness
+        let exists: bool = conn
+            .query_row(
+                "SELECT COUNT(*) > 0 FROM seasons WHERE profile_id = ?1 AND name = ?2",
+                rusqlite::params![profile_id, name],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+        if exists {
+            return Err(format!("A season named '{}' already exists", name));
+        }
+
+        // Get current season_start_date for this profile
+        let since: Option<String> = conn
+            .query_row(
+                "SELECT season_start_date FROM profiles WHERE id = ?1",
+                rusqlite::params![profile_id],
+                |row| row.get(0),
+            )
+            .map_err(|e| e.to_string())?;
+
+        // Snapshot personal bests
+        let bests = {
+            // Fastest run
+            let fastest = {
+                let mut stmt = conn
+                    .prepare(
+                        "SELECT r.id, r.area, r.duration_secs, r.started_at FROM runs r
+                         WHERE r.profile_id = ?1 AND r.status = 'completed'
+                           AND r.finished_at IS NOT NULL AND r.duration_secs > 0
+                           AND (?2 IS NULL OR r.finished_at >= ?2)
+                         ORDER BY r.duration_secs ASC, r.started_at DESC LIMIT 1",
+                    )
+                    .map_err(|e| e.to_string())?;
+                stmt.query_row(rusqlite::params![profile_id, since], |row| {
+                    Ok(PersonalBestRun {
+                        run_id: row.get(0)?, area: row.get(1)?,
+                        value: row.get::<_, f64>(2)?,
+                        date: row.get::<_, String>(3)?.chars().take(10).collect(),
+                    })
+                }).ok()
+            };
+            // Best items
+            let best_items = {
+                let mut stmt = conn
+                    .prepare(
+                        "SELECT r.id, r.area, r.started_at, COUNT(i.id) as ic FROM runs r
+                         LEFT JOIN items i ON i.run_id = r.id
+                         WHERE r.profile_id = ?1 AND r.status = 'completed'
+                           AND r.finished_at IS NOT NULL
+                           AND (?2 IS NULL OR r.finished_at >= ?2)
+                         GROUP BY r.id ORDER BY ic DESC, r.started_at DESC LIMIT 1",
+                    )
+                    .map_err(|e| e.to_string())?;
+                stmt.query_row(rusqlite::params![profile_id, since], |row| {
+                    let ic: i64 = row.get(3)?;
+                    Ok(PersonalBestItemsInRun {
+                        run_id: row.get(0)?, area: row.get(1)?,
+                        date: row.get::<_, String>(2)?.chars().take(10).collect(),
+                        value: ic as f64, item_count: ic,
+                    })
+                }).ok()
+            };
+            // Best iph
+            let best_iph = {
+                let mut stmt = conn
+                    .prepare(
+                        "SELECT r.id, r.area, r.started_at,
+                                (CAST(COUNT(i.id) AS REAL) / r.duration_secs) * 3600 AS iph,
+                                COUNT(i.id) as ic
+                         FROM runs r LEFT JOIN items i ON i.run_id = r.id
+                         WHERE r.profile_id = ?1 AND r.status = 'completed'
+                           AND r.finished_at IS NOT NULL AND r.duration_secs > 0
+                           AND (?2 IS NULL OR r.finished_at >= ?2)
+                         GROUP BY r.id ORDER BY iph DESC, r.started_at DESC LIMIT 1",
+                    )
+                    .map_err(|e| e.to_string())?;
+                stmt.query_row(rusqlite::params![profile_id, since], |row| {
+                    let iph: f64 = row.get(3)?;
+                    Ok(PersonalBestItemsPerHour {
+                        run_id: row.get(0)?, area: row.get(1)?,
+                        date: row.get::<_, String>(2)?.chars().take(10).collect(),
+                        value: iph, items_per_hour: iph,
+                    })
+                }).ok()
+            };
+            // Longest
+            let longest = {
+                let mut stmt = conn
+                    .prepare(
+                        "SELECT r.id, r.area, r.duration_secs, r.started_at FROM runs r
+                         WHERE r.profile_id = ?1 AND r.status = 'completed'
+                           AND r.finished_at IS NOT NULL
+                           AND (?2 IS NULL OR r.finished_at >= ?2)
+                         ORDER BY r.duration_secs DESC, r.started_at DESC LIMIT 1",
+                    )
+                    .map_err(|e| e.to_string())?;
+                stmt.query_row(rusqlite::params![profile_id, since], |row| {
+                    Ok(PersonalBestRun {
+                        run_id: row.get(0)?, area: row.get(1)?,
+                        value: row.get::<_, f64>(2)?,
+                        date: row.get::<_, String>(3)?.chars().take(10).collect(),
+                    })
+                }).ok()
+            };
+            PersonalBests { fastest_run: fastest, best_items_in_run: best_items, best_items_per_hour: best_iph, longest_run: longest }
+        };
+
+        let now = Utc::now().to_rfc3339();
+        let id = Uuid::new_v4().to_string();
+        let start_date = since.clone().unwrap_or_else(|| "2000-01-01T00:00:00Z".to_string());
+        let end_date = now.clone();
+        let snapshot_json = serde_json::to_string(&bests).map_err(|e| e.to_string())?;
+
+        conn.execute(
+            "INSERT INTO seasons (id, profile_id, name, start_date, end_date, bests_snapshot_json, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            rusqlite::params![id, profile_id, name, start_date, end_date, snapshot_json, now],
+        ).map_err(|e| e.to_string())?;
+
+        // Update profile season_start_date
+        conn.execute(
+            "UPDATE profiles SET season_start_date = ?1 WHERE id = ?2",
+            rusqlite::params![now, profile_id],
+        ).map_err(|e| e.to_string())?;
+
+        Ok(Season {
+            id,
+            profile_id: profile_id.clone(),
+            name: name.clone(),
+            start_date,
+            end_date,
+            bests_snapshot: bests,
+            created_at: now,
+        })
+    })();
+
+    match result {
+        Ok(season) => {
+            conn.execute_batch("COMMIT").map_err(|e| e.to_string())?;
+            Ok(season)
+        }
+        Err(e) => {
+            let _ = conn.execute_batch("ROLLBACK");
+            Err(e)
+        }
+    }
+}
+
+#[tauri::command]
+pub fn get_seasons(
+    state: State<DbState>,
+    profile_id: String,
+) -> Result<Vec<Season>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, profile_id, name, start_date, end_date, bests_snapshot_json, created_at
+             FROM seasons WHERE profile_id = ?1 ORDER BY end_date DESC",
+        )
+        .map_err(|e| e.to_string())?;
+
+    let seasons = stmt
+        .query_map(rusqlite::params![profile_id], |row| {
+            let snapshot_json: String = row.get(5)?;
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+                snapshot_json,
+                row.get::<_, String>(6)?,
+            ))
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+
+    seasons
+        .into_iter()
+        .map(|(id, profile_id, name, start_date, end_date, snapshot_json, created_at)| {
+            let bests_snapshot: PersonalBests =
+                serde_json::from_str(&snapshot_json).map_err(|e| e.to_string())?;
+            Ok(Season {
+                id,
+                profile_id,
+                name,
+                start_date,
+                end_date,
+                bests_snapshot,
+                created_at,
+            })
+        })
+        .collect()
 }
 
 #[cfg(test)]

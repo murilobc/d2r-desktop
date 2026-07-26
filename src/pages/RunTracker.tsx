@@ -16,6 +16,11 @@ import TemplateList from "../components/TemplateList";
 import TemplateForm from "../components/TemplateForm";
 import { isAreaInTerrorZone, loadCurrentTZ } from "../data/terror-zones";
 import { playSound } from "../utils/audio";
+import TradeValueBadge from "../components/TradeValueBadge";
+import { SOURCE_ATTRIBUTION } from "../data/tradeValues";
+import { useTradeValueSettings } from "../hooks/useTradeValueSettings";
+import TzSuggestionBanner from "../components/TzSuggestionBanner";
+import { useTerrorZone } from "../hooks/useTerrorZone";
 
 interface Props {
   profile: Profile;
@@ -24,8 +29,26 @@ interface Props {
   onItemAdded?: () => void;
 }
 
+// Inline TZ suggestion banner component for RunTracker
+function TzBannerInRunTracker({
+  onApply,
+}: {
+  onApply: (zone: string) => void;
+}) {
+  const { tzInfo } = useTerrorZone();
+
+  return (
+    <TzSuggestionBanner
+      tzInfo={tzInfo}
+      isGoodTz={false}
+      onApply={onApply}
+    />
+  );
+}
+
 export default function RunTracker({ profile, isVisible = true, onAchievementUnlocks, onItemAdded }: Props) {
   const { t } = useTranslation();
+  const { showTradeValues } = useTradeValueSettings();
 
   // Session state
   const [sessionActive, setSessionActive] = useState(false);
@@ -559,6 +582,7 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
 
           <div className="start-session-card">
             <h2>{t('tracker.startSession')}</h2>
+            <TzBannerInRunTracker onApply={updateArea} />
             <div className="form-row">
               <div className="form-group">
                 <label>{t('tracker.area')}</label>
@@ -792,12 +816,16 @@ export default function RunTracker({ profile, isVisible = true, onAchievementUnl
                 <div key={item.id} className={`item-row rarity-${item.rarity.toLowerCase()}`}>
                   <span className="item-name">{item.name}</span>
                   <TierBadge itemName={item.name} category={item.rarity} />
+                  {showTradeValues && <TradeValueBadge itemName={item.name} />}
                   <span className="item-type">{item.item_type}</span>
                   <span className="item-rarity">{item.rarity}</span>
                   <button className="btn-icon" onClick={() => removeItem(item.id)}>✕</button>
                 </div>
               ))}
             </div>
+            {showTradeValues && items.length > 0 && (
+              <p className="trade-attribution">{SOURCE_ATTRIBUTION}</p>
+            )}
           </div>
         </div>
       )}

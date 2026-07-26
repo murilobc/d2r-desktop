@@ -142,6 +142,15 @@ pub fn init_db(conn: &Connection) -> Result<()> {
     // Migration: add season_start_date column to profiles
     migrate_season_start_date(conn)?;
 
+    // Migration: update dclone_progress for multi-mode support
+    migrate_dclone_progress_v2(conn)?;
+
+    // Migration: add dclone_settings table
+    migrate_dclone_settings(conn)?;
+
+    // Migration: add terror_zone_cache and tz_settings tables
+    migrate_terror_zone(conn)?;
+
     Ok(())
 }
 
@@ -720,6 +729,91 @@ pub fn db_touch_template(conn: &Connection, id: &str) -> std::result::Result<(),
         rusqlite::params![now, id],
     )
     .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+// ===== DCLONE API MIGRATIONS =====
+
+fn migrate_dclone_progress_v2(conn: &Connection) -> Result<()> {
+    let has_mode: bool = conn
+        .prepare("SELECT COUNT(*) FROM pragma_table_info('dclone_progress') WHERE name = 'mode'")?
+        .query_row([], |row| row.get::<_, i64>(0))
+        .map(|count| count > 0)?;
+
+    if has_mode {
+        return Ok(());
+    }
+
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS dclone_progress_new (
+            region              TEXT NOT NULL,
+            mode                TEXT NOT NULL DEFAULT 'Non-Ladder',
+            progress            INTEGER NOT NULL DEFAULT 1,
+            last_updated        TEXT NOT NULL,
+            is_manual_override  INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (region, mode)
+        );
+
+        INSERT OR IGNORE INTO dclone_progress_new (region, mode, progress, last_updated, is_manual_override)
+        SELECT region, 'Non-Ladder', progress, last_updated, 0
+        FROM dclone_progress;
+
+        DROP TABLE dclone_progress;
+        ALTER TABLE dclone_progress_new RENAME TO dclone_progress;
+        ",
+    )?;
+
+    Ok(())
+}
+
+fn migrate_dclone_settings(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS dclone_settings (
+            id                      INTEGER PRIMARY KEY CHECK(id = 1),
+            auto_fetch_enabled      INTEGER NOT NULL DEFAULT 1,
+            poll_interval_minutes   INTEGER NOT NULL DEFAULT 5,
+            notify_threshold        INTEGER NOT NULL DEFAULT 5,
+            preferred_region        TEXT NOT NULL DEFAULT 'Americas',
+            preferred_mode          TEXT NOT NULL DEFAULT 'Non-Ladder',
+            last_poll_at            TEXT,
+            last_notified_progress  INTEGER DEFAULT NULL
+        );
+
+        INSERT OR IGNORE INTO dclone_settings
+            (id, auto_fetch_enabled, poll_interval_minutes, notify_threshold, preferred_region, preferred_mode)
+        VALUES (1, 1, 5, 5, 'Americas', 'Non-Ladder');
+        ",
+    )?;
+
+    Ok(())
+}
+
+// ===== TERROR ZONE MIGRATIONS =====
+
+fn migrate_terror_zone(conn: &Connection) -> Result<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS terror_zone_cache (
+            id           INTEGER PRIMARY KEY CHECK(id = 1),
+            current_zone TEXT NOT NULL,
+            next_zone    TEXT NOT NULL,
+            upcoming     TEXT NOT NULL,
+            fetched_at   TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS tz_settings (
+            id              INTEGER PRIMARY KEY CHECK(id = 1),
+            polling_enabled INTEGER NOT NULL DEFAULT 1,
+            good_tz_tier    TEXT    NOT NULL DEFAULT 'A'
+        );
+
+        INSERT OR IGNORE INTO tz_settings (id, polling_enabled, good_tz_tier)
+        VALUES (1, 1, 'A');
+        ",
+    )?;
 
     Ok(())
 }

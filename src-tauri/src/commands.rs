@@ -1868,15 +1868,17 @@ pub fn delete_ancient_attempt(state: State<DbState>, id: String) -> Result<(), S
 pub fn get_dclone_progress(state: State<DbState>) -> Result<Vec<DCloneProgress>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT region, progress, last_updated FROM dclone_progress ORDER BY region")
+        .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
         .map_err(|e| e.to_string())?;
 
     let progress = stmt
         .query_map([], |row| {
             Ok(DCloneProgress {
                 region: row.get(0)?,
-                progress: row.get(1)?,
-                last_updated: row.get(2)?,
+                mode: row.get(1)?,
+                progress: row.get(2)?,
+                last_updated: row.get(3)?,
+                is_manual_override: row.get::<_, i64>(4)? != 0,
             })
         })
         .map_err(|e| e.to_string())?
@@ -1887,8 +1889,13 @@ pub fn get_dclone_progress(state: State<DbState>) -> Result<Vec<DCloneProgress>,
 }
 
 #[tauri::command]
-pub fn update_dclone_progress(state: State<DbState>, region: String, progress: i64) -> Result<DCloneProgress, String> {
-    // Input validation
+pub fn update_dclone_progress(
+    state: State<DbState>,
+    region: String,
+    progress: i64,
+    mode: Option<String>,
+    is_manual_override: Option<bool>,
+) -> Result<DCloneProgress, String> {
     let valid_regions = ["Americas", "Europe", "Asia"];
     if !valid_regions.contains(&region.as_str()) {
         return Err(format!("Invalid region. Must be one of: {}", valid_regions.join(", ")));
@@ -1897,19 +1904,241 @@ pub fn update_dclone_progress(state: State<DbState>, region: String, progress: i
         return Err("Progress must be between 1 and 6".to_string());
     }
 
+    let mode_val = mode.unwrap_or_else(|| "Non-Ladder".to_string());
+    let override_val = is_manual_override.unwrap_or(true);
+
     let conn = state.0.lock().map_err(|e| e.to_string())?;
     let now = Utc::now().to_rfc3339();
 
     conn.execute(
-        "INSERT INTO dclone_progress (region, progress, last_updated) VALUES (?1, ?2, ?3) ON CONFLICT(region) DO UPDATE SET progress = ?2, last_updated = ?3",
-        rusqlite::params![region, progress, now],
+        "INSERT INTO dclone_progress (region, mode, progress, last_updated, is_manual_override)
+         VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(region, mode) DO UPDATE SET progress = ?3, last_updated = ?4, is_manual_override = ?5",
+        rusqlite::params![region, mode_val, progress, now, override_val as i64],
     ).map_err(|e| e.to_string())?;
 
     Ok(DCloneProgress {
         region,
+        mode: mode_val,
         progress,
         last_updated: now,
+        is_manual_override: override_val,
     })
+}
+
+#[tauri::command]
+pub fn get_dclone_settings(state: State<DbState>) -> Result<DCloneSettings, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    let result = conn
+        .query_row(
+            "SELECT auto_fetch_enabled, poll_interval_minutes, notify_threshold,
+                    preferred_region, preferred_mode, last_poll_at, last_notified_progress
+             FROM dclone_settings WHERE id = 1",
+            [],
+            |row| {
+                Ok(DCloneSettings {
+                    auto_fetch_enabled: row.get::<_, i64>(0)? != 0,
+                    poll_interval_minutes: row.get::<_, u32>(1)?,
+                    notify_threshold: row.get::<_, u8>(2)?,
+                    preferred_region: row.get(3)?,
+                    preferred_mode: row.get(4)?,
+                    last_poll_at: row.get(5)?,
+                    last_notified_progress: row.get(6)?,
+                })
+            },
+        )
+        .unwrap_or(DCloneSettings {
+            auto_fetch_enabled: true,
+            poll_interval_minutes: 5,
+            notify_threshold: 5,
+            preferred_region: "Americas".to_string(),
+            preferred_mode: "Non-Ladder".to_string(),
+            last_poll_at: None,
+            last_notified_progress: None,
+        });
+
+    Ok(result)
+}
+
+#[tauri::command]
+pub fn update_dclone_settings(
+    state: State<DbState>,
+    settings: DCloneSettings,
+) -> Result<DCloneSettings, String> {
+    if settings.poll_interval_minutes < 5 || settings.poll_interval_minutes > 30 {
+        return Err("poll_interval_minutes must be between 5 and 30".to_string());
+    }
+    if settings.notify_threshold < 3 || settings.notify_threshold > 6 {
+        return Err("notify_threshold must be between 3 and 6".to_string());
+    }
+    let valid_regions = ["Americas", "Europe", "Asia"];
+    if !valid_regions.contains(&settings.preferred_region.as_str()) {
+        return Err("Invalid region".to_string());
+    }
+    let valid_modes = ["Non-Ladder", "Ladder", "Hardcore Non-Ladder", "Hardcore Ladder"];
+    if !valid_modes.contains(&settings.preferred_mode.as_str()) {
+        return Err("Invalid mode".to_string());
+    }
+
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+    conn.execute(
+        "INSERT INTO dclone_settings
+            (id, auto_fetch_enabled, poll_interval_minutes, notify_threshold,
+             preferred_region, preferred_mode, last_poll_at, last_notified_progress)
+         VALUES (1, ?1, ?2, ?3, ?4, ?5, ?6, ?7)
+         ON CONFLICT(id) DO UPDATE SET
+            auto_fetch_enabled = ?1,
+            poll_interval_minutes = ?2,
+            notify_threshold = ?3,
+            preferred_region = ?4,
+            preferred_mode = ?5,
+            last_poll_at = ?6,
+            last_notified_progress = ?7",
+        rusqlite::params![
+            settings.auto_fetch_enabled as i64,
+            settings.poll_interval_minutes,
+            settings.notify_threshold,
+            settings.preferred_region,
+            settings.preferred_mode,
+            settings.last_poll_at,
+            settings.last_notified_progress,
+        ],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(settings)
+}
+
+#[tauri::command]
+pub async fn poll_dclone_api(state: State<'_, DbState>) -> Result<Vec<DCloneProgress>, String> {
+    // Check rate limit
+    {
+        let conn = state.0.lock().map_err(|e| e.to_string())?;
+        let last_poll: Option<String> = conn
+            .query_row(
+                "SELECT last_poll_at FROM dclone_settings WHERE id = 1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap_or(None);
+
+        if let Some(last) = last_poll {
+            if let Ok(last_dt) = chrono::DateTime::parse_from_rfc3339(&last) {
+                let elapsed = Utc::now().signed_duration_since(last_dt.with_timezone(&Utc));
+                if elapsed.num_seconds() < 300 {
+                    let mut stmt = conn
+                        .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
+                        .map_err(|e| e.to_string())?;
+                    let records = stmt
+                        .query_map([], |row| {
+                            Ok(DCloneProgress {
+                                region: row.get(0)?,
+                                mode: row.get(1)?,
+                                progress: row.get(2)?,
+                                last_updated: row.get(3)?,
+                                is_manual_override: row.get::<_, i64>(4)? != 0,
+                            })
+                        })
+                        .map_err(|e| e.to_string())?
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(|e| e.to_string())?;
+                    return Ok(records);
+                }
+            }
+        }
+    }
+
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+
+    let response = client
+        .get("https://diablo2.io/api/dclone")
+        .send()
+        .await
+        .map_err(|e| format!("Network error: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(format!("API returned HTTP {}", response.status()));
+    }
+
+    let raw_text = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    let records: Vec<DCloneApiRecord> = serde_json::from_str(&raw_text)
+        .map_err(|e| format!("Failed to parse API response: {}; raw body: {}", e, &raw_text[..raw_text.len().min(200)]))?;
+
+    let now = Utc::now().to_rfc3339();
+
+    {
+        let conn = state.0.lock().map_err(|e| e.to_string())?;
+
+        for record in &records {
+            let region = match record.region.as_str() {
+                "1" => "Americas",
+                "2" => "Europe",
+                "3" => "Asia",
+                code => { eprintln!("[dclone] Unknown region code: {}", code); continue; }
+            };
+            let mode = match record.mode.as_str() {
+                "1" => "Non-Ladder",
+                "2" => "Ladder",
+                "3" => "Hardcore Non-Ladder",
+                "4" => "Hardcore Ladder",
+                code => { eprintln!("[dclone] Unknown mode code: {}", code); continue; }
+            };
+
+            let is_override: bool = conn
+                .query_row(
+                    "SELECT is_manual_override FROM dclone_progress WHERE region = ?1 AND mode = ?2",
+                    rusqlite::params![region, mode],
+                    |row| row.get::<_, i64>(0),
+                )
+                .map(|v| v != 0)
+                .unwrap_or(false);
+
+            if is_override { continue; }
+
+            let raw_progress: i64 = record.progress.parse().unwrap_or(1);
+            let progress = raw_progress.clamp(1, 6);
+
+            if let Err(e) = conn.execute(
+                "INSERT INTO dclone_progress (region, mode, progress, last_updated, is_manual_override)
+                 VALUES (?1, ?2, ?3, ?4, 0)
+                 ON CONFLICT(region, mode) DO UPDATE SET progress = ?3, last_updated = ?4, is_manual_override = 0",
+                rusqlite::params![region, mode, progress, now],
+            ) {
+                eprintln!("[dclone] DB upsert failed for {}/{}: {}", region, mode, e);
+            }
+        }
+
+        let _ = conn.execute(
+            "UPDATE dclone_settings SET last_poll_at = ?1 WHERE id = 1",
+            rusqlite::params![now],
+        );
+
+        let mut stmt = conn
+            .prepare("SELECT region, mode, progress, last_updated, is_manual_override FROM dclone_progress ORDER BY region, mode")
+            .map_err(|e| e.to_string())?;
+        let result = stmt
+            .query_map([], |row| {
+                Ok(DCloneProgress {
+                    region: row.get(0)?,
+                    mode: row.get(1)?,
+                    progress: row.get(2)?,
+                    last_updated: row.get(3)?,
+                    is_manual_override: row.get::<_, i64>(4)? != 0,
+                })
+            })
+            .map_err(|e| e.to_string())?
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e.to_string())?;
+        Ok(result)
+    }
 }
 
 #[tauri::command]
